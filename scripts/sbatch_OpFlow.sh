@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:00:00
+#SBATCH --time=20:00
 #SBATCH -n 1
-#SBATCH --mem=15G
+#SBATCH --mem=14G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=no@stanford.edu
@@ -20,16 +20,16 @@ module load freesurfer/7.3.2
 subj=$1
 
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/DS_surf_ts_ISPOT.sh $1
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_ISPOT.sh $1
 
 # cd to scripts directory
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys
+cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # Center and bandpass the data
-matlab -nodisplay -r "C_and_BP_ISPOT('$subj')"
+# matlab -nodisplay -r "C_and_BP_ISPOT('$subj')"
 
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl('$subj')"
+# matlab -nodisplay -r "OpFl('$subj')"
 
 # GNG filepaths
 gngIn=/scratch/users/apines/data/ispot/${subj}/OpFl_GNG.mat
@@ -44,13 +44,13 @@ conIn=/scratch/users/apines/data/ispot/${subj}/OpFl_CON.mat
 conOut=/scratch/users/apines/data/ispot/${subj}/PGGDist_CON.mat
 
 # Calculate Angular Distance: GNG
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $gngIn $gngOut
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $gngIn $gngOut
 
 # Calculate Angular Distance: NCF
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $ncfIn $ncfOut
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $ncfIn $ncfOut
 
 # Con faces
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $conIn $conOut
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $conIn $conOut
 
 # make output directory outside scratch
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/ispot/${subj}

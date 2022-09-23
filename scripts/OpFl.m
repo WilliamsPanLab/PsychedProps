@@ -9,23 +9,23 @@ s = 1; % R(u), regularizing functional, scales Tikhonov regularization more rapi
 %%%%%%%%%%%%%%%%%%%%
 
 % load in data
-fpL=['/scratch/users/apines/data/ispot/' subj '/gng_lh.mgh']
-fpR=['/scratch/users/apines/data/ispot/' subj '/gng_rh.mgh']
+fpL=['/scratch/users/apines/data/ispot/' subj '/gng_lh_cent.mgh']
+fpR=['/scratch/users/apines/data/ispot/' subj '/gng_rh_cent.mgh']
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;
 % squeeze to get rid of extra dimensions
 TRs_l_g=squeeze(dataL);
 TRs_r_g=squeeze(dataR);
 % noncon
-fpL=['/scratch/users/apines/data/ispot/' subj '/noncon_lh.mgh']
-fpR=['/scratch/users/apines/data/ispot/' subj '/noncon_rh.mgh']
+fpL=['/scratch/users/apines/data/ispot/' subj '/noncon_lh_cent.mgh']
+fpR=['/scratch/users/apines/data/ispot/' subj '/noncon_rh_cent.mgh']
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;
 TRs_l_ncf=squeeze(dataL);
 TRs_r_ncf=squeeze(dataR);
 % con
-fpL=['/scratch/users/apines/data/ispot/' subj '/con_lh.mgh']
-fpR=['/scratch/users/apines/data/ispot/' subj '/con_rh.mgh']
+fpL=['/scratch/users/apines/data/ispot/' subj '/con_lh_cent.mgh']
+fpR=['/scratch/users/apines/data/ispot/' subj '/con_rh_cent.mgh']
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;
 TRs_l_con=squeeze(dataL);
