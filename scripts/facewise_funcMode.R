@@ -53,6 +53,7 @@ for (s in 1:nrow(subjList)){
            difR=read.csv(difFP_R)
            # measure evoked difference
            df$Activation_Shift[s]=sum(abs(difR))
+	print(s)
 }
 
 # saveout dataframe

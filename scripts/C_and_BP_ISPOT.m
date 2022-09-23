@@ -1,11 +1,14 @@
 function C_and_BP_ISPOT(subj)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
-% define filter
+% define filter based on acquisition speed
+LegacyTR_i=2.5;
+LegacyTR_r=2;
+MBTR=.71;
 % sampling frequency per second
-F=1/.8
+F=1/LegacyTR_i;
 % nyquist
-Ny=F/2
+Ny=F/2;
 % lower and upper limit
 BW_Hz = [.009 .08];
 bp_order=2;

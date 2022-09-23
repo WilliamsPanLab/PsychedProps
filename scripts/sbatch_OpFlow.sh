@@ -26,10 +26,10 @@ subj=$1
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # Center and bandpass the data
-# matlab -nodisplay -r "C_and_BP_ISPOT('$subj')"
+matlab -nodisplay -r "C_and_BP_ISPOT('$subj')"
 
 # Calculate Optical Flow
-# matlab -nodisplay -r "OpFl('$subj')"
+matlab -nodisplay -r "OpFl('$subj')"
 
 # GNG filepaths
 gngIn=/scratch/users/apines/data/ispot/${subj}/OpFl_GNG.mat
