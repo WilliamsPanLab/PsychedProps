@@ -188,7 +188,7 @@ for TRP=1:(TR_n-1)
         TRPC=TRPC+1;
 end
 
-save(['/scratch/users/apines/data/ispot/' subj '/OpFl_rs.mat'],'us')
+save(['/scratch/users/apines/data/DES/' subj '/OpFl_rs.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% RS 2
@@ -247,7 +247,7 @@ for TRP=1:(TR_n-1)
         TRPC=TRPC+1;
 end
 
-save(['/scratch/users/apines/data/ispot/' subj '/OpFl_rs2.mat'],'us')
+save(['/scratch/users/apines/data/DES/' subj '/OpFl_rs2.mat'],'us')
 
 %
 %%%%%
@@ -267,58 +267,58 @@ save(['/scratch/users/apines/data/ispot/' subj '/OpFl_rs2.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake functional data (on surface)
 % handle input data
-disp('Size of input data')
-sizeInDl=size(TRs_l_g)
-sizeInDr=size(TRs_r_g)
-disp('Number of TRs detected L and R')
-TR_n=sizeInDl(2)
-sizeInDr(2)
-assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
+%disp('Size of input data')
+%sizeInDl=size(TRs_l_g)
+%sizeInDr=size(TRs_r_g)
+%disp('Number of TRs detected L and R')
+%TR_n=sizeInDl(2)
+%sizeInDr(2)
+%assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
 
 % left hemi
-disp('converting left hemi to struct')
-fl=struct;
+%disp('converting left hemi to struct')
+%fl=struct;
 % populate struct
-for TRP=1:TR_n;
-	fl.TRs{TRP}=TRs_l_g(:,TRP);
-end
+%for TRP=1:TR_n;
+%	fl.TRs{TRP}=TRs_l_g(:,TRP);
+%end
 
 % r h
-disp('converting right hemi to struct')
-fr=struct;
-for TRP=1:TR_n;
-	fr.TRs{TRP}=TRs_r_g(:,TRP);
-end
+%disp('converting right hemi to struct')
+%fr=struct;
+%for TRP=1:TR_n;
+%	fr.TRs{TRP}=TRs_r_g(:,TRP);
+%end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% compute optical flow on every pair of sequential TRs
 % initialize output struct
-us=struct;
-disp('Computing optical flow: Go No Go');
+%us=struct;
+%disp('Computing optical flow: Go No Go');
 
 % initialize TRP counter: for plopping u outputs into master struct w/o/r/t their segment
 % note trp = tr pair
-TRPC=1;
+%TRPC=1;
 
 % loop over each TR-Pair: 1 fewer pair than number of TRs
-for TRP=1:(TR_n-1)
+%for TRP=1:(TR_n-1)
 	% print TR pair iter
-	TRP
+%	TRP
 	% Compute decomposition.
-	tic;
+%	tic;
 	% pull out adjacent frames
-	u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
+%	u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
 	% throw u into struct
-	us.vf_left{TRPC}=u;
+%	us.vf_left{TRPC}=u;
 	% now right hemi
-	u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
-	toc;
+%	u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
+%	toc;
 	% throw u into struct
-	us.vf_right{TRPC}=u;
+%	us.vf_right{TRPC}=u;
 	% update TR pair counter, which should increase +1 across segments
-	TRPC=TRPC+1;
-end
+%	TRPC=TRPC+1;
+%end
 
-save(['/scratch/users/apines/data/ispot/' subj '/OpFl_GNG.mat'],'us')
+%save(['/scratch/users/apines/data/ispot/' subj '/OpFl_GNG.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% NONCON FACES
@@ -326,58 +326,58 @@ save(['/scratch/users/apines/data/ispot/' subj '/OpFl_GNG.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake functional data (on surface)
 % handle input data
-disp('Size of input data')
-sizeInDl=size(TRs_l_ncf)
-sizeInDr=size(TRs_r_ncf)
-disp('Number of TRs detected L and R')
-TR_n=sizeInDl(2)
-sizeInDr(2)
-assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
+%disp('Size of input data')
+%sizeInDl=size(TRs_l_ncf)
+%sizeInDr=size(TRs_r_ncf)
+%disp('Number of TRs detected L and R')
+%TR_n=sizeInDl(2)
+%sizeInDr(2)
+%assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
 
 % left hemi
-disp('converting left hemi to struct')
-fl=struct;
+%disp('converting left hemi to struct')
+%fl=struct;
 % populate struct
-for TRP=1:TR_n;
-        fl.TRs{TRP}=TRs_l_ncf(:,TRP);
-end
+%for TRP=1:TR_n;
+%        fl.TRs{TRP}=TRs_l_ncf(:,TRP);
+%end
 
 % r h
-disp('converting right hemi to struct')
-fr=struct;
-for TRP=1:TR_n;
-        fr.TRs{TRP}=TRs_r_ncf(:,TRP);
-end
+%disp('converting right hemi to struct')
+%fr=struct;
+%for TRP=1:TR_n;
+%        fr.TRs{TRP}=TRs_r_ncf(:,TRP);
+%end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% compute optical flow on every pair of sequential TRs
 % initialize output struct
-us=struct;
-disp('Computing optical flow: NonCon Faces');
+%us=struct;
+%disp('Computing optical flow: NonCon Faces');
 
 % initialize TRP counter: for plopping u outputs into master struct w/o/r/t their segment
 % note trp = tr pair
-TRPC=1;
+%TRPC=1;
 
 % loop over each TR-Pair: 1 fewer pair than number of TRs
-for TRP=1:(TR_n-1)
+%for TRP=1:(TR_n-1)
         % print TR pair iter
-        TRP
+%        TRP
         % Compute decomposition.
-        tic;
+%        tic;
         % pull out adjacent frames
-        u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
+%        u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
         % throw u into struct
-        us.vf_left{TRPC}=u;
+%        us.vf_left{TRPC}=u;
         % now right hemi
-        u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
-        toc;
+%        u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
+%        toc;
         % throw u into struct
-        us.vf_right{TRPC}=u;
+%        us.vf_right{TRPC}=u;
         % update TR pair counter, which should increase +1 across segments
-        TRPC=TRPC+1;
-end
+%        TRPC=TRPC+1;
+%end
 
-save(['/scratch/users/apines/data/ispot/' subj '/OpFl_NCF.mat'],'us')
+%save(['/scratch/users/apines/data/ispot/' subj '/OpFl_NCF.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% CON FACES
@@ -385,55 +385,55 @@ save(['/scratch/users/apines/data/ispot/' subj '/OpFl_NCF.mat'],'us')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake functional data (on surface)
 % handle input data
-disp('Size of input data')
-sizeInDl=size(TRs_l_con)
-sizeInDr=size(TRs_r_con)
-disp('Number of TRs detected L and R')
-TR_n=sizeInDl(2)
-sizeInDr(2)
-assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
+%disp('Size of input data')
+%sizeInDl=size(TRs_l_con)
+%sizeInDr=size(TRs_r_con)
+%disp('Number of TRs detected L and R')
+%TR_n=sizeInDl(2)
+%sizeInDr(2)
+%assert(sizeInDl(2) == sizeInDr(2), 'Unequal time series length between hemispheres')
 
 % left hemi
-disp('converting left hemi to struct')
-fl=struct;
+%disp('converting left hemi to struct')
+%fl=struct;
 % populate struct
-for TRP=1:TR_n;
-        fl.TRs{TRP}=TRs_l_con(:,TRP);
-end
+%for TRP=1:TR_n;
+%        fl.TRs{TRP}=TRs_l_con(:,TRP);
+%end
 
 % r h
-disp('converting right hemi to struct')
-fr=struct;
-for TRP=1:TR_n;
-        fr.TRs{TRP}=TRs_r_con(:,TRP);
-end
+%disp('converting right hemi to struct')
+%fr=struct;
+%for TRP=1:TR_n;
+%        fr.TRs{TRP}=TRs_r_con(:,TRP);
+%end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% compute optical flow on every pair of sequential TRs
 % initialize output struct
-us=struct;
-disp('Computing optical flow: Con Faces');
+%us=struct;
+%disp('Computing optical flow: Con Faces');
 
 % initialize TRP counter: for plopping u outputs into master struct w/o/r/t their segment
 % note trp = tr pair
-TRPC=1;
+%TRPC=1;
 
 % loop over each TR-Pair: 1 fewer pair than number of TRs
-for TRP=1:(TR_n-1)
+%for TRP=1:(TR_n-1)
         % print TR pair iter
-        TRP
+%        TRP
         % Compute decomposition.
-        tic;
+%        tic;
         % pull out adjacent frames
-        u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
+%        u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
         % throw u into struct
-        us.vf_left{TRPC}=u;
+%        us.vf_left{TRPC}=u;
         % now right hemi
-        u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
-        toc;
+%        u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
+%        toc;
         % throw u into struct
-        us.vf_right{TRPC}=u;
+%        us.vf_right{TRPC}=u;
         % update TR pair counter, which should increase +1 across segments
-        TRPC=TRPC+1;
-end
+%        TRPC=TRPC+1;
+%end
 
-save(['/scratch/users/apines/data/ispot/' subj '/OpFl_CON.mat'],'us')
+%save(['/scratch/users/apines/data/ispot/' subj '/OpFl_CON.mat'],'us')
