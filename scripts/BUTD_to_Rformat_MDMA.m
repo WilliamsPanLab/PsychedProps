@@ -3,7 +3,7 @@ function BUTD_to_Rformat_MDMA(subj,sesh)
 % filepaths
 childfp=['/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/' subj ];
 outFP_L=[childfp '/' subj '_' sesh '_rs_BUTD_L.mat'];
-outFP_L=[childfp '/' subj '_' sesh '_rs_BUTD_R.mat'];
+outFP_R=[childfp '/' subj '_' sesh '_rs_BUTD_R.mat'];
 % load in L     
 F_L=load(outFP_L);
 % load in R
@@ -13,6 +13,6 @@ matL=cell2mat(F_L.OutDf_L);
 matR=cell2mat(F_R.OutDf_R);
 csv_L=table(matL(:,:));
 csv_R=table(matR(:,:));
-writetable(csv_L,['/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/DES/' subj '/rs_BUTD_L.csv'])
-writetable(csv_R,['/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/DES/' subj '/rs_BUTD_R.csv'])
+writetable(csv_L,['/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/' subj '/' subj '_' sesh '_rs_BUTD_L.csv'])
+writetable(csv_R,['/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/' subj '/' subj '_' sesh '_rs_BUTD_R.csv'])
 
