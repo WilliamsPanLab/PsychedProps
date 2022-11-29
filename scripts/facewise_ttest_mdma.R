@@ -53,6 +53,9 @@ m2<-gsub(2,'ses-01',m2)
 m2<-gsub(3,'ses-02',m2)
 m2<-gsub(4,'ses-03',m2)
 
+# saveout sub-session-dose correspondence
+write.table(data.frame(p1,p2,m1,m2),'~/subjSeshDoseCorresp.csv',quote=F,col.names=F)
+
 # subjvec: no 4
 subjvec=c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17)
 
