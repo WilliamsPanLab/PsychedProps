@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=30:00
+#SBATCH --time=5:00:00
 #SBATCH -n 1
-#SBATCH --mem=15G
+#SBATCH --mem=85G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=no@stanford.edu
@@ -46,5 +46,6 @@ rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs.mat
 # ./run_Extract_BUTD_ResultantVecs_PL.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $rsOut /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}/${subj}_${sesh}_rs_BUTD_L.mat /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}/${subj}_${sesh}_rs_BUTD_R.mat
 
 # convert to R format
-matlab -nodisplay -r "BUTD_to_Rformat_MDMA('$subj','$sesh')"
+# matlab -nodisplay -r "BUTD_to_Rformat_MDMA('$subj','$sesh')"
 
+./run_Extract_BUTD_ResultantVecs_Gran.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L.mat $childfp/OpFl_timeseries_R.mat
