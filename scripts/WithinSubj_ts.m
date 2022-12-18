@@ -79,23 +79,23 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% load in baseline session
 	bv=load(bvFP);
 	% pull out time series of interest
-	bv=squeeze(bv.LvertTS(:,2,:));
+	bv=squeeze(bv.LvertTS(:,3,:));
 	bvr=load(bvFPr);
-	bvr=squeeze(bvr.RvertTS(:,2,:));
+	bvr=squeeze(bvr.RvertTS(:,3,:));
 	% load in placebo session
 	p1=load(pFP);
-	p1=squeeze(p1.LvertTS(:,2,:));
+	p1=squeeze(p1.LvertTS(:,3,:));
 	p1r=load(pFPr);
-	p1r=squeeze(p1r.RvertTS(:,2,:));
+	p1r=squeeze(p1r.RvertTS(:,3,:));
 	% mdma sessions
 	m1=load(m1FP);
-	m1=squeeze(m1.LvertTS(:,2,:));
+	m1=squeeze(m1.LvertTS(:,3,:));
 	m1r=load(m1FPr);
-	m1r=squeeze(m1r.RvertTS(:,2,:));
+	m1r=squeeze(m1r.RvertTS(:,3,:));
 	m2=load(m2FP);
-	m2=squeeze(m2.LvertTS(:,2,:));
+	m2=squeeze(m2.LvertTS(:,3,:));
 	m2r=load(m2FPr);
-	m2r=squeeze(m2r.RvertTS(:,2,:));
+	m2r=squeeze(m2r.RvertTS(:,3,:));
 	% concat sober into one ts
 	sobLeft=horzcat(bv,p1);
 	sobRight=horzcat(bvr,p1r);
@@ -131,6 +131,8 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	ts=[tvec_L' tvec_R'];
 	% mafdr ps
 	fdred=mafdr(ps);
+	% print pre-thresh average of ts, positive reflects further distance from PG in unintox.
+	mean(ts)
 	% use it to thresh T's
 	ts(fdred>0.05)=0;
 	ts_L=ts(1:length(noMW_L));
