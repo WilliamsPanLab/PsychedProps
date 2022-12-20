@@ -7,22 +7,17 @@ import nibabel as nib
 import csv
 import tables
 from scipy.io import loadmat
+from scipy.io import savemat
 from sklearn.metrics import pairwise_distances
+import sklearn
 
-# call with "s number" as only argument
+# call with subj id and sesh as arguments
 
-snum = int(sys.argv[1])
+subjid = sys.argv[1]
+seshid = sys.argv[2] 
 
-# Load in subjects for filepaths
-s_file = open("/cbica/projects/pinesParcels/data/bblids.txt")
-sfile_contents = s_file. read()
-scontents_split = sfile_contents. splitlines()
-# get this specific subject
-sid=scontents_split[snum]
 # filepath of fcmat is
-fcfp="/scratch/users/apines/data/mdma/" + str(subjid) "/" + str(seshid) + "/" + str(subjid) "_" + str(seshid) "_5k_FC.csv"
-
-#### STOPPED HERE < CHANGE ABOVE TO CSV
+fcfp="/scratch/users/apines/data/mdma/" + str(subjid) + "/" + str(seshid) + "/" + str(subjid) + "_" + str(seshid) + "_5k_FC.csv"
 
 # load in the mat file
 fcmatrix= np.genfromtxt(fcfp,delimiter=',')
@@ -46,26 +41,27 @@ print("Minimum value is %f" % fcmatrix.min())
 neg_values = np.array([sum(fcmatrix[i,:] < 0) for i in range(N)])
 print("Negative values occur in %d rows" % sum(neg_values > 0))
 
-
 # example subject 1 had no negative values survive, but imagine other subjects might we set these to zero
 fcmatrix[fcmatrix < 0] = 0
 
 # Now we are dealing with sparse vectors. Cosine similarity is used as affinity metric
 aff = 1 - pairwise_distances(fcmatrix, metric = 'cosine')
 
-
-### Commented out saving this: cubic can't hang with multiple 17734x17734 matrices saved per subject (few GB each)
-# Save affinity matrix
-# savepath= "/cbica/projects/pinesParcels/data/CombinedData/" + str(sid) + "/vertexwise_cos_affinmat.npy"
-
-# np.save(savepath, aff)
+# Save affinity matrix to scratch
+savepath="/scratch/users/apines/data/mdma/" + str(subjid) + "/" + str(seshid) + "/" + str(subjid) + "_" + str(seshid) + "_AffinMat.csv"
+np.save(savepath, aff)
 
 # save checkpoint reached, now compute dmap
 from mapalign import embed
 emb, res = embed.compute_diffusion_map(aff, alpha = 0.5, return_result=True)
 
-savepathe= "/cbica/projects/pinesParcels/data/CombinedData/" + str(sid) + "/vertexwise_emb.npy"
-savepathr= "/cbica/projects/pinesParcels/data/CombinedData/" + str(sid) + "/vertexwise_res.npy"
+savepathe="/scratch/users/apines/data/mdma/" + str(subjid) + "/" + str(seshid) + "/" + str(subjid) + "_" + str(seshid) + "_vertexwise_emb.npy"
+savepathr="/scratch/users/apines/data/mdma/" + str(subjid) + "/" + str(seshid) + "/" + str(subjid) + "_" + str(seshid) + "_vertexwise_res.npy"
 
 np.save(savepathe, emb)
 np.save(savepathr, res)
+
+# saveout in matlab-friendly format by converting to structure
+savepathe_mat="/scratch/users/apines/data/mdma/" + str(subjid) + "/" + str(seshid) + "/" + str(subjid) + "_" + str(seshid) + "_vertexwise_PG1.mat"
+savemat(savepathe_mat,{'pg':emb[:,0]})
+

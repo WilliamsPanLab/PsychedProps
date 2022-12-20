@@ -21,23 +21,8 @@ F_R=faces_r;
 % vertices V
 V_R=vx_r;
 
-% use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
-mw_L=zeros(1,2562);
-mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,2562);
-mw_R(mwIndVec_r)=1;
-% make medial wall vector
-g_noMW_combined_L=setdiff([1:2562],mwIndVec_l);
-g_noMW_combined_R=setdiff([1:2562],mwIndVec_r);
-
 %%%%%%%%%%%%%%%%%%%%%%%%
-data=zeros(1,2562);
-data(g_noMW_combined_L)=VertVecL;
+data=VertVecL;
 
 %%%%%%% fixed colorscale varities
 
@@ -47,8 +32,8 @@ data(g_noMW_combined_L)=VertVecL;
 
 
 %%% for red/blue 0-centered
-mincol=-10;
-maxcol=10;
+mincol=-9;
+maxcol=9;
 custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
 custommap(126,:)=[.5 .5 .5];
@@ -114,8 +99,7 @@ custommap(126,:)=[.5 .5 .5];
 
 figure
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
-
-asub = subaxis(2,2,1);
+asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
@@ -128,12 +112,10 @@ shading flat;
 camlight;
 	alpha(1)
 
-length(faces)
-
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
-asub = subaxis(2,2,4,'Holdaxis',1);
+asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
@@ -156,12 +138,11 @@ set(gca,'CLim',[mincol,maxcol]);
 
 
 %%% right hemisphere
-data=zeros(1,2562);
-data(g_noMW_combined_R)=VertVecR;
+data=VertVecR;
 
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
-asub = subaxis(2,2,2,'Holdaxis',1);
+asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
@@ -182,7 +163,7 @@ alpha(1)
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
-asub = subaxis(2,2,3,'Holdaxis',1);
+asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
 colormap(custommap)
@@ -201,10 +182,11 @@ set(gcf,'Color','w')
 
 
 set(gca,'CLim',[mincol,maxcol]);
-%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-c=colorbar;
-%c=colorbar('XTickLabel',{'.45', '.50', '.55'},'XTick', .45:.05:.55)
+%%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+colorbar
+c=colorbar
 c.Location='southoutside'
-%colormap(custommap)
+
+colormap(custommap)
 
 print(Fn,'-dpng')
