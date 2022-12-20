@@ -1,4 +1,4 @@
-function vis_fs4PG(subj,sesh)
+function vis_fs4PG(subj,sesh,fn)
 % use same masking procedure as fc calc to visualize dmap output
 % add filepaths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti'))
@@ -26,4 +26,4 @@ PG_L=zeros(1,2562);
 PG_L(setdiff([1:2562],unionMask_L))=PG(1:length(setdiff([1:2562],unionMask_L)));
 PG_R=zeros(1,2562);
 PG_R(setdiff([1:2562],unionMask_R))=PG((length(setdiff([1:2562],unionMask_L))+1):end);
-Vis_Vertvec(PG_L,PG_R,'~/testPG.png')
+Vis_Vertvec(PG_L,PG_R,fn)

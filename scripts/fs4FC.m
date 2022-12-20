@@ -1,7 +1,10 @@
 function fs4FC(subj,sesh)
 % add filepaths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti'))
-%fs4 fp
+% convert char inputs to string
+%subj=string(subj);
+%sesh=string(sesh);
+%fs4 fp;
 vw_ts_l_p=['/scratch/users/apines/data/mdma/' subj '/' sesh '/' subj '_' sesh '_L_AggTS_3k.mgh'];
 vw_ts_r_p=['/scratch/users/apines/data/mdma/' subj '/' sesh '/' subj '_' sesh '_R_AggTS_3k.mgh'];
 vw_ts_l=MRIread(vw_ts_l_p);
