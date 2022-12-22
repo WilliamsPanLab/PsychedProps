@@ -44,7 +44,17 @@ CR=np.array(gif_CR.agg_data()[:])
 
 ### import OpFl amplitude
 
-### use hcp_utils struct thalamus to extract thalamic time series
+### import confounds file for GS
+
+#### IMPORT .TXT FILES FOR SCHAFER 100, EXTRACT ROI 50 and 100
+# import txt for tian subcort atlas lvl 3
+# for time series (plot) and PSD (psd)
+import matplotlib.pyplot as plt
+plt.subplot(211)
+plt.plot(ax, s)
+plt.subplot(212)
+plt.psd(s, 512, 1 / diff)
+
 
 #### extract time series and PG indices for frontal lobe
 # get indices in appropriate format
