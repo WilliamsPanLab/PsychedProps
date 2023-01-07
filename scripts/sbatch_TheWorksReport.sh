@@ -79,13 +79,13 @@ wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
 
 
 # Optical flow streamlines
-matlab -nodisplay -r "OpFlStreamlines('$subj',$sesh')"
+#matlab -nodisplay -r "OpFlStreamlines('$subj',$sesh')"
 
 # optical flow CFC
 
 # make grayplots of 3k mgh file (thalamus, whole-brain, OpFl Ampltiude) along with time series (GS, thalamus, precuneus, OpFl Amplitude)
 # bring it all together: generate grayplots and power spectral density within
-python Viz_grayplots.py $subj $sesh $childfp
+#python Viz_grayplots.py $subj $sesh $childfp
 
 
 #### THIS WILL COME AFTER SESH-LEVEL RUNS ARE COMPLETED INDIVIDUALLY
