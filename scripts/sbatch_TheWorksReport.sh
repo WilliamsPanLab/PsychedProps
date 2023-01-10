@@ -30,7 +30,7 @@ sesh=$2
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
 
 # Calculate Optical Flow
-#matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
@@ -43,7 +43,7 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 ./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
 
 # make a simple opfl txt file with whole-cortex amplitude and SD time series
-matlab -nodisplay -r "OpFl_AmpSD('$subj','$sesh')"
+# matlab -nodisplay -r "OpFl_AmpSD('$subj','$sesh')"
 
 # this is dumb, but switch back
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
@@ -79,7 +79,8 @@ wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
 
 
 # Optical flow streamlines
-#matlab -nodisplay -r "OpFlStreamlines('$subj',$sesh')"
+cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
+matlab -nodisplay -r "OpFlStreamlines('$subj',$sesh','Streamlines')"
 
 # optical flow CFC
 

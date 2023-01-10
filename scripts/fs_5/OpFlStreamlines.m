@@ -51,53 +51,34 @@ S = [X(idx), Y(idx)];
 % Set parameters.
 nmax = max(sqrt(sum((plotVF).^2, 2)));
 h = 0.1/nmax;
-maxit = 70;
-lw = 1;
+maxit = 50;
+lw = .7;
 
 % Streamlines for first component.
 v = plotVF;
 
-F = createFigure('summer', -1, 1, -1, 1);
+%F = createFigure('summer', -1, 1, -1, 1);
 % read in curvature as data for background surf
-curv=read_curv('/share/software/user/open/freesurfer/6.0.0/subjects/fsaverage5/surf/lh.curv']);
+curv=read_curv('/share/software/user/open/freesurfer/6.0.0/subjects/fsaverage5/surf/lh.curv');
 % scale cortical mantle
-vx_l=vx_l./100;
+vx_l=vx_l./101;
+% move z coord of cortical mantle backwards
+% vx_l(:,3)=vx_l(:,3)-1;
+figure
 % add cortical mantle %
 aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3),curv)
-streamlines2(P, v, S, h, maxit, 'summer', lw);
+colormap('gray')
+freezeColors;
+hold on
+streamlines3(P, v, S, h, maxit, 'summer', lw);
+view(2);
+daspect([1 1 1]);
+%h=get(gca,'Children');
+%set(gca,'Children',[h(76009) h(1:76008)]);
 %adjustFigure;
 % one rotation for insula
-savefigure(F, fullfile(childfp, filename), '-png', '-r600');
+%savefigure(F, fullfile(childfp, filename), '-png', '-r600');
+print(fullfile(childfp, filename),'-dpng')
 %%%%%%%%%%%%%%
 
-
-
-
-
-
-
-F = createFigure3('summer');
-% Create white sphere so that manifold is not transparent.
-[x,y,z] = sphere;
-idx = all(z >= 0, 2);
-surf(x(idx, :), y(idx, :), z(idx, :), 'FaceColor', 'white', 'EdgeColor', 'white');
-% Plot streamlines.
-streamlines3(P, v, S, h, maxit, 'summer', lw);
-set(gca, 'ZLim', [0, 1]);
-set(gca, 'XLim', [-1, 1]);
-set(gca, 'YLim', [-1, 1]);
-adjustFigure3;
-view(3);
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-600dpi.png', filename, k, l)), '-png', '-r600');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-1200dpi.png', filename, k, l)), '-png', '-r1200');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-600dpi.jpg', filename, k, l)), '-jpg', '-r600', '-q100');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-1200dpi.jpg', filename, k, l)), '-jpg', '-r1200', '-q100');
-
-% Rotate by pi.
-[az, el] = view;
-view(az + 180, el);
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-rotated-600dpi.png', filename, k, l)), '-png', '-r600');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-rotated-1200dpi.png', filename, k, l)), '-png', '-r1200');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-rotated-600dpi.jpg', filename, k, l)), '-jpg', '-r600', '-q100');
-savefigure(F, fullfile(renderPath, 'streamu3', sprintf('%s-%i-%i-rotated-1200dpi.jpg', filename, k, l)), '-jpg', '-r1200', '-q100');
 
