@@ -564,7 +564,7 @@ for f=1:1:10242
     end
 end
 for f=1:1:10242
-    for m=1:1:8
+    for m=1:1:3
         for tp=1:1:lenOpFl
             if isempty(RvertTS{f,m,tp})
                 RvertTS_num(f,m,tp) = -999;
@@ -576,6 +576,6 @@ for f=1:1:10242
 end
 % saveout
 %outFP_L=['/cbica/projects/pinesParcels/results/PWs/Proced/' subj '/' subj '_run_' runNum '_BUTD_L_resultantVecs_masked_ts.mat'];
-save(outFP_L,'LvertTS_numfs5','-v7.3')
+save(outFP_L,'LvertTS_num','-v7.3')
 %outFP_R=['/cbica/projects/pinesParcels/results/PWs/Proced/' subj '/' subj '_run_' runNum '_BUTD_R_resultantVecs_masked_ts.mat'];
-save(outFP_R,'RvertTS_numfs5','-v7.3')
+save(outFP_R,'RvertTS_num','-v7.3')

@@ -4,8 +4,8 @@ addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
-surfL = [SubjectsFolder '/lh.sphere'];
-surfR = [SubjectsFolder '/rh.sphere'];
+surfL = [SubjectsFolder '/lh.inflated'];
+surfR = [SubjectsFolder '/rh.inflated'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -20,9 +20,22 @@ V_L=vx_l;
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
+%%%% medial wall stuff
+
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+mwIndVec_r = read_medial_wall_label(surfMR);
+% make binary "isn't medial wall" vector for vertices
+mw_L=ones(1,10242);
+mw_L(mwIndVec_l)=0;
+mw_R=ones(1,10242);
+mw_R(mwIndVec_r)=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-data=VertVecL;
+plotdata=zeros(1,10242);
+plotdata(logical(mw_L))=VertVecL;
 
 %%%%%%% fixed colorscale varities
 
@@ -32,12 +45,11 @@ data=VertVecL;
 
 
 %%% for red/blue 0-centered
-mincol=-9;
-maxcol=9;
-custommap=colormap(b2r(mincol,maxcol));
+mincol=5;
+maxcol=13;
+%custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-custommap(126,:)=[.5 .5 .5];
-
+%custommap(126,:)=[.5 .5 .5];
 % blue-orange color scheme
 %BO_cm=inferno(9);
 %BO_cm(1,:)=[49 197 244];
@@ -55,7 +67,8 @@ custommap(126,:)=[.5 .5 .5];
 %interpsteps=[0 .125 .25 .375 .5 .625 .75 .875 1];
 %BO_cm=interp1(interpsteps,BO_cm,linspace(0,1,255));
 %custommap=BO_cm;
-%custommap=colormap(inferno);
+custommap=colormap(parula);
+custommap(1,:)=[.5 .5 .5];
 
 %%% matches circular hist
 % for 180 degree max
@@ -101,7 +114,7 @@ figure
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
 view([90 0]);
 colormap(custommap)
 daspect([1 1 1]);
@@ -116,7 +129,7 @@ set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
 colormap(custommap)
@@ -138,12 +151,13 @@ set(gca,'CLim',[mincol,maxcol]);
 
 
 %%% right hemisphere
-data=VertVecR;
+plotdata=zeros(1,10242);
+plotdata(logical(mw_R))=VertVecR;
 
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
 colormap(custommap)
@@ -164,7 +178,7 @@ set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
 view([90 0]);
 colormap(custommap)
 caxis([mincol; maxcol]);
@@ -183,9 +197,9 @@ set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
 %%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-colorbar
-c=colorbar
-c.Location='southoutside'
+%colorbar
+%c=colorbar
+%c.Location='southoutside'
 
 colormap(custommap)
 

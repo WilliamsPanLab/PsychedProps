@@ -56,8 +56,14 @@ subjPrefix=repmat('sub-MDMA0',17,1);
 subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17"];
 subjList=strcat(subjPrefix,subjSuffix')
 
+% initiliaze conjunction vector
+BUconjVec_L=zeros(1,length(noMW_L));
+BUconjVec_R=zeros(1,length(noMW_R));
+TDconjVec_L=zeros(1,length(noMW_L));
+TDconjVec_R=zeros(1,length(noMW_R));
 % for each subj except 4
-for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
+%for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
+for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15]
 	% get session info
 	seshInfo=subSeshDose{s,2:5};
 	bvFP=[commonFP subjList(s) '/' seshInfo{1} '/OpFl_timeseries_L_fs5.mat'];
@@ -140,8 +146,19 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	ts_L=ts(1:length(noMW_L));
 	ts_R=ts((length(noMW_L)+1):length(ts));
 	% png out filename
-	pngFN=['~/' subjList(s) '_ts.png'];
+%	pngFN=['~/' subjList(s) '_ts.png'];
 	% visfacevec of threshed T's
-	Vis_VertvecFs5(ts_L,ts_R,strjoin(pngFN,''))
+%	Vis_VertvecFs5(ts_L,ts_R,strjoin(pngFN,''))
+	% if T>0, +1 to conj BUvectors
+	ts_L_boolBU=ts_L>0;
+	ts_R_boolBU=ts_R>0;
+	BUconjVec_L=BUconjVec_L+ts_L_boolBU;
+	BUconjVec_R=BUconjVec_R+ts_R_boolBU;
+	% if T<0, +1 to conj TDvectors
+	ts_L_boolTD=ts_L<0;
+	ts_R_boolTD=ts_R<0;
+	TDconjVec_L=TDconjVec_L+ts_L_boolTD;
+	TDconjVec_R=TDconjVec_R+ts_R_boolTD;
 end
-
+Vis_VertvecFs5(BUconjVec_L,BUconjVec_R,'~/ConjunctionBU.png')
+Vis_VertvecFs5(TDconjVec_L,TDconjVec_R,'~/ConjunctionTD.png')
