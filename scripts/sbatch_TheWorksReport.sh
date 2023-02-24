@@ -24,23 +24,23 @@ subj=$1
 sesh=$2
 
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
+# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
 # cd to scripts directory
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
+# cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
 
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+# matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
 # RS filepaths
-childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
-rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
-rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
+# childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
+# rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
+# rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 
 # make output directory outside scratch
-mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
+# mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
-./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
+# ./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
 
 # make a simple opfl txt file with whole-cortex amplitude and SD time series
 # matlab -nodisplay -r "OpFl_AmpSD('$subj','$sesh')"
@@ -68,15 +68,22 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 # extract ROIs into text file (50 and 100 are precun)
 #wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
 
-# extract time course of thalamus
-#rs1xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-#rs2xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-#SubcortTS1=${childfp}_${subj}_${sesh}_SubCortROIS1.txt
-#SubcortTS2=${childfp}_${subj}_${sesh}_SubCortROIS2.txt
-#wb_command -cifti-convert -to-text $rs1xcpSubcort_fp $SubcortTS1
-#wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
+# extract time course of subcortex
+rs1xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+rs2xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+SubcortTS1=${childfp}_${subj}_${sesh}_SubCortROIS1.txt
+SubcortTS2=${childfp}_${subj}_${sesh}_SubCortROIS2.txt
+wb_command -cifti-convert -to-text $rs1xcpSubcort_fp $SubcortTS1
+wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
 # should match labels here https://github.com/yetianmed/subcortex/blob/master/Group-Parcellation/3T/Subcortex-Only/Tian_Subcortex_S3_3T_label.txt
 
+# extract GS from tsv
+rs1xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+rs2xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+
+# extract amygdalar TS
+
+# plot both together
 
 # Optical flow streamlines
 #cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
