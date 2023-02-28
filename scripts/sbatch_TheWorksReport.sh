@@ -73,21 +73,21 @@ xcpd_outdir=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${
 rs1xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 rs2xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 wmxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-midxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+midxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 gambxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 emoxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS.txt
 SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS.txt
 SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS.txt
-SubcortTS4=${childfp}${subj}_${sesh}_mid_SubCortROIS.txt
+#SubcortTS4=${childfp}${subj}_${sesh}_mid_SubCortROIS.txt
 SubcortTS5=${childfp}${subj}_${sesh}_gambling_SubCortROIS.txt
 SubcortTS6=${childfp}${subj}_${sesh}_emotion_SubCortROIS.txt
 
 wb_command -cifti-convert -to-text $rs1xcpSubcort_fp $SubcortTS1
 wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
 wb_command -cifti-convert -to-text $wmxcpSubcort_fp $SubcortTS3
-wb_command -cifti-convert -to-text $midxcpSubcort_fp $SubcortTS4
+#wb_command -cifti-convert -to-text $midxcpSubcort_fp $SubcortTS4
 wb_command -cifti-convert -to-text $gambxcpSubcort_fp $SubcortTS5
 wb_command -cifti-convert -to-text $emoxcpSubcort_fp $SubcortTS6
 echo subcortical data converted to .txt

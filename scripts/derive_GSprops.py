@@ -43,7 +43,7 @@ sesh = sys.argv[2]
 # set out filepath
 childfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + str(sname) + '/' + str(sesh) + '/' 
 # for each task (except other RS with opposite phase encoding: write in sep. loop
-tasks=['rs','rs2','wm','mid','gambling','emotion'];
+tasks=['rs','rs2','wm','gambling','emotion'];
 for T in range(len(tasks)):
 	task=tasks[T]
 	# load in GS
@@ -89,7 +89,6 @@ for T in range(len(tasks)):
 	if len(GS_troughs) > 1:
 		# for each inter trough interval
 		for t in range(troughsNum):
-			print(t)
 			tstart=GS_troughs[t]
 			tend=GS_troughs[t+1]
 			# use those markers to get amygdalar time series in this interval
