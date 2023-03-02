@@ -28,6 +28,16 @@ def butter_bandpass(data, fs, lowpass, highpass, order=2):
 	filtered_data = filtfilt(b,a,data,padtype="constant",padlen=data.shape[0]-1)
 	return filtered_data
 
+
+# Initialize time series as 2d matrix with 8 rows: with 1 row for each roi (+1 for global +4 amyg), 1 row for subj, 1 row for task, and 1 row for session, and undeclared temporal frames (TRs)
+TimeSeriesMat=np.zeros((9,1))
+# Initialize by 3 spatial frames (slices), undeclared temporal frames (TRs), along nifti dimension 1 (length dimension) and nifti dimension 2 (width dimension)
+CiftiMat=np.zeros((3,1,91,109))
+# initialize TR counter
+counter=0
+prevCountIndex=0
+# initialize second counter
+secondsDeep=0
 ### define filter parameters
 # sampling freq
 fs=1/.71
@@ -131,15 +141,60 @@ for T in range(len(tasks)):
 				delayMatrix[3,t]=999
 				magMatrix[3,t]=999
 	# save out for this task and session
-	# delay mat
+    # delay mat
 	saveFNDM=childfp + str(subj) + '_' + str(tasks[T]) + '_delayMat.csv'
 	np.savetxt(saveFNDM,delayMatrix,delimiter=",")
 	# mag mat
 	saveFNMM=childfp + str(subj) + '_' + str(tasks[T]) + '_MagMat.csv'
 	np.savetxt(saveFNMM,magMatrix,delimiter=",")
-	# gs with troughs marked plot
-	plt.plot(GSf,color='black')
-	plt.plot(GS_troughs,GSf[GS_troughs],"x")
+    # filter out non-pulse
+    # set non-interest TR index
+    # index out non-interest TRs
+    delayMatrix=delayMatrix[:,interestTRs]
+    magMatrix=magMatrix[:,interestTRs]
+    # populate time series mat along TRs used
+    TRsUsed=range(prevCountIndex,len(GSf)) # replace this with TRs used in indexing below for clarity, index into TRs used with gs troughs to get binary trough/notrough marker in same time series matrix
+    # add in subject
+    TimeSerisMat(1,TRsUsed))=subj
+    # add in session
+    TimeSeriesMat(2,TRsUsed)=sesh
+    # add in task
+    TimeSeriesMat(3,TRsUsed)=tasks[T]
+    # add in global signal 
+    timeSeriesMat(4,TRsUsed)=GSf
+    # add in amygdala subfield signals
+    timeSeriesMat(5,TRsUsed)=lAMY_r
+    timeSeriesMat(6,TRsUsed)=mAMY_r
+    timeSeriesMat(7,TRsUsed))=lAMY_l
+    timeSeriesMat(8,TRsUsed))=mAMY_l
+    # add in binary variable to mark GS troughs used
+    timeSereiesMat(9,TRsUsed[GS_troughs])=1
+    # populate cifti mat # later, after parsing spikes of interest via signal change
+    # load functional cifti
+    # extract slices of interest
+    # populate ciftimat in each slice
+    #### ADD DUMMY VOLUME TO TIME SERIES AND CIFTIS FOR SYNCHRONIZED VISUALIZATION
+    # update counter: + 2 to get by end of TS for this segment and dummy volume
+    counter=counter+2
+    # update start and end index
+    prevCountIndex=prevCountIndex+counter
+    # update seconds deep
+    secondsDeep=secondsDeep+.71
+# end of loop over tasks
+# save out time series mat for this subject
+plt.plot(GS_troughs,GSf[GS_troughs],"x")
 	figName=childfp+str(subj)+'_'+str(task) + 'GS_Troughs.png'
 	plt.savefig(figName,bbox_inches='tight')
 	plt.close()
+
+fig, ax = plt.subplots(figsize=(15, 6))
+ax.plot(timeSeriesMat[4,],color='black')
+# conserve horizontal axis
+ax2=ax.twinx()
+ax2.plot(timeSeriesMat[5,],color='red')
+ax2.plot(timeSeriesMat[6,],c,color='orange')
+ax2.plot(timeSeriesMat[7,],c,color='red')
+ax2.plot(timeSeriesMat[8,],c,color='orange')
+# note they should share TR dimension and dummy volumes
+# save out cifti mat for this subject
+# save out time series mat for this subject
