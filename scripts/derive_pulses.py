@@ -15,19 +15,6 @@ import os.path
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
-### define butterwoth filter
-def butter_bandpass(data, fs, lowpass, highpass, order=2):
-	b, a = butter(
-		order / 2,
-		[highpass, lowpass],
-		btype="bandpass",
-		output="ba",
-		fs=fs
-	)
-	filtered_data = np.zeros_like(data)
-	filtered_data = filtfilt(b,a,data,padtype="constant",padlen=data.shape[0]-1)
-	return filtered_data
-
 
 # Initialize time series as 2d matrix with 8 rows: with 1 row for each roi (+1 for global +4 amyg), 1 row for subj, 1 row for task, and 1 row for session, and undeclared temporal frames (TRs)
 TimeSeriesMat=np.zeros((9,1))
@@ -50,17 +37,25 @@ subj = sys.argv[1]
 sname = subj
 # sesh is set to be the second passed argument
 sesh = sys.argv[2]
+# row number of ROIs in time series .txt
+sROIs=[18,19,43,44,0,1,2,3,25,26,27,28]
+# set to match https://github.com/yetianmed/subcortex/blob/master/Group-Parcellation/3T/Subcortex-Only/Tian_Subcortex_S3_3T_label.txt (-1 bc python)
+cROIs=[26,76,46,22,21,93,71]
+# set to match https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/HCP/fslr32k/cifti/Schaefer2018_100Parcels_17Networks_order_info.txt (-1 bc python)
 # set out filepath
 childfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + str(sname) + '/' + str(sesh) + '/' 
 # for each task (except other RS with opposite phase encoding: write in sep. loop
 tasks=['rs','rs2','emotion','wm','gambling'];
 for T in range(len(tasks)):
 	#initialize pulse count matrix
-	pulseCount=np.zeros((1,4))
+	pulseCount=np.zeros((2,19))
 	task=tasks[T]
 	# load in GS
 	confFilepath='/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' + str(sname) + '/' + str(sesh) + '/func/' + str(sname) + '_' + str(sesh) + '_task-' + str(task) + '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'
+	# subcortical time series
 	sTSfp=childfp + str(sname) + '_' + str(sesh) + '_' + str(task) + '_SubCortROIS.txt'
+	# cortical time series
+	cTSfp=childfp + str(sname) + '_' + str(sesh) + '_' + str(task) + '_CortROIS.txt'
 	# allow flexibility to load in rs2 filepath with slightly different filenames
 	if task == 'rs2':
 		confFilepath='/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' + str(sname) + '/' + str(sesh) + '/func/' + str(sname) + '_' + str(sesh) + '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv'
@@ -69,40 +64,44 @@ for T in range(len(tasks)):
 	confFile=confFile[1:,]
 	# transpose so time is x-axis (columns)
 	confTS=np.transpose(confFile)
+	# extract FD
+	FDs=confTS[16,]
+	# drop na cell
+	FDs=FDs[1:len(FDs)]
+	# extract mean FD
+	FD=np.mean(FDs)	
 	# extract GS
 	GS=confTS[0,]
-	# filter it
-	GSf=butter_bandpass(GS,fs,lowpass,highpass,order=2)
 	# load in despiked subcortical TS
 	sTS=np.genfromtxt(sTSfp)
-	# extract right amyg 
-	lAMY_r=sTS[18,]
-	mAMY_r=sTS[19,]
-	# left
-	lAMY_l=sTS[43,]
-	mAMY_l=sTS[44,]
-	# convert to percent signal change
-	lAMY_r=(((GS+lAMY_r)*100)/GS)-100
-	mAMY_r=(((GS+mAMY_r)*100)/GS)-100
-	lAMY_l=(((GS+lAMY_l)*100)/GS)-100
-	mAMY_l=(((GS+mAMY_l)*100)/GS)-100
-	# .4% threshold
+	# and cortical
+	cTS=np.genfromtxt(cTSfp)
+	# set percentage pulse threshold
 	thresh=.4
-	# fings peaks in all ROIs
-	peaks_lAMY_r,_=find_peaks(lAMY_r,height=thresh)
-	peaks_mAMY_r,_=find_peaks(mAMY_r,height=thresh)
-	peaks_lAMY_l,_=find_peaks(lAMY_l,height=thresh)
-	peaks_mAMY_l,_=find_peaks(mAMY_l,height=thresh)
-	# saveout pulse count for each task
-	pulseCount[0,0]=len(peaks_lAMY_r)
-	pulseCount[0,1]=len(peaks_mAMY_r)
-	pulseCount[0,2]=len(peaks_lAMY_l)
-	pulseCount[0,3]=len(peaks_mAMY_l)
+	# loop over each subcortical ROI
+	for sROI in range(len(sROIs)):
+		# extract ROI bold
+		ROIbold=sTS[sROIs[sROI],]
+		# convert to percent signal change
+		ROIPerc=(((GS+ROIbold)*100)/GS)-100
+		# find peaks
+		peaks_ROI,_=find_peaks(ROIPerc,height=thresh)
+		# plop into output df
+		pulseCount[0,sROI]=len(peaks_ROI)
+	# now for cortical
+	# looser thresh for cortical
+	thresh=.2
+	for cROI in range(len(cROIs)):
+		# extract ROI bold
+		ROIbold=cTS[cROIs[cROI],]
+		# convert to percent signal change
+		ROIPerc=(((GS+ROIbold)*100)/GS)-100
+		# find peaks
+		peaks_ROI,_=find_peaks(ROIPerc,height=thresh)
+		# plop into output df, starting at end of sROI list
+		pulseCount[0,(cROI+sROI)]=len(peaks_ROI)
+	# plop a whole bunch of mean FD in there
+	pulseCount[1,:]=FD
 	saveFN_pulseC=childfp + str(subj) + '_' + str(tasks[T]) + '_PulseCount.csv'
 	np.savetxt(saveFN_pulseC,pulseCount,delimiter=",")	
 	print(task)
-	print(len(peaks_lAMY_r))
-	print(len(peaks_mAMY_r))
-	print(len(peaks_lAMY_l))
-	print(len(peaks_mAMY_l))
-	print(lAMY_r[peaks_lAMY_r])

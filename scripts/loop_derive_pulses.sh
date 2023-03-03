@@ -3,6 +3,7 @@ for subj in sub-MDMA001 sub-MDMA002 sub-MDMA003 sub-MDMA005 sub-MDMA006 sub-MDMA
 do	
 	for sesh in ses-00 ses-01 ses-02 ses-03
 	do
-		python3 derive_pulses.py $subj $sesh
+		/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/sbatch_TheWorksReport.sh $subj $sesh
+		#python3 derive_pulses.py $subj $sesh
 	done
 done

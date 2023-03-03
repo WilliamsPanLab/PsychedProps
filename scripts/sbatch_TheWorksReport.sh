@@ -70,11 +70,13 @@ mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 
 #### set xcpd_outdir
 # MDMA
-# xcpd_outdir=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
+xcpd_outdir=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
 # PTRD
-xcpd_outdir=/scratch/groups/leanew1/xcpd_outPTRD_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
+#xcpd_outdir=/scratch/groups/leanew1/xcpd_outPTRD_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
 # P50 (KET)
 # xcpd_outdir=/scratch/groups/leanew1/xcpd_outP50_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
+# set script outdir
+childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 
 # extract subcortical time courses
 rs1xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
@@ -83,7 +85,6 @@ wmxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space
 midxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 gambxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 emoxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS.txt
 SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS.txt
 SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS.txt
@@ -98,6 +99,28 @@ wb_command -cifti-convert -to-text $wmxcpSubcort_fp $SubcortTS3
 wb_command -cifti-convert -to-text $midxcpSubcort_fp $SubcortTS4
 wb_command -cifti-convert -to-text $gambxcpSubcort_fp $SubcortTS5
 wb_command -cifti-convert -to-text $emoxcpSubcort_fp $SubcortTS6
+
+# extract cortical time courses (consider doubling)
+rs1xcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+rs2xcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+wmxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+midxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+gambxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+emoxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
+cortTS1=${childfp}${subj}_${sesh}_rs_CortROIS.txt
+cortTS2=${childfp}${subj}_${sesh}_rs2_CortROIS.txt
+cortTS3=${childfp}${subj}_${sesh}_wm_CortROIS.txt
+# note mdma doesnt have multiband mid
+cortTS4=${childfp}${subj}_${sesh}_mid_CortROIS.txt
+cortTS5=${childfp}${subj}_${sesh}_gambling_CortROIS.txt
+cortTS6=${childfp}${subj}_${sesh}_emotion_CortROIS.txt
+
+wb_command -cifti-convert -to-text $rs1xcpcort_fp $cortTS1
+wb_command -cifti-convert -to-text $rs2xcpcort_fp $cortTS2
+wb_command -cifti-convert -to-text $wmxcpcort_fp $cortTS3
+wb_command -cifti-convert -to-text $midxcpcort_fp $cortTS4
+wb_command -cifti-convert -to-text $gambxcpcort_fp $cortTS5
+wb_command -cifti-convert -to-text $emoxcpcort_fp $cortTS6
 
 # extract alff of subcortex
 # scale 3 tian parc location
@@ -138,7 +161,7 @@ wb_command -cifti-convert -to-text $emoxcpSubcort_fp $SubcortTS6
 # wb_command -cifti-convert -to-text $alff_p_SubcortTS5 $alff_SubcortTS5
 # wb_command -cifti-convert -to-text $alff_p_SubcortTS6 $alff_SubcortTS6
 
-echo subcortical data converted to .txt
+echo bold data converted to .txt
 
 
 
@@ -146,7 +169,7 @@ echo subcortical data converted to .txt
 
 # extract peaks, delays, and magnitudes from ptseries and global signal
 ml python/3
-python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_GSprops_ptrd.py ${subj} ${sesh}
+python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_pulses.py ${subj} ${sesh}
 
 
 
