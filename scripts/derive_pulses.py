@@ -53,8 +53,10 @@ sesh = sys.argv[2]
 # set out filepath
 childfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + str(sname) + '/' + str(sesh) + '/' 
 # for each task (except other RS with opposite phase encoding: write in sep. loop
-tasks=['rs','rs2','wm','gambling','emotion'];
+tasks=['rs','rs2','emotion','wm','gambling'];
 for T in range(len(tasks)):
+	#initialize pulse count matrix
+	pulseCount=np.zeros((1,4))
 	task=tasks[T]
 	# load in GS
 	confFilepath='/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' + str(sname) + '/' + str(sesh) + '/func/' + str(sname) + '_' + str(sesh) + '_task-' + str(task) + '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'
@@ -79,20 +81,28 @@ for T in range(len(tasks)):
 	# left
 	lAMY_l=sTS[43,]
 	mAMY_l=sTS[44,]
-    # convert to percent signal change
-    lAMY_r=(((GSf+lAMY_r)*100)/GSf)-100
-    mAMY_r=(((GSf+mAMY_r)*100)/GSf)-100
-    lAMY_l=(((GSf+lAMY_l)*100)/GSf)-100
-    mAMY_l=(((GSf+mAMY_l)*100)/GSf)-100
-    # .3% threshold
-    thresh=.3
-    # fings peaks in all ROIs
-    peaks_lAMY_r=find_peaks(lAMY_r,height=thresh)
-    peaks_mAMY_r=find_peaks(mAMY_r,height=thresh)
-    peaks_lAMY_l=find_peaks(lAMY_l,height=thresh)
-    peaks_mAMY_l=find_peaks(mAMY_l,height=thresh)
-    print(task)
-    print(len(peaks_lAMY_r[0]))
-    print(len(peaks_mAMY_r[0]))
-    print(len(peaks_lAMY_l[0]))
-    print(len(peaks_mAMY_l[0]))
+	# convert to percent signal change
+	lAMY_r=(((GS+lAMY_r)*100)/GS)-100
+	mAMY_r=(((GS+mAMY_r)*100)/GS)-100
+	lAMY_l=(((GS+lAMY_l)*100)/GS)-100
+	mAMY_l=(((GS+mAMY_l)*100)/GS)-100
+	# .4% threshold
+	thresh=.4
+	# fings peaks in all ROIs
+	peaks_lAMY_r,_=find_peaks(lAMY_r,height=thresh)
+	peaks_mAMY_r,_=find_peaks(mAMY_r,height=thresh)
+	peaks_lAMY_l,_=find_peaks(lAMY_l,height=thresh)
+	peaks_mAMY_l,_=find_peaks(mAMY_l,height=thresh)
+	# saveout pulse count for each task
+	pulseCount[0,0]=len(peaks_lAMY_r)
+	pulseCount[0,1]=len(peaks_mAMY_r)
+	pulseCount[0,2]=len(peaks_lAMY_l)
+	pulseCount[0,3]=len(peaks_mAMY_l)
+	saveFN_pulseC=childfp + str(subj) + '_' + str(tasks[T]) + '_PulseCount.csv'
+	np.savetxt(saveFN_pulseC,pulseCount,delimiter=",")	
+	print(task)
+	print(len(peaks_lAMY_r))
+	print(len(peaks_mAMY_r))
+	print(len(peaks_lAMY_l))
+	print(len(peaks_mAMY_l))
+	print(lAMY_r[peaks_lAMY_r])
