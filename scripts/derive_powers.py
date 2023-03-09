@@ -46,7 +46,7 @@ childfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + str(sname) + '/'
 tasks=['rs','rs2','emotion','wm','gambling'];
 for T in range(len(tasks)):
 	#initialize pulse count matrix
-	powers=np.zeros((51,19))
+	powers=np.zeros((76,19))
 	task=tasks[T]
 	# load in GS
 	confFilepath='/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' + str(sname) + '/' + str(sesh) + '/func/' + str(sname) + '_' + str(sesh) + '_task-' + str(task) + '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'
@@ -79,7 +79,7 @@ for T in range(len(tasks)):
 		# extract ROI bold
 		ROIbold=sTS[sROIs[sROI],]
 		# extract PSD
-		(f, S)= scipy.signal.welch(ROIbold, 1/.71,nperseg=100)
+		(f, S)= scipy.signal.welch(ROIbold, 1/.71,nperseg=150)
 		# plop into output df
 		powers[:,sROI]=S
 	# now for cortical
@@ -87,9 +87,9 @@ for T in range(len(tasks)):
 		# extract ROI bold
 		ROIbold=cTS[cROIs[cROI],]
 		# psd
-		(f, S)= scipy.signal.welch(ROIbold, 1/.71,nperseg=100)
-		# Into df
-		powers[:,(cROI+sROI)]=S
+		(f, S)= scipy.signal.welch(ROIbold, 1/.71,nperseg=150)
+		# Into df, + 13 to stack em above 12 subcort ROIs
+		powers[:,(cROI+12)]=S
 	saveFN_pulseC=childfp + str(subj) + '_' + str(tasks[T]) + '_PSDs.csv'
 	np.savetxt(saveFN_pulseC,powers,delimiter=",")
 	print(task)

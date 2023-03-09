@@ -45,8 +45,8 @@ plotdata(logical(mw_L))=VertVecL;
 
 
 %%% for red/blue 0-centered
-mincol=5;
-maxcol=13;
+mincol=70;
+maxcol=110;
 %custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
 %custommap(126,:)=[.5 .5 .5];

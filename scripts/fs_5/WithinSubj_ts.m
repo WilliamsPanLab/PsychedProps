@@ -56,6 +56,8 @@ subjPrefix=repmat('sub-MDMA0',17,1);
 subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17"];
 subjList=strcat(subjPrefix,subjSuffix')
 
+% make a mean T's vector for analyses after this script
+meanTs=zeros(2,17);
 % for each subj except 4
 for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% get session info
@@ -134,7 +136,8 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% mafdr ps
 	fdred=mafdr(ps);
 	% print pre-thresh average of ts, positive reflects further distance from PG in unintox.
-	mean(ts)
+	meanTs(1,s)=s
+	meanTs(2,s)=mean(ts(~isnan(ts)))
 	% use it to thresh T's
 	ts(fdred>0.05)=0;
 	ts_L=ts(1:length(noMW_L));
@@ -144,4 +147,5 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% visfacevec of threshed T's
 	Vis_VertvecFs5(ts_L,ts_R,strjoin(pngFN,''))
 end
-
+% saveout mean ts
+csvwrite('~/fs5_ts.csv',meanTs)

@@ -8,7 +8,7 @@ export SUBJECTS_DIR=/share/software/user/open/freesurfer/6.0.0/subjects
 # set freesurfer license
 export FS_LICENSE=/oak/stanford/groups/leanew1/users/apines/license.txt
 # mdma fp
-parentfp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func
+parentfp=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${sesh}/func
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 
 # make output dirs

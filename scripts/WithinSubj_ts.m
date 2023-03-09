@@ -56,6 +56,7 @@ subjPrefix=repmat('sub-MDMA0',17,1);
 subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17"];
 subjList=strcat(subjPrefix,subjSuffix')
 
+% make a mean T's vector for analyses after this script
 % for each subj except 4
 for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% get session info
