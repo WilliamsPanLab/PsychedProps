@@ -1,4 +1,4 @@
-function ROIfc(subject,session)
+function ROIfc(subj,sesh)
 	% derive full-brain fc from region of interest
 	% subject: subject id
 	% session: session id
@@ -6,7 +6,7 @@ function ROIfc(subject,session)
 % add nec. paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti'));
 % load in parcellated time series
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh '/'];
+childfp=['/oak/stanford/groups/leanew1/users/apines/data/mdma/' subj '/' sesh '/'];
 SubcortTS1=[childfp subj '_' sesh '_rs_SubCortROIS.txt'];
 SubcortTS2=[childfp subj '_' sesh '_rs2_SubCortROIS.txt'];
 SubcortTS1=readtable(SubcortTS1);

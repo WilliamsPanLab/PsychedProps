@@ -17,9 +17,9 @@ pofp = sys.argv[3]
 # prevent plt from trying to render mid script, only saveout
 matplotlib.use('agg')
 # set resolution
-plt.rcParams['figure.dpi'] = 10000
+plt.rcParams['figure.dpi'] = 1000
 # set parent fp
-parentfp='/scratch/users/apines/data/mdma/' + str(subj) + '/' +str(sesh) + '/'
+parentfp='/oak/stanford/groups/leanew1/users/apines/data/mdma/' + str(subj) + '/' +str(sesh) + '/'
 ### load in lobe indices
 #leftLubs=np.genfromtxt('/cbica/projects/pinesParcels/data/lobe_label_lh.csv')
 #rightLubs=np.genfromtxt('/cbica/projects/pinesParcels/data/lobe_label_rh.csv')
@@ -42,10 +42,10 @@ FCindicesL=np.argsort(L_FC)
 FCindicesR=np.argsort(R_FC)
 
 ###### import TS
-TSfp=parentfp + str(subj) + '_' + str(sesh) + '_L_AggTS_3k.func.gii'
+TSfp='/scratch/users/apines/' + str(subj) + '_' + str(sesh) + '_L_AggTS_3k.func.gii'
 gif_CL=nb.load(TSfp)
 CL=np.array(gif_CL.agg_data()[:])
-TSfp=parentfp + str(subj) + '_' + str(sesh) + '_R_AggTS_3k.func.gii'
+TSfp='/scratch/users/apines/' + str(subj) + '_' + str(sesh) + '_R_AggTS_3k.func.gii'
 gif_CR=nb.load(TSfp)
 CR=np.array(gif_CR.agg_data()[:])
 
@@ -61,24 +61,21 @@ rs2Conf=np.genfromtxt(rs2ConfTsv,delimiter='\t')
 # concatenate the two time series
 rsConf=np.concatenate((rs1Conf,rs2Conf),axis=0)
 # get the global signal
-gs=rsConf[:,0]
+# column 27 is gs, 30 is dt_gs
+gs=rsConf[:,26]
+gsdt=rsConf[:,29]
 # get the dorsomedial thalamus time series
-SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS.txt
-SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS.txt
 SubcortTS1fp=parentfp + str(subj) + '_' + str(sesh) + '_rs_SubCortROIS.txt'
 SubcortTS2fp=parentfp + str(subj) + '_' + str(sesh) + '_rs2_SubCortROIS.txt'
 # concatenate
-SubcortTS=np.concatenate((np.genfromtxt(SubcortTS1fp,delimiter='\t'),np.genfromtxt(SubcortTS2fp,delimiter='\t')),axis=0)
+SubcortTS=np.concatenate((np.genfromtxt(SubcortTS1fp,delimiter='\t'),np.genfromtxt(SubcortTS2fp,delimiter='\t')),axis=1)
 # take 34 and 9th row for left and right DMThal
-DMThalL=SubcortTS[:,33]
-DMThalR=SubcortTS[:,8]
+DMThalL=SubcortTS[33,]
+DMThalR=SubcortTS[8,]
 
 # for time series (plot) and PSD (psd)
 import matplotlib.pyplot as plt
-plt.subplot(211)
-plt.plot(ax, s)
-plt.subplot(212)
-plt.psd(s, 512, 1 / diff)
+# plt.psd(s, 512, 1 / diff)
 
 # each vertex normalized w/r/t global SD
 # L
@@ -97,6 +94,57 @@ CRt=np.transpose(CR)
 # plot power spectral density of percentile bins of FC-ranked cortical time series
 
 ###### plot
+
+# Define the layout of subplots using plt.subplots()
+fig, axs = plt.subplots(6, 1, figsize=(30, 10),gridspec_kw={'height_ratios': [1, 1, 1, 5, 1, 5]})
+
+# Plot gsdt on the first subplot
+axs[0].plot(gsdt)
+axs[i].autoscale(enable=True, axis='both', tight=True)
+
+# Plot gs on the second subplot
+axs[1].plot(gs)
+axs[i].autoscale(enable=True, axis='both', tight=True)
+
+# Plot DMThalL on the third subplot
+axs[2].plot(DMThalL)
+axs[i].autoscale(enable=True, axis='both', tight=True)
+
+# Plot the matrix of imshow on the fourth subplot
+cmap = 'gray'
+vmin, vmax = -3, 3
+im = axs[3].imshow(CLt, aspect='auto', interpolation='nearest',cmap=cmap,vmin=vmin,vmax=vmax)
+a=fig.colorbar(im)
+a.remove()
+
+# Plot DMThalR on the fifth subplot
+axs[4].plot(DMThalR)
+axs[i].autoscale(enable=True, axis='both', tight=True)
+
+# Plot CRt on the sixth subplot
+im = axs[5].imshow(CRt, aspect='auto', interpolation='nearest',cmap=cmap,vmin=vmin,vmax=vmax)
+fig.colorbar(im, ax=axs[5])
+a=fig.colorbar(im)
+a.remove()
+
+# Set the titles for each subplot
+axs[0].set_title('gsdt')
+axs[1].set_title('gs')
+axs[2].set_title('DMThalL')
+axs[3].set_title('CLt')
+axs[4].set_title('DMThalR')
+axs[5].set_title('CRt')
+
+# Set the x-axis label for the matrix of imshow subplot
+axs[3].set_xlabel('Time')
+
+# Adjust the spacing between subplots to avoid overlap
+plt.subplots_adjust(hspace=0.5)
+
+# Save the figure
+plt.savefig('my_figure.png', dpi=300)
+
+
 # calculate data volume:100 aspect ratio correction number
 ARCN=(CL.shape[0])/100
 # Left Hemi

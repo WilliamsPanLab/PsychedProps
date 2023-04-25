@@ -108,8 +108,7 @@ rs2ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_design.tsv
 matlab -nodisplay -r "ROIfc('$subj','$sesh')"
 
 ########3# make grayplot of grayordinates org. by FC to those regions (sep L and R)
-
-#python Viz_grayplots.py $subj $sesh $childfp
+python3 Viz_grayplots.py $subj $sesh $childfp
 
 
 
