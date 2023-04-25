@@ -17,7 +17,7 @@ module load biology
 module load freesurfer/7.3.2
 # and workbench
 module load workbench
-
+module load contribs poldrack anaconda/5.0.0-py36
 # subject name is input argument
 subj=$1
 # sesh is input 2
@@ -72,8 +72,7 @@ xcpd_outdir=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${
 # P50 (KET)
 # xcpd_outdir=/scratch/groups/leanew1/xcpd_outP50_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
 # set script outdir
-# childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
-
+childfp=/oak/stanford/groups/leanew1/users/apines/data/mdma/${subj}/${sesh}/
 # extract subcortical time courses
 rs1xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 rs2xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
