@@ -61,10 +61,6 @@ mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 #matlab -nodisplay -r "vis_fs4PG('$subj','$sesh','$PGpng')"
 
 # extract time course of precuneus
-#AgTS=${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii
-#ROITS=${childfp}_${subj}_${sesh}_CortROIS.txt
-# parcellate into ROIs
-#wb_command -cifti-parcellate $AgTS /oak/stanford/groups/leanew1/users/apines/maps/Schaefer2018_100Parcels_7Networks_order.dlabel.nii COLUMN ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii
 # extract ROIs into text file (50 and 100 are precun)
 #wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
 
@@ -76,106 +72,47 @@ xcpd_outdir=/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/${subj}/${
 # P50 (KET)
 # xcpd_outdir=/scratch/groups/leanew1/xcpd_outP50_36p_despike_bp/xcp_d/${subj}/${sesh}/func/
 # set script outdir
-childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
+# childfp=/oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 
 # extract subcortical time courses
 rs1xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 rs2xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-wmxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-midxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-gambxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-emoxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+#wmxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+#midxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+#gambxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+#emoxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
 SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS.txt
 SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS.txt
-SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS.txt
+#SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS.txt
 # note mdma doesnt have multiband mid
-SubcortTS4=${childfp}${subj}_${sesh}_mid_SubCortROIS.txt
-SubcortTS5=${childfp}${subj}_${sesh}_gambling_SubCortROIS.txt
-SubcortTS6=${childfp}${subj}_${sesh}_emotion_SubCortROIS.txt
+#SubcortTS4=${childfp}${subj}_${sesh}_mid_SubCortROIS.txt
+#SubcortTS5=${childfp}${subj}_${sesh}_gambling_SubCortROIS.txt
+#SubcortTS6=${childfp}${subj}_${sesh}_emotion_SubCortROIS.txt
 
+# subcortical
+######### extract dorsomedial thalamus time series: from 9 and 34 from Tian_Subcortex_S3_3T
 wb_command -cifti-convert -to-text $rs1xcpSubcort_fp $SubcortTS1
 wb_command -cifti-convert -to-text $rs2xcpSubcort_fp $SubcortTS2
-wb_command -cifti-convert -to-text $wmxcpSubcort_fp $SubcortTS3
-wb_command -cifti-convert -to-text $midxcpSubcort_fp $SubcortTS4
-wb_command -cifti-convert -to-text $gambxcpSubcort_fp $SubcortTS5
-wb_command -cifti-convert -to-text $emoxcpSubcort_fp $SubcortTS6
-
-# extract cortical time courses (consider doubling)
-rs1xcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-rs2xcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-wmxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-midxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-mid_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-gambxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-emoxcpcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_atlas-Schaefer117_den-91k_timeseries.ptseries.nii
-cortTS1=${childfp}${subj}_${sesh}_rs_CortROIS.txt
-cortTS2=${childfp}${subj}_${sesh}_rs2_CortROIS.txt
-cortTS3=${childfp}${subj}_${sesh}_wm_CortROIS.txt
-# note mdma doesnt have multiband mid
-cortTS4=${childfp}${subj}_${sesh}_mid_CortROIS.txt
-cortTS5=${childfp}${subj}_${sesh}_gambling_CortROIS.txt
-cortTS6=${childfp}${subj}_${sesh}_emotion_CortROIS.txt
-
-wb_command -cifti-convert -to-text $rs1xcpcort_fp $cortTS1
-wb_command -cifti-convert -to-text $rs2xcpcort_fp $cortTS2
-wb_command -cifti-convert -to-text $wmxcpcort_fp $cortTS3
-wb_command -cifti-convert -to-text $midxcpcort_fp $cortTS4
-wb_command -cifti-convert -to-text $gambxcpcort_fp $cortTS5
-wb_command -cifti-convert -to-text $emoxcpcort_fp $cortTS6
-
-# extract alff of subcortex
 # scale 3 tian parc location
-# scale3fp=/oak/stanford/groups/leanew1/users/apines/maps/Tian_Subcortex_S3_3T_32k.dlabel.nii
-
-# input alff
-# alff_rs1xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-smooth_alff.dscalar.nii
-# alff_rs2xcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-smooth_alff.dscalar.nii 
-# alff_wmxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-smooth_alff.dscalar.nii 
-# alff_gambxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-smooth_alff.dscalar.nii 
-# alff_emoxcpSubcort_fp=${xcpd_outdir}${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-smooth_alff.dscalar.nii 
-
-# pt series out
-# alff_p_SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS_alff.ptseries.nii
-# alff_p_SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS_alff.ptseries.nii
-# alff_p_SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS_alff.ptseries.nii
-# alff_p_SubcortTS5=${childfp}${subj}_${sesh}_gambling_SubCortROIS_alff.ptseries.nii
-# alff_p_SubcortTS6=${childfp}${subj}_${sesh}_emotion_SubCortROIS_alff.ptseries.nii
-
-# eventual txt file names
-# alff_SubcortTS1=${childfp}${subj}_${sesh}_rs_SubCortROIS_alff.txt
-# alff_SubcortTS2=${childfp}${subj}_${sesh}_rs2_SubCortROIS_alff.txt
-# alff_SubcortTS3=${childfp}${subj}_${sesh}_wm_SubCortROIS_alff.txt
-# alff_SubcortTS5=${childfp}${subj}_${sesh}_gambling_SubCortROIS_alff.txt
-# alff_SubcortTS6=${childfp}${subj}_${sesh}_emotion_SubCortROIS_alff.txt
-
-# convert alff to pt series
-# wb_command -cifti-parcellate ${alff_rs1xcpSubcort_fp} ${scale3fp} COLUMN ${alff_p_SubcortTS1}
-# wb_command -cifti-parcellate ${alff_rs2xcpSubcort_fp} ${scale3fp} COLUMN ${alff_p_SubcortTS2}
-# wb_command -cifti-parcellate ${alff_wmxcpSubcort_fp} ${scale3fp} COLUMN ${alff_p_SubcortTS3}
-# wb_command -cifti-parcellate ${alff_gambxcpSubcort_fp} ${scale3fp} COLUMN ${alff_p_SubcortTS5}
-# wb_command -cifti-parcellate ${alff_emoxcpSubcort_fp} ${scale3fp} COLUMN ${alff_p_SubcortTS6}
-
-# convert ptseries to text
-# wb_command -cifti-convert -to-text $alff_p_SubcortTS1 $alff_SubcortTS1
-# wb_command -cifti-convert -to-text $alff_p_SubcortTS2 $alff_SubcortTS2
-# wb_command -cifti-convert -to-text $alff_p_SubcortTS3 $alff_SubcortTS3
-# wb_command -cifti-convert -to-text $alff_p_SubcortTS5 $alff_SubcortTS5
-# wb_command -cifti-convert -to-text $alff_p_SubcortTS6 $alff_SubcortTS6
-
-echo bold data converted to .txt
-
-
-
+scale3fp=/oak/stanford/groups/leanew1/users/apines/maps/Tian_Subcortex_S3_3T_32k.dlabel.nii
 # should match labels here https://github.com/yetianmed/subcortex/blob/master/Group-Parcellation/3T/Subcortex-Only/Tian_Subcortex_S3_3T_label.txt
 
 # extract peaks, delays, and magnitudes from ptseries and global signal
-ml python/3
-python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_pulses.py ${subj} ${sesh}
-
-
+#ml python/3
+#python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_pulses.py ${subj} ${sesh}
 
 # extract GS from tsv
-#rs1xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
-#rs2xcpSubcort_fp=/scratch/groups/leanew1/xcpd_outMDMA/xcp_d/${subj}/${sesh}/func/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_atlas-subcortical_den-91k_timeseries.ptseries.nii
+rs1ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_design.tsv
+rs2ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_design.tsv
+
+####### extract FC of DM thalamus
+matlab -nodisplay -r "ROIfc('$subj','$sesh')"
+
+########3# make grayplot of grayordinates org. by FC to those regions (sep L and R)
+
+#python Viz_grayplots.py $subj $sesh $childfp
+
+
 
 # extract amygdalar TS
 
