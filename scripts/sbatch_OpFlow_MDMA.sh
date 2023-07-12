@@ -46,17 +46,8 @@ matlab -nodisplay -r "mat_to_dscalar('$subj')"
 # Convert them back to mats for ang distance calc (in matlab)
 matlab -nodisplay -r "Netgiis_2_mat('$subj')"
 
-# Calculate Angular Distance: rs
-#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/run_PGG_AngDistCalc4_CompVer_PL.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $rsOut
-
 # make output directory outside scratch
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$rsIn')"
 
-#./run_Extract_BUTD_ResultantVecs_PL.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $rsOut /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}/${subj}_${sesh}_rs_BUTD_L.mat /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}/${subj}_${sesh}_rs_BUTD_R.mat
-
-# convert to R format
-#matlab -nodisplay -r "BUTD_to_Rformat_MDMA('$subj','$sesh')"
-
-#./run_Extract_BUTD_ResultantVecs_Gran.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L.mat $childfp/OpFl_timeseries_R.mat
