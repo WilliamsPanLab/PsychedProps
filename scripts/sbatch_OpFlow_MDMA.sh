@@ -44,7 +44,7 @@ rsOut=${childfp}/${subj}_${sesh}_NetDist_rs.mat
 # /oak/stanford/groups/leanew1/users/apines/scripts/FunctionalImages/Networks/DS_surf_Networks.sh $1
 
 # Convert them back to mats for ang distance calc (in matlab)
-matlab -nodisplay -r "Netgiis_2_mat('$subj')"
+#matlab -nodisplay -r "Netgiis_2_mat('$subj')"
 
 # make output directory outside scratch
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 

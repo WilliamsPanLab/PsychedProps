@@ -68,10 +68,6 @@ NumTRs=size(vfl);
 NumTRs=NumTRs(2);
 lenOpFl=NumTRs;
 
-% load in Networks
-networks=load([NetworksFolder subj '_Nets_fs4.mat']);
-nets_LH=networks.nets.Lnets;
-nets_RH=networks.nets.Rnets;
 % initialize out dataframes
 Propvec=[];
 stringVec={};
@@ -149,134 +145,6 @@ el_L=el_L(g_noMW_combined_L);
 az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
-% initialize matrix for each face over each of k=4 networks to saveout to scratch
-faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
-% get network gradient to calculate relative angles
-% for each network
-for k=1:4
-	% network of interest
-	n_LH=nets_LH(:,k);
-	n_RH=nets_RH(:,k);
-	% calculate network gradients on sphere
-	ng_L = grad(F_L, V_L, n_LH);
-	ng_R = grad(F_R, V_R, n_RH);
-	% use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-	ng_L=ng_L(g_noMW_combined_L,:);
-	ng_R=ng_R(g_noMW_combined_R,:);
-	% get NA vertices
-        sumLeft=sum(ng_L,2);
-	sumRight=sum(ng_R,2);
-	% finds 0s in left and right network gradients
-	emptyLeft=find(~sumLeft);
-	emptyRight=find(~sumRight);
-	InclLeft=find(sumLeft);
-	InclRight=find(sumRight);
-	% note InclLeft and Right presume mw mask already applied!
-
-	% mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
-	%n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
-	%n_and_g_noMW_combined_R=setdiff(g_noMW_combined_R,emptyRight);
-	% extract face-wise vector cartesian vector components
-	
-	nx_L=ng_L(InclLeft,1);
-	ny_L=ng_L(InclLeft,2);
-	nz_L=ng_L(InclLeft,3);
-	nx_R=ng_R(InclRight,1);
-	ny_R=ng_R(InclRight,2);
-	nz_R=ng_R(InclRight,3);
-
-	% translate xyz spherical coordinates to az/el/r
-	%[az_L,el_L,r_L]=cart2sph(P_L(n_and_g_noMW_combined_L,1),P_L(n_and_g_noMW_combined_L,2),P_L(n_and_g_noMW_combined_L,3));
-	%[az_R,el_R,r_R]=cart2sph(P_R(n_and_g_noMW_combined_R,1),P_R(n_and_g_noMW_combined_R,2),P_R(n_and_g_noMW_combined_R,3));
-	% get spherical coordinates (az/el/r, r equal in sphere) relevant to this network
-	az_L_n=az_L(InclLeft);
-	el_L_n=el_L(InclLeft);
-	az_R_n=az_R(InclRight);
-	el_R_n=el_R(InclRight);
-	
-	% now same mask for the opfl vectors
-	OpF_azes_L_n=OpF_azes_L(InclLeft,:);
-	OpF_els_L_n=OpF_els_L(InclLeft,:);
-	OpF_azes_R_n=OpF_azes_R(InclRight,:);
-	OpF_els_R_n=OpF_els_R(InclRight,:);
-
-	% translate xyz vector components at coordinates to az/el/r
-	nazes_L=zeros(length(az_L_n),1);
-	nels_L=zeros(length(el_L_n),1);
-	for i=1:length(az_L_n)
-	    nvs_L=cart2sphvec(double([nx_L(i);ny_L(i);nz_L(i)]),az_L_n(i),el_L_n(i));
-	    nazes_L(i)=nvs_L(1);
-	    nels_L(i)=nvs_L(2);
-	end
-	% right hemi
-	nazes_R=zeros(length(az_R_n),1);
-	nels_R=zeros(length(el_R_n),1);
-	for i=1:length(az_R_n)
-	    nvs_R=cart2sphvec(double([nx_R(i);ny_R(i);nz_R(i)]),az_R_n(i),el_R_n(i));
-	    nazes_R(i)=nvs_R(1);
-	    nels_R(i)=nvs_R(2);
-	end
-
-	% initialize angular distance vector for each network (l and r) above
-	NangDs_L=zeros(length(InclLeft),lenOpFl);
-	NangDs_R=zeros(length(InclRight),lenOpFl);
-	% get angular distance for each face for each timepoint
-	for F=1:length(InclLeft);
-		% get vector for each face (network vector)
-		nVec=[nazes_L(F) nels_L(F)];
-		% loop over each tp
-		for fr=1:lenOpFl
-			% get optical flow vector
-			OpFlVec=[OpF_azes_L_n(F,fr) OpF_els_L_n(F,fr)];
-			% get angular distance at that timepoint (degrees)
-			a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
-			% populate vector
-			NangDs_L(F,fr)=a;
-		% end tp loop
-		end
-	% end each face loop
-	end
-	for F=1:length(InclRight);
-                % get vector for each face (network vector)
-                nVec=[nazes_R(F) nels_R(F)];
-                % loop over each tp
-                for fr=1:lenOpFl
-                        % get optical flow vector
-                        OpFlVec=[OpF_azes_R_n(F,fr) OpF_els_R_n(F,fr)];
-                        % get angular distance at that timepoint (degrees)
-                        a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
-                        % populate vector
-                        NangDs_R(F,fr)=a;
-                % end tp loop
-                end
-        % end each face loop
-        end	
-	% average for this network before proceeding to next network loop
-	AllAngs=[NangDs_R(:)' NangDs_L(:)'];
-	% average left-hemisphere values over time and plop into facematrix for this participant
-	faceMatrix(InclLeft,k)=mean(NangDs_L,2);
-	faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
-	% average angular distances across hemispheres
-	avgD=mean(AllAngs);
-	Propvec=[Propvec avgD];
-	% add label - adding 16 to be consistent with 
-	stringVec=[stringVec ['AngD' num2str(k)]];
-end
-% save out as csv
-T=table(Propvec','RowNames',stringVec);
-% calc outFP
-outFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/' subj];
-% make out filepath
-system(['mkdir ' outFP]);
-% write out
-writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats.csv'],'WriteRowNames',true)
-% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix.csv'])
-
-
-%%% now run same comparison on group-level derived
-
-
 % load in Networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets;
@@ -289,7 +157,7 @@ stringVec={};
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
 faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
 %% loop over again
-for k=1:4
+for k=2
         % network of interest
         n_LH=nets_LH(:,k);
         n_RH=nets_RH(:,k);
@@ -392,7 +260,10 @@ for k=1:4
         % average left-hemisphere values over time and plop into facematrix for this participant
         faceMatrix(InclLeft,k)=mean(NangDs_L,2);
         faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
-        % average angular distances across hemispheres
+        % and time series population
+	OutTs_L=NangDs_L;
+	OutTs_R=NangDs_R;
+	% average angular distances across hemispheres
         avgD=mean(AllAngs);
         Propvec=[Propvec avgD];
         % add label
@@ -407,3 +278,6 @@ outFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/' subj];
 writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
 writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix_gro.csv'])
+% save out time series
+writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'])
+writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R.csv'])

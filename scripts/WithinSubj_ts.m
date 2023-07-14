@@ -33,7 +33,6 @@ mw_L(mwIndVec_l)=1;
 mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 % convert to faces
-% convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
 % convert "partial" medial wall to medial wall
@@ -49,7 +48,7 @@ noMW_L=setdiff(1:2562,mwIndVec_l);
 noMW_R=setdiff(1:2562,mwIndVec_r);
 
 % label filepath common for each subj
-commonFP=['/scratch/users/apines/data/mdma/'];
+commonFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/'];
 
 % get subj list
 subjPrefix=repmat('sub-MDMA0',17,1);
@@ -61,42 +60,34 @@ subjList=strcat(subjPrefix,subjSuffix')
 for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% get session info
 	seshInfo=subSeshDose{s,2:5};
-	bvFP=[commonFP subjList(s) '/' seshInfo{1} '/OpFl_timeseries_L.mat'];
+	%% ADD IN REST OF FILEPATHS
+	bvFP=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{1} '_Prop_TS_dmn_L.csv'];
 	bvFP=strjoin(bvFP,'')
-	bvFPr=[commonFP subjList(s) '/' seshInfo{1} '/OpFl_timeseries_R.mat'];
+	bvFPr=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{1} '_Prop_TS_dmn_R.csv'];
         bvFPr=strjoin(bvFPr,'')
-	pFP=[commonFP subjList(s) '/' seshInfo{2} '/OpFl_timeseries_L.mat'];
+	pFP=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{2} '_Prop_TS_dmn_L.csv'];
 	pFP=strjoin(pFP,'')
-	pFPr=[commonFP subjList(s) '/' seshInfo{2} '/OpFl_timeseries_R.mat'];
+	pFPr=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{2} '_Prop_TS_dmn_R.csv'];
         pFPr=strjoin(pFPr,'')
-	m1FP=[commonFP subjList(s) '/' seshInfo{3} '/OpFl_timeseries_L.mat'];
+	m1FP=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{3} '_Prop_TS_dmn_L.csv'];
 	m1FP=strjoin(m1FP,'')
-	m1FPr=[commonFP subjList(s) '/' seshInfo{3} '/OpFl_timeseries_R.mat'];
+	m1FPr=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{3} '_Prop_TS_dmn_R.csv'];
         m1FPr=strjoin(m1FPr,'')
-	m2FP=[commonFP subjList(s) '/' seshInfo{4} '/OpFl_timeseries_L.mat'];
+	m2FP=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{4} '_Prop_TS_dmn_L.csv'];
 	m2FP=strjoin(m2FP,'')
-	m2FPr=[commonFP subjList(s) '/' seshInfo{4} '/OpFl_timeseries_R.mat'];
+	m2FPr=[commonFP subjList(s) '/' subjList(s) '_' seshInfo{4} '_Prop_TS_dmn_R.csv'];
         m2FPr=strjoin(m2FPr,'')
 	% load in baseline session
 	bv=load(bvFP);
-	% pull out time series of interest
-	bv=squeeze(bv.LvertTS(:,3,:));
 	bvr=load(bvFPr);
-	bvr=squeeze(bvr.RvertTS(:,3,:));
 	% load in placebo session
 	p1=load(pFP);
-	p1=squeeze(p1.LvertTS(:,3,:));
 	p1r=load(pFPr);
-	p1r=squeeze(p1r.RvertTS(:,3,:));
 	% mdma sessions
 	m1=load(m1FP);
-	m1=squeeze(m1.LvertTS(:,3,:));
 	m1r=load(m1FPr);
-	m1r=squeeze(m1r.RvertTS(:,3,:));
 	m2=load(m2FP);
-	m2=squeeze(m2.LvertTS(:,3,:));
 	m2r=load(m2FPr);
-	m2r=squeeze(m2r.RvertTS(:,3,:));
 	% concat sober into one ts
 	sobLeft=horzcat(bv,p1);
 	sobRight=horzcat(bvr,p1r);
@@ -104,25 +95,25 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	mLeft=horzcat(m1,m2);
 	mRight=horzcat(m1r,m2r);
 	% init tvec and pvec
-	tvec_L=zeros(length(noMW_L),1);
-	pvec_L=zeros(length(noMW_L),1);
-	tvec_R=zeros(length(noMW_R),1);
-	pvec_R=zeros(length(noMW_R),1);
+	tvec_L=zeros(length(g_noMW_combined_L),1);
+	pvec_L=zeros(length(g_noMW_combined_L),1);
+	tvec_R=zeros(length(g_noMW_combined_R),1);
+	pvec_R=zeros(length(g_noMW_combined_R),1);
 	counter=0;
 	% for each left vert
-	for F=noMW_L
+	for F=1:length(g_noMW_combined_L)
 		counter=counter+1;
 		% t-test
-		[h,p,ci,stats] = ttest(cell2mat(sobLeft(F,:)),cell2mat(mLeft(F,:)));
+		[h,p,ci,stats] = ttest(sobLeft(F,:),mLeft(F,:));
 		tvec_L(counter)=stats.tstat;
 		pvec_L(counter)=p;
 	end
 	counter=0;
 	% for each right face
-	for F=noMW_R
+	for F=1:length(g_noMW_combined_R)
 		counter=counter+1;
 		% t-test
-                [h,p,ci,stats] = ttest(cell2mat(sobRight(F,:)),cell2mat(mRight(F,:)));
+                [h,p,ci,stats] = ttest(sobRight(F,:),mRight(F,:));
                 tvec_R(counter)=stats.tstat;
                 pvec_R(counter)=p;
 	end
@@ -130,17 +121,46 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	ps=[pvec_L' pvec_R'];
 	% combine ts
 	ts=[tvec_L' tvec_R'];
+	%%%%%%% mask out dmn
+	% load in DMN
+	networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
+	nets_LH=networks.nets.Lnets(:,2);
+	nets_RH=networks.nets.Rnets(:,2);
+	% convert to faces
+	F_MW_L=sum(nets_LH(faces_l),2)./3;
+	F_MW_R=sum(nets_RH(faces_r),2)./3;
+	% boolean out areas where .3 or less DMN
+	F_MW_L(F_MW_L<0.3)=0;
+	F_MW_L=ceil(F_MW_L);
+	F_MW_R(F_MW_R<0.3)=0;
+	F_MW_R=ceil(F_MW_R);
+	% convert to within medial wall mask
+	DMN_L=logical(F_MW_L(g_noMW_combined_L));
+	DMN_R=logical(F_MW_R(g_noMW_combined_R));
+	% mask ts and ps
+	tvec_L_sub=tvec_L(DMN_L);
+	tvec_R_sub=tvec_R(DMN_R);
+	pvec_L_sub=pvec_L(DMN_L);
+	pvec_R_sub=pvec_R(DMN_R);
+	% combine ps
+	ps=[pvec_L_sub' pvec_R_sub'];
+	% combine ts
+	ts=[tvec_L_sub' tvec_R_sub'];
 	% mafdr ps
 	fdred=mafdr(ps);
-	% print pre-thresh average of ts, positive reflects further distance from PG in unintox.
+	% print pre-thresh average of ts, positive reflects further distance from DMNG in unintox.
 	mean(ts)
 	% use it to thresh T's
 	ts(fdred>0.05)=0;
-	ts_L=ts(1:length(noMW_L));
-	ts_R=ts((length(noMW_L)+1):length(ts));
+	% data needs to be mw-mask-length for each
+	tvec_fin_l=zeros(1,length(g_noMW_combined_L));
+	tvec_fin_r=zeros(1,length(g_noMW_combined_R));
+	tvec_fin_l(DMN_L)=ts(1:sum(DMN_L));
+	tvec_fin_r(DMN_R)=ts((sum(DMN_L)+1):(sum(DMN_L)+sum(DMN_R)));
+	%%%%
 	% png out filename
 	pngFN=['~/' subjList(s) '_ts.png'];
 	% visfacevec of threshed T's
-	Vis_Vertvec(ts_L,ts_R,strjoin(pngFN,''))
+	Vis_FaceVec(tvec_fin_l,tvec_fin_r,strjoin(pngFN,''))
 end
 
