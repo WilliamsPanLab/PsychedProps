@@ -1,6 +1,7 @@
 function Netgiis_2_mat(subj)
 % convert downsampled network .giis to .mats
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
+addpath(genpath(ToolFolder));
 % this participant's filepath
 funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/SingleParcel_1by1/' subj '-concat.dtseries.nii/IndividualParcel_Final_sbj1_comp4_alphaS21_1_alphaL300_vxInfo1_ard0_eta0/'];
 netgiis_L=[funcgiiFolder '' subj '_L_AggNets_3k.func.gii'];

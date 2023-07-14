@@ -1,7 +1,9 @@
-function Extract_RelativeAngles(subj,infileOpFl)
+function Extract_RelativeAngles(subj,sesh,infileOpFl)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
+addpath(genpath(ToolFolder));
 
 % set assumed network input directory
 NetworksFolder = ['/oak/stanford/groups/leanew1/users/apines/data/SingleParcel_1by1/' subj '-concat.dtseries.nii/IndividualParcel_Final_sbj1_comp4_alphaS21_1_alphaL300_vxInfo1_ard0_eta0/'];
@@ -267,9 +269,9 @@ outFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/' subj];
 % make out filepath
 system(['mkdir ' outFP]);
 % write out
-writetable(T,[outFP '/Prop_Feats.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_faceMatrix.csv'])
+writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix.csv'])
 
 
 %%% now run same comparison on group-level derived
@@ -401,8 +403,7 @@ end
 T=table(Propvec','RowNames',stringVec);
 % calc outFP
 outFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/' subj];
-% make out filepath
 % write out
-writetable(T,[outFP '/Prop_Feats_gro.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_faceMatrix_gro.csv'])
+writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix_gro.csv'])
