@@ -66,12 +66,15 @@ eld_L=rad2deg(el_L);
 azd_R=rad2deg(az_R);
 eld_R=rad2deg(el_R);
 
-
 % initialize baseline, placebo, 80 mg, and 120 mg vectors
-bv_g_angles=zeros(17,5120);
-p_g_angles=zeros(17,5120);
-m1_g_angles=zeros(17,5120);
-m2_g_angles=zeros(17,5120);
+bv_g_anglesx=zeros(17,5120);
+p_g_anglesx=zeros(17,5120);
+m1_g_anglesx=zeros(17,5120);
+m2_g_anglesx=zeros(17,5120);
+bv_g_anglesy=zeros(17,5120);
+p_g_anglesy=zeros(17,5120);
+m1_g_anglesy=zeros(17,5120);
+m2_g_anglesy=zeros(17,5120);
 
 % load each subject and get mean value within and across subjects at each vertex
 % get subj list
@@ -109,8 +112,9 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	% initialize vector field to be extracted
 	plotVF=zeros(n,3);
-	% note, by not saving rho (just theta), we are discarding magnitude information at this point
+	% save thetas a rho
 	Thetas_L=zeros(1,5120);
+	Rhos_L=zeros(1,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% loop over each frame to extract from unfortunate cell structure
@@ -124,13 +128,11 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 			% convert to spherical coord system
 	        	vs_L=cart2sphvec(double([xComp_L;yComp_L;zComp_L]),azd_L(F),eld_L(F));
 	       		% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas_L(F),rho]=cart2pol(vs_L(1),vs_L(2));
+			[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 	end
-	% extract mean angle at each face
-	SubjThetas=circ_mean(Thetas_L);
 	% populate baseline dataframe
-	bv_g_angles(s,:)=SubjThetas;
+	[bv_g_anglesx(s,:),bv_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 
 	%%% p as left Hemi
 	p=p.us.vf_left;
@@ -139,8 +141,9 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	% initialize vector field to be extracted
 	plotVF=zeros(n,3);
-	% note, by not saving rho (just theta), we are discarding magnitude information at this point
+	% rhos and thetas
 	Thetas_L=zeros(1,5120);
+	Rhos_L=zeros(1,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% loop over each frame to extract from unfortunate cell structure
@@ -154,13 +157,11 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 			% convert to spherical coord system
 	        	vs_L=cart2sphvec(double([xComp_L;yComp_L;zComp_L]),azd_L(F),eld_L(F));
 	       		% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas_L(F),rho]=cart2pol(vs_L(1),vs_L(2));
+			[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 	end
-	% extract mean angle at each face
-	SubjThetas=circ_mean(Thetas_L);
 	% populate placebo dataframe
-	p_g_angles(s,:)=SubjThetas;
+        [p_g_anglesx(s,:),p_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 
 	%%% m1 as left Hemi
 	m1=m1.us.vf_left;
@@ -169,8 +170,9 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	% initialize vector field to be extracted
 	plotVF=zeros(n,3);
-	% note, by not saving rho (just theta), we are discarding magnitude information at this point
+	% rhos and thetas
 	Thetas_L=zeros(1,5120);
+	Rhos_L=zeros(1,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% loop over each frame to extract from unfortunate cell structure
@@ -184,13 +186,11 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 			% convert to spherical coord system
 	        	vs_L=cart2sphvec(double([xComp_L;yComp_L;zComp_L]),azd_L(F),eld_L(F));
 	       		% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas_L(F),rho]=cart2pol(vs_L(1),vs_L(2));
+			[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 	end
-	% extract mean angle at each face
-	SubjThetas=circ_mean(Thetas_L);
-	% populate 80mg dataframe
-	m1_g_angles(s,:)=SubjThetas;
+	% populate m1 dataframe
+        [m1_g_anglesx(s,:),m1_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 
 	%%% m2 as left Hemi
 	m2=m2.us.vf_left;
@@ -199,8 +199,9 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	% initialize vector field to be extracted
 	plotVF=zeros(n,3);
-	% note, by not saving rho (just theta), we are discarding magnitude information at this point
+	% rhos and thetas
 	Thetas_L=zeros(1,5120);
+	Rhos_L=zeros(1,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% loop over each frame to extract from unfortunate cell structure
@@ -214,101 +215,291 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 			% convert to spherical coord system
 	        	vs_L=cart2sphvec(double([xComp_L;yComp_L;zComp_L]),azd_L(F),eld_L(F));
 	       		% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas_L(F),rho]=cart2pol(vs_L(1),vs_L(2));
+			[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 	end
-	% extract mean angle at each face
-	SubjThetas=circ_mean(Thetas_L);
-	% populate 120mg dataframe
-	m2_g_angles(s,:)=SubjThetas;
+	% populate m2 dataframe
+        [m2_g_anglesx(s,:),m2_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 end
 % remove 4th row
-bv_g_angles(4,:)=[];
-p_g_angles(4,:)=[];
-m1_g_angles(4,:)=[];
-m2_g_angles(4,:)=[];
-% get circular means across angles for each participant
-bv_g_angles_mean=circ_mean(bv_g_angles);
-p_g_angles_mean=circ_mean(p_g_angles);
-m1_g_angles_mean=circ_mean(m1_g_angles);
-m2_g_angles_mean=circ_mean(m2_g_angles);
-
+bv_g_anglesx(4,:)=[];
+p_g_anglesx(4,:)=[];
+m1_g_anglesx(4,:)=[];
+m2_g_anglesx(4,:)=[];
+bv_g_anglesy(4,:)=[];
+p_g_anglesy(4,:)=[];
+m1_g_anglesy(4,:)=[];
+m2_g_anglesy(4,:)=[];
+% get means across angles across each participant
+bv_g_angles_meanx=mean(bv_g_anglesx);
+p_g_angles_meanx=mean(p_g_anglesx);
+m1_g_angles_meanx=mean(m1_g_anglesx);
+m2_g_angles_meanx=mean(m2_g_anglesx);
+% y components
+bv_g_angles_meany=mean(bv_g_anglesy);
+p_g_angles_meany=mean(p_g_anglesy);
+m1_g_angles_meany=mean(m1_g_anglesy);
+m2_g_angles_meany=mean(m2_g_anglesy);
 % read in DMN as background
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets(:,2);
-
-% set rhos to 1 to match unit sphere
-rhos=ones(1,5120);
-% convert thetas back to cartersian coordinates with pol2cart
-[x,y]=pol2cart(bv_g_angles_mean,1);
-% make x y rhos three rows in a matrix
-vecs_l=zeros(3,5120);
-vecs_l(1,:)=x;
-vecs_l(2,:)=y;
-vecs_l(3,:)=rhos;
-vectors_cart=zeros(3,5120);
-% for each face
-for F=g_noMW_combined_L
-	% get vectors in cartesian space
-	vectors_cart(:,F)=sph2cartvec(vecs_l(:,F),azd_L(F),eld_L(F));
-end
-% Streamlines for first component: transpose to meet format
-v = vectors_cart';
-% scale cortical mantle
+% convert to faces for equivalence to vector fields
+F_nets_LH=sum(nets_LH(faces_l),2)./3;
 vx_l=vx_l./101;
 P_L=P_L./101;
-% move z coord of cortical mantle backwards
-% vx_l(:,3)=vx_l(:,3)-1;
 
-
-% Set parameters.
-nmax = max(sqrt(sum((v).^2, 2)));
-h = 0.1/nmax;
-maxit = 50;
-lw = .7;
+% set rhos to 0: prior to spherical transform it represents vector coming out from sphere
+rhos=zeros(1,5120);
+% make x y rhos three rows in a matrix
+vectors_s=zeros(3,5120);
+vectors_s(1,:)=bv_g_angles_meanx;
+vectors_s(2,:)=bv_g_angles_meany;
+vectors_s(3,:)=rhos;
+vectors_cart=zeros(3,5120);
+% Streamlines for first component: transpose to meet format
+for F=g_noMW_combined_L
+        % get vectors in cartesian space
+        vectors_cart(:,F)=sph2cartvec(vectors_s(:,F),azd_L(F),eld_L(F));
+end
+v=vectors_cart';
 % Define your data
-data = nets_LH;
+data = F_nets_LH;
+% zero mw
+data(fmwIndVec_l)=0;
 % Define the colormap
 cmap = colormap('autumn');
 % Set values below 0.4 to gray
-grayValue = [0.3 0.3 0.3]; % RGB values for gray color (adjust as needed)
+grayValue = [0.7 0.7 0.7]; % RGB values for gray color (adjust as needed)
 data(data < 0.4) = 0;
 cmap(1,:) = grayValue;
 
 % set figure
-figure
-% Plot the data using trisurf
-aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3), data);
-
+figure('units','pixels','position',[0 0 2500 2500])
+scalingfactor=5
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(data)]);
+% add cortical mantle %
+aplot = trisurf(faces_l, vx_l(:,1)./scalingfactor, vx_l(:,2)./scalingfactor, vx_l(:,3)./scalingfactor,data)
+colormap(cmap);
+hold on
+% convert dmn to faces
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+freezeColors
+scalingfactor=5;
+ret=v;
 % Adjust the color axis limits to match the 'autumn' colormap
 caxis([0.4, max(nets_LH)]);
+hold on;
+% color vector!
+% Calculate the magnitudes of the vectors in ret
+magnitudes = sqrt(sum(ret.^2, 2));
+% Normalize the magnitudes to the range [0, 1], .029 is max in placebo so we will use throughout for consistent coloration
+normalized_magnitudes = (magnitudes - 0) / (.029 - min(magnitudes));
+% Define the color range from [.1 .1 .1] to [.9 .9 .9]
+color_range_low = [.9 .9 .9];
+color_range_high = [.1 .1 .1];
+% Interpolate the colors based on the normalized magnitudes
+color_vector = color_range_low + (color_range_high - color_range_low) .* normalized_magnitudes;
+% add quivers
+quiver3D(P_L(g_noMW_combined_L,1)./scalingfactor,P_L(g_noMW_combined_L,2)./scalingfactor,P_L(g_noMW_combined_L,3)./scalingfactor,ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),color_vector(g_noMW_combined_L),0)
+% Set colormap
+colormap('gray');
+view(230, 185);
+daspect([1 1 1]);
+
+print(['~/streams/groupBV.png'],'-dpng')
+%%%%%%%%%%%%%%
+% placebo
+% make x y rhos three rows in a matrix
+vectors_s=zeros(3,5120);
+vectors_s(1,:)=p_g_angles_meanx;
+vectors_s(2,:)=p_g_angles_meany;
+vectors_s(3,:)=rhos;
+vectors_cart=zeros(3,5120);
+% Streamlines for first component: transpose to meet format
+for F=g_noMW_combined_L
+        % get vectors in cartesian space
+        vectors_cart(:,F)=sph2cartvec(vectors_s(:,F),azd_L(F),eld_L(F));
+end
+v=vectors_cart';
+% set figure
+figure('units','pixels','position',[0 0 2500 2500])
+scalingfactor=5
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(data)]);
 
 % add cortical mantle %
-aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3),data)
+aplot = trisurf(faces_l, vx_l(:,1)./scalingfactor, vx_l(:,2)./scalingfactor, vx_l(:,3)./scalingfactor,data)
+colormap(cmap);
+hold on
+% convert dmn to faces
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+scalingfactor=5;
+freezeColors;
+ret=v;
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(nets_LH)]);
+hold on;
+% color vector!
+% Calculate the magnitudes of the vectors in ret
+magnitudes = sqrt(sum(ret.^2, 2));
+% Normalize the magnitudes to the range [0, 1], .029 is max in placebo so we will use throughout for consistent coloration
+normalized_magnitudes = (magnitudes - 0) / (.029 - min(magnitudes));
+% Interpolate the colors based on the normalized magnitudes
+color_vector = color_range_low + (color_range_high - color_range_low) .* normalized_magnitudes;
+% add quivers
+quiver3D(P_L(g_noMW_combined_L,1)./scalingfactor,P_L(g_noMW_combined_L,2)./scalingfactor,P_L(g_noMW_combined_L,3)./scalingfactor,ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),color_vector(g_noMW_combined_L),0)
+% Set colormap
+colormap('gray');
+view(230, 185);
+daspect([1 1 1]);
+
+print(['~/streams/groupP.png'],'-dpng')
+%%%%%%%%%%%%%%
+% 80 mg
+%%%%%%%%%%%%%%
+% make x y rhos three rows in a matrix
+vectors_s=zeros(3,5120);
+vectors_s(1,:)=m1_g_angles_meanx;
+vectors_s(2,:)=m1_g_angles_meany;
+vectors_s(3,:)=rhos;
+vectors_cart=zeros(3,5120);
+% Streamlines for first component: transpose to meet format
+for F=g_noMW_combined_L
+        % get vectors in cartesian space
+        vectors_cart(:,F)=sph2cartvec(vectors_s(:,F),azd_L(F),eld_L(F));
+end
+v=vectors_cart';
+% set figure
+figure('units','pixels','position',[0 0 2500 2500])
+scalingfactor=5
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(data)]);
+% add cortical mantle %
+aplot = trisurf(faces_l, vx_l(:,1)./scalingfactor, vx_l(:,2)./scalingfactor, vx_l(:,3)./scalingfactor,data)
+colormap(cmap);
+hold on
+% convert dmn to faces
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+freezeColors;
+ret=v;
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(nets_LH)]);
+hold on;
+% color vector!
+% Calculate the magnitudes of the vectors in ret
+magnitudes = sqrt(sum(ret.^2, 2));
+% Normalize the magnitudes to the range [0, 1], .029 is max here so we will use throughout for consistent coloration
+normalized_magnitudes = (magnitudes - 0) / (.029 - min(magnitudes));
+% Interpolate the colors based on the normalized magnitudes
+color_vector = color_range_low + (color_range_high - color_range_low) .* normalized_magnitudes;
+% add quivers
+quiver3D(P_L(g_noMW_combined_L,1)./scalingfactor,P_L(g_noMW_combined_L,2)./scalingfactor,P_L(g_noMW_combined_L,3)./scalingfactor,ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),color_vector(g_noMW_combined_L),0)
+% Set colormap
+colormap('gray');
+view(230, 185);
+daspect([1 1 1]);
+
+print(['~/streams/groupm1.png'],'-dpng')
+%%%%%%%%%%%%%%
+% 120 mg
+%%%%%%%%%%%%%%
+% make x y rhos three rows in a matrix
+vectors_s=zeros(3,5120);
+vectors_s(1,:)=m2_g_angles_meanx;
+vectors_s(2,:)=m2_g_angles_meany;
+vectors_s(3,:)=rhos;
+vectors_cart=zeros(3,5120);
+% Streamlines for first component: transpose to meet format
+for F=g_noMW_combined_L
+        % get vectors in cartesian space
+        vectors_cart(:,F)=sph2cartvec(vectors_s(:,F),azd_L(F),eld_L(F));
+end
+v=vectors_cart';
+% set figure
+figure('units','pixels','position',[0 0 2500 2500])
+scalingfactor=5
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(data)]);
+
+% add cortical mantle %
+aplot = trisurf(faces_l, vx_l(:,1)./scalingfactor, vx_l(:,2)./scalingfactor, vx_l(:,3)./scalingfactor,data)
+colormap(cmap);
+hold on
+% convert dmn to faces
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+ret=v;
+hold on;
+freezeColors;
+% color vector!
+% Calculate the magnitudes of the vectors in ret
+magnitudes = sqrt(sum(ret.^2, 2));
+% Normalize the magnitudes to the range [0, 1], .029 is max in placebo so we will use throughout for consistent coloration
+normalized_magnitudes = (magnitudes - 0) / (.029 - min(magnitudes));
+% Interpolate the colors based on the normalized magnitudes
+color_vector = color_range_low + (color_range_high - color_range_low) .* normalized_magnitudes;
+% add quivers
+quiver3D(P_L(g_noMW_combined_L,1)./scalingfactor,P_L(g_noMW_combined_L,2)./scalingfactor,P_L(g_noMW_combined_L,3)./scalingfactor,ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),color_vector(g_noMW_combined_L),0)
+% Set colormap
+colormap('gray');
+view(230, 185);
+daspect([1 1 1]);
+
+print(['~/streams/groupm2.png'],'-dpng')
+
+colorbar
+
+print(['~/streams/groupm2cb.png'],'-dpng')
+% make a drug no drug difference image 
+% merge placebo and baseline vectors
+vectors_nondrug=zeros(3,5120);
+vectors_nondrug(1,:)=(bv_g_angles_meanx+p_g_angles_meanx)./2;
+vectors_nondrug(2,:)=(bv_g_angles_meany+p_g_angles_meany)./2;
+vectors_nondrug(3,:)=rhos;
+% merge m1 and m2 vectors (80 and 120mg)
+vectors_d=zeros(3,5120);
+vectors_d(1,:)=(m1_g_angles_meanx+m2_g_angles_meanx)./2;
+vectors_d(2,:)=(m1_g_angles_meany+m2_g_angles_meany)./2;
+vectors_d(3,:)=rhos;
+% get difference between merged nondrug and merged drug vectors 
+vectors_diff=vectors_nondrug-vectors_d;
+% Streamlines for first component: transpose to meet format
+for F=g_noMW_combined_L
+	% get vectors in cartesian space
+	vectors_cart(:,F)=sph2cartvec(vectors_diff(:,F),azd_L(F),eld_L(F));
+end
+v=vectors_cart';
+% set figure
+figure('units','pixels','position',[0 0 2500 2500])
+% Adjust the color axis limits to match the 'autumn' colormap
+caxis([0.4, max(data)]);
+% add cortical mantle %
+aplot = trisurf(faces_l, vx_l(:,1)./scalingfactor, vx_l(:,2)./scalingfactor, vx_l(:,3)./scalingfactor,data)
 colormap(cmap);
 freezeColors;
 hold on
-
-
-% Plot the data using trisurf
-aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3), data);
+% convert dmn to faces
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+scalingfactor=5;
+% convert vectors to unit vectors for plotting independent of magnitude
+% thank you https://stackoverflow.com/questions/40778629/matlab-convert-vector-to-unit-vector
+ret=v;
 % Adjust the color axis limits to match the 'autumn' colormap
 caxis([0.4, max(nets_LH)]);
-% Add cortical mantle
 hold on;
-% Add quiver plot for the vector field
-quiver3(P_L(g_noMW_combined_L, 1), P_L(g_noMW_combined_L, 2), P_L(g_noMW_combined_L, 3), v(g_noMW_combined_L, 1), v(g_noMW_combined_L, 2), v(g_noMW_combined_L, 3), 'Color', 'g');
+% add quivers
+quiver3D(P_L(g_noMW_combined_L,1)./scalingfactor,P_L(g_noMW_combined_L,2)./scalingfactor,P_L(g_noMW_combined_L,3)./scalingfactor,ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),[.2 .2 .2],0)
 % Set colormap
 colormap(cmap);
 freezeColors;
 view(230, 185);
 daspect([1 1 1]);
+print(['~/streams/nond_mind.png'],'-dpng')
 
-%h=get(gca,'Children');
-%set(gca,'Children',[h(76009) h(1:76008)]);
-%adjustFigure;
-% one rotation for insula
-%savefigure(F, fullfile(childfp, filename), '-png', '-r600');
-print(['~/streams/groupBV.png'],'-dpng')
-%%%%%%%%%%%%%%
+
+
+
+
+% make a sep. plot showing scale of arrows as legend?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
