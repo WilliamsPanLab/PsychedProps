@@ -40,8 +40,9 @@
 ############################
 #### module I: Preprocessing
 ############################
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module I: preproc"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # will need matlab
 module load matlab
@@ -59,10 +60,6 @@ sesh=$2
 # Downsample the data 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
-# cd to scripts directory
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5
-
-
 # mask images: 10+ continuous frames only
 matlab -nodisplay -r "MotMask('$subj','$sesh')"
 ### add feed-in for FD time series
@@ -70,9 +67,9 @@ matlab -nodisplay -r "MotMask('$subj','$sesh')"
 ############################
 #### module II: Optical Flow
 ############################
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
 matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
@@ -86,9 +83,9 @@ rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 #############################
 #### module III: Calc. Angles
 #############################
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # make output directory outside scratch
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
@@ -104,9 +101,9 @@ mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 #############################
 #### module IV: Plot report
 #############################
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module IV: Plotting report"
-
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # extract time course of precuneus
 # extract ROIs into text file (50 and 100 are precun)
 wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
