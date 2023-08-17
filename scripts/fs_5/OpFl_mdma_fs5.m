@@ -11,8 +11,8 @@ s = 1; % R(u), regularizing functional, scales Tikhonov regularization more rapi
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 
 % load in data
-fpL=[childfp '/' subj '_' sesh '_L_AggTS_10k.mgh'];
-fpR=[childfp '/' subj '_' sesh '_R_AggTS_10k.mgh'];
+fpL=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_L.mgh'];
+fpR=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_R.mgh'];
 
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;
@@ -39,9 +39,22 @@ vx_l(numV+1:end, :) = VecNormalize(vx_l(numV+1:end, :));
 numV=length(vx_r);
 vx_r(numV+1:end, :) = VecNormalize(vx_r(numV+1:end, :));
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% rs
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% load in continuous segment indices
+CSIfp=[childfp '/' subj '_' sesh '_task-rs_ValidSegments_Trunc.txt'];
+CSI = importdata(CSIfp);
+% assure that TR count is the same between time series and valid segments txt
+SegNum=size(CSI);
+SegNum=SegNum(1);
+% number of trs in fmri ts
+mr_ts_trs=size(TRs_l_g);
+mr_ts_trs=mr_ts_trs(2);
+% trailing -1 is because the count column (,2) is inclusive of the start TR (,1)
+numTRsVS=CSI(SegNum,1)+CSI(SegNum,2)-1;
+if numTRsVS ~= mr_ts_trs
+	disp('TRs from Valid Segments txt and mgh file do not match. Fix it.')
+	return
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake functional data (on surface)
 % handle input data
@@ -77,8 +90,22 @@ disp('Computing optical flow: resting-state');
 % note trp = tr pair
 TRPC=1;
 
+%% new
+% for each continuous segment
+for seg=1:SegNum;
+	% just to print out count of current segment
+	seg
+	SegStart=CSI(seg,1);
+	SegSpan=CSI(seg,2);
+	% get corresponding TRs from aggregate time series
+	segTS_l=fl.TRs(SegStart:(SegStart+SegSpan-1));
+	segTS_r=fr.TRs(SegStart:(SegStart+SegSpan-1));
+%% new
+
+
+
 % loop over each TR-Pair: 1 fewer pair than number of TRs
-for TRP=1:(TR_n-1)
+for TRP=1:(SegSpan-1)
 	% print TR pair iter
 	TRP
 	% Compute decomposition.
@@ -95,6 +122,10 @@ for TRP=1:(TR_n-1)
 	% update TR pair counter, which should increase +1 across segments
 	TRPC=TRPC+1;
 end
+end
+
+
+
 
 save([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat'],'us')
 

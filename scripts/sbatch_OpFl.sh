@@ -79,6 +79,7 @@ rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
+# in theory this is next to-do
 
 #############################
 #### module III: Calc. Angles
@@ -87,9 +88,9 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # make output directory outside scratch
-mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
-mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
-./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
+#mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
+#mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
+#./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
 
 # make a simple opfl txt file with whole-cortex amplitude and SD time series
 # matlab -nodisplay -r "OpFl_AmpSD('$subj','$sesh')"
@@ -101,12 +102,12 @@ mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
 #############################
 #### module IV: Plot report
 #############################
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module IV: Plotting report"
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+#echo "Starting module IV: Plotting report"
+#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # extract time course of precuneus
 # extract ROIs into text file (50 and 100 are precun)
-wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
+#wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
 
 # extract peaks, delays, and magnitudes from ptseries and global signal
 #ml python/3
@@ -117,10 +118,10 @@ rs1ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_design.tsv
 rs2ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_design.tsv
 
 ####### extract FC of DM thalamus
-matlab -nodisplay -r "ROIfc('$subj','$sesh')"
+#matlab -nodisplay -r "ROIfc('$subj','$sesh')"
 
 ### transform this into grayplot viz: interpolated BOLD grayplot, GS, Orientation grayplot, half radar for positvity by delta dmn and negativity by delta dmn
-python3 Viz_grayplots.py $subj $sesh $childfp
+#python3 Viz_grayplots.py $subj $sesh $childfp
 
 # extract amygdalar TS
 
