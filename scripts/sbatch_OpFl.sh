@@ -62,7 +62,6 @@ sesh=$2
 
 # mask images: 10+ continuous frames only
 matlab -nodisplay -r "MotMask('$subj','$sesh')"
-### add feed-in for FD time series
 
 ############################
 #### module II: Optical Flow
@@ -79,7 +78,7 @@ rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-# in theory this is next to-do
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles

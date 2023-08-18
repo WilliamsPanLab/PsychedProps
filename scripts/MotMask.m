@@ -10,9 +10,6 @@ function MotMask(subj,sesh)
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% initialize empty vector for average length
-TRvecNum=[];
-
 % filepath for output
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 
@@ -40,8 +37,6 @@ if isfile(fpL)
 	% extract FD columns
 	FD1=table2array(conf1(:,'framewise_displacement'));
 	FD2=table2array(conf2(:,'framewise_displacement'));
-	% set first value of FD2 to 1 to trigger new segment for new scan
-	FD2(1)=1;
 	% extract GS columns
 	GS1=table2array(conf1(:,'global_signal'));
 	GS2=table2array(conf2(:,'global_signal'));
@@ -50,9 +45,13 @@ if isfile(fpL)
 	GS=vertcat(GS1,GS2);	
 	% get to FD_thresh of .2 mm
 	TRwise_mask=FD>.2;
+	% building in sanity check. Motion removed frames + interrupted sequence removed frames + ending frames should = start frame #
+	motRemFrames=sum(TRwise_mask)
 	% length of mask corresponds to number of TRs
 	% 1 indicates flagged for FD over selected threshold, reverse 'em so 0 indicates removal
 	TRwise_mask=~TRwise_mask;
+	% use it to mask GS in parallel with time series
+	GSm=GS(TRwise_mask);
 	% remove TRs with corresp. flag
 	masked_trs_l=tsl(:,TRwise_mask);
 	masked_trs_r=tsr(:,TRwise_mask);
@@ -84,11 +83,32 @@ if isfile(fpL)
 	for i=2:UTSegNum
 		UTSegCell(i,1)=num2cell(UTSegCell{i-1,1}+UTSegCell{i-1,2});
 	end
-        % find segments with more continuous TRs than threshold
+	% now we need to artificially insert the discontinuity between scans. That is, if one segment spans the end of the first scan and into the second, it needs to be broken up to reflect the true discontinuity
+      	% find any segment that runs over end of scan 1 into scan 2
+       	CrossSegment = find(cell2mat(UTSegCell(:,1)) < length(FD1) & cell2mat(UTSegCell(:,1)) + cell2mat(UTSegCell(:,2)) > length(FD1));
+	% Iterate over the extended segments and adjust the duration
+	for i = 1:length(CrossSegment)
+    		% Calculate the new duration for the segment
+    		newSegmentDuration = (length(FD1) - UTSegCell{CrossSegment, 1})+1;
+    		% record where the new segment will starts
+		newSegmentStart = length(FD1)+1;
+		% record where the new segment will end
+		remainingSegmentDuration = (UTSegCell{CrossSegment, 2} - newSegmentDuration)+1;
+		% Update the duration in UTSegCell
+    		UTSegCell{CrossSegment, 2} = newSegmentDuration;
+    		% Insert a new row for the remaining portion of the extended segment
+    		UTSegCell = [UTSegCell(1:CrossSegment, :); {newSegmentStart, remainingSegmentDuration}; UTSegCell(CrossSegment+1:end, :)];
+	end	
+	% update ContSegments
+	ContSegments=cell2mat(UTSegCell(:,2));
+	% find segments with more continuous TRs than threshold
         OverThreshSegments=find(ContSegments>Threshold);
-        % sum remaining segments to get included TRs if this thresh chosen
-        RemainingTRs=sum(ContSegments(OverThreshSegments))
-        % index of which TR valid segments start at
+        % sanity check for TRs excluded for being in interrupted segments
+	UnderThreshSegments=find(ContSegments<(Threshold+1));
+	ExcludedTRs=sum(ContSegments(UnderThreshSegments));
+	% sum remaining segments to get included TRs if this thresh chosen
+        RemainingTRs=sum(ContSegments(OverThreshSegments));
+	% index of which TR valid segments start at
         ValidTRStarts=dInd(maskValAtChange);
 	% index out segments greater than TR thresh from UnThreshSegmentCellstruct
 	ValidSegCell=UTSegCell(OverThreshSegments,:);
@@ -107,18 +127,24 @@ if isfile(fpL)
 	writetable(cell2table(ValidSegCell_Trunc),segmentfnTr,'WriteVariableNames',0)
 	% make binary mask for continuous segments
 	TRwise_mask_cont=zeros(1,newTRnum);
+	% need to start double checking here through assertion
+	% comprised of 1 at starting TR through length of valid segment
 	for seg=1:length(OverThreshSegments);
 		TRwise_mask_cont(ValidSegCell{seg,1}:(ValidSegCell{seg,1}+ValidSegCell{seg,2}-1))=1;
 	end
+	% apply to GS
+	GSmc=GSm(logical(TRwise_mask_cont));
 	% apply to mgh
-	masked_trs_cont_l=tsl(:,logical(TRwise_mask_cont));
-	masked_trs_cont_r=tsr(:,logical(TRwise_mask_cont));
+	masked_trs_cont_l=masked_trs_l(:,logical(TRwise_mask_cont));
+	masked_trs_cont_r=masked_trs_r(:,logical(TRwise_mask_cont));
 	% insert back into OG structure to saveout in equivalent structure
 	dataL.vol=masked_trs_cont_l;
 	dataR.vol=masked_trs_cont_r;
 	% set output filepath
 	ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_L.mgh'];
 	ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_R.mgh'];
+        % implement sanity check. FD > thresh removed + noncontinuous segment removed + remaining = OG
+	assert(motRemFrames + ExcludedTRs + sum(TRwise_mask_cont) == numTRs, 'Assertion failed: Over FD trs + noncontinuous TRs + remaining TRs is not equal to original TRs');
 	% saveout
 	MRIwrite(dataL,ofpl)
 	MRIwrite(dataR,ofpr)
