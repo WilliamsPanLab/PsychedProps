@@ -52,7 +52,10 @@ sesh=$2
 # Downsample the data 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
-# mask images: 10+ continuous frames only
+# cd to workaround addpath in matlab shell call
+cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
+
+# mask images: 8+ continuous frames only
 matlab -nodisplay -r "MotMask('$subj','$sesh')"
 
 ############################
@@ -70,7 +73,7 @@ rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+# matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles
@@ -103,10 +106,6 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # extract peaks, delays, and magnitudes from ptseries and global signal
 #ml python/3
 #python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_pulses.py ${subj} ${sesh}
-
-# extract GS from tsv
-rs1ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_design.tsv
-rs2ConfTsv=${xcpd_outdir}${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_design.tsv
 
 ####### extract FC of DM thalamus
 #matlab -nodisplay -r "ROIfc('$subj','$sesh')"

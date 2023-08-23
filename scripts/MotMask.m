@@ -83,20 +83,20 @@ if isfile(fpL)
 	CrossSegment = find(cell2mat(Absolut(:,1)) < length(FD1) & cell2mat(Absolut(:,1)) + cell2mat(Absolut(:,4)) > length(FD1)); 
 	if ~isempty(CrossSegment)
 	% now we need to artificially insert the discontinuity between scans. That is, if one segment spans the end of the first scan and into the second, it needs to be broken up to reflect the true discontinuity
-	% +1 because of inclusivity
+	% +1 for inclusivity (frames 1-3 is 3 frames, not 1-3).
 	ts1newSegmentDuration = (length(FD1) - Absolut{CrossSegment, 1})+1;	
 	ts1newSegmentEnd=length(FD1);
 	% record where the new segment will start
 	ts2newSegmentStart=length(FD1)+1;
 	ts2newSegmentEnd=Absolut{CrossSegment, 2};
-	% record where the new segment will end (initial duration minus frames allocated to ts1 new segment, +1 because of inclusive counts)
-	ts2newSegmentDuration = (Absolut{CrossSegment, 4} - ts1newSegmentDuration)+1;
+	% record where the new segment will end (initial duration minus frames allocated to ts1 new segment
+	ts2newSegmentDuration = (Absolut{CrossSegment, 4} - ts1newSegmentDuration);
 	% Update the duration in absolut
-	Absolut{CrossSegment, 4} = ts1newSegmentDuration
+	Absolut{CrossSegment, 4} = ts1newSegmentDuration;
 	% update the ending TR in absolut (should be 423 for p50 rs)
-	Absolut{CrossSegment, 2} = Absolut{CrossSegment, 1} + Absolut{CrossSegment, 4}
+	Absolut{CrossSegment, 2} = Absolut{CrossSegment, 1} + Absolut{CrossSegment, 4};
 	% now insert new TS2 segment
-	Absolut = [Absolut(1:CrossSegment, :); {ts2newSegmentStart, ts2newSegmentEnd, 1, ts2newSegmentDuration}; Absolut(CrossSegment+1:end, :)];
+	Absolut = [Absolut(1:CrossSegment, :); {ts2newSegmentStart, ts2newSegmentEnd, 1, ts2newSegmentDuration}; Absolut(CrossSegment+1:end, :)]
 	%%%                                                                                                                 %%%
 	else
 	end
@@ -119,7 +119,7 @@ if isfile(fpL)
 	% find segments with more continuous TRs than threshold
         OverThreshSegments=find(cell2mat(continuousSegments)>Threshold);
         % sanity check for TRs excluded for being in interrupted segments
-	UnderThreshSegments=find(cell2mat(continuousSegments)<(Threshold+1));
+	UnderThreshSegments=find(cell2mat(continuousSegments)<(Threshold));
 	ExcludedTRs=sum(cell2mat(continuousSegments(UnderThreshSegments)));
 	% sum remaining segments to get included TRs if this thresh chosen
         RemainingTRs=sum(cell2mat(continuousSegments(OverThreshSegments)))
@@ -157,7 +157,7 @@ if isfile(fpL)
 	        endValue = Absolut{row, 2};        
     		% change TRwise_mask_cont to 1 where this sequence of continuous good TRs occurs
 		TRwise_mask_cont(startValue:endValue)=1;
-		end
+	    end
 	end
 	% apply to GS
 	GSmc=GS(logical(TRwise_mask_cont));

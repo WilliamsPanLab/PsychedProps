@@ -35,18 +35,18 @@ mw_R(mwIndVec_r)=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 plotdata=zeros(1,10242);
-plotdata(logical(mw_L))=VertVecL;
-
+%plotdata(logical(mw_L))=VertVecL;
+plotdata=VertVecL;
 %%%%%%% fixed colorscale varities
 
 %%% circular
-%mincol=-10;
-%maxcol=10;
+mincol=-10;
+maxcol=10;
 
 
 %%% for red/blue 0-centered
-mincol=70;
-maxcol=110;
+%mincol=70;
+%maxcol=110;
 %custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
 %custommap(126,:)=[.5 .5 .5];
@@ -152,8 +152,8 @@ set(gca,'CLim',[mincol,maxcol]);
 
 %%% right hemisphere
 plotdata=zeros(1,10242);
-plotdata(logical(mw_R))=VertVecR;
-
+%plotdata(logical(mw_R))=VertVecR;
+plotdata=VertVecR;
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
