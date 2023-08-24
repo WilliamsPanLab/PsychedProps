@@ -117,7 +117,7 @@ if isfile(fpL)
 		UTSegCell(i,1)=num2cell(UTSegCell{i-1,1}+UTSegCell{i-1,2});
 	end
 	% find segments with more continuous TRs than threshold
-        OverThreshSegments=find(cell2mat(continuousSegments)>Threshold);
+        OverThreshSegments=find(cell2mat(continuousSegments)>=Threshold);
         % sanity check for TRs excluded for being in interrupted segments
 	UnderThreshSegments=find(cell2mat(continuousSegments)<(Threshold));
 	ExcludedTRs=sum(cell2mat(continuousSegments(UnderThreshSegments)));
@@ -157,6 +157,8 @@ if isfile(fpL)
 	        endValue = Absolut{row, 2};        
     		% change TRwise_mask_cont to 1 where this sequence of continuous good TRs occurs
 		TRwise_mask_cont(startValue:endValue)=1;
+		sum(TRwise_mask_cont)
+	    else
 	    end
 	end
 	% apply to GS
