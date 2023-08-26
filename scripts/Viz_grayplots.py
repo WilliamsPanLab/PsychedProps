@@ -19,51 +19,61 @@ matplotlib.use('agg')
 # set resolution
 plt.rcParams['figure.dpi'] = 1000
 # set parent fp
-parentfp='/oak/stanford/groups/leanew1/users/apines/data/mdma/' + str(subj) + '/' +str(sesh) + '/'
+parentfp='/scratch/users/apines/data/mdma/' + str(subj) + '/' +str(sesh)
 ### load in lobe indices
 #leftLubs=np.genfromtxt('/cbica/projects/pinesParcels/data/lobe_label_lh.csv')
 #rightLubs=np.genfromtxt('/cbica/projects/pinesParcels/data/lobe_label_rh.csv')
 
 ###### import FC map
-#PGfp= parentfp2 + '_gradients_L_3k.func.gii'
-#pgL=nb.load(PGfp)
-#PGfp= parentfp2 + '_gradients_R_3k.func.gii'
-#pgR=nb.load(PGfp)
-L_FCfp=parentfp + str(subj) + '_' + str(sesh) + '_L_ROIfc.csv'
-R_FCfp=parentfp + str(subj) + '_' + str(sesh) + '_R_ROIfc.csv'
-L_FC=np.genfromtxt(L_FCfp,delimiter=',')
-R_FC=np.genfromtxt(R_FCfp,delimiter=',')
-
 # to organize vertices in terms of their position on the PG
 #PGindicesL=np.argsort(pgL.agg_data()[0])
 #PGindicesR=np.argsort(pgR.agg_data()[0])
 # to organize vertices in terms of their position in FC
-FCindicesL=np.argsort(L_FC)
-FCindicesR=np.argsort(R_FC)
+#FCindicesL=np.argsort(L_FC)
+#FCindicesR=np.argsort(R_FC)
 
-###### import TS
-TSfp='/scratch/users/apines/' + str(subj) + '_' + str(sesh) + '_L_AggTS_3k.func.gii'
-gif_CL=nb.load(TSfp)
-CL=np.array(gif_CL.agg_data()[:])
-TSfp='/scratch/users/apines/' + str(subj) + '_' + str(sesh) + '_R_AggTS_3k.func.gii'
-gif_CR=nb.load(TSfp)
-CR=np.array(gif_CR.agg_data()[:])
-
-### import OpFl amplitude
+###### import interp TS
+TSfp= parentfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_p2mm_masked_interp_L.mgh'
+ts=nb.load(TSfp)
+CL=np.array(ts.dataobj[:])
+# drop ghost dimension
+CL=np.squeeze(CL)
+# convert to SD
+Lstds=np.std(CL)
+CL=CL/Lstds;
+# and transpose so time is on x-axis
+CL=np.transpose(CL)
+# import right hemisphere
+TSfp= parentfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_p2mm_masked_interp_R.mgh'
+ts=nb.load(TSfp)
+CR=np.array(ts.dataobj[:])
+# drop ghost dimension
+CR=np.squeeze(CR)
+# convert to SD
+Rstds=np.std(CR)
+CR=CR/Rstds;
+# and transpose so time is on x-axis
+CR=np.transpose(CR)
 
 ### import confounds file for GS
-xcpd_outdir='/scratch/groups/leanew1/xcpd_outMDMA_36p_despike_bp/xcp_d/' +str(subj) + '/' + str(sesh) + '/func/'
+fmriprep_outdir='/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' +str(subj) + '/' + str(sesh) + '/func/'
+# and figure dir for later
+xcpd_figdir='/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' +str(subj) + '/figures/'
+# Define the file paths for the confound TSV files
+confFilepath1 = fmriprep_outdir + str(subj) + '_' + str(sesh) + '_task-rs_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv' 
+confFilepath2 = fmriprep_outdir + str(subj) + '_' + str(sesh) + '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv' 
+# Load the TSV files using numpy
+conf1 = np.genfromtxt(confFilepath1, delimiter='\t', names=True, dtype=None)
+conf2 = np.genfromtxt(confFilepath2, delimiter='\t', names=True, dtype=None)
+# Extract the 'global_signal' columns
+GS1 = conf1['global_signal']
+GS2 = conf2['global_signal']
+# Combine the arrays to match concatenated neuroimages
+gs=np.concatenate((rs1Conf,rs2Conf),axis=0)
+### import motion-masked gs
+GS_file=parentfp + '/' + str(subj) + '_' + str(sesh) + '_GS_p2mm.csv';
 
-rs1ConfTsv= xcpd_outdir + subj + '_' + sesh + '_task-rs_acq-mb_dir-pe0_run-0_design.tsv'
-rs2ConfTsv= xcpd_outdir + subj + '_' + sesh + '_task-rs_acq-mb_dir-pe1_run-0_design.tsv'
-rs1Conf=np.genfromtxt(rs1ConfTsv,delimiter='\t')
-rs2Conf=np.genfromtxt(rs2ConfTsv,delimiter='\t')
-# concatenate the two time series
-rsConf=np.concatenate((rs1Conf,rs2Conf),axis=0)
-# get the global signal
-# column 27 is gs, 30 is dt_gs
-gs=rsConf[:,26]
-gsdt=rsConf[:,29]
+
 # get the dorsomedial thalamus time series
 SubcortTS1fp=parentfp + str(subj) + '_' + str(sesh) + '_rs_SubCortROIS.txt'
 SubcortTS2fp=parentfp + str(subj) + '_' + str(sesh) + '_rs2_SubCortROIS.txt'
@@ -78,9 +88,6 @@ import matplotlib.pyplot as plt
 # plt.psd(s, 512, 1 / diff)
 
 # each vertex normalized w/r/t global SD
-# L
-Lstds=np.std(CL)
-CL=CL/Lstds;
 # R
 Rstds=np.std(CR)
 CR=CR/Rstds;

@@ -1,12 +1,12 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=0:20:00
+#SBATCH --time=10:20:00
 #SBATCH -n 1
 #SBATCH --mem=35G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
-#SBATCH --mail-user=no@stanford.edu
+#SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 
@@ -70,10 +70,9 @@ matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
-rsOut=${childfp}/${subj}_${sesh}_PGGDist_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-# matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles
@@ -82,16 +81,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # make output directory outside scratch
-#mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
-#mkdir -p /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/
-#./run_Extract_BUTD_ResultantVecs_Gran_fs5.sh /share/software/user/restricted/matlab/R2018a/ $rsIn $childfp/OpFl_timeseries_L_fs5.mat $childfp/OpFl_timeseries_R_fs5.mat
+mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
-# make a simple opfl txt file with whole-cortex amplitude and SD time series
-# matlab -nodisplay -r "OpFl_AmpSD('$subj','$sesh')"
-
-# this is dumb, but switch back
-#cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
-
+# extract relative angles
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 
 #############################
 #### module IV: Plot report
@@ -103,12 +96,20 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # extract ROIs into text file (50 and 100 are precun)
 #wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
 
-# extract peaks, delays, and magnitudes from ptseries and global signal
-#ml python/3
-#python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/derive_pulses.py ${subj} ${sesh}
-
 ####### extract FC of DM thalamus
 #matlab -nodisplay -r "ROIfc('$subj','$sesh')"
+
+### Have GS
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+GSP=[childfp '/' subj '_' sesh '_GS_p2mm.csv'];
+### have Orientation grayplot
+writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'])
+writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R.csv'])
+### have interpolated grayplot, will also work for positivity matrix
+ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L.mgh'];
+ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R.mgh'];
+# maybe load in FD plot from xcp?
+
 
 ### transform this into grayplot viz: interpolated BOLD grayplot, GS, Orientation grayplot, half radar for positvity by delta dmn and negativity by delta dmn
 #python3 Viz_grayplots.py $subj $sesh $childfp

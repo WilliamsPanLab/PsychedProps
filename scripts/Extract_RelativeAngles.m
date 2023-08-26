@@ -5,13 +5,11 @@ function Extract_RelativeAngles(subj,sesh,infileOpFl)
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% set assumed network input directory
-NetworksFolder = ['/oak/stanford/groups/leanew1/users/apines/data/SingleParcel_1by1/' subj '-concat.dtseries.nii/IndividualParcel_Final_sbj1_comp4_alphaS21_1_alphaL300_vxInfo1_ard0_eta0/'];
-% Load in fsav4 opflow calc
+% Load in fsav5 opflow calc
 data=load(infileOpFl)
 % Load in surface data
-surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
-surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
+surfL = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.sphere'];
+surfR = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -38,14 +36,14 @@ P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/surf/lh.Medial_wall.label';
+surfML = '/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.Medial_wall.label';
 mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/surf/rh.Medial_wall.label';
+surfMR = '/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.Medial_wall.label';
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make binary "is medial wall" vector for vertices
-mw_L=zeros(1,2562);
+mw_L=zeros(1,10242);
 mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,2562);
+mw_R=zeros(1,10242);
 mw_R(mwIndVec_r)=1;
 % convert to faces
 % convert to faces
@@ -58,8 +56,8 @@ F_MW_R=ceil(F_MW_R);
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
 % make medial wall vector
-g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
+g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
 
 % extract size of time series
 vfl=data.us.vf_left;
@@ -146,7 +144,7 @@ az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs5.mat']);
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
 
@@ -156,7 +154,7 @@ stringVec={};
 
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
 faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
-%% loop over again
+%% k = 2 to select DMN
 for k=2
         % network of interest
         n_LH=nets_LH(:,k);
@@ -273,7 +271,7 @@ end
 % save out as csv
 T=table(Propvec','RowNames',stringVec);
 % calc outFP
-outFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/' subj];
+outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 % write out
 writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp

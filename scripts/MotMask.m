@@ -93,8 +93,8 @@ if isfile(fpL)
 	ts2newSegmentDuration = (Absolut{CrossSegment, 4} - ts1newSegmentDuration);
 	% Update the duration in absolut
 	Absolut{CrossSegment, 4} = ts1newSegmentDuration;
-	% update the ending TR in absolut (should be 423 for p50 rs)
-	Absolut{CrossSegment, 2} = Absolut{CrossSegment, 1} + Absolut{CrossSegment, 4};
+	% update the ending TR in absolut (should be 423 for p50 rs) % need to subtract 1 because as above, column 4 is one higher than reflected by difference of column 1 and 2
+	Absolut{CrossSegment, 2} = Absolut{CrossSegment, 1} + (Absolut{CrossSegment, 4}-1);
 	% now insert new TS2 segment
 	Absolut = [Absolut(1:CrossSegment, :); {ts2newSegmentStart, ts2newSegmentEnd, 1, ts2newSegmentDuration}; Absolut(CrossSegment+1:end, :)]
 	%%%                                                                                                                 %%%
@@ -157,7 +157,6 @@ if isfile(fpL)
 	        endValue = Absolut{row, 2};        
     		% change TRwise_mask_cont to 1 where this sequence of continuous good TRs occurs
 		TRwise_mask_cont(startValue:endValue)=1;
-		sum(TRwise_mask_cont)
 	    else
 	    end
 	end
