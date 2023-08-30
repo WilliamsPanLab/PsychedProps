@@ -119,6 +119,29 @@ g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
 %%%%%% mask it
 faceOutL=faceOutL(g_noMW_combined_L,:);
 faceOutR=faceOutR(g_noMW_combined_R,:);
+%%%%% equivalent masking to extract_relativeangle.m
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs5.mat']);
+nets_LH=networks.nets.Lnets;
+nets_RH=networks.nets.Rnets;
+% network of interest
+n_LH=nets_LH(:,2);
+n_RH=nets_RH(:,2);
+% calculate network gradients on sphere
+ng_L = grad(F_L, V_L, n_LH);
+ng_R = grad(F_R, V_R, n_RH);
+% use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
+ng_L=ng_L(g_noMW_combined_L,:);
+ng_R=ng_R(g_noMW_combined_R,:);
+sumLeft=sum(ng_L,2);
+sumRight=sum(ng_R,2);
+% finds 0s in left and right network gradients
+emptyLeft=find(~sumLeft);
+emptyRight=find(~sumRight);
+InclLeft=find(sumLeft);
+InclRight=find(sumRight);
+% last mask with inclleft and incl right on interp timeseries
+faceOutL=faceOutL(InclLeft,:);
+faceOutR=faceOutR(InclRight,:);
 % saveout
 ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L_faces.csv'];
 ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R_faces.csv'];
