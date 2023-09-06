@@ -92,6 +92,12 @@ for t=1:tsLength
 	interpolatedData_R_frame=interpolatedData_R(:,t);
 	faceOutR(:,t)=sum(interpolatedData_R_frame(faces_r),2)./3;
 end
+% save out unmasked version
+ofpl=[childfp '/' subj '_' sesh '_task-rs_unmasked_interp_L_faces.csv'];
+ofpr=[childfp '/' subj '_' sesh '_task-rs_unmasked_interp_R_faces.csv'];
+% saveout
+csvwrite(ofpl,faceOutL)
+csvwrite(ofpr,faceOutR)
 % medial wall mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % use native freesurfer command for mw mask indices
@@ -148,3 +154,4 @@ ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R_faces.csv'];
 % saveout
 csvwrite(ofpl,faceOutL)
 csvwrite(ofpr,faceOutR)
+

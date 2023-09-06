@@ -20,7 +20,7 @@
 ##  |       /)           '    ,'    / \
 ##  `\    ^'            '     (    /  ))
 ##    |      _/\ ,     /    ,,`\   (  "`
-##     \Y,   |  \  \  | ````| / \_ \##
+##     \Y,   |  \  \  /____| / \_ \##
 # This script is to prep the environment of a slurm node, 
 ##       `)_/    \  \  )    (->  (->
 # Launch optical flow, caclulate angular distances, generate figures

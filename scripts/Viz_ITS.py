@@ -19,8 +19,8 @@ matplotlib.use('agg')
 # child filepath
 childfp='/scratch/users/apines/data/mdma/' + str(subj) + '/' + str(sesh)
 # timeseries filepath
-ITSl= childfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_p2mm_masked_interp_L_faces.csv'
-ITSr= childfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_p2mm_masked_interp_R_faces.csv'
+ITSl= childfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_unmasked_interp_L_faces.csv'
+ITSr= childfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_unmasked_interp_R_faces.csv'
 # import the left cortex time series
 ts=np.genfromtxt(ITSl,delimiter=',')
 CL=np.array(ts[:])
@@ -37,11 +37,6 @@ CR=np.squeeze(CR)
 # convert to SD
 Rstds=np.std(CR)
 CR=CR/Rstds;
-# load PG
-pgFP_L='/oak/stanford/groups/leanew1/users/apines/maps/hcp.gradients_10k_L.dscalar.func.gii'
-pgFP_R='/oak/stanford/groups/leanew1/users/apines/maps/hcp.gradients_10k_R.dscalar.func.gii' 
-pg_L=nb.load(pgFP_L).agg_data()[0]
-pg_R=nb.load(pgFP_R).agg_data()[0]
 # load in DMN
 dmFP_L='/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_L_AggNets_10k.func.gii'
 dmFP_R='/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_R_AggNets_10k.func.gii'
@@ -56,20 +51,8 @@ surf_r = subjects_folder + '/rh.sphere'
 verts_l,faces_l = nb.freesurfer.read_geometry(surf_l)
 verts_r,faces_r = nb.freesurfer.read_geometry(surf_r)
 # Initialize output face matrices for PG and DMN
-face_pg_l = np.zeros((faces_l.shape[0]))
-face_pg_r = np.zeros((faces_r.shape[0]))
 face_dmn_l = np.zeros((faces_l.shape[0]))
 face_dmn_r = np.zeros((faces_r.shape[0]))
-# Interpolate PG data onto faces for the left hemisphere
-for i, face in enumerate(faces_l):
-    vertex_indices = faces_l[face,]
-    face_pg_l[i] = np.mean(pg_L[vertex_indices])
-
-# Interpolate PG data onto faces for the right hemisphere
-for i, face in enumerate(faces_r):
-    vertex_indices = face
-    face_pg_r[i] = np.mean(pg_R[vertex_indices])
-
 # Interpolate DMN data onto faces for the left hemisphere
 for i, face in enumerate(faces_l):
     vertex_indices = face
@@ -81,12 +64,41 @@ for i, face in enumerate(faces_r):
     face_dmn_r[i] = np.mean(dm_R[vertex_indices])
 
 # to organize vertices in terms of their position on the PG
-PGindicesL=np.argsort(face_pg_l)
-PGindicesR=np.argsort(face_pg_r)
-# load in motion mask
+DMindicesL=np.argsort(face_dmn_l)
+DMindicesR=np.argsort(face_dmn_r)
+# load in motion mask (temporal mask)
 motMaskFp= childfp + '/' + str(subj) + '_' + str(sesh) + '_task-rs_ValidSegments_Trunc.txt'
 motMask=np.genfromtxt(motMaskFp,delimiter=',')
 # sort timeseries by pg
+CL_sorted=CL[DMindicesL,:]
+CR_sorted=CR[DMindicesR,:]
+# get dmn indices for coloration
+face_dmn_l_sorted=face_dmn_l[DMindicesL]
+face_dmn_r_sorted=face_dmn_r[DMindicesR]
 # make carpetplots
-# add vertical lines at motion mask segments
-# set opacity < 1 for non-dmn regions
+cmap = 'gray'
+vmin, vmax = -3, 3
+fig, ax = plt.subplots(figsize=(10, 30))
+# Add vertical lines at the start of each time segment from motMask
+for i, segment_start in enumerate(motMask[:, 0]): 
+    # Subtract the loop iteration number from the x-value
+    # -1 because python thinks 0 is 1
+    # -i because opflow segments are b/w frames (only inclusive on sequence inside of head movement frames) 
+    x_position = (segment_start - 1) - i
+    ax.axvline(x=x_position, color='red', linestyle='--', alpha=0.3)
+
+# denote dmn vs nondmn faces 
+first_dmn_row = np.argmax(face_dmn_l_sorted > 0.3)
+# make a distinct DMN vector to simplify things
+ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
+ax.axhline(y=first_dmn_row, color='blue', linestyle='-')
+# save
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/CL_left.png'
+plt.savefig(outfp,bbox_inches='tight')
+# print out a random version for comparison (randomly organized across y axis)
+# Create a random version for comparison (randomly shuffle along y-axis)
+np.random.shuffle(CL_sorted)
+ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/CL_left_null.png'
+plt.savefig(outfp,bbox_inches='tight')
+# now create the same for the same for the angular time series! 
