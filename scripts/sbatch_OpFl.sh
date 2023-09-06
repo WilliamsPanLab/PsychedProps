@@ -11,19 +11,19 @@
 # ------------------------------------------
 
 
-########################################
+############    Buffaflow   ###################
 ##             _.-````'-,,
 ##   _,.,_ ,-'`           ``''-.,
 ## /)     (\                   '``-.
-##((      ) )                      `\
-## \)    (_/                        )\
+##((      ) )                ->    `\
+## \)    (_/               ->       )\
 ##  |       /)           '    ,'    / \
 ##  `\    ^'            '     (    /  ))
 ##    |      _/\ ,     /    ,,`\   (  "`
 ##     \Y,   |  \  \  | ````| / \_ \##
 # This script is to prep the environment of a slurm node, 
-##       `)_/    \  \  )    ( >  ( >
-# launch OpFl (Orientation and Positivity of Functional Images),
+##       `)_/    \  \  )    (->  (->
+# Launch optical flow, caclulate angular distances, generate figures
 ##                \( \(     |/   |/
 # and delete interim files upon completion
 ##    mic & dwb  /_(/_(    /_(  /_(
@@ -87,41 +87,30 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 
 #############################
-#### module IV: Plot report
+#### module IV: Create figures
 #############################
-#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-#echo "Starting module IV: Plotting report"
-#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-# extract time course of precuneus
-# extract ROIs into text file (50 and 100 are precun)
-#wb_command -cifti-convert -to-text ${childfp}/${subj}_${sesh}_rs_concat_Parcellated.ptseries.nii $ROITS
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "Starting module IV: Creating figures"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
-####### extract FC of DM thalamus
-#matlab -nodisplay -r "ROIfc('$subj','$sesh')"
+### filepaths for angular carpetplots
+ATSl=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
+ATSr=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
 
-### Have GS
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-GSP=[childfp '/' subj '_' sesh '_GS_p2mm.csv'];
-### have Orientation grayplot
-writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'])
-writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R.csv'])
-### have interpolated grayplot, will also work for positivity matrix
-ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L.mgh'];
-ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R.mgh'];
-# maybe load in FD plot from xcp?
+### make figure directory outside of scratch
+mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
+### create interpolated carpetplot of bold
+python3 Viz_ITS.py $subj $sesh
+# and plot motion masking ontop of it
+# and organize by pg with DMN labeled
 
-### transform this into grayplot viz: interpolated BOLD grayplot, GS, Orientation grayplot, half radar for positvity by delta dmn and negativity by delta dmn
-#python3 Viz_grayplots.py $subj $sesh $childfp
+### create angular carpetplot 
+# same as above, motion mask organized by pg and DMN labeled
 
-# extract amygdalar TS
+### create positivity plots
+# some type of radar plot?
 
-
-# make grayplots of 3k mgh file (thalamus, whole-brain, OpFl Ampltiude) along with time series (GS, thalamus, precuneus, OpFl Amplitude)
-# bring it all together: generate grayplots and power spectral density within
-#python Viz_grayplots.py $subj $sesh $childfp
-
-# quick cleanup of interim files?
-
+### copy xcpd motion plots into figs dir
 
 echo "OpFl complete"
