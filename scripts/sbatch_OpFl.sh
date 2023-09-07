@@ -102,8 +102,6 @@ mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
 ### create interpolated carpetplot of bold
 python3 Viz_ITS.py $subj $sesh
-# and plot motion masking ontop of it
-# and organize by pg with DMN labeled
 
 ### create angular carpetplot 
 # same as above, motion mask organized by pg and DMN labeled

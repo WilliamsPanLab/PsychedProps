@@ -59,6 +59,9 @@ fmwIndVec_r=find(F_MW_R);
 g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
 g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
 
+% save out mask for reference in python visualization script of ATS
+save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
+
 % extract size of time series
 vfl=data.us.vf_left;
 vfr=data.us.vf_right;
@@ -173,7 +176,10 @@ for k=2
         emptyRight=find(~sumRight);
         InclLeft=find(sumLeft);
         InclRight=find(sumRight);
-        % note InclLeft and Right presume mw mask already applied!
+        % note InclLeft and Right presume mw mask already applied!	
+	% save InclLeft and Right to a reference .mat 
+	save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_nullGrad_vectors.mat', 'InclLeft', 'InclRight');
+
 
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
         %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
