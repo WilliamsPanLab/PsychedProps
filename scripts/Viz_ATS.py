@@ -35,9 +35,6 @@ networks_data = sio.loadmat('/oak/stanford/groups/leanew1/users/apines/data/Robu
 nets_LH = networks_data['nets']['Lnets'][0, 0]
 nets_RH = networks_data['nets']['Rnets'][0, 0]
 
-# Initialize matrix for each face over each of k=4 networks to save out to scratch
-faceMatrix = np.zeros((len(g_noMW_combined_L) + len(g_noMW_combined_R), 4))
-
 # Network of interest
 k = 1  # 1th (2nd) network is dmn
 dm_L = nets_LH[:, k]
@@ -124,4 +121,29 @@ np.random.shuffle(CL_sorted)
 ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax,alpha=.7)
 outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/ACL_left_null.png'
 plt.savefig(outfp,bbox_inches='tight')
-# now create the same for the same for the angular time series! 
+
+# repeat for right cortex
+fig, ax = plt.subplots(figsize=(20, 30))
+# Add vertical lines at the start of each time segment from motMask
+for i, segment_start in enumerate(motMask[:, 0]):
+    # Subtract the loop iteration number from the x-value
+    # -1 because python thinks 0 is 1
+    # -i because opflow segments are b/w frames (only inclusive on sequence inside of head movement frames) 
+    x_position = (segment_start - 1) - i
+    ax.axvline(x=x_position, color='black', linestyle='--', alpha=0.5)
+
+# denote dmn vs nondmn faces 
+first_dmn_row = np.argmax(face_dmn_r_sorted > 0.3)
+# make a distinct DMN vector to simplify things
+ax.imshow(CR_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax,alpha=.7)
+ax.axhline(y=first_dmn_row, color='blue', linestyle='-')
+# save
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/ACL_right.png'
+plt.savefig(outfp,bbox_inches='tight')
+# print out a random version for comparison (randomly organized across y axis)
+# Create a random version for comparison (randomly shuffle along y-axis)
+np.random.shuffle(CR_sorted)
+ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax,alpha=.7)
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/ACL_right_null.png'
+plt.savefig(outfp,bbox_inches='tight')
+

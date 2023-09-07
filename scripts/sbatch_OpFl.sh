@@ -35,7 +35,6 @@
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module I: preproc"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-
 # will need matlab
 module load matlab
 # and freesurfer
@@ -48,7 +47,6 @@ module load contribs poldrack anaconda/5.0.0-py36
 subj=$1
 # sesh is input 2
 sesh=$2
-
 # Downsample the data 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
@@ -86,6 +84,9 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 # extract relative angles
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 
+# combine angular time series with magnitude time series
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+
 #############################
 #### module IV: Create figures
 #############################
@@ -104,7 +105,7 @@ mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 python3 Viz_ITS.py $subj $sesh
 
 ### create angular carpetplot 
-# same as above, motion mask organized by pg and DMN labeled
+python3 Viz_ATS.py $subj $sesh
 
 ### create positivity plots
 # some type of radar plot?

@@ -27,7 +27,7 @@ FullMatrix_R=zeros(spatialDim,temporalDim,2);
 FullMatrix_R(:,:,1)=table2array(iTS_r);
 FullMatrix_R(:,:,2)=table2array(aTS_r);
 % saveout
-ofl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_L.csv'];
-ofr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_R.csv'];
-writematrix(FullMatrix_L,ofl);
-writematrix(FullMatrix_R,ofr);
+ofl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_L.mat'];
+ofr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_R.mat'];
+save(ofl, 'FullMatrix_L');
+save(ofr, 'FullMatrix_R');

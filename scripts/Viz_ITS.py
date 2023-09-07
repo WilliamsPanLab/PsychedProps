@@ -78,7 +78,7 @@ face_dmn_r_sorted=face_dmn_r[DMindicesR]
 # make carpetplots
 cmap = 'gray'
 vmin, vmax = -3, 3
-fig, ax = plt.subplots(figsize=(10, 30))
+fig, ax = plt.subplots(figsize=(20, 30))
 # Add vertical lines at the start of each time segment from motMask
 for i, segment_start in enumerate(motMask[:, 0]): 
     # Subtract the loop iteration number from the x-value
@@ -101,4 +101,30 @@ np.random.shuffle(CL_sorted)
 ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
 outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/CL_left_null.png'
 plt.savefig(outfp,bbox_inches='tight')
-# now create the same for the same for the angular time series! 
+
+# repeat for right cortex ###
+
+fig, ax = plt.subplots(figsize=(20, 30))
+# Add vertical lines at the start of each time segment from motMask
+for i, segment_start in enumerate(motMask[:, 0]):
+    # Subtract the loop iteration number from the x-value
+    # -1 because python thinks 0 is 1
+    # -i because opflow segments are b/w frames (only inclusive on sequence inside of head movement frames) 
+    x_position = (segment_start - 1) - i
+    ax.axvline(x=x_position, color='red', linestyle='--', alpha=0.3)
+
+# denote dmn vs nondmn faces 
+first_dmn_row = np.argmax(face_dmn_r_sorted > 0.3)
+# make a distinct DMN vector to simplify things
+ax.imshow(CR_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
+ax.axhline(y=first_dmn_row, color='blue', linestyle='-')
+# save
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/CR_right.png'
+plt.savefig(outfp,bbox_inches='tight')
+# print out a random version for comparison (randomly organized across y axis)
+# Create a random version for comparison (randomly shuffle along y-axis)
+np.random.shuffle(CR_sorted)
+ax.imshow(CL_sorted, aspect='auto', interpolation='nearest', cmap=cmap, vmin=vmin, vmax=vmax)
+outfp='/oak/stanford/groups/leanew1/users/apines/data/p50/' + subj + '/' + sesh + '/figs/CR_right_null.png'
+plt.savefig(outfp,bbox_inches='tight')
+
