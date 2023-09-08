@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=10:20:00
+#SBATCH --time=7:00:00
 #SBATCH -n 1
-#SBATCH --mem=35G
+#SBATCH --mem=30G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -49,6 +49,8 @@ subj=$1
 sesh=$2
 # Downsample the data 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
+
+sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts

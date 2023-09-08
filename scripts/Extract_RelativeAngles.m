@@ -180,7 +180,6 @@ for k=2
 	% save InclLeft and Right to a reference .mat 
 	save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_nullGrad_vectors.mat', 'InclLeft', 'InclRight');
 
-
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
         %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
         %n_and_g_noMW_combined_R=setdiff(g_noMW_combined_R,emptyRight);

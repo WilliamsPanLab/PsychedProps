@@ -60,10 +60,10 @@ fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
 # Set the contour levels and colormap (adjust as needed)
 extent = [0, np.pi, magnitude_bins.min(), magnitude_bins.max()]  # Define the extent
-contour = ax.contourf(binned_magnitudes_L.T, cmap='viridis', extent=extent)
+contour = ax.contourf(binned_magnitudes_L.T, cmap='inferno', extent=extent)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
-cbar.set_label('Magnitude')
+cbar.set_label('Density')
 # Customize the plot if needed (e.g., labels, title, etc.)
 ax.set_thetamin(0)  # Set the starting angle
 ax.set_thetamax(180)  # Set the ending angle
@@ -76,10 +76,10 @@ plt.savefig(outfp,bbox_inches='tight')
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # Set the contour levels and colormap (adjust as needed)
 extent = [0, np.pi, magnitude_bins.min(), magnitude_bins.max()]  # Define the extent
-contour = ax.contourf(binned_magnitudes_R.T, cmap='viridis', extent=extent)
+contour = ax.contourf(binned_magnitudes_R.T, cmap='inferno', extent=extent)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
-cbar.set_label('Magnitude')
+cbar.set_label('Density')
 # Customize the plot if needed (e.g., labels, title, etc.)
 ax.set_thetamin(0)  # Set the starting angle
 ax.set_thetamax(180)  # Set the ending angle
