@@ -108,8 +108,9 @@ python3 Viz_ITS.py $subj $sesh
 python3 Viz_ATS.py $subj $sesh
 
 ### create positivity plots
-# some type of radar plot?
+python3 Viz_AngMag.py $subj $sesh
 
 ### copy xcpd motion plots into figs dir
+cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${sesh}_task-rs_acq-mb_dir-pe?_run-0_space-fsLR_desc-censoring_motion.svg /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
 echo "OpFl complete"

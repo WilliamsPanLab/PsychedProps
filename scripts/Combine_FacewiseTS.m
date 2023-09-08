@@ -26,6 +26,9 @@ temporalDim=temporalDim(2);
 FullMatrix_R=zeros(spatialDim,temporalDim,2);
 FullMatrix_R(:,:,1)=table2array(iTS_r);
 FullMatrix_R(:,:,2)=table2array(aTS_r);
+% DMN mask
+% load in DMN
+% subject to save masking as prop TS and interp_faces
 % saveout
 ofl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_L.mat'];
 ofr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_Bold_and_Angles_R.mat'];
