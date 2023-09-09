@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=7:00:00
+#SBATCH --time=1:00:00
 #SBATCH -n 1
-#SBATCH --mem=30G
+#SBATCH --mem=15G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -48,15 +48,15 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
+#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
-sleep 20
+#sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-matlab -nodisplay -r "MotMask('$subj','$sesh')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh')"
 
 ############################
 #### module II: Optical Flow
@@ -65,7 +65,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+#matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
