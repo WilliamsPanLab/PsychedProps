@@ -1,15 +1,13 @@
-function OpFlStreamlines(subj,sesh,filename)
+function OpFlStreamlines(subj,sesh)
 
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-
-% set child filepath
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in optical flow output
-data=load([childfp '/' subj '_' sesh '_OpFl_rs.mat']);
-
+data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake surface data
-SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
+SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
+% for surface data
 surfL = [SubjectsFolder '/lh.sphere'];
 surfR = [SubjectsFolder '/rh.sphere'];
 % surface topography
@@ -18,34 +16,6 @@ surfR = [SubjectsFolder '/rh.sphere'];
 % +1 the faces: begins indexing at 0
 faces_l = faces_l + 1;
 faces_r = faces_r + 1;
-
-
-% use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
-mw_L=zeros(1,2562);
-mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,2562);
-mw_R(mwIndVec_r)=1;
-% convert to faces
-% convert to faces
-F_MW_L=sum(mw_L(faces_l),2)./3;
-F_MW_R=sum(mw_R(faces_r),2)./3;
-% convert "partial" medial wall to medial wall
-F_MW_L=ceil(F_MW_L);
-F_MW_R=ceil(F_MW_R);
-% face mask indices
-fmwIndVec_l=find(F_MW_L);
-fmwIndVec_r=find(F_MW_R);
-% make medial wall vector
-g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
-
-
-
 % normalize verts to unit sphere
 % left
 numV=length(vx_l);
@@ -57,59 +27,125 @@ vx_r(numV+1:end, :) = VecNormalize(vx_r(numV+1:end, :));
 % calculate normative directionality streamlines for this subject and session
 n = size(faces_l, 1);
 T = TriRep(faces_l, vx_l);
-P = T.incenters./100;
+P_L = T.incenters;
+n = size(faces_r, 1);
+T = TriRep(faces_r, vx_r);
+P_R = T.incenters;
+%%% L as left Hemi
+L=data.us.vf_left;
+%%% R as right
+R=data.us.vf_right;
 
-%%% E as left Hemi
-E=data.us.vf_left;
+%%% get length of time serires
+tsLength=length(L);
+
 % initialize vector field to be plotted
-plotVF=zeros(n,3);
+VF_L=zeros(n,3,tsLength);
+VF_R=zeros(n,3,tsLength);
 % loop over to extract from unfortunate cell structure
-for i=1:length(E);
-	plotVF=plotVF+E{i};
+for i=1:tsLength;
+	VF_L(:,:,i)=L{i};
+	VF_R(:,:,i)=R{i};
 end
-% start with mean of each x y and z component
-plotVF=plotVF./length(E);
-
-% consider circular mean: might require cart2sphvec
-
-% Set seed points.
-[X, Y] = meshgrid(-1:0.04:1, -1:0.04:1);
-idx = find(X.^2 + Y.^2 <= 1);
-S = [X(idx), Y(idx)];
-
-% Set parameters.
-nmax = max(sqrt(sum((plotVF).^2, 2)));
-h = 0.1/nmax;
-maxit = 50;
-lw = .7;
-
-% Streamlines for first component.
-v = plotVF;
-
-%F = createFigure('summer', -1, 1, -1, 1);
-% read in DMN as background
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
-nets_LH=networks.nets.Lnets(:,2);
-
-% scale cortical mantle
-vx_l=vx_l./101;
-% move z coord of cortical mantle backwards
-% vx_l(:,3)=vx_l(:,3)-1;
-figure
-% add cortical mantle %
-aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3),nets_LH)
-colormap('gray')
-freezeColors;
-hold on
-streamlines3(P, v, S, h, maxit, 'summer', lw);
-view(3);
-daspect([1 1 1]);
-%h=get(gca,'Children');
-%set(gca,'Children',[h(76009) h(1:76008)]);
-%adjustFigure;
-% one rotation for insula
-%savefigure(F, fullfile(childfp, filename), '-png', '-r600');
-print(['~/streams/' filename],'-dpng')
-%%%%%%%%%%%%%%
-
-
+% correct spatial coordinates to be on scale of vector field
+P_L=P_L./100;
+P_R=P_R./100;
+vx_l=vx_l./100;
+vx_r=vx_r./100;
+% initialize SC matrix equivalent
+AdjMatrix_L=zeros(length(vx_l),length(vx_l))
+AdjMatrix_R=zeros(length(vx_r),length(vx_r))
+% for each vertex
+for v=1:length(vx_l)
+	% print v
+	v
+	% initialize row for this vertex to index into
+	adjacency_row = zeros(1, length(vx_l));
+	% for each TR
+	for t=1:tsLength
+		% plant a new seed
+		CurrSeed=vx_l(v,:);
+		% set endpoint of tracking: if t + 30 > length of time series, cant track beyond ts
+		endpoint=30;
+		if (endpoint+t)>tsLength
+			endpoint=tsLength-t;
+		else
+		end
+		% for 30 timepoints (unless condition above met)
+		for t2=1:endpoint
+			% find the three nearest faces
+			[nearFaces,nearDistances]=find_nearest_faces(CurrSeed,P_L);
+			% get minimum distance for weighting
+			minDist=min(nearDistances);
+			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
+			threeVFs=VF_L(nearFaces,:,(t+t2-1));
+			% get a weighting vector
+			Wvec1=minDist/nearDistances(1);
+			Wvec2=minDist/nearDistances(2);
+			Wvec3=minDist/nearDistances(3);
+			CorrectedVec1=threeVFs(1,:)*Wvec1;
+			CorrectedVec2=threeVFs(2,:)*Wvec2;
+			CorrectedVec3=threeVFs(3,:)*Wvec3;	
+			% get a weighted average directionality across the 3 faces
+			CorrectedAvg=(CorrectedVec1+CorrectedVec2+CorrectedVec3)/(Wvec1+Wvec2+Wvec3);
+			% propagate ongoing seeds one step
+			CurrSeed=CurrSeed+CorrectedAvg;
+			% find which vertex the resultant propagating seed is at
+			nearest_vertex=find_nearest_vertex(CurrSeed,vx_l);
+			% add them to adjacency row at (v,site of ongoing seed)
+			adjacency_row(nearest_vertex)=adjacency_row(nearest_vertex)+1;
+		end
+	end
+	% add adjacency row to adjacency matrix
+	AdjMatrix_L(v,:)=adjacency_row;
+end
+% right hemisphere
+% for each vertex
+for v=1:length(vx_r)
+        % print v
+        v
+        % initialize row for this vertex to index into
+        adjacency_row = zeros(1, length(vx_r));
+        % for each TR
+        for t=1:tsLength
+                % plant a new seed
+                CurrSeed=vx_r(v,:);
+                % set endpoint of tracking: if t + 30 > length of time series, cant track beyond ts
+                endpoint=30;
+                if (endpoint+t)>tsLength
+                        endpoint=tsLength-t;
+                else
+                end     
+                % for 30 timepoints (unless condition above met)
+                for t2=1:endpoint
+                        % find the three nearest faces
+                        [nearFaces,nearDistances]=find_nearest_faces(CurrSeed,P_L);
+                        % get minimum distance for weighting
+                        minDist=min(nearDistances);
+                        % get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
+                        threeVFs=VF_R(nearFaces,:,(t+t2-1));
+                        % get a weighting vector
+                        Wvec1=minDist/nearDistances(1);
+                        Wvec2=minDist/nearDistances(2);
+                        Wvec3=minDist/nearDistances(3);
+                        CorrectedVec1=threeVFs(1,:)*Wvec1;
+                        CorrectedVec2=threeVFs(2,:)*Wvec2;
+                        CorrectedVec3=threeVFs(3,:)*Wvec3;
+                        % get a weighted average directionality across the 3 faces
+                        CorrectedAvg=(CorrectedVec1+CorrectedVec2+CorrectedVec3)/(Wvec1+Wvec2+Wvec3);
+                        % propagate ongoing seeds one step
+                        CurrSeed=CurrSeed+CorrectedAvg;
+                        % find which vertex the resultant propagating seed is at
+                        nearest_vertex=find_nearest_vertex(CurrSeed,vx_r);
+                        % add them to adjacency row at (v,site of ongoing seed)
+                        adjacency_row(nearest_vertex)=adjacency_row(nearest_vertex)+1;
+                end
+        end
+        % add adjacency row to adjacency matrix
+        AdjMatrix_R(v,:)=adjacency_row;
+end
+% save out matrices for this participant
+fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
+save(fn,'AdjMatrix_L');
+fn=[childfp '/' subj '_' sesh '_streamConnectivity_R.mat'];
+save(fn,'AdjMatrix_R');

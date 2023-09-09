@@ -6,8 +6,10 @@ TRout = 1;  % randomly picked
 
 % run pwelch loop over regions
 cifti_real = cifti_read('~/sub-MDMA006_ses-00_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii');
-timelength = cifti_real.diminfo{2}.length;
+% * 2 becaue each subj has two rs scans per sesh
+timelength = cifti_real.diminfo{2}.length*2;
 cifti2 = cifti_real;
+cifti2.diminfo{2}.length=timelength;
 cifti2.cdata =randn(timelength,91282);
 
 parcelPS = [];

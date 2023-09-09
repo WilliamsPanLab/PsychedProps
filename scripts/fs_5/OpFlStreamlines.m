@@ -70,6 +70,9 @@ aplot = trisurf(faces_l, vx_l(:,1), vx_l(:,2), vx_l(:,3),curv)
 colormap('gray')
 freezeColors;
 hold on
+
+
+
 streamlines3(P, v, S, h, maxit, 'summer', lw);
 view(2);
 daspect([1 1 1]);

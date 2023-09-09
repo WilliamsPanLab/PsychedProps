@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:00:00
+#SBATCH --time=40:00:00
 #SBATCH -n 1
-#SBATCH --mem=15G
+#SBATCH --mem=25G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -72,7 +72,7 @@ childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+#matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles
@@ -84,16 +84,25 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 
 # combine angular time series with magnitude time series
-matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
 
 #############################
-#### module IV: Create figures
+#### module IV: Streamlines
 #############################
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module IV: Creating figures"
+echo "Starting module IV: Streamlines"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+
+matlab -nodisplay -r "OpFlStreamlines('$subj','$sesh')"
+
+#############################
+#### module V: Create figures
+#############################
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "Starting module V: Creating figures"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 ### filepaths for angular carpetplots
