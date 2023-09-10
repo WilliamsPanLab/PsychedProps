@@ -1,3 +1,4 @@
+function OpFl_simulated_fs5(seed)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 %%%%%%%%%%%%%%%%%%%% Set parameters
@@ -8,8 +9,8 @@ s = 1; % R(u), regularizing functional, scales Tikhonov regularization more rapi
 %%%%%%%%%%%%%%%%%%%%
 
 % load in data
-fpL='~/Sim_L_AggTS_10k.mgh'
-fpR='~/Sim_R_AggTS_10k.mgh'
+fpL=['/scratch/users/apines/Sim_L_AggTS_' seed '_10k.mgh'];
+fpR=['/scratch/users/apines/Sim_R_AggTS_' seed '_10k.mgh'];
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;
 % squeeze to get rid of extra dimensions
@@ -91,8 +92,7 @@ for TRP=1:(TR_n-1)
 	TRPC=TRPC+1;
 end
 
-
-
-
-save(['~/Simulated_OpFl_rs_fs5.mat'],'us')
+% save out
+outFN=['/scratch/users/apines/Simulated_OpFl_rs_fs5_' seed '.mat'];
+save(outFN,'us')
 

@@ -27,6 +27,10 @@
 ##                \( \(     |/   |/
 # and delete interim files upon completion
 ##    mic & dwb  /_(/_(    /_(  /_(
+
+# random seed as argument
+seed=$1
+
 # will need matlab
 module load matlab
 # and freesurfer
@@ -37,10 +41,33 @@ module load workbench
 module load contribs poldrack anaconda/5.0.0-py36
 
 # simulate data
- $seed
+matlab -nodisplay -r "SimulateFMR('$seed')"
+
 # downsample it 
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated_fs5.sh $seed
 
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_simulated_fs5"
+matlab -nodisplay -r "OpFl_simulated_fs5('$seed')"
 
 # simulate streamlines
+matlab -nodisplay -r "OpFlStreamlines_Sim('$seed')"
+
+# remove interim files
+AgTS=/scratch/users/apines/ciftiout_Sym_${seed}.dtseries.nii
+LeftHemi=/scratch/users/apines/Sim_L_AggTS_${seed}.func.gii
+RightHemi=/scratch/users/apines/Sim_R_AggTS_${seed}.func.gii
+LeftHemi_10=/scratch/users/apines/Sim_L_AggTS_${seed}_10k.func.gii
+RightHemi_10=/scratch/users/apines/Sim_R_AggTS_${seed}_10k.func.gii
+LeftHemi_10_mgh=/scratch/users/apines/Sim_L_AggTS_${seed}_10k.mgh
+RightHemi_10_mgh=/scratch/users/apines/Sim_R_AggTS_${seed}_10k.mgh
+# remove simulated TS
+#rm ${AgTS}
+# remove sep. hemis
+#rm ${LeftHemi}
+#rm ${RightHemi}
+# remove sep. hemis resampled
+#rm ${LeftHemi_10}
+#rm ${RightHemi_10}
+# remove sep. hemis resampled .mgh
+#rm ${LeftHemi_10_mgh}
+#rm ${RightHemi_10_mgh}

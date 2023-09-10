@@ -1,10 +1,9 @@
-function OpFlStreamlines(subj,sesh)
-
+function OpFlStreamlines_Sim(seed)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+childfp=['/scratch/users/apines/'];
 % load in optical flow output
-data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
+data=load([childfp 'Simulated_OpFl_rs_fs5_' seed '.mat']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
 % for surface data
@@ -145,7 +144,7 @@ for v=1:length(vx_r)
         AdjMatrix_R(v,:)=adjacency_row;
 end
 % save out matrices for this participant
-fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
+fn=[childfp seed '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');
-fn=[childfp '/' subj '_' sesh '_streamConnectivity_R.mat'];
+fn=[childfp seed '_streamConnectivity_R.mat'];
 save(fn,'AdjMatrix_R','-v7.3');

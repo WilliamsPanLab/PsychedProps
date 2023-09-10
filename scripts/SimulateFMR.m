@@ -1,5 +1,8 @@
+function SimulateFMR(seed)
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 %% adding realistic power spectra, adapted code from Tim Laumann's method to simulated power spectra from real data
+rng(str2num(seed))
+
 % see Laumann et al. 2017 cer cortex paper
 TRin = 1;  % randomly picked
 TRout = 1;  % randomly picked
@@ -14,7 +17,6 @@ cifti2.cdata =randn(timelength,91282);
 
 parcelPS = [];
 for reg = 1:1:91282
-    reg
     [parcelPS(reg,:),freq] = pwelch(cifti_real.cdata(reg,:),[],[],[],1/TRin);
 end
 
@@ -66,4 +68,4 @@ F_sim = fft_timecourse_sim.*sqrt(resamp_P_target_rep);
 timecourse_sim = ifft(F_sim,'symmetric');
 timecourse_sim = (timecourse_sim-repmat(mean(timecourse_sim),size(timecourse_sim,1),1))./repmat(std(timecourse_sim),size(timecourse_sim,1),1);
 cifti2.cdata = timecourse_sim';
-cifti_write(cifti2,'~/ciftiout_Sym.dtseries.nii');
+cifti_write(cifti2,['/scratch/users/apines/ciftiout_Sym_' seed '.dtseries.nii']);
