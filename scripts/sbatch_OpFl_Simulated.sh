@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:00:00
+#SBATCH --time=40:00:00
 #SBATCH -n 1
 #SBATCH --mem=15G
 #SBATCH -p leanew1,normal  # Queue names you can submit to
@@ -36,5 +36,11 @@ module load freesurfer/7.3.2
 module load workbench
 module load contribs poldrack anaconda/5.0.0-py36
 
+# simulate data
+ $seed
+# downsample it 
+
 # Calculate Optical Flow
 matlab -nodisplay -r "OpFl_simulated_fs5"
+
+# simulate streamlines

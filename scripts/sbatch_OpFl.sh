@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=40:00:00
+#SBATCH --time=7-00:00
 #SBATCH -n 1
 #SBATCH --mem=25G
-#SBATCH -p leanew1,normal  # Queue names you can submit to
+#SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
@@ -96,7 +96,8 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module IV: Streamlines"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
-matlab -nodisplay -r "OpFlStreamlines('$subj','$sesh')"
+./run_OpFlStreamlines.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
+#matlab -nodisplay -r "OpFlStreamlines('$subj','$sesh')"
 
 #############################
 #### module V: Create figures

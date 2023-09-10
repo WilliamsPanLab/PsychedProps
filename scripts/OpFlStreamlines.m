@@ -1,7 +1,7 @@
 function OpFlStreamlines(subj,sesh)
 
 % add paths
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+%addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in optical flow output
 data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
@@ -53,8 +53,8 @@ P_R=P_R./100;
 vx_l=vx_l./100;
 vx_r=vx_r./100;
 % initialize SC matrix equivalent
-AdjMatrix_L=zeros(length(vx_l),length(vx_l))
-AdjMatrix_R=zeros(length(vx_r),length(vx_r))
+AdjMatrix_L=zeros(length(vx_l),length(vx_l));
+AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % for each vertex
 for v=1:length(vx_l)
 	% print v
@@ -146,6 +146,6 @@ for v=1:length(vx_r)
 end
 % save out matrices for this participant
 fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
-save(fn,'AdjMatrix_L');
+save(fn,'AdjMatrix_L','-v7.3');
 fn=[childfp '/' subj '_' sesh '_streamConnectivity_R.mat'];
-save(fn,'AdjMatrix_R');
+save(fn,'AdjMatrix_R','-v7.3');
