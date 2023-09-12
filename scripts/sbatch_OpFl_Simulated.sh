@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=40:00:00
+#SBATCH --time=7-00:00
 #SBATCH -n 1
-#SBATCH --mem=15G
-#SBATCH -p leanew1,normal  # Queue names you can submit to
+#SBATCH --mem=35G
+#SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
@@ -49,8 +49,8 @@ matlab -nodisplay -r "SimulateFMR('$seed')"
 # Calculate Optical Flow
 matlab -nodisplay -r "OpFl_simulated_fs5('$seed')"
 
-# simulate streamlines
-matlab -nodisplay -r "OpFlStreamlines_Sim('$seed')"
+# simulate streamlines - left
+matlab -nodisplay -r "OpFlStreamlines_Sim_L('$seed')"
 
 # remove interim files
 AgTS=/scratch/users/apines/ciftiout_Sym_${seed}.dtseries.nii
