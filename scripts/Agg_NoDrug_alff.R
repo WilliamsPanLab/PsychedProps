@@ -1,7 +1,7 @@
 ### MANUALLY RECREATE SUBJ LIST
 subjPrefix=rep('sub-MDMA0',15)
 # no subj 4 or 15
-subjSuffix=c('01','02','03','05','06','07','08','09','10','11','12','13','14','16','17')
+subjSuffix=c('01','02','03','05','06','07','08','09','10','11','12','13','14','15','16','17')
 subjList=paste0(subjPrefix,subjSuffix)
 
 # load session_dose information
@@ -35,7 +35,7 @@ m2<-gsub(3,'ses-02',m2)
 m2<-gsub(4,'ses-03',m2)
 
 # subjvec: no 4 (no 15 either)
-subjvec=c(1,2,3,5,6,7,8,9,10,11,12,13,14,16,17)
+subjvec=c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17)
 
 # initialize df out here with subj names, each ROI name x2 for drug nondrug
 df<-data.frame(subjList)
@@ -73,9 +73,13 @@ df$md_THA_VAi_lh=NULL
 df$md_THA_VAs_lh=NULL
 df$md_THA_DAm_lh=NULL
 df$md_THA_DAl_lh=NULL
-
+df$md80_THA_DAm=0
+df$md120_THA_DAm=0
+df$bv_THA_DAm=0
+df$pla_THA_DAm=0
 # for each subj
 for (s in 1:length(subjvec)){
+	print(s)
 	# initialize these vectors sep. for each subject for averaging
 	pl_lAMY_r=NULL
 	pl_mAMY_r=NULL
@@ -121,7 +125,7 @@ for (s in 1:length(subjvec)){
 	Del_m1FPs=list.files(path=(paste0(childfp,m1[s],'/')),pattern="_alff.txt")
 	Del_m2FPs=list.files(path=(paste0(childfp,m2[s],'/')),pattern="_alff.txt")
 	# load in each non_drug csv
-	for (b in 1:length(Del_baselineFPs)){
+	for (b in 1:2){
 		filename=paste0(paste0(childfp,p1[s],'/'),Del_baselineFPs[b])
 		file=read.table(filename)
 		pl_lAMY_r=c(pl_lAMY_r,file[19,])
@@ -140,8 +144,9 @@ for (s in 1:length(subjvec)){
 		pl_THA_VAs_lh=c(pl_THA_VAs_lh,file[33,])
 		pl_THA_DAm_lh=c(pl_THA_DAm_lh,file[34,])
 		pl_THA_DAl_lh=c(pl_THA_DAl_lh,file[35,])
+		df$bv_THA_DAm[s]=df$bv_THA_DAm[s]+(file[9,]+file[34,])
 	}
-	for (b in 1:length(Del_pFPs)){
+	for (b in 1:2){
 		filename=paste0(paste0(childfp,p2[s],'/'),Del_pFPs[b])
 		file=read.table(filename)
                 pl_lAMY_r=c(pl_lAMY_r,file[19,])
@@ -164,9 +169,10 @@ for (s in 1:length(subjvec)){
 		pl_THA_VAs_lh=c(pl_THA_VAs_lh,file[33,])
 		pl_THA_DAm_lh=c(pl_THA_DAm_lh,file[34,])
 		pl_THA_DAl_lh=c(pl_THA_DAl_lh,file[35,])
+		df$pla_THA_DAm[s]=df$pla_THA_DAm[s]+(file[9,]+file[34,])
 	}
 	# for each drug csv
-        for (b in 1:length(Del_m1FPs)){
+        for (b in 1:2){
                 filename=paste0(paste0(childfp,m1[s],'/'),Del_m1FPs[b])
                 file=read.table(filename)
                 md_lAMY_r=c(md_lAMY_r,file[19,])
@@ -189,8 +195,9 @@ for (s in 1:length(subjvec)){
 		md_THA_VAs_lh=c(md_THA_VAs_lh,file[33,])
 		md_THA_DAm_lh=c(md_THA_DAm_lh,file[34,])
 		md_THA_DAl_lh=c(md_THA_DAl_lh,file[35,])
-        }
-        for (b in 1:length(Del_m2FPs)){
+        	df$md80_THA_DAm[s]=df$md80_THA_DAm[s]+(file[9,]+file[34,])
+	}
+        for (b in 1:2){
                 filename=paste0(paste0(childfp,m2[s],'/'),Del_m2FPs[b])
                 file=read.table(filename)
                 md_lAMY_r=c(md_lAMY_r,file[19,])
@@ -213,6 +220,7 @@ for (s in 1:length(subjvec)){
 		md_THA_VAs_lh=c(md_THA_VAs_lh,file[33,])
 		md_THA_DAm_lh=c(md_THA_DAm_lh,file[34,])
 		md_THA_DAl_lh=c(md_THA_DAl_lh,file[35,])
+		df$md120_THA_DAm[s]=df$md120_THA_DAm[s]+(file[9,]+file[34,])
 	}
 	# average each vector for each subject for placebo and drug sep.
 	df$pl_lAMY_r[s]=mean(na.omit(pl_lAMY_r))
@@ -248,7 +256,6 @@ for (s in 1:length(subjvec)){
 	df$md_THA_DAm_lh[s]=mean(na.omit(md_THA_DAm_lh))
 	df$md_THA_DAl_lh[s]=mean(na.omit(md_THA_DAl_lh))
 }
-
 # now save em out
 saveRDS(df,'~/OutPlacDrug_alff.rds')
 

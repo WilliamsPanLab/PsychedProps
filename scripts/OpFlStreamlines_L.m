@@ -1,7 +1,7 @@
 function OpFlStreamlines(subj,sesh)
 
 % add paths
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+%addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in optical flow output
 data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
