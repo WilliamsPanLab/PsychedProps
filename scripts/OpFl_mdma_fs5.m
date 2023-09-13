@@ -100,28 +100,24 @@ for seg=1:SegNum;
 	% get corresponding TRs from aggregate time series
 	segTS_l=fl.TRs(SegStart:(SegStart+SegSpan-1));
 	segTS_r=fr.TRs(SegStart:(SegStart+SegSpan-1));
-%% new
-
-
-
-% loop over each TR-Pair: 1 fewer pair than number of TRs
-for TRP=1:(SegSpan-1)
-	% print TR pair iter
-	TRP
-	% Compute decomposition.
-	tic;
-	% pull out adjacent frames
-	u = of(N, faces_l, vx_l, fl.TRs{TRP}, fl.TRs{TRP+1}, h, alpha, s);
-	% throw u into struct
-	us.vf_left{TRPC}=u;
-	% now right hemi
-	u = of(N, faces_r, vx_r, fr.TRs{TRP}, fr.TRs{TRP+1}, h, alpha, s);
-	toc;
-	% throw u into struct
-	us.vf_right{TRPC}=u;
-	% update TR pair counter, which should increase +1 across segments
-	TRPC=TRPC+1;
-end
+	% loop over each TR-Pair: 1 fewer pair than number of TRs
+	for TRP=1:(SegSpan-1)
+		% print TR pair iter
+		TRP
+		% Compute decomposition.
+		tic;
+		% pull out adjacent frames
+		u = of(N, faces_l, vx_l, segTS_l.TRs{TRP}, segTS_l.TRs{TRPC+1}, h, alpha, s);
+		% throw u into struct
+		us.vf_left{TRPC}=u;
+		% now right hemi
+		u = of(N, faces_r, vx_r, segTS_r.TRs{TRP}, segTS_r.TRs{TRPC+1}, h, alpha, s);
+		toc;
+		% throw u into struct
+		us.vf_right{TRPC}=u;
+		% update TR pair counter, which should increase +1 across segments
+		TRPC=TRPC+1;
+	end
 end
 
 

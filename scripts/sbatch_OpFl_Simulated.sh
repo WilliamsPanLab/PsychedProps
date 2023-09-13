@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-#SBATCH --job-name=OpFl
-#SBATCH --time=7-00:00
-#SBATCH -n 1
+#SBATCH --job-name=OpFl_Sim
+#SBATCH --time=2-00:00
+#SBATCH -n 4
 #SBATCH --mem=35G
-#SBATCH -p leanew1  # Queue names you can submit to
+#SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL

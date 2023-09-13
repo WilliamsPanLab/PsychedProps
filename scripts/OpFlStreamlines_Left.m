@@ -1,7 +1,7 @@
 function OpFlStreamlines_R(subj,sesh)
 
 % add paths
-%addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in optical flow output
 data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
@@ -64,9 +64,11 @@ vx_r=vx_r./100;
 AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
-threeVFs = zeros(3, 3);
+%threeVFs = zeros(3, 3);
+% parallelize
+pool=parpool('local',3);
 % for each vertex
-for v=1:nonMW_L
+parfor v=1:length(vx_l)
 	% print v
 	v
 	% initialize row for this vertex to index into
@@ -88,9 +90,10 @@ for v=1:nonMW_L
 			% get minimum distance for weighting
 			minDist=min(nearDistances);
 			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
-			threeVFs(1,:)=VF_L(nearFaces(1),:,(t+t2-1));
-			threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
-			threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));
+			%threeVFs(1,:)=VF_L(nearFaces(1),:,(t+t2-1));
+			%threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
+			%threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));
+			threeVFs=VF_L(nearFaces,:,(t+t2-1));
 			% get a weighting vector
 			Wvec1=minDist/nearDistances(1);
 			Wvec2=minDist/nearDistances(2);
@@ -111,6 +114,7 @@ for v=1:nonMW_L
 	% add adjacency row to adjacency matrix
 	AdjMatrix_L(v,:)=adjacency_row;
 end
+delete(pool);
 % save out this hemisphere
 fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');

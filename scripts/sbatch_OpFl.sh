@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=6-00:00
-#SBATCH -n 1
+#SBATCH --time=2-00:00
+#SBATCH -n 4
 #SBATCH --mem=30G
-#SBATCH -p leanew1  # Queue names you can submit to
+#SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
@@ -65,14 +65,14 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-#matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-#matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles
@@ -84,10 +84,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 
 # combine angular time series with magnitude time series
-#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
 
 #############################
 #### module IV: Streamlines
@@ -96,8 +96,9 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module IV: Streamlines"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
-./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
-#matlab -nodisplay -r "OpFlStreamlines('$subj','$sesh')"
+# compile is tough to work with parfor: https://www.mathworks.com/help/compiler/use-the-parallel-computing-toolbox.html
+#./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
 
 #############################
 #### module V: Create figures

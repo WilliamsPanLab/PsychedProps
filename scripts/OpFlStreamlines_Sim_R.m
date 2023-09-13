@@ -62,9 +62,11 @@ vx_r=vx_r./100;
 AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
-threeVFs=zeros(3,3);
+%threeVFs=zeros(3,3);
+% parallelize
+pool=parpool('local',4);
 % for each vertex
-for v=1:nonMW_R
+parfor v=1:length(vx_r)
 	% print v
 	v
 	% initialize row for this vertex to index into
@@ -109,6 +111,8 @@ for v=1:nonMW_R
 	% add adjacency row to adjacency matrix
 	AdjMatrix_R(v,:)=adjacency_row;
 end
+% end par
+delete(pool);
 % save out matrices for this participant
 fn=[childfp seed '_streamConnectivity_R.mat'];
 save(fn,'AdjMatrix_R','-v7.3');
