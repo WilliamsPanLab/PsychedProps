@@ -1,9 +1,10 @@
-function OpFlStreamlines_Sim(seed)
+function OpFlStreamlines_R(subj,sesh)
+
 % add paths
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-childfp=['/scratch/users/apines/'];
+%addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in optical flow output
-data=load([childfp 'Simulated_OpFl_rs_fs5_' seed '.mat']);
+data=load([childfp '/' subj '_' sesh '_OpFl_rs_fs5.mat']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
 % for surface data
@@ -15,6 +16,14 @@ surfR = [SubjectsFolder '/rh.sphere'];
 % +1 the faces: begins indexing at 0
 faces_l = faces_l + 1;
 faces_r = faces_r + 1;
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+mwIndVec_r = read_medial_wall_label(surfMR);
+% make "isn't medial wall" indices
+nonMW_L=setdiff(1:10242,mwIndVec_l);
+nonMW_R=setdiff(1:10242,mwIndVec_r);
 % normalize verts to unit sphere
 % left
 numV=length(vx_l);
@@ -34,14 +43,7 @@ P_R = T.incenters;
 L=data.us.vf_left;
 %%% R as right
 R=data.us.vf_right;
-% use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make "isn't medial wall" indices
-nonMW_L=setdiff(1:10242,mwIndVec_l);
-nonMW_R=setdiff(1:10242,mwIndVec_r);
+
 %%% get length of time serires
 tsLength=length(L);
 
@@ -62,7 +64,7 @@ vx_r=vx_r./100;
 AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
-threeVFs=zeros(3,3);
+threeVFs = zeros(3, 3);
 % for each vertex
 for v=1:nonMW_L
 	% print v
@@ -87,8 +89,8 @@ for v=1:nonMW_L
 			minDist=min(nearDistances);
 			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
 			threeVFs(1,:)=VF_L(nearFaces(1),:,(t+t2-1));
-                        threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
-                        threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));	
+			threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
+			threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));
 			% get a weighting vector
 			Wvec1=minDist/nearDistances(1);
 			Wvec2=minDist/nearDistances(2);
@@ -109,6 +111,6 @@ for v=1:nonMW_L
 	% add adjacency row to adjacency matrix
 	AdjMatrix_L(v,:)=adjacency_row;
 end
-% save out matrices for this participant
-fn=[childfp seed '_streamConnectivity_L.mat'];
+% save out this hemisphere
+fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');

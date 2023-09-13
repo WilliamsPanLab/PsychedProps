@@ -96,7 +96,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module IV: Streamlines"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
-./run_OpFlStreamlines_L.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
+./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
 #matlab -nodisplay -r "OpFlStreamlines('$subj','$sesh')"
 
 #############################

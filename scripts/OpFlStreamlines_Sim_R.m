@@ -34,7 +34,14 @@ P_R = T.incenters;
 L=data.us.vf_left;
 %%% R as right
 R=data.us.vf_right;
-
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+mwIndVec_r = read_medial_wall_label(surfMR);
+% make "isn't medial wall" indices
+nonMW_L=setdiff(1:10242,mwIndVec_l);
+nonMW_R=setdiff(1:10242,mwIndVec_r);
 %%% get length of time serires
 tsLength=length(L);
 
@@ -57,7 +64,7 @@ AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
 threeVFs=zeros(3,3);
 % for each vertex
-for v=1:length(vx_r)
+for v=1:nonMW_R
 	% print v
 	v
 	% initialize row for this vertex to index into
