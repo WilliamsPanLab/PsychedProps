@@ -93,7 +93,7 @@ parfor v=1:length(vx_r)
                         %threeVFs(1,:)=VF_R(nearFaces(1),:,(t+t2-1));
                         %threeVFs(2,:)=VF_R(nearFaces(2),:,(t+t2-1));
                         %threeVFs(3,:)=VF_R(nearFaces(3),:,(t+t2-1));
-			threeVFs=VF_L(nearFaces,:,(t+t2-1));
+			threeVFs=VF_R(nearFaces,:,(t+t2-1));
 			% get a weighting vector
                         Wvec1=minDist/nearDistances(1);
                         Wvec2=minDist/nearDistances(2);

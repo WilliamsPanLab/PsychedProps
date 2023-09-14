@@ -87,9 +87,7 @@ parfor v=1:length(vx_l)
 			% get minimum distance for weighting
 			minDist=min(nearDistances);
 			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
-			threeVFs(1,:)=VF_L(nearFaces(1),:,(t+t2-1));
-                        threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
-                        threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));	
+			threeVFs=VF_L(nearFaces,:,(t+t2-1));
 			% get a weighting vector
 			Wvec1=minDist/nearDistances(1);
 			Wvec2=minDist/nearDistances(2);
