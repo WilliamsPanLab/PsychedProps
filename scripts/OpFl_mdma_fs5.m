@@ -107,11 +107,11 @@ for seg=1:SegNum;
 		% Compute decomposition.
 		tic;
 		% pull out adjacent frames
-		u = of(N, faces_l, vx_l, segTS_l.TRs{TRP}, segTS_l.TRs{TRPC+1}, h, alpha, s);
+		u = of(N, faces_l, vx_l, segTS_l{TRP}, segTS_l{TRP+1}, h, alpha, s);
 		% throw u into struct
 		us.vf_left{TRPC}=u;
 		% now right hemi
-		u = of(N, faces_r, vx_r, segTS_r.TRs{TRP}, segTS_r.TRs{TRPC+1}, h, alpha, s);
+		u = of(N, faces_r, vx_r, segTS_r{TRP}, segTS_r{TRP+1}, h, alpha, s);
 		toc;
 		% throw u into struct
 		us.vf_right{TRPC}=u;

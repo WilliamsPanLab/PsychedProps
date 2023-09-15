@@ -41,7 +41,7 @@ plotdata=VertVecL;
 
 %%% circular
 mincol=0;
-maxcol=1800;
+maxcol=1000;
 
 %%% for red/blue 0-centered
 %mincol=70;
@@ -67,7 +67,7 @@ maxcol=1800;
 %BO_cm=interp1(interpsteps,BO_cm,linspace(0,1,255));
 %custommap=BO_cm;
 custommap=colormap(jet);
-custommap(1,:)=[.5 .5 .5];
+%custommap(1,:)=[.5 .5 .5];
 
 %%% matches circular hist
 % for 180 degree max
@@ -197,7 +197,7 @@ set(gcf,'Color','w')
 set(gca,'CLim',[mincol,maxcol]);
 %%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 %colorbar
-%c=colorbar
+c=colorbar
 %c.Location='southoutside'
 
 colormap(custommap)

@@ -2,8 +2,8 @@
 #
 #SBATCH --job-name=OpFl
 #SBATCH --time=2-00:00
-#SBATCH -n 4
-#SBATCH --mem=30G
+#SBATCH -n 9
+#SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -90,21 +90,10 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
 
 #############################
-#### module IV: Streamlines
+#### module IV: Create figures
 #############################
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module IV: Streamlines"
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-
-# compile is tough to work with parfor: https://www.mathworks.com/help/compiler/use-the-parallel-computing-toolbox.html
-#./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
-
-#############################
-#### module V: Create figures
-#############################
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module V: Creating figures"
+echo "Starting module IV: Creating figures"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 ### filepaths for angular carpetplots
@@ -126,4 +115,17 @@ python3 Viz_AngMag.py $subj $sesh
 ### copy xcpd motion plots into figs dir
 cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${sesh}_task-rs_acq-mb_dir-pe?_run-0_space-fsLR_desc-censoring_motion.svg /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
+#############################
+#### module V: Streamlines
+#############################
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "Starting module V: Streamlines"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+
+# compile is tough to work with parfor: https://www.mathworks.com/help/compiler/use-the-parallel-computing-toolbox.html
+#./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
+# put right here eventually
+
+#################
 echo "OpFl complete"

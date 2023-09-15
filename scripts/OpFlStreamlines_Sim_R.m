@@ -64,7 +64,7 @@ AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
 %threeVFs=zeros(3,3);
 % parallelize
-pool=parpool('local',4);
+pool=parpool('local',9);
 % for each vertex
 parfor v=1:length(vx_r)
 	% print v
@@ -112,5 +112,5 @@ end
 % end par
 delete(pool);
 % save out matrices for this participant
-fn=[childfp seed '_streamConnectivity_R.mat'];
+fn=[childfp 'SimStreams/' seed '_streamConnectivity_R.mat'];
 save(fn,'AdjMatrix_R','-v7.3');

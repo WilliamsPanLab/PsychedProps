@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl_Sim
-#SBATCH --time=2-00:00
-#SBATCH -n 4
-#SBATCH --mem=35G
+#SBATCH --time=40:00:00
+#SBATCH -n 9
+#SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -51,6 +51,7 @@ matlab -nodisplay -r "OpFl_simulated_fs5('$seed')"
 
 # simulate streamlines - left
 matlab -nodisplay -r "OpFlStreamlines_Sim_L('$seed')"
+matlab -nodisplay -r "OpFlStreamlines_Sim_R('$seed')"
 
 # remove interim files
 AgTS=/scratch/users/apines/ciftiout_Sym_${seed}.dtseries.nii
@@ -61,13 +62,13 @@ RightHemi_10=/scratch/users/apines/Sim_R_AggTS_${seed}_10k.func.gii
 LeftHemi_10_mgh=/scratch/users/apines/Sim_L_AggTS_${seed}_10k.mgh
 RightHemi_10_mgh=/scratch/users/apines/Sim_R_AggTS_${seed}_10k.mgh
 # remove simulated TS
-#rm ${AgTS}
+rm ${AgTS}
 # remove sep. hemis
-#rm ${LeftHemi}
-#rm ${RightHemi}
+rm ${LeftHemi}
+rm ${RightHemi}
 # remove sep. hemis resampled
-#rm ${LeftHemi_10}
-#rm ${RightHemi_10}
+rm ${LeftHemi_10}
+rm ${RightHemi_10}
 # remove sep. hemis resampled .mgh
-#rm ${LeftHemi_10_mgh}
-#rm ${RightHemi_10_mgh}
+rm ${LeftHemi_10_mgh}
+rm ${RightHemi_10_mgh}
