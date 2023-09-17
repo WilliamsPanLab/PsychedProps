@@ -56,7 +56,7 @@ sesh=$2
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-#matlab -nodisplay -r "MotMask('$subj','$sesh')"
+matlab -nodisplay -r "MotMask('$subj','$sesh')"
 
 ############################
 #### module II: Optical Flow
