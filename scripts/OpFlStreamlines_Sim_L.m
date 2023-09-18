@@ -63,7 +63,7 @@ AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
 %threeVFs=zeros(3,3);
-pool=parpool('local',9);
+pool=parpool('local');
 % for each vertex
 parfor v=1:length(vx_l)
 	% print v
