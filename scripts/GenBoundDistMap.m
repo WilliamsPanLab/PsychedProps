@@ -1,9 +1,12 @@
+function GenBoundDistMap(subj,SolutionNumber,DMNnumber)
+% function to take a single-subject parcellation from infomap, extract the winning solution, extract the DMN, and create a map depicting distance from the DMN boundary within the DMN
+
 % add paths for cifti stuff
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
 % Define the subject ID
-subject = 'sub-MDMA001';  % Update with the specific subject ID
+subject=subj
 
 % define childfp
 childfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subject '/ses-00/pfm'];
@@ -42,19 +45,19 @@ RH_idx = RefCifti.brainstructure((length(surfL.vertices)+1):(length(surfL.vertic
 % set community of interest: consider making this an argument for subjs w/o DMN as 1
 community_of_interest = 1;
 
-% get community membership from coarse solution
-community_assignment_L = network_maps_L.cdata(:, 1);
+% get community membership from infomap solution
+community_assignment_L = network_maps_L.cdata(:, SolutionNumber);
 % community assignment R
-community_assignment_R = network_maps_R.cdata(:, 1);
+community_assignment_R = network_maps_R.cdata(:, SolutionNumber);
 % parse non-MW items from community affiliation vectors
 community_assignment_L=community_assignment_L(LH_idx);
 community_assignment_R=community_assignment_R(RH_idx);
 
 % get DMN indices
-DMN_L_ind = find(community_assignment_L==1);
-DMN_R_ind = find(community_assignment_R==1);
-nonDMN_L_ind = find(community_assignment_L~=1);
-nonDMN_R_ind = find(community_assignment_R~=1);
+DMN_L_ind = find(community_assignment_L==DMNnumber);
+DMN_R_ind = find(community_assignment_R==DMNnumber);
+nonDMN_L_ind = find(community_assignment_L~=DMNnumber);
+nonDMN_R_ind = find(community_assignment_R~=DMNnumber);
 
 % initialize vertex-wise vector depicting minimal distance from edge of DMN (within DMN)
 nonDMN_dist_L=zeros(sum(LH_idx),1);
