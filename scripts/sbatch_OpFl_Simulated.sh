@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl_Sim
-#SBATCH --time=40:00:00
+#SBATCH --time=22:00:00
 #SBATCH -n 9
 #SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
@@ -43,6 +43,15 @@ module load contribs poldrack anaconda/5.0.0-py36
 # simulate data
 matlab -nodisplay -r "SimulateFMR('$seed')"
 
+# smooth it 
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $seed
+
+# make sure we are all caught up
+sleep 8
+
+# convert to same value range
+matlab -nodisplay -r "Scale_Simulated('$seed')"
+
 # downsample it 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated_fs5.sh $seed
 
@@ -51,7 +60,7 @@ matlab -nodisplay -r "OpFl_simulated_fs5('$seed')"
 
 # simulate streamlines - left
 matlab -nodisplay -r "OpFlStreamlines_Sim_L('$seed')"
-matlab -nodisplay -r "OpFlStreamlines_Sim_R('$seed')"
+#matlab -nodisplay -r "OpFlStreamlines_Sim_R('$seed')"
 
 # remove interim files
 AgTS=/scratch/users/apines/ciftiout_Sym_${seed}.dtseries.nii
