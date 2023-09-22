@@ -48,7 +48,7 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
 #sleep 20
 

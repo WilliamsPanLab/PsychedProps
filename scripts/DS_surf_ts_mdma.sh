@@ -17,6 +17,12 @@ mkdir ${childfp} -p
 # concat phase encoding directions
 wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii
 
+# concat with emotion
+wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii
+
+# concat with gambling
+wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii
+
 # subject's aggregated time series
 AgTS=${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii
 
