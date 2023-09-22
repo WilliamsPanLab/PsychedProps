@@ -37,7 +37,8 @@ angle_bins = np.linspace(0, np.pi, num_angle_bins+1)  # Adjust for 0-180 degrees
 # Define percentiles for magnitude bins (adjust as needed)
 percentiles = np.linspace(0, 100, num_magnitude_bins+1)  # 0-100% divided into num_magnitude_bins percentiles
 # Calculate the magnitude bins based on percentiles
-magnitude_bins = np.percentile(Mag_L, percentiles)
+magnitude_bins_L = np.percentile(Mag_L, percentiles)
+magnitude_bins_R = np.percentile(Mag_R, percentiles)
 
 # Bin the data
 binned_magnitudes_L = np.zeros((num_angle_bins, num_magnitude_bins))
@@ -45,7 +46,7 @@ for i in range(num_angle_bins):
     angle_min = angle_bins[i]
     angle_max = angle_bins[i + 1]
     mask = (Ang_L_rad >= angle_min) & (Ang_L_rad < angle_max)
-    binned_magnitudes_L[i, :] = np.histogram(Mag_L[mask], bins=magnitude_bins)[0]
+    binned_magnitudes_L[i, :] = np.histogram(Mag_L[mask], bins=magnitude_bins_L)[0]
 
 # right
 binned_magnitudes_R = np.zeros((num_angle_bins, num_magnitude_bins))
@@ -53,13 +54,13 @@ for i in range(num_angle_bins):
     angle_min = angle_bins[i]
     angle_max = angle_bins[i + 1]
     mask = (Ang_R_rad >= angle_min) & (Ang_R_rad < angle_max)
-    binned_magnitudes_R[i, :] = np.histogram(Mag_R[mask], bins=magnitude_bins)[0]
+    binned_magnitudes_R[i, :] = np.histogram(Mag_R[mask], bins=magnitude_bins_R)[0]
 
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 
 # Set the contour levels and colormap (adjust as needed)
-extent = [0, np.pi, magnitude_bins.min(), magnitude_bins.max()]  # Define the extent
+extent = [0, np.pi, magnitude_bins_L.min(), magnitude_bins_L.max()]  # Define the extent
 contour = ax.contourf(binned_magnitudes_L.T, cmap='inferno', extent=extent)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
@@ -75,7 +76,7 @@ plt.savefig(outfp,bbox_inches='tight')
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # Set the contour levels and colormap (adjust as needed)
-extent = [0, np.pi, magnitude_bins.min(), magnitude_bins.max()]  # Define the extent
+extent = [0, np.pi, magnitude_bins_R.min(), magnitude_bins_R.max()]  # Define the extent
 contour = ax.contourf(binned_magnitudes_R.T, cmap='inferno', extent=extent)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)

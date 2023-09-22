@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl_Sim
-#SBATCH --time=22:00:00
+#SBATCH --time=21:00:00
 #SBATCH -n 9
 #SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to

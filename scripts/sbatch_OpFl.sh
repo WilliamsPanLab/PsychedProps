@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=2-00:00
+#SBATCH --time=4:00:00
 #SBATCH -n 9
 #SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
@@ -118,13 +118,13 @@ cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${se
 #############################
 #### module V: Streamlines
 #############################
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module V: Streamlines"
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+#echo "Starting module V: Streamlines"
+#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # compile is tough to work with parfor: https://www.mathworks.com/help/compiler/use-the-parallel-computing-toolbox.html
 #./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
+# matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
 # put right here eventually
 
 #################
