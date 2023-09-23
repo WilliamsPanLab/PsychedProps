@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=4:00:00
-#SBATCH -n 9
+#SBATCH --time=4:30:00
+#SBATCH -n 1
 #SBATCH --mem=45G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
@@ -48,7 +48,7 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
+# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
 #sleep 20
 
@@ -56,7 +56,7 @@ sesh=$2
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-matlab -nodisplay -r "MotMask('$subj','$sesh')"
+# matlab -nodisplay -r "MotMask('$subj','$sesh')"
 
 ############################
 #### module II: Optical Flow
@@ -65,14 +65,14 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+#matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 
 # interpolate fs5 time series to faces and between-timepoints
-matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+#matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
 
 #############################
 #### module III: Calc. Angles
@@ -84,7 +84,8 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+# matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','$rsIn')"
 
 # combine angular time series with magnitude time series
 matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
