@@ -12,15 +12,14 @@
 # Number of times to submit the job
 
 total_submissions=100
-sleep 10001
 # Loop to submit the job
-for ((i = 1; i <= total_submissions; i++)); do
+for ((i = 9; i <= total_submissions; i++)); do
     echo "Submitting job with argument: $i"
     sbatch sbatch_OpFl_Simulated.sh $i
     
     if ((i < total_submissions)); then
         echo "Sleeping for 3 minutes before the next submission..."
-        sleep 280  # Sleep for a bit
+        sleep 2  # Sleep for a bit
     else
         echo "All jobs submitted."
     fi
