@@ -149,15 +149,15 @@ el_R=el_R(g_noMW_combined_R);
 % load in Network distances
 funcgiiFolder = ['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/ses-00/pfm'];
 netdists=load([funcgiiFolder '/' subj '_Nets_fs5.mat']);
-nets_LH=networks.nets.Lnets;
-nets_RH=networks.nets.Rnets;
+nets_LH=netdists.nets.Lnets;
+nets_RH=netdists.nets.Rnets;
 
 % initialize out dataframes
 Propvec=[];
 stringVec={};
 
-% initialize matrix for each face over each of k=4 networks to saveout to scratch
-faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
+% initialize matrix for each face to saveout to scratch
+faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
 	% red herring tabulation
 	% network of interest is DMN
 	n_LH=nets_LH(:,1);
@@ -261,8 +261,8 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
         % average for this network before proceeding to next network loop
         AllAngs=[NangDs_R(:)' NangDs_L(:)'];
         % average left-hemisphere values over time and plop into facematrix for this participant
-        faceMatrix(InclLeft,k)=mean(NangDs_L,2);
-        faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
+        faceMatrix(InclLeft,1)=mean(NangDs_L,2);
+        faceMatrix((InclRight+length(InclLeft)),1)=mean(NangDs_R,2);
         % and time series population
 	OutTs_L=NangDs_L;
 	OutTs_R=NangDs_R;
@@ -270,7 +270,7 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
         avgD=mean(AllAngs);
         Propvec=[Propvec avgD];
         % add label
-        stringVec=[stringVec ['AngD' num2str(k)]];
+        stringVec=[stringVec ['AngD' num2str(1)]];
 
 % save out as csv
 T=table(Propvec','RowNames',stringVec);

@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=4:30:00
+#SBATCH --time=1:00:00
 #SBATCH -n 1
-#SBATCH --mem=45G
-#SBATCH -p normal,leanew1  # Queue names you can submit to
+#SBATCH --mem=25G
+#SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
@@ -48,12 +48,19 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
+# group
 # /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
 
 #sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
+
+# individual
+# downsample individualized distance maps
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_Networks_Ind.sh $subj
+# convert to .mat
+matlab -nodisplay -r "Netgiis_2_mat_Ind('$subj')"
 
 # mask images: 8+ continuous frames only
 # matlab -nodisplay -r "MotMask('$subj','$sesh')"
@@ -84,7 +91,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
+# group
 # matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+# individual
+# extract relative angles
 matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','$rsIn')"
 
 # combine angular time series with magnitude time series
