@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:00:00
+#SBATCH --time=1:30:00
 #SBATCH -n 1
-#SBATCH --mem=25G
+#SBATCH --mem=18G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -92,7 +92,7 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 
 # extract relative angles
 # group
-# matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
 # individual
 # extract relative angles
 matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','$rsIn')"

@@ -72,6 +72,8 @@ lenOpFl=NumTRs;
 % initialize out dataframes
 Propvec=[];
 stringVec={};
+stringVecSD={};
+
 % and azez and els for opflow vectors
 OpF_azes_L=zeros(length(g_noMW_combined_L),lenOpFl);
 OpF_els_L=zeros(length(g_noMW_combined_L),lenOpFl);
@@ -151,10 +153,6 @@ networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitializat
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
 
-% initialize out dataframes
-Propvec=[];
-stringVec={};
-
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
 faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
 %% k = 2 to select DMN
@@ -227,7 +225,12 @@ for k=2
         % initialize angular distance vector for each network (l and r) above
         NangDs_L=zeros(length(InclLeft),lenOpFl);
         NangDs_R=zeros(length(InclRight),lenOpFl);
-        % get angular distance for each face for each timepoint
+	% initialize circ SD vectors
+	SD_L=zeros(1,length(InclLeft));
+	SD_R=zeros(1,length(InclRight));
+	Thetas_L=zeros(1,lenOpFl);
+	Thetas_R=zeros(1,lenOpFl);
+	% get angular distance for each face for each timepoint
         for F=1:length(InclLeft);
                 % get vector for each face (network vector)
                 nVec=[nazes_L(F) nels_L(F)];
@@ -235,13 +238,21 @@ for k=2
                 for fr=1:lenOpFl
                         % get optical flow vector
                         OpFlVec=[OpF_azes_L_n(F,fr) OpF_els_L_n(F,fr)];
-                        % get angular distance at that timepoint (degrees)
+                        % extract native vector for circ stats (sd)
+			OpFlVec_L= [OpFlVec(1) OpFlVec(2)];
+			% store in output vector (r is redundant across all vecs, only using az and el)
+			[Thetas_L(fr),Mags_L(fr)]=cart2pol(OpFlVec_L(1),OpFlVec_L(2));
+			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         % populate vector
                         NangDs_L(F,fr)=a;
                 % end tp loop
                 end
-        % end each face loop
+		% get circ SD
+		L_CSD=circ_std(Thetas_L');
+        	% plop into outut vector for left hemi
+		SD_L(F)=L_CSD;
+	% end each face loop
         end
         for F=1:length(InclRight);
                 % get vector for each face (network vector)
@@ -250,12 +261,20 @@ for k=2
                 for fr=1:lenOpFl
                         % get optical flow vector
                         OpFlVec=[OpF_azes_R_n(F,fr) OpF_els_R_n(F,fr)];
-                        % get angular distance at that timepoint (degrees)
+                        % extract native vector for circ stats (sd)
+                        OpFlVec_R= [OpFlVec(1) OpFlVec(2)];
+                        % store in output vector (r is redundant across all vecs, only using az and el)
+                        [Thetas_R(fr),Mags_R(fr)]=cart2pol(OpFlVec_R(1),OpFlVec_R(2));
+			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         % populate vector
                         NangDs_R(F,fr)=a;
                 % end tp loop
                 end
+		% get circ SD
+                R_CSD=circ_std(Thetas_R');
+                % plop into outut vector for left hemi
+                SD_R(F)=R_CSD;
         % end each face loop
         end
         % average for this network before proceeding to next network loop
@@ -271,8 +290,8 @@ for k=2
         Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['AngD' num2str(k)]];
+	SDstringVec=[stringVecSD ['AngSD' num2str(k)]];
 end
-
 % save out as csv
 T=table(Propvec','RowNames',stringVec);
 % calc outFP
@@ -284,3 +303,11 @@ writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_fa
 % save out time series
 writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'])
 writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R.csv'])
+% save out SD face vectors
+save([outFP '/' subj '_' sesh '_SDs_dmn_L.mat'],'SD_L')
+save([outFP '/' subj '_' sesh '_SDs_dmn_R.mat'],'SD_R')
+% save out average SD in the network
+allSDs=[SD_L SD_R];
+meanSD=mean(allSDs);
+T=table(meanSD,'RowNames',SDstringVec);
+writetable(T,[outFP '/' subj '_' sesh '_Prop_SD_gro.csv'],'WriteRowNames',true)

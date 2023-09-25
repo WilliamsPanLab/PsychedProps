@@ -35,13 +35,13 @@ mw_R(mwIndVec_r)=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 plotdata=zeros(1,10242);
-%plotdata(logical(mw_L))=VertVecL;
-plotdata=VertVecL;
+plotdata(logical(mw_L))=VertVecL;
+%plotdata=VertVecL;
 %%%%%%% fixed colorscale varities
 
 %%% circular
 mincol=0;
-maxcol=1000;
+maxcol=8;
 
 %%% for red/blue 0-centered
 %mincol=70;

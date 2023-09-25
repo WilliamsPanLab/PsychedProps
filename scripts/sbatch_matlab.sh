@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=simStreamComb
-#SBATCH --time=4:00:00
+#SBATCH --time=1:50:00
 #SBATCH -n 1
-#SBATCH --mem=80G
+#SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -19,4 +19,4 @@ module load freesurfer/7.3.2
 module load workbench
 
 # combine streamlines
-matlab -nodisplay -r "Sparsify_Simulated_Streams"
+matlab -nodisplay -r "SigTestStreams('$1','$2')"
