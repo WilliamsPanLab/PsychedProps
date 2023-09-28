@@ -74,9 +74,15 @@ for i=1:100
 end
 
 % find where real streams exceeded all simulated
-exceedingStreams=countMat > 53;
+exceedingStreams=countMat > 99;
 % find where real streams fell below all simulated
-belowStreams=countMat < -53;
+belowStreams=countMat < -99;
+% sparse versions
+exceedingStreams_s=sparse(exceedingStreams);
+belowStreams_s=sparse(belowStreams);
+% save out processed info
+save([childfp '/exceedingStreams.mat'],'exceedingStreams_s')
+save([childfp '/belowStreams.mat'],'belowStreams_s')
 % print out some strong examples
 % Sort rows in descending order of sum for exceedingStreams
 [b, sorted_exceeding_indices] = sort(sum(exceedingStreams, 2), 'descend');

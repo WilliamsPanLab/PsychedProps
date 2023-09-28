@@ -12,15 +12,21 @@ nonMW_L=setdiff(1:10242,mwIndVec_l);
 for i=1:100
 	i
 	filepath=['/scratch/users/apines/SimStreams/' num2str(i) '_streamConnectivity_L.mat'];
+	outpath=['/scratch/users/apines/SimStreams/' num2str(i) '_streamConnectivity_L_sparse.mat'];
 	% test if file exists
 	if exist(filepath,'file')
-		% load in one
-		simMat=load(filepath);
-		% mask it
-		simMat=simMat.AdjMatrix_L(nonMW_L,nonMW_L);
-		sparseSimMat=sparse(simMat);
-		% save it
-		save(['/scratch/users/apines/SimStreams/' num2str(i) '_streamConnectivity_L_sparse.mat'],'sparseSimMat','-v7.3');	
+		% and if sparse matrix doesnt already exist
+		if ~exist(outpath, 'file')
+			% load in one
+			simMat=load(filepath);
+			% mask it
+			simMat=simMat.AdjMatrix_L(nonMW_L,nonMW_L);
+			sparseSimMat=sparse(simMat);
+			% save it
+			save(['/scratch/users/apines/SimStreams/' num2str(i) '_streamConnectivity_L_sparse.mat'],'sparseSimMat','-v7.3');	
+		else
+			fprintf('File %s already exists.\n', outpath);
+		end
 	% print something out if it doesnt exist
 	else
 		fprintf('File %s does not exist.\n', filepath);
