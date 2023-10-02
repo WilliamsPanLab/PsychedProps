@@ -1,15 +1,17 @@
-function Extract_RelativeAngles(subj,sesh,infileOpFl)
+function Extract_RelativeAngles(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% Load in fsav5 opflow calc
+% Load in fsav4 opflow calc
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
 data=load(infileOpFl)
 % Load in surface data
-surfL = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.sphere'];
-surfR = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.sphere'];
+surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
+surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -36,14 +38,14 @@ P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.Medial_wall.label';
+surfML = '/oak/stanford/groups/leanew1/users/apines/surf/lh.Medial_wall.label';
 mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.Medial_wall.label';
+surfMR = '/oak/stanford/groups/leanew1/users/apines/surf/rh.Medial_wall.label';
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make binary "is medial wall" vector for vertices
-mw_L=zeros(1,10242);
+mw_L=zeros(1,2562);
 mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,10242);
+mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 % convert to faces
 % convert to faces
@@ -56,8 +58,8 @@ F_MW_R=ceil(F_MW_R);
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
 % make medial wall vector
-g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
+g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 
 % save out mask for reference in python visualization script of ATS
 save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
@@ -149,7 +151,7 @@ az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs5.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
 
@@ -176,7 +178,7 @@ for k=2
         InclRight=find(sumRight);
         % note InclLeft and Right presume mw mask already applied!	
 	% save InclLeft and Right to a reference .mat 
-	save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_nullGrad_vectors.mat', 'InclLeft', 'InclRight');
+	save('/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad_vectors.mat', 'InclLeft', 'InclRight');
 
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
         %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
@@ -297,17 +299,9 @@ T=table(Propvec','RowNames',stringVec);
 % calc outFP
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 % write out
-writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_gro.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix_gro.csv'])
+writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix_gro.csv'])
 % save out time series
-writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'])
-writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R.csv'])
-% save out SD face vectors
-save([outFP '/' subj '_' sesh '_SDs_dmn_L.mat'],'SD_L')
-save([outFP '/' subj '_' sesh '_SDs_dmn_R.mat'],'SD_R')
-% save out average SD in the network
-allSDs=[SD_L SD_R];
-meanSD=mean(allSDs);
-T=table(meanSD,'RowNames',SDstringVec);
-writetable(T,[outFP '/' subj '_' sesh '_Prop_SD_gro.csv'],'WriteRowNames',true)
+writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task' '_Prop_TS_dmn_L.csv'])
+writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_Prop_TS_dmn_R.csv'])

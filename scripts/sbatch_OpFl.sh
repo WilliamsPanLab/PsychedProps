@@ -54,14 +54,12 @@ sleep 20
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
-# individual
-# downsample individualized distance maps
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_Networks_Ind.sh $subj
-# convert to .mat
-matlab -nodisplay -r "Netgiis_2_mat_Ind('$subj')"
-
 # mask images: 8+ continuous frames only
-# matlab -nodisplay -r "MotMask('$subj','$sesh')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -70,14 +68,21 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-#matlab -nodisplay -r "OpFl_mdma_fs5('$subj','$sesh')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
-rsIn=${childfp}/${subj}_${sesh}_OpFl_rs_fs5.mat
 
-# interpolate fs5 time series to faces and between-timepoints
-#matlab -nodisplay -r "InterpolateTS('$subj','$sesh')"
+# interpolate fs4 time series to faces and between-timepoints
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs2')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','emotion')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','gambling')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','wm')"
 
 #############################
 #### module III: Calc. Angles
@@ -91,9 +96,6 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 # extract relative angles
 # group
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
-# individual
-# extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','$rsIn')"
 
 # combine angular time series with magnitude time series
 matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"

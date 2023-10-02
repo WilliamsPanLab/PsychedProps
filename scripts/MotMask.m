@@ -1,4 +1,4 @@
-function MotMask(subj,sesh)
+function MotMask(subj,sesh,task)
 % this function motion masks the concatenated runs 
 % note that both validsegcell_full and validsegcell_trunc are saved out: only _Trunc used in this workflow
 % validsegcell_full refers to the TR and span of segment in the outlier FD masked images
@@ -14,8 +14,8 @@ addpath(genpath(ToolFolder));
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 
 % mask concatenated data
-fpL=[childfp '/' subj '_' sesh '_L_AggTS_10k.mgh'];
-fpR=[childfp '/' subj '_' sesh '_R_AggTS_10k.mgh'];
+fpL=[childfp '/' subj '_' sesh '_L_' task '_TS_3k.mgh'];
+fpR=[childfp '/' subj '_' sesh '_R_' task '_TS_3k.mgh'];
 
 % setting continuous frame threshold to 8 TRs in a row
 Threshold=8			
@@ -23,7 +23,6 @@ Threshold=8
 % if file exists, run it
 if isfile(fpL)
 	% read in mgh
-	fpL
 	dataL=MRIread(fpL);
 	dataR=MRIread(fpR);
 	% squeeze to get rid of extra dimensions
@@ -33,32 +32,19 @@ if isfile(fpL)
 	tsSize=size(tsl);
 	numTRs=tsSize(2);
 	% load in mask
-	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
+	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
+	% adapt if it is resting state
+	if task=='rs1'
+		confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
+	elseif task=='rs2'
+		confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv'];
+	end
 	conf1=readtable(confFilepath1,"FileType","text",'Delimiter', '\t');
-	confFilepath2=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv'];
-	conf2=readtable(confFilepath2,"FileType","text",'Delimiter', '\t');
-	% emotion and gambling
-	confFilepath3=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-emotion_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
-	conf3=readtable(confFilepath3,"FileType","text",'Delimiter', '\t');
-	confFilepath4=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-gambling_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
-	conf4=readtable(confFilepath4,"FileType","text",'Delimiter', '\t');
 	% extract FD columns
 	FD1=table2array(conf1(:,'framewise_displacement'));
-	FD2=table2array(conf2(:,'framewise_displacement'));
-	FD3=table2array(conf3(:,'framewise_displacement'));
-	FD4=table2array(conf4(:,'framewise_displacement'));	
 	% extract GS columns
 	GS1=table2array(conf1(:,'global_signal'));
-	GS2=table2array(conf2(:,'global_signal'));
-	GS3=table2array(conf3(:,'global_signal'));
-	GS4=table2array(conf4(:,'global_signal'));
 	% combine them to match concatenated neuroimages
-	FD=vertcat(FD1,FD2,FD3,FD4);
-	GS=vertcat(GS1,GS2,GS3,GS4);
-	% insert artificial "1" at start of each scan so we don't cross scan-to-scan frames in analyzed segments
-	FD(424)=1 % start of RS2
-	FD(847)=1 % start of emotion
-	FD(1033)=1 % start of gambling	
 	% get to FD_thresh of .2 mm
 	TRwise_mask=FD>.2;
 	% building in sanity check. Motion removed frames + interrupted sequence removed frames + ending frames should = start frame #
@@ -90,36 +76,6 @@ if isfile(fpL)
 	Absolut(:,4)=cellfun(@minus, Absolut(:,2), Absolut(:,1), 'UniformOutput', false);
        	% and plus 1 because the TR range is inclusive: i.e., frames 1-3 is actually 3 frames, not 3 - 1 frames
 	Absolut(:,4)=num2cell(cell2mat(Absolut(:,4))+1) 
-	%%%######## This whole section is just to artificially split the table of continuous segments at the point of scan 1 ending #######%%%
-	% find where absolute starting TR is less than length of time series 1 and duration extends over timepont 1
-      	% find any segment that runs over end of scan 1 into scan 2
-	%CrossSegment = find(cell2mat(Absolut(:,1)) < length(FD1) & cell2mat(Absolut(:,1)) + cell2mat(Absolut(:,4)) > length(FD1)); 
-	%if ~isempty(CrossSegment)
-	% now we need to artificially insert the discontinuity between scans. That is, if one segment spans the end of the first scan and into the second, it needs to be broken up to reflect the true discontinuity
-		% +1 for inclusivity (frames 1-3 is 3 frames, not 1-3).
-	%	ts1newSegmentDuration = (length(FD1) - Absolut{CrossSegment, 1})+1;	
-	%	ts1newSegmentEnd=length(FD1);
-		% record where the new segment will start
-	%	ts2newSegmentStart=length(FD1)+1;
-	%	ts2newSegmentEnd=Absolut{CrossSegment, 2};
-		% record where the new segment will end (initial duration minus frames allocated to ts1 new segment
-	%	ts2newSegmentDuration = (Absolut{CrossSegment, 4} - ts1newSegmentDuration);
-		% Update the duration in absolut
-	%	Absolut{CrossSegment, 4} = ts1newSegmentDuration;
-		% update the ending TR in absolut (should be 423 for p50 rs) % need to subtract 1 because as above, column 4 is one higher than reflected by difference of column 1 and 2
-	%	Absolut{CrossSegment, 2} = Absolut{CrossSegment, 1} + (Absolut{CrossSegment, 4}-1);
-		% now insert new TS2 segment
-	%	Absolut = [Absolut(1:CrossSegment, :); {ts2newSegmentStart, ts2newSegmentEnd, 1, ts2newSegmentDuration}; Absolut(CrossSegment+1:end, :)]
-		% but if it's already a motion frame, falls into "else" category
-	%	else
-	%end
-	% now for rs2 -> emotion transition
-	%CrossSegment = find(cell2mat(Absolut(:,1)) < (length(FD1)+length(FD2)) & cell2mat(Absolut(:,1)) + cell2mat(Absolut(:,4)) > (length(FD1)+length(FD2)));
-	%if ~isempty(CrossSegment)
-		% +1 for inclusivity (frames 1-3 is 3 frames, not 3 minus 1)
-	%	ts1newSegmentDuration = (length(FD1) - Absolut{CrossSegment, 1})+1;
-	% now for emotion -> gambling
-	%%%######## end of section on injecting real scan ends as frame disruptors #######%%%
 	% extract continuous segments as those where boolean include is = 1 in absolut
 	continuousSegments = Absolut([Absolut{:, 3}] == 1, 4);
 	% create a relative list of starting TR and duration of segments uninterupt. by combined mask
@@ -161,10 +117,10 @@ if isfile(fpL)
 		ValidSegCell_Trunc(s,1)=num2cell(NewStart);
 	end	
 	% save 2-column df indicating start of valid segments and length: matches masked, relative dtseries
-	segmentfnTr=[childfp '/' subj '_' sesh '_task-rs_ValidSegments_Trunc'];
+	segmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc'];
 	writetable(cell2table(ValidSegCell_Trunc),segmentfnTr,'WriteVariableNames',0)
 	% write 4 column, absolute segment output
-	asegmentfnTr=[childfp '/' subj '_' sesh '_task-rs_AllSegments'];
+	asegmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_AllSegments'];
 	writetable(cell2table(Absolut),asegmentfnTr,'WriteVariableNames',0)
 	% make binary mask for continuous segments
 	%newTRnum=sum(cell2mat(ValidSegCell_Trunc(:,2)));
@@ -189,12 +145,12 @@ if isfile(fpL)
 	dataL.vol=masked_trs_cont_l;
 	dataR.vol=masked_trs_cont_r;
 	% set output filepath
-	ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_L.mgh'];
-	ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_R.mgh'];
+	ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_L.mgh'];
+	ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_R.mgh'];
         % implement sanity check. FD > thresh removed + noncontinuous segment removed + remaining = OG
 	assert(motRemovFrames + ExcludedTRs + sum(TRwise_mask_cont) == numTRs, 'Assertion failed: Over FD trs + noncontinuous TRs + remaining TRs is not equal to original TRs');
 	% writeout global signal
-	GSP=[childfp '/' subj '_' sesh '_GS_p2mm.csv'];
+	GSP=[childfp '/' subj '_' sesh '_' task '_GS_p2mm.csv'];
 	csvwrite(GSP,GSmc)
 	% saveout time series
 	MRIwrite(dataL,ofpl)

@@ -14,33 +14,68 @@ childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 # make output dirs
 mkdir ${childfp} -p
 
-# concat phase encoding directions
-wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii
-
-# concat with emotion
-wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii
-
-# concat with gambling
-wb_command -cifti-merge ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii -cifti ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii
-
-# subject's aggregated time series
-AgTS=${childfp}/${subj}_${sesh}_rs_concat.dtseries.nii
-
-# separate hemispheres - left
-wb_command -cifti-separate $AgTS COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_AggTS.func.gii 
-
-# right hemi
-wb_command -cifti-separate $AgTS COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_AggTS.func.gii
+# separate hemispheres - left - ap resting state
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_rs1_TS.func.gii
+# separate hemispheres - right - ap resting state
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_rs1_TS.func.gii
+# separate hemispheres - left - pa resting state
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_rs2_TS.func.gii
+# separate hemispheres - right - pa resting state
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_rs2_TS.func.gii
+# separate hemispheres - left - ap emotion
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_emotion_TS.func.gii
+# separate hemispheres - right - ap emotion
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_emotion_TS.func.gii
+# separate hemispheres - left - ap gambling
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_gambling_TS.func.gii
+# separate hemispheres - right - ap gambling
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_gambling_TS.func.gii
+# separate hemispheres - left - ap working memory
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_wm_TS.func.gii
+# separate hemispheres - right - ap working memory
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_wm_TS.func.gii
 
 ### resample both hemis to 2.5k vertices
-# left hemisphere
-wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_AggTS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_AggTS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4.L.midthickness_va_avg.3k_fsavg_L.shape.gii
-
-# right hemisphere
-wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_AggTS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_AggTS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4.R.midthickness_va_avg.3k_fsavg_R.shape.gii
+# rs1 - left
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_rs1_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_rs1_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii
+# rs1 - right
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_rs1_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_rs1_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii
+# rs2 - left
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_rs2_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_rs2_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii
+# rs2 - right
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_rs2_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_rs2_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii
+# emotion - left
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_emotion_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_emotion_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii
+# emotion - right
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_emotion_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_emotion_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii
+# gambling - left
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_gambling_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_gambling_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii
+# gambling - right
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_gambling_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_gambling_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii
+# wm - left
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_L_wm_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.L.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_L_wm_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.L.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.L.3k_fsavg_L.surf.gii
+# wm - right
+wb_command -metric-resample ${childfp}/${subj}_${sesh}_R_wm_TS.func.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR-deformed_to-fsaverage.R.sphere.32k_fs_LR.surf.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii ADAP_BARY_AREA ${childfp}/${subj}_${sesh}_R_wm_TS_3k.func.gii -area-metrics /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fs_LR.R.midthickness_va_avg.32k_fs_LR.shape.gii /oak/stanford/groups/leanew1/users/apines/standard_mesh_atlases/resample_fsaverage/fsaverage4_std_sphere.R.3k_fsavg_R.surf.gii
 
 # convert to mgh for reading individual hemisphere time series into matlab
-/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_AggTS_3k.func.gii ${childfp}/${subj}_${sesh}_L_AggTS_3k.mgh
-/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_AggTS_3k.func.gii ${childfp}/${subj}_${sesh}_R_AggTS_3k.mgh
-
+# rs 1 - left
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_rs1_TS_3k.func.gii ${childfp}/${subj}_${sesh}_L_rs1_TS_3k.mgh
+# rs 1 - right
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_rs1_TS_3k.func.gii ${childfp}/${subj}_${sesh}_R_rs1_TS_3k.mgh
+# rs 2 - left
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_rs2_TS_3k.func.gii ${childfp}/${subj}_${sesh}_L_rs2_TS_3k.mgh
+# rs 2 - right
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_rs2_TS_3k.func.gii ${childfp}/${subj}_${sesh}_R_rs2_TS_3k.mgh
+# emotion - left
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_emotion_TS_3k.func.gii ${childfp}/${subj}_${sesh}_L_emotion_TS_3k.mgh
+# emotion - right
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_emotion_TS_3k.func.gii ${childfp}/${subj}_${sesh}_R_emotion_TS_3k.mgh
+# gambling - left
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_gambling_TS_3k.func.gii ${childfp}/${subj}_${sesh}_L_gambling_TS_3k.mgh
+# gambling - right
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_gambling_TS_3k.func.gii ${childfp}/${subj}_${sesh}_R_gambling_TS_3k.mgh
+# wm - left
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_L_wm_TS_3k.func.gii ${childfp}/${subj}_${sesh}_L_wm_TS_3k.mgh
+# wm - right
+/share/software/user/open/freesurfer/6.0.0/bin/mri_convert.bin ${childfp}/${subj}_${sesh}_R_wm_TS_3k.func.gii ${childfp}/${subj}_${sesh}_R_wm_TS_3k.mgh
 

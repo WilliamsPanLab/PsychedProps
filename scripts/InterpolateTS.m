@@ -1,11 +1,11 @@
-function InterpolateTS(subj,sesh)
+function InterpolateTS(subj,sesh,task)
 % this function is to interpolate the functional time series to within-segment and between-TR timepoints. Should be v stable in band-passed fMR signal
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % load in time series (downsampled)
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 % load in data
-fpL=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_L.mgh'];
-fpR=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_R.mgh'];
+fpL=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_L.mgh'];
+fpR=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_R.mgh'];
 dataL=MRIread(fpL);
 dataR=MRIread(fpR);
 % squeeze to get rid of extra dimensions
@@ -15,7 +15,7 @@ TRs_r_g=squeeze(dataR.vol);
 sizefMR=size(TRs_l_g);
 lengthTS=sizefMR(2);
 % load in continuous segment information
-CSIfp=[childfp '/' subj '_' sesh '_task-rs_ValidSegments_Trunc.txt'];
+CSIfp=[childfp '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'];
 CSI = importdata(CSIfp);
 % assure that TR count is the same between time series and valid segments txt
 SegNum=size(CSI);
@@ -49,15 +49,15 @@ for v=1:10242
 	interpolatedData_R(v,:) = interp1(originalTimepoints, TRs_r_g(v,:), halfwayTimepoints);
 end
 % save it out
-ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L.mgh'];
-ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R.mgh'];
+ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L.mgh'];
+ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R.mgh'];
 % saveout
 dataL.vol=interpolatedData_L;
 dataR.vol=interpolatedData_R;
 MRIwrite(dataL,ofpl)
 MRIwrite(dataR,ofpr)
 % now convert vertices to faces: will have to save out as .csv outside of .mgh framework
-SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
+SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 % for surface data
 surfL = [SubjectsFolder '/lh.sphere'];
 surfR = [SubjectsFolder '/rh.sphere'];
@@ -82,8 +82,8 @@ P_R = TR_R.incenters;
 % initialize output face matrix
 tsLength=size(interpolatedData_L);
 tsLength=tsLength(2);
-faceOutL=zeros(20480,tsLength);
-faceOutR=zeros(20480,tsLength);
+faceOutL=zeros(5120,tsLength);
+faceOutR=zeros(5120,tsLength);
 % convert to faces
 for t=1:tsLength
 	interpolatedData_L_frame=interpolatedData_L(:,t);
@@ -106,9 +106,9 @@ mwIndVec_l = read_medial_wall_label(surfML);
 surfMR = '/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.Medial_wall.label';
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make binary "is medial wall" vector for vertices
-mw_L=zeros(1,10242);
+mw_L=zeros(1,2562);
 mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,10242);
+mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
@@ -120,13 +120,13 @@ F_MW_R=ceil(F_MW_R);
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
 % make medial wall vector
-g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
+g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 %%%%%% mask it
 faceOutL=faceOutL(g_noMW_combined_L,:);
 faceOutR=faceOutR(g_noMW_combined_R,:);
 %%%%% equivalent masking to extract_relativeangle.m
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs5.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
 % network of interest
@@ -149,8 +149,8 @@ InclRight=find(sumRight);
 faceOutL=faceOutL(InclLeft,:);
 faceOutR=faceOutR(InclRight,:);
 % saveout
-ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L_faces.csv'];
-ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R_faces.csv'];
+ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L_faces.csv'];
+ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces.csv'];
 % saveout
 csvwrite(ofpl,faceOutL)
 csvwrite(ofpr,faceOutR)
