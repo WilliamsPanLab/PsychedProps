@@ -48,10 +48,8 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-# group
-# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/fs_5/DS_surf_ts_mdma_fs5.sh $1 $2
-
-#sleep 20
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
+sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
