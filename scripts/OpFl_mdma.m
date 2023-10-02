@@ -11,8 +11,8 @@ s = 1; % R(u), regularizing functional, scales Tikhonov regularization more rapi
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 
 % load in data
-fpL=[childfp '/' subj '_' sesh '_L_' task '_p2mm_masked_L.mgh'];
-fpR=[childfp '/' subj '_' sesh '_R_' task '_p2mm_masked_R.mgh'];
+fpL=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_L.mgh'];
+fpR=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_R.mgh'];
 
 dataL=MRIread(fpL).vol;
 dataR=MRIread(fpR).vol;

@@ -41,9 +41,9 @@ if isfile(fpL)
 	end
 	conf1=readtable(confFilepath1,"FileType","text",'Delimiter', '\t');
 	% extract FD columns
-	FD1=table2array(conf1(:,'framewise_displacement'));
+	FD=table2array(conf1(:,'framewise_displacement'));
 	% extract GS columns
-	GS1=table2array(conf1(:,'global_signal'));
+	GS=table2array(conf1(:,'global_signal'));
 	% combine them to match concatenated neuroimages
 	% get to FD_thresh of .2 mm
 	TRwise_mask=FD>.2;
