@@ -84,7 +84,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% compute optical flow on every pair of sequential TRs
 % initialize output struct
 us=struct;
-disp('Computing optical flow: resting-state');
+disp(['Computing optical flow: ' task ]);
 
 % initialize TRP counter: for plopping u outputs into master struct w/o/r/t their segment
 % note trp = tr pair

@@ -18,5 +18,7 @@ module load freesurfer/7.3.2
 # and workbench
 module load workbench
 
+# aggregate info
+matlab -nodisplay -r "Extract_ang_dif"
 # combine streamlines
-matlab -nodisplay -r "SigTestStreams('$1','$2')"
+# matlab -nodisplay -r "SigTestStreams('$1','$2')"

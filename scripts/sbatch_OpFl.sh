@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:30:00
+#SBATCH --time=4:30:00
 #SBATCH -n 1
 #SBATCH --mem=18G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -95,10 +95,14 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 
 # extract relative angles
 # group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','$rsIn')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # combine angular time series with magnitude time series
-matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
 
 #############################
 #### module IV: Create figures
@@ -108,23 +112,23 @@ echo "Starting module IV: Creating figures"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 ### filepaths for angular carpetplots
-ATSl=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
-ATSr=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
+#ATSl=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
+#ATSr=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
 
 ### make figure directory outside of scratch
-mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
+#mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
 ### create interpolated carpetplot of bold
-python3 Viz_ITS.py $subj $sesh
+#python3 Viz_ITS.py $subj $sesh
 
 ### create angular carpetplot 
-python3 Viz_ATS.py $subj $sesh
+#python3 Viz_ATS.py $subj $sesh
 
 ### create positivity plots
-python3 Viz_AngMag.py $subj $sesh
+#python3 Viz_AngMag.py $subj $sesh
 
 ### copy xcpd motion plots into figs dir
-cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${sesh}_task-rs_acq-mb_dir-pe?_run-0_space-fsLR_desc-censoring_motion.svg /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
+#cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${sesh}_task-rs_acq-mb_dir-pe?_run-0_space-fsLR_desc-censoring_motion.svg /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
 #############################
 #### module V: Streamlines
