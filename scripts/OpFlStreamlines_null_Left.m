@@ -1,4 +1,4 @@
-function OpFlStreamlines_Sim(subj,sesh,task)
+function OpFlStreamlines_null_Left(subj,sesh,task)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/'];
@@ -66,10 +66,23 @@ AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 pool=parpool('local');
 
 % get subject's motion mask
-% JJJJ
-
-% chop up time series accordingly
-% JJJJ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% load in continuous segment indices
+CSIfp=[childfp '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'];
+CSI = importdata(CSIfp);
+% assure that TR count is the same between time series and valid segments txt
+SegNum=size(CSI);
+SegNum=SegNum(1);
+% number of trs in fmri ts
+vf_size=size(VF_L);
+mr_ts_trs=vf_size(3);
+% trailing -1 is because the count column (,2) is inclusive of the start TR (,1)
+numTRsVS=CSI(SegNum,1)+CSI(SegNum,2)-1;
+% - segnum because this is tr pairs in mr_ts_trs, not TRs
+if numTRsVS ~= (mr_ts_trs + SegNum)
+        disp('TRs from Valid Segments txt and mgh file do not match. Fix it.')
+        return
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % for each vertex
 parfor v=1:length(vx_l)
@@ -78,49 +91,57 @@ parfor v=1:length(vx_l)
 	% initialize row for this vertex to index into
 	adjacency_row = zeros(1, length(vx_l));
 
-	% for each segment
-	% JJJJ
-	% for each timepoint within each segment
-	% JJJJ 
-
-	for t=1:tsLength
-		% plant a new seed
-		CurrSeed=vx_l(v,:);
-		% set endpoint of tracking: if t + 30 > length of time series, cant track beyond ts
-		endpoint=30;
-		if (endpoint+t)>tsLength
-			endpoint=tsLength-t;
-		else
-		end
-		% for 30 timepoints (unless condition above met)
-		for t2=1:endpoint
-			% find the three nearest faces
-			[nearFaces,nearDistances]=find_nearest_faces(CurrSeed,P_L);
-			% get minimum distance for weighting
-			minDist=min(nearDistances);
-			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
-			threeVFs=VF_L(nearFaces,:,(t+t2-1));
-			% get a weighting vector
-			Wvec1=minDist/nearDistances(1);
-			Wvec2=minDist/nearDistances(2);
-			Wvec3=minDist/nearDistances(3);
-			CorrectedVec1=threeVFs(1,:)*Wvec1;
-			CorrectedVec2=threeVFs(2,:)*Wvec2;
-			CorrectedVec3=threeVFs(3,:)*Wvec3;	
-			% get a weighted average directionality across the 3 faces
-			CorrectedAvg=(CorrectedVec1+CorrectedVec2+CorrectedVec3)/(Wvec1+Wvec2+Wvec3);
-			% propagate ongoing seeds one step
-			CurrSeed=CurrSeed+CorrectedAvg;
-			% find which vertex the resultant propagating seed is at
-			nearest_vertex=find_nearest_vertex(CurrSeed,vx_l);
-			% add them to adjacency row at (v,site of ongoing seed)
-			adjacency_row(nearest_vertex)=adjacency_row(nearest_vertex)+1;
-		end
+	% for each continuous segment
+        for seg=1:SegNum	
+		 % just to print out count of current segment
+                seg
+                SegStart=CSI(seg,1);
+                % minus 1 because it's between TR measures and discontinuity incurs missing between volume
+                SegSpan=CSI(seg,2)-1;
+                % get corresponding TRs from aggregate time series
+                % note that we lose one "between frame" for each segment, as the bookend has no between calculation with the next book"begin"
+                segTS_l=VF_L(:,:,(SegStart:((SegStart+SegSpan)-seg)));
+		% loop over each TR-Pair: 1 fewer pair than number of TRs
+                for TRP=1:(SegSpan)
+			% plant a new seed
+			CurrSeed=vx_l(v,:);
+			% set endpoint of tracking: if t + 85 > length of time series, cant track beyond ts
+                        % allowing them to run for up to one minute of scan time (current tr = .71)
+                        endpoint=85;
+                        if (endpoint+TRP)>SegSpan
+                                endpoint=SegSpan-TRP;
+                        else
+                        end
+			% for a max of one minute
+			for t2=1:endpoint
+				% find the three nearest faces
+				[nearFaces,nearDistances]=find_nearest_faces(CurrSeed,P_L);
+				% get minimum distance for weighting
+				minDist=min(nearDistances);
+				% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
+				threeVFs=segTS_l(nearFaces,:,(TRP+t2-1));
+				% get a weighting vector
+				Wvec1=minDist/nearDistances(1);
+				Wvec2=minDist/nearDistances(2);
+				Wvec3=minDist/nearDistances(3);
+				CorrectedVec1=threeVFs(1,:)*Wvec1;
+				CorrectedVec2=threeVFs(2,:)*Wvec2;
+				CorrectedVec3=threeVFs(3,:)*Wvec3;	
+				% get a weighted average directionality across the 3 faces
+				CorrectedAvg=(CorrectedVec1+CorrectedVec2+CorrectedVec3)/(Wvec1+Wvec2+Wvec3);
+				% propagate ongoing seeds one step
+				CurrSeed=CurrSeed+CorrectedAvg;
+				% find which vertex the resultant propagating seed is at
+				nearest_vertex=find_nearest_vertex(CurrSeed,vx_l);
+				% add them to adjacency row at (v,site of ongoing seed)
+				adjacency_row(nearest_vertex)=adjacency_row(nearest_vertex)+1;
+			end
+		end	
 	end
 	% add adjacency row to adjacency matrix
 	AdjMatrix_L(v,:)=adjacency_row;
 end
 delete(pool);
 % save out matrices for this participant
-fn=[childfp 'SimStreams/' seed '_streamConnectivity_L.mat'];
+fn=[childfp 'SimStreams/' subj '_' sesh '_' task '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');
