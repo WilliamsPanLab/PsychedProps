@@ -1,15 +1,21 @@
-function Scale_Simulated(seed)
+function Scale_Simulated(subj,sesh,task)
 % scale simulated data to be same magnitude as real data (range of signal)
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-% load real data
-cifti_real = cifti_read('~/sub-MDMA006_ses-00_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii');
-% * 2 becaue each subj has two rs scans per sesh
-timelength = cifti_real.diminfo{2}.length*2;
+% read in sample data
+parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
+if string(task)=="rs1"
+        fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+elseif string(task)=="rs2"
+        fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+else
+        fp=[parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+end
+% read it in
+cifti_real = cifti_read(fp);
 cifti2 = cifti_real;
-cifti2.diminfo{2}.length=timelength;
 
 % load simulated data
-simFP=['/scratch/users/apines/ciftiout_Sym_' seed '.dtseries.nii'];
+simFP=['/scratch/users/apines/ciftiout_Sym_' subj '_' sesh '_' task '.dtseries.nii'];
 cifti_Sim = cifti_read(simFP);
 
 % scale according to SD
@@ -21,5 +27,9 @@ simStd=mean(std(cifti_Sim.cdata));
 ReScaleFactor=fmrStd/simStd;
 timecourse_sim=cifti_Sim.cdata.*ReScaleFactor;
 
+% correct length
+sizeTS=size(cifti_Sim.cdata);
+cifti2.diminfo{2}.length=sizeTS(2);
+
 cifti2.cdata = timecourse_sim;
-cifti_write(cifti2,['/scratch/users/apines/ciftiout_Sym_' seed '.dtseries.nii']);
+cifti_write(cifti2,['/scratch/users/apines/ciftiout_Sym_' subj '_' sesh '_' task '.dtseries.nii']);

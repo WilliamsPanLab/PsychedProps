@@ -1,16 +1,25 @@
-function SimulateFMR(seed)
+function SimulateFMR(subj,sesh,task)
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 %% adding realistic power spectra, adapted code from Tim Laumann's method to simulated power spectra from real data
-rng(str2num(seed))
+rng(42069)
 
 % see Laumann et al. 2017 cer cortex paper
-TRin = 1;  % randomly picked
-TRout = 1;  % randomly picked
+TRin = .71; 
+TRout = .71;
 
+% read in sample data
+parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
+if string(task)=="rs1"
+	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+elseif string(task)=="rs2"
+	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+else
+	fp=[parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+end
+% read it in
+cifti_real = cifti_read(fp);
 % run pwelch loop over regions
-cifti_real = cifti_read('~/sub-MDMA006_ses-00_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii');
-% * 2 becaue each subj has two rs scans per sesh
-timelength = cifti_real.diminfo{2}.length*2;
+timelength = cifti_real.diminfo{2}.length;
 cifti2 = cifti_real;
 cifti2.diminfo{2}.length=timelength;
 cifti2.cdata =randn(timelength,91282);
@@ -68,5 +77,28 @@ F_sim = fft_timecourse_sim.*sqrt(resamp_P_target_rep);
 timecourse_sim = ifft(F_sim,'symmetric');
 timecourse_sim = (timecourse_sim-repmat(mean(timecourse_sim),size(timecourse_sim,1),1))./repmat(std(timecourse_sim),size(timecourse_sim,1),1);
 
-cifti2.cdata = timecourse_sim';
-cifti_write(cifti2,['/scratch/users/apines/ciftiout_Sym_' seed '.dtseries.nii']);
+% mask by subject-specific TRs before printing out
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% load in continuous segment indices
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+CSIfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
+CSI = importdata(CSIfp);
+% extract boolean of TRs we want
+booleanVector = zeros(1, max(CSI(:, 2)));
+
+% Iterate through the rows of CSI
+for i = 1:size(CSI, 1)
+    if CSI(i, 3) == 1
+        % Set the elements in the range between column 1 and column 2 to 1
+        booleanVector(CSI(i, 1):CSI(i, 2)) = 1;
+    end
+end
+
+% insert back into OG structure to saveout in equivalent structure
+cifti2.cdata = timecourse_sim(logical(booleanVector),:)';
+% update length of sim cifti
+cifti2.diminfo{2}.length=(sum(logical(booleanVector)));
+% saveout
+cifti_write(cifti2,['/scratch/users/apines/ciftiout_Sym_' subj '_' sesh '_' task '.dtseries.nii']);
+
+
+

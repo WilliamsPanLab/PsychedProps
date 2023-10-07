@@ -133,13 +133,26 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #############################
 #### module V: Streamlines
 #############################
-#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-#echo "Starting module V: Streamlines"
-#echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "Starting module V: Streamlines"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
-# compile is tough to work with parfor: https://www.mathworks.com/help/compiler/use-the-parallel-computing-toolbox.html
-#./run_OpFlStreamlines_Left.sh /share/software/user/restricted/matlab/R2022b $subj $sesh
-# matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh')"
+# noncompiled version to facilitate parfor usage
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
+# get subject-specific null
+matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
+# smooth it 
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 rs1
+# convert to same value range
+matlab -nodisplay -r "Scale_Simulated('$seed')"
+# downsample the simulated data
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 rs1
+sleep 5
+# run optical flow
+matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','rs1')"
+# calculate null streamlines: left
+matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs1')"
+
 # put right here eventually
 
 #################

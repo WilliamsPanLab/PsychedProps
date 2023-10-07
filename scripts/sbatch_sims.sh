@@ -24,8 +24,8 @@ for ((i = 1; i <= total_submissions; i++)); do
         sbatch sbatch_OpFl_Simulated.sh $i
     
         if ((i < total_submissions)); then
-            echo "Sleeping for 3 minutes before the next submission..."
-            sleep 2  # Sleep for a bit
+            echo "Sleeping for a sec before the next submission..."
+            sleep 3  # Sleep for a bit
          else
             echo "All jobs submitted."
          fi

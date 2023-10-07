@@ -124,7 +124,6 @@ if isfile(fpL)
 	asegmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_AllSegments'];
 	writetable(cell2table(Absolut),asegmentfnTr,'WriteVariableNames',0)
 	% make binary mask for continuous segments
-	%newTRnum=sum(cell2mat(ValidSegCell_Trunc(:,2)));
 	TRwise_mask_cont=zeros(1,length(FD));
 	% Loop through each row in Absolut
 	for row = 1:size(Absolut, 1)

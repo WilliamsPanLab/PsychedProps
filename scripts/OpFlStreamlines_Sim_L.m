@@ -3,9 +3,9 @@ function OpFlStreamlines_Sim(seed)
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/'];
 % load in optical flow output
-data=load([childfp 'Simulated_OpFl_rs_fs5_' seed '.mat']);
+data=load([childfp 'Simulated_OpFl_rs_' seed '.mat']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake surface data
-SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
+SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 % for surface data
 surfL = [SubjectsFolder '/lh.sphere'];
 surfR = [SubjectsFolder '/rh.sphere'];
@@ -40,8 +40,8 @@ mwIndVec_l = read_medial_wall_label(surfML);
 surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make "isn't medial wall" indices
-nonMW_L=setdiff(1:10242,mwIndVec_l);
-nonMW_R=setdiff(1:10242,mwIndVec_r);
+nonMW_L=setdiff(1:2562,mwIndVec_l);
+nonMW_R=setdiff(1:2562,mwIndVec_r);
 %%% get length of time serires
 tsLength=length(L);
 

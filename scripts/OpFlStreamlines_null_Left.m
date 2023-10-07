@@ -1,10 +1,9 @@
-function OpFlStreamlines_L(subj,sesh)
-
+function OpFlStreamlines_Sim(subj,sesh,task)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+childfp=['/scratch/users/apines/'];
 % load in optical flow output
-data=load([childfp '/' subj '_' sesh '_OpFl_rs.mat']);
+data=load([childfp 'Simulated_OpFl_' subj '_' sesh '_' task '.mat']);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% uptake surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 % for surface data
@@ -16,14 +15,6 @@ surfR = [SubjectsFolder '/rh.sphere'];
 % +1 the faces: begins indexing at 0
 faces_l = faces_l + 1;
 faces_r = faces_r + 1;
-% use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make "isn't medial wall" indices
-nonMW_L=setdiff(1:2562,mwIndVec_l);
-nonMW_R=setdiff(1:2562,mwIndVec_r);
 % normalize verts to unit sphere
 % left
 numV=length(vx_l);
@@ -43,7 +34,14 @@ P_R = T.incenters;
 L=data.us.vf_left;
 %%% R as right
 R=data.us.vf_right;
-
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+mwIndVec_r = read_medial_wall_label(surfMR);
+% make "isn't medial wall" indices
+nonMW_L=setdiff(1:2562,mwIndVec_l);
+nonMW_R=setdiff(1:2562,mwIndVec_r);
 %%% get length of time serires
 tsLength=length(L);
 
@@ -64,16 +62,27 @@ vx_r=vx_r./100;
 AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
 % initialize threeVFs
-%threeVFs = zeros(3, 3);
-% parallelize
+%threeVFs=zeros(3,3);
 pool=parpool('local');
+
+% get subject's motion mask
+% JJJJ
+
+% chop up time series accordingly
+% JJJJ
+
 % for each vertex
 parfor v=1:length(vx_l)
 	% print v
 	v
 	% initialize row for this vertex to index into
 	adjacency_row = zeros(1, length(vx_l));
-	% for each TR
+
+	% for each segment
+	% JJJJ
+	% for each timepoint within each segment
+	% JJJJ 
+
 	for t=1:tsLength
 		% plant a new seed
 		CurrSeed=vx_l(v,:);
@@ -90,9 +99,6 @@ parfor v=1:length(vx_l)
 			% get minimum distance for weighting
 			minDist=min(nearDistances);
 			% get the 3 vector fields, original TR + 30 timepoints (-1 because 1 + 1 is iter 1)
-			%threeVFs(1,:)=VF_L(nearFaces(1),:,(t+t2-1));
-			%threeVFs(2,:)=VF_L(nearFaces(2),:,(t+t2-1));
-			%threeVFs(3,:)=VF_L(nearFaces(3),:,(t+t2-1));
 			threeVFs=VF_L(nearFaces,:,(t+t2-1));
 			% get a weighting vector
 			Wvec1=minDist/nearDistances(1);
@@ -115,6 +121,6 @@ parfor v=1:length(vx_l)
 	AdjMatrix_L(v,:)=adjacency_row;
 end
 delete(pool);
-% save out this hemisphere
-fn=[childfp '/' subj '_' sesh '_streamConnectivity_L.mat'];
+% save out matrices for this participant
+fn=[childfp 'SimStreams/' seed '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');
