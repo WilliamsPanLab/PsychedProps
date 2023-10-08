@@ -61,13 +61,33 @@ vx_r=vx_r./100;
 % initialize SC matrix equivalent
 AdjMatrix_L=zeros(length(vx_l),length(vx_l));
 AdjMatrix_R=zeros(length(vx_r),length(vx_r));
-% initialize threeVFs
-%threeVFs=zeros(3,3);
+
+
+% this is annoying, but for extra clarity we'll be matching the simulated optical flow vector magnitude to the mean magnitude from real
+% load in subj OpFl
+childfp2=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+% load in optical flow output
+data=load([childfp2 '/' subj '_' sesh '_' task '_OpFl.mat']);
+Lreal=data.us.vf_left;
+% get mean magnitude
+VF_Lreal=zeros(n,3,tsLength);
+for i=1:tsLength;
+        VF_Lreal(:,:,i)=Lreal{i};
+end
+% get mean vector value
+mVVreal=mean(mean(mean(VF_Lreal)));
+% get ratio of mean vector values of real to sim
+mVVr=mVVreal/(mean(mean(mean(VF_L))));
+% correct null vectors
+VF_L=VF_L*.mVVr;
+
+% open up the pool
 pool=parpool('local');
 
 % get subject's motion mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% load in continuous segment indices
-CSIfp=[childfp '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'];
+childfp_subj=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+CSIfp=[childfp_subj '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'];
 CSI = importdata(CSIfp);
 % assure that TR count is the same between time series and valid segments txt
 SegNum=size(CSI);
@@ -130,9 +150,9 @@ parfor v=1:length(vx_l)
 				% get a weighted average directionality across the 3 faces
 				CorrectedAvg=(CorrectedVec1+CorrectedVec2+CorrectedVec3)/(Wvec1+Wvec2+Wvec3);
 				% propagate ongoing seeds one step
-				CurrSeed=CurrSeed+CorrectedAvg;
+				CurrSeed=CurrSeed+CorrectedAvg
 				% find which vertex the resultant propagating seed is at
-				nearest_vertex=find_nearest_vertex(CurrSeed,vx_l);
+				nearest_vertex=find_nearest_vertex(CurrSeed,vx_l)
 				% add them to adjacency row at (v,site of ongoing seed)
 				adjacency_row(nearest_vertex)=adjacency_row(nearest_vertex)+1;
 			end

@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=4:30:00
-#SBATCH -n 1
+#SBATCH --time=25:00:00
+#SBATCH -n 4
 #SBATCH --mem=18G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
@@ -138,7 +138,7 @@ echo "Starting module V: Streamlines"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # noncompiled version to facilitate parfor usage
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
+###matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
 # get subject-specific null
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
 # smooth it 
@@ -152,7 +152,7 @@ sleep 5
 matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','rs1')"
 # calculate null streamlines: left
 matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs1')"
-
+# calculate nulls based on euclidean distance in fs4 space
 # put right here eventually
 
 #################
