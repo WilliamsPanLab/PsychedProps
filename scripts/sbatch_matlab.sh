@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=simStreamComb
-#SBATCH --time=1:50:00
+#SBATCH --time=3:50:00
 #SBATCH -n 1
 #SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -19,6 +19,4 @@ module load freesurfer/7.3.2
 module load workbench
 
 # aggregate info
-matlab -nodisplay -r "Extract_ang_dif"
-# combine streamlines
-# matlab -nodisplay -r "SigTestStreams('$1','$2')"
+matlab -nodisplay -r "SigTestSubjStreams('$1','$2','$3')"

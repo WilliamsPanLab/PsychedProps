@@ -79,7 +79,7 @@ mVVreal=mean(mean(mean(VF_Lreal)));
 % get ratio of mean vector values of real to sim
 mVVr=mVVreal/(mean(mean(mean(VF_L))));
 % correct null vectors
-VF_L=VF_L*.mVVr;
+VF_L=VF_L.*mVVr;
 
 % open up the pool
 pool=parpool('local');

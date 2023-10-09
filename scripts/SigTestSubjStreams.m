@@ -1,16 +1,15 @@
-function SigTestStreams(subj,sesh)
+function SigTestStreams(subj,sesh,task)
 % see if there are vertices more connected by streamlines than expected
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-
 % for each task
-for task = 'rs1'
+%for task = 'rs1'
 % load in subj streamlines
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 fn=[childfp '/' subj '_' sesh '_' task '_streamConnectivity_L.mat'];
 subjStreams=load(fn);
 % load in null streamlines
 nullchildfp=['/scratch/users/apines/SimStreams'];
-nullSteams=load([nullchildfp 'Simulated_OpFl_' subj '_' sesh '_' task '.mat']);
+nullStreams=load([nullchildfp '/' subj '_' sesh '_' task '_streamConnectivity_L.mat']);
 % load in medial wall to mask stream connectivity
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 % use native freesurfer command for mw mask indices
@@ -50,9 +49,19 @@ end
 bdsml=bdsml(nonMW_L,nonMW_L);
 
 
-
+scatter(bdsml(:), subjStreams.AdjMatrix_L(:), 'r.');
+alpha(.01)
+% set equiv x and y lim
+xlim([min(bdsml(:)), max(bdsml(:))]);
+ylim([min(subjStreams.AdjMatrix_L(:)), max(subjStreams.AdjMatrix_L(:))]);
+print(['~/' subj 'RealStreams.png'],'-dpng')
+figure
 scatter(bdsml(:), nullStreams.AdjMatrix_L(:), 'b.');
-
+alpha(.01)
+% set equiv x and y lim
+xlim([min(bdsml(:)), max(bdsml(:))]);
+ylim([min(subjStreams.AdjMatrix_L(:)), max(subjStreams.AdjMatrix_L(:))]);
+print(['~/' subj 'NullStreams.png'],'-dpng')
 
 % get indices of where streams exist
 streamIndices = find(subjStreams.AdjMatrix_L > 0);
@@ -61,78 +70,49 @@ streamIndices = find(subjStreams.AdjMatrix_L > 0);
 real_locs = [streamInd_row, streamInd_col];
 % will have to initialize countmat at full size: can limit within loop to just test where either simulated or real has streams
 % use nonMW x nonMW to get "full" number
-% initialize count matrix of equal size, which will record # of times simulated connectivity exceeds real
-countMat=zeros(length(nonMW_L),length(nonMW_L));
 
-% set simulation parent fp
-simfp=['/scratch/users/apines/'];
+% initialize sigStreams
+sig_Streams = subjStreams.AdjMatrix_L;
 
-% for each of 100 simulated streamlines, see if more fake streamlines exist between vertices than real data
-for i=1:100
-	i
-	tic
-	% simulated matrix name
-	sfn=[simfp 'SimStreams/' num2str(i) '_streamConnectivity_L_sparse.mat'];
-	if exist(sfn,'file');
-		% load in simulated matrix
-		simmat=load(sfn);
-		[simstream_row, simstream_col]=find(simmat.sparseSimMat);
-		sim_locs = [simstream_row, simstream_col];
-		% get union of where real and simulated streams exist to test 
-		Union_locs=union(real_locs,sim_locs,'rows');
-		% check simulated vs. observed in each stream index
-		for v=1:length(Union_locs)
-			% extract locations
-			coords=Union_locs(v,:);
-			% observed
-			Obs=subjStreams.AdjMatrix_L(coords(1),coords(2));
-			% simulated
-			[~,~,Sim]=find(simmat.sparseSimMat(coords(1),coords(2)));
-			% record if observed streams exceeds simulated
-			if Obs>Sim
-				countMat(coords(1),coords(2))=countMat(coords(1),coords(2))+1;
-			elseif Sim>Obs
-				countMat(coords(1),coords(2))=countMat(coords(1),coords(2))-1;
-			end
-		end
-		% end each sim loop
-		toc
-	% end conditional check for file
+% for each nonero location
+for L = 1:length(real_locs)
+	L
+	% get euclidean distance of this pair
+	EucD=bdsml(real_locs(L,1),real_locs(L,2));
+	% see what null range of connections is for this distance (within 1 mm)
+	ThisRangeEucD=find(bdsml > (EucD-1) & bdsml < (EucD+1));
+	% get 99.9th pecentile value for null connectiosn in this range
+	percentile_value = prctile(nullStreams.AdjMatrix_L(ThisRangeEucD), 99.9);
+	trueValue=subjStreams.AdjMatrix_L(real_locs(L,1),real_locs(L,2));
+	% INSERT IF!
+	if trueValue>percentile_value
+		% convert to 0 if real doesnt meet this threshold
+		sig_Streams(real_locs(L,1),real_locs(L,2))=0;
 	else
 	end
 end
 
-% find where real streams exceeded all simulated
-exceedingStreams=countMat > 99;
-% find where real streams fell below all simulated
-belowStreams=countMat < -99;
-% sparse versions
-exceedingStreams_s=sparse(exceedingStreams);
-belowStreams_s=sparse(belowStreams);
-% save out processed info
-save([childfp '/exceedingStreams.mat'],'exceedingStreams_s')
-save([childfp '/belowStreams.mat'],'belowStreams_s')
-% print out some strong examples
-% Sort rows in descending order of sum for exceedingStreams
-[b, sorted_exceeding_indices] = sort(sum(exceedingStreams, 2), 'descend');
-% Select the top 5 rows
-top_exceeding_rows = sorted_exceeding_indices(1:5);
+% save something out
+save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_' task  '_sigStreams.mat'],'sig_Streams','-v7.3');
 
-% Sort rows in descending order of sum for belowStreams
-[b, sorted_below_indices] = sort(sum(belowStreams, 2), 'ascend');
-% Select the top 5 rows
-top_below_rows = sorted_below_indices(1:5);
+% find instances 
 
-% Iterate over the top rows for exceedingStreams
-for i = 1:numel(top_exceeding_rows)
-    current_row = top_exceeding_rows(i);
-    % Process the current row
-    Vis_VertvecFs5(log(subjStreams.AdjMatrix_L(current_row, :)), zeros(1, 10242), [childfp '/AboveLocus_' num2str(i) '.png']);
-end
 
-% Iterate over the bottom rows for belowStreams (lowest # of streams arrived)
-for i = 1:numel(top_below_rows)
-    current_row = top_below_rows(i);
-    % Process the current row
-    Vis_VertvecFs5(log(subjStreams.AdjMatrix_L(current_row, :)), zeros(1, 10242), [childfp '/BelowLocus_' num2str(i) '.png']);
-end
+% set diagonal to 0
+%subjStreams.AdjMatrix_L_z=subjStreams.AdjMatrix_L;
+%subjStreams.AdjMatrix_L_z = subjStreams.AdjMatrix_L_z - diag(diag(subjStreams.AdjMatrix_L_z));
+
+% Calculate the similarity matrix (you may need to choose an appropriate distance metric)
+similarity_matrix = pdist(subjStreams.AdjMatrix_L_z, 'euclidean');
+% Perform hierarchical clustering
+cluster_tree = linkage(similarity_matrix, 'average'); % 'average' linkage method
+% set threshold
+threshold=9000
+% Create a dendrogram to visualize the clustering results
+dendrogram(cluster_tree, 'ColorThreshold', threshold);
+% If you want to get the cluster assignments based on the threshold
+cluster_assignments = cluster(cluster_tree, 'cutoff', threshold, 'criterion', 'distance');
+print('~/testClust.png','-dpng')
+
+% add code to get vertex/count list of streams to visualize: ideally those that are connected
+

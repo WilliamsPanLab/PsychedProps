@@ -27,16 +27,16 @@ data=VertVecL;
 %%%%%%% fixed colorscale varities
 
 %%% circular
-%mincol=-10;
-%maxcol=10;
-
+mincol=0;
+maxcol=max(VertVecL);
 
 %%% for red/blue 0-centered
-mincol=-9;
-maxcol=9;
-custommap=colormap(b2r(mincol,maxcol));
+%mincol=-9;
+%maxcol=9;
+%custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-custommap(126,:)=[.5 .5 .5];
+%custommap(126,:)=[.5 .5 .5];
+custommap=colormap(jet)
 
 % blue-orange color scheme
 %BO_cm=inferno(9);

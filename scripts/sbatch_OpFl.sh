@@ -144,7 +144,7 @@ matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
 # smooth it 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 rs1
 # convert to same value range
-matlab -nodisplay -r "Scale_Simulated('$seed')"
+matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','rs1')"
 # downsample the simulated data
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 rs1
 sleep 5
