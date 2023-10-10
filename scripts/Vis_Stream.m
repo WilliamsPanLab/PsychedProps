@@ -1,5 +1,4 @@
-function Vis_Vertvec(StreamMatL,rowOfInt,Fn) 
-
+function Vis_Stream(subj,StreamMatL,rowOfInt) 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 
 %%% Load in surface data
@@ -33,18 +32,36 @@ mw_R=ones(1,2562);
 mw_R(mwIndVec_r)=0;
 V_Lmasked=V_L(logical(mw_L'),:);  
 nonMW_L=setdiff(1:2562,mwIndVec_l);
-
+% load subject-specific curvature to map onto surface
+subjCurvfp=['/scratch/users/apines/data/mdma/' subj '/' subj '_fs4space_curv.L.func.gii'];
+curv=gifti(subjCurvfp);
 % get row of interest
 OGrow=StreamMatL(rowOfInt,:);
 
 % get next iteration of rows of interst
-rowsOfInt=find(OGrow>200);
+rowsOfInt=find(OGrow>100);
 
 % initialize figure
 figure
 % Create an axis explicitly for the surface plot
-ax = axes;
-aplot=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3), 'FaceColor', [0.5, 0.5, 0.5],'Parent', ax, 'EdgeColor', 'none','FaceAlpha',0.5);
+ax1 = subaxis(2,1,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+aplot1=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3),curv.cdata,'EdgeColor', 'none','FaceAlpha',0.5);
+hold on;
+
+highlightRadius = 5;
+highlightVertex = rowOfInt;
+
+% Get the coordinates of the highlighted vertex
+highlightX = V_Lmasked(highlightVertex, 1);
+highlightY = V_Lmasked(highlightVertex, 2);
+highlightZ = V_Lmasked(highlightVertex, 3);
+% rotate it for this side
+rotation_angle = deg2rad(180);
+rotated_vertex_coords = [cos(rotation_angle), -sin(rotation_angle), 0; sin(rotation_angle), cos(rotation_angle), 0; 0, 0, 1] * [highlightX highlightY highlightZ]';
+
+% Create a bright point (sphere) at the specified vertex
+scatter3(ax1, rotated_vertex_coords(1), rotated_vertex_coords(2), rotated_vertex_coords(3), highlightRadius, 'blue', 'filled');
+
 hold on;
 
 % get connections
@@ -59,16 +76,17 @@ for r=rowsOfInt;
 	%% LOOP OVER ALL CELLSOFINT
 	for c=cellsOfInt;
 		vertex2_index = c;
-	
 		% Get the coordinates of the two vertices
 		vertex1_coords = V_Lmasked(vertex1_index, :);
 		vertex2_coords = V_Lmasked(vertex2_index, :);
-
+	
+		% Rotate the coordinates manually (180 degrees around Z-axis)
+        	rotated_vertex1_coords = [cos(rotation_angle), -sin(rotation_angle), 0; sin(rotation_angle), cos(rotation_angle), 0; 0, 0, 1] * vertex1_coords';
+	        rotated_vertex2_coords = [cos(rotation_angle), -sin(rotation_angle), 0; sin(rotation_angle), cos(rotation_angle), 0; 0, 0, 1] * vertex2_coords';
+	
 		% Plot a line connecting the two vertices
-		line_coords = [vertex1_coords; vertex2_coords];
-
+		line_coords = [rotated_vertex1_coords'; rotated_vertex2_coords'];
 		alpha_value = Matrow(c) / max(StreamMatL(:)); % Scale alpha based on the maximum value in StreamMatL
-
 		plot3(line_coords(:, 1), line_coords(:, 2), line_coords(:, 3), 'LineWidth', 1,'Color', [1 0 0 alpha_value]);
 		hold on;
 
@@ -77,67 +95,58 @@ for r=rowsOfInt;
 end
 axis vis3d off;
 axis tight;
-rotate(ax, [0 0 1], 180)
-view(ax,[90 0])
-daspect(ax,[1 1 1]);
-print(['~/testStreams' num2str(rowOfInt) '.png'],'-dpng')
-% print some cases where it is below thresh
+rotate(aplot1, [0 0 1], 180)
+view(ax1,[90 0])
+daspect(ax1,[1 1 1]);
 
+% rotated plot
+ax2 = subaxis(2,1,2, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+% aplot2=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3), 'FaceColor', [0.5, 0.5, 0.5], 'EdgeColor', 'none','FaceAlpha',0.5);
+aplot2=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3),curv.cdata,'EdgeColor', 'none','FaceAlpha',0.5);
+hold on;
 
+% highlight current assayed vertex
+highlightVertex=rowOfInt;
 
+% Get the coordinates of the highlighted vertex
+highlightX = V_Lmasked(highlightVertex, 1);
+highlightY = V_Lmasked(highlightVertex, 2);
+highlightZ = V_Lmasked(highlightVertex, 3);
 
+% Create a bright point (sphere) at the specified vertex
+scatter3(ax2, highlightX, highlightY, highlightZ, highlightRadius, 'blue', 'filled');
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-plotdata=zeros(1,10242);
-plotdata(logical(mw_L))=VertVecL;
-%plotdata=VertVecL;
+hold on;
 
-%%% circular
-mincol=0;
-maxcol=8;
+% get connections
+for r=rowsOfInt;
+        % set vertex index
+        vertex1_index = r
 
-figure
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
-asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+        % extract this row
+        Matrow=StreamMatL(vertex1_index,:);
+        cellsOfInt=find(Matrow>100);
 
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
-view([90 0]);
-colormap(custommap)
-daspect([1 1 1]);
-axis tight;
+        %% LOOP OVER ALL CELLSOFINT
+        for c=cellsOfInt;
+                vertex2_index = c;
+                % Get the coordinates of the two vertices
+                vertex1_coords = V_Lmasked(vertex1_index, :);
+                vertex2_coords = V_Lmasked(vertex2_index, :);
+                % Plot a line connecting the two vertices
+                line_coords = [vertex1_coords; vertex2_coords];
+                alpha_value = Matrow(c) / max(StreamMatL(:)); % Scale alpha based on the maximum value in StreamMatL
+                plot3(line_coords(:, 1), line_coords(:, 2), line_coords(:, 3), 'LineWidth', 1,'Color', [1 0 0 alpha_value]);
+                hold on;
+
+        end     
+        hold on;  % Enable "hold on" to keep the surface plot visible
+end
 axis vis3d off;
-lighting none;
-shading flat;
-camlight;
-	alpha(1)
-
-set(gca,'CLim',[mincol,maxcol]);
-%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-
-asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),plotdata)
-view([90 0]);
-rotate(aplot, [0 0 1], 180)
-colormap(custommap)
-caxis([mincol; maxcol]);
-daspect([1 1 1]);
 axis tight;
-axis vis3d off;
-lighting none;
-material metal %shiny %metal;
-shading flat;
-camlight;
-alpha(1)
- pos = get(asub, 'Position');
- posnew = pos; posnew(2) = posnew(2) + 0.13; posnew(1) = posnew(1) -.11; set(asub, 'Position', posnew);
-set(gcf,'Color','w')
-
-set(gca,'CLim',[mincol,maxcol]);
-%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-
-
-c=colorbar
-
-colormap(custommap)
-
-print(Fn,'-dpng')
+rotate(aplot2,[0 0 1],0);
+view(ax2,[90 0]);
+daspect(ax2,[1 1 1]);
+% save outi - CONSIDER SAVING TO SUBJECT DIRECTORY
+rowChar=char(num2str(rowOfInt));
+print(['~/SigStreams_' subj '_'  rowChar '.png'],'-dpng','-r600')

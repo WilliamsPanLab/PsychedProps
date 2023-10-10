@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=25:00:00
+#SBATCH --time=40:00:00
 #SBATCH -n 4
 #SBATCH --mem=18G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -48,18 +48,22 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-##/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
-##sleep 20
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
+sleep 20
+
+# Downsample Subject's curvature
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
+
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-##matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-##matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-##matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-##matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-##matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -68,21 +72,21 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-##matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
-##matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
-##matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
-##matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
-##matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 
 # interpolate fs4 time series to faces and between-timepoints
-##matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
-##matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs2')"
-##matlab -nodisplay -r "InterpolateTS('$subj','$sesh','emotion')"
-##matlab -nodisplay -r "InterpolateTS('$subj','$sesh','gambling')"
-##matlab -nodisplay -r "InterpolateTS('$subj','$sesh','wm')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs2')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','emotion')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','gambling')"
+matlab -nodisplay -r "InterpolateTS('$subj','$sesh','wm')"
 
 #############################
 #### module III: Calc. Angles
@@ -95,14 +99,14 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 
 # extract relative angles
 # group
-##matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-##matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-##matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-##matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-##matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # combine angular time series with magnitude time series
-#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
 
 #############################
 #### module IV: Create figures
@@ -141,17 +145,41 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 ###matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
 # get subject-specific null
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
+matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs2')"
+matlab -nodisplay -r "SimulateFMR('$subj','$sesh','emotion')"
+matlab -nodisplay -r "SimulateFMR('$subj','$sesh','gambling')"
+matlab -nodisplay -r "SimulateFMR('$subj','$sesh','wm')"
 # smooth it 
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 rs1
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 rs2
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 emotion
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 gambling
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_Sim.sh $1 $2 wm
 # convert to same value range
 matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Scale_Simulated('$subj','$sesh','wm')"
 # downsample the simulated data
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 rs1
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 rs2
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 emotion
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 gambling
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_Simulated.sh $1 $2 wm
 sleep 5
 # run optical flow
 matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','wm')"
 # calculate null streamlines: left
 matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','wm')"
 # calculate nulls based on euclidean distance in fs4 space
 # put right here eventually
 
