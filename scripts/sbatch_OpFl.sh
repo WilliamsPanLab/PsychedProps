@@ -54,7 +54,6 @@ sleep 20
 # Downsample Subject's curvature
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
 
-
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
@@ -142,7 +141,12 @@ echo "Starting module V: Streamlines"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # noncompiled version to facilitate parfor usage
-###matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','wm')"
+
 # get subject-specific null
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs2')"
@@ -182,6 +186,9 @@ matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','gambling')"
 matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','wm')"
 # calculate nulls based on euclidean distance in fs4 space
 # put right here eventually
+
+# sig test the streams
+matlab -nodisplay -r "SigTestSubjStreams('$subj','$sesh')"
 
 #################
 echo "OpFl complete"
