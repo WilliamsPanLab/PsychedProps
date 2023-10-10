@@ -94,14 +94,10 @@ pool=parpool('local');
 
 % for each vertex
 parfor v=1:length(vx_l)
-	% print v
-	v
 	% initialize row for this vertex to index into
 	adjacency_row = zeros(1, length(vx_l));
 	% for each continuous segment
 	for seg=1:SegNum
-		 % just to print out count of current segment
-        	seg
         	SegStart=CSI(seg,1);
 		% minus 1 because it's between TR measures and discontinuity incurs missing between volume
         	SegSpan=CSI(seg,2)-1;

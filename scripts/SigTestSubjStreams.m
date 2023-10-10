@@ -1,4 +1,4 @@
-function SigTestStreams(subj,sesh,task)
+function SigTestStreams(subj,sesh)
 % see if there are vertices more connected by streamlines than expected
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];

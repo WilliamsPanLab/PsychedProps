@@ -39,7 +39,7 @@ curv=gifti(subjCurvfp);
 OGrow=StreamMatL(rowOfInt,:);
 
 % get next iteration of rows of interst
-rowsOfInt=find(OGrow>100);
+rowsOfInt=find(OGrow>50);
 
 % initialize figure
 figure
@@ -71,7 +71,7 @@ for r=rowsOfInt;
 
 	% extract this row
 	Matrow=StreamMatL(vertex1_index,:);
-	cellsOfInt=find(Matrow>100);
+	cellsOfInt=find(Matrow>50);
 
 	%% LOOP OVER ALL CELLSOFINT
 	for c=cellsOfInt;
@@ -86,7 +86,7 @@ for r=rowsOfInt;
 	
 		% Plot a line connecting the two vertices
 		line_coords = [rotated_vertex1_coords'; rotated_vertex2_coords'];
-		alpha_value = Matrow(c) / max(StreamMatL(:)); % Scale alpha based on the maximum value in StreamMatL
+		alpha_value = Matrow(c) / (max(StreamMatL(:))); % Scale alpha based on the maximum value in StreamMatL
 		plot3(line_coords(:, 1), line_coords(:, 2), line_coords(:, 3), 'LineWidth', 1,'Color', [1 0 0 alpha_value]);
 		hold on;
 
@@ -101,7 +101,6 @@ daspect(ax1,[1 1 1]);
 
 % rotated plot
 ax2 = subaxis(2,1,2, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
-% aplot2=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3), 'FaceColor', [0.5, 0.5, 0.5], 'EdgeColor', 'none','FaceAlpha',0.5);
 aplot2=trisurf(F_L, V_L(:, 1), V_L(:, 2), V_L(:, 3),curv.cdata,'EdgeColor', 'none','FaceAlpha',0.5);
 hold on;
 
