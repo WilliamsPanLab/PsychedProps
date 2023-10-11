@@ -101,17 +101,13 @@ for seg=1:SegNum;
 	segTS_r=fr.TRs(SegStart:(SegStart+SegSpan-1));
 	% loop over each TR-Pair: 1 fewer pair than number of TRs
 	for TRP=1:(SegSpan-1)
-		% print TR pair iter
-		TRP
 		% Compute decomposition.
-		tic;
 		% pull out adjacent frames
 		u = of(N, faces_l, vx_l, segTS_l{TRP}, segTS_l{TRP+1}, h, alpha, s);
 		% throw u into struct
 		us.vf_left{TRPC}=u;
 		% now right hemi
 		u = of(N, faces_r, vx_r, segTS_r{TRP}, segTS_r{TRP+1}, h, alpha, s);
-		toc;
 		% throw u into struct
 		us.vf_right{TRPC}=u;
 		% update TR pair counter, which should increase +1 across segments

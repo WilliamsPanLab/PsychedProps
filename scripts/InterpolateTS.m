@@ -44,9 +44,9 @@ halfwayTimepoints = timepointsToInterpolate(1:end-1) + 0.5;
 InterpData_L=zeros(sizefMR(1),length(halfwayTimepoints));
 InterpData_R=zeros(sizefMR(1),length(halfwayTimepoints));
 % Interpolate data at halfway timepoints
-for v=1:10242
-	interpolatedData_L(v,:) = interp1(originalTimepoints, TRs_l_g(v,:), halfwayTimepoints);
-	interpolatedData_R(v,:) = interp1(originalTimepoints, TRs_r_g(v,:), halfwayTimepoints);
+for v=1:2562
+	InterpData_L(v,:) = interp1(originalTimepoints, TRs_l_g(v,:), halfwayTimepoints);
+	InterpData_R(v,:) = interp1(originalTimepoints, TRs_r_g(v,:), halfwayTimepoints);
 end
 % save it out
 ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L.mgh'];

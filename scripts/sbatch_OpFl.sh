@@ -147,6 +147,8 @@ matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','emotion')"
 matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','gambling')"
 matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','wm')"
 
+echo " ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ Streams created for participant. Creating null comparison for their data."
+
 # get subject-specific null
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs1')"
 matlab -nodisplay -r "SimulateFMR('$subj','$sesh','rs2')"
@@ -178,6 +180,9 @@ matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','rs2')"
 matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','emotion')"
 matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','gambling')"
 matlab -nodisplay -r "OpFl_simulated('$subj','$sesh','wm')"
+
+echo " ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ Data simulated and tracked. Creating null comparison streams. "
+
 # calculate null streamlines: left
 matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs1')"
 matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','rs2')"
@@ -189,6 +194,10 @@ matlab -nodisplay -r "OpFlStreamlines_null_Left('$subj','$sesh','wm')"
 
 # sig test the streams
 matlab -nodisplay -r "SigTestSubjStreams('$subj','$sesh')"
+
+# Visualize/printout streams
+matlab -nodisplay -r "Vert_ASL('$subj','$sesh')"
+matlab -nodisplay -r "Vis_VertScorevec('$subj','$sesh')"
 
 #################
 echo "OpFl complete"

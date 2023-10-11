@@ -1,5 +1,12 @@
-function Vis_VertScorevec(VertVecL,VertVecR,Fn) 
+function Vis_VertScorevec(subj,sesh) 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
+% recreate VertVecScore FP from subj and sesh
+VectorSscoresFP=['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.mat'];
+VectorSscores=load(VectorSscoresFP).MWvectorscores;
+VertVecL=VectorSscores;
+% output filename
+Fn=['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.png'];
+
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 surfL = [SubjectsFolder '/lh.sphere'];
@@ -151,7 +158,6 @@ axis vis3d off;
 lighting none;
 shading flat;
 camlight;
-	alpha(1)
 
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=RGBValues;
@@ -184,7 +190,6 @@ lighting none;
 material metal %shiny %metal;
 shading flat;
 camlight;
-alpha(1)
 
 % insert RGB colors onto surface
 aplot.FaceVertexCData=RGBValues;
@@ -196,55 +201,55 @@ print(Fn,'-dpng','-r2000')
 
 
 %%% right hemisphere
-data=VertVecR;
+% data=VertVecR;
 
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
+% [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
-asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-view([90 0]);
-rotate(aplot, [0 0 1], 180)
+% asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
+% aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+% view([90 0]);
+% rotate(aplot, [0 0 1], 180)
 %colormap(custommap)
-caxis([mincol; maxcol]);
-daspect([1 1 1]);
-axis tight;
-axis vis3d off;
-lighting none
-material metal %shiny %metal;%shading flat;
-shading flat;
-camlight;
- pos = get(asub, 'Position');
- posnew = pos; posnew(1) = posnew(1) - 0.11; set(asub, 'Position', posnew);
-alpha(1)
+% caxis([mincol; maxcol]);
+% daspect([1 1 1]);
+% axis tight;
+% axis vis3d off;
+% lighting none
+% material metal %shiny %metal;%shading flat;
+% shading flat;
+% camlight;
+%  pos = get(asub, 'Position');
+%  posnew = pos; posnew(1) = posnew(1) - 0.11; set(asub, 'Position', posnew);
+% alpha(1)
 
 
-set(gca,'CLim',[mincol,maxcol]);
+% set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
-asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-view([90 0]);
+% asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
+% aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+% view([90 0]);
 %colormap(custommap)
-caxis([mincol; maxcol]);
-daspect([1 1 1]);
-axis tight;
-axis vis3d off;
-lighting none;
-material metal %shiny %metal;
-shading flat;
-camlight;
-alpha(1)
- pos = get(asub, 'Position');
- posnew = pos; posnew(2) = posnew(2) + 0.13; set(asub, 'Position', posnew);
-set(gcf,'Color','w')
+% caxis([mincol; maxcol]);
+% daspect([1 1 1]);
+% axis tight;
+% axis vis3d off;
+% lighting none;
+% material metal %shiny %metal;
+% shading flat;
+% camlight;
+% alpha(1)
+% pos = get(asub, 'Position');
+%  posnew = pos; posnew(2) = posnew(2) + 0.13; set(asub, 'Position', posnew);
+% set(gcf,'Color','w')
 
 
-set(gca,'CLim',[mincol,maxcol]);
+% set(gca,'CLim',[mincol,maxcol]);
 %%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-colorbar
-c=colorbar
-c.Location='southoutside'
+% colorbar
+% c=colorbar
+% c.Location='southoutside'
 
-colormap(custommap)
+% colormap(custommap)
 
-print(Fn,'-dpng')
+% print(Fn,'-dpng')

@@ -146,6 +146,3 @@ delete(pool);
 % save out this hemisphere
 fn=[childfp '/' subj '_' sesh '_' task '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');
-% save out TR pairs
-fn=[childfp '/' subj '_' sesh '_' task '_streamConnectivity_L_TRPC.csv']
-save(table(TRPC),'AdjMatrix_L');; 
