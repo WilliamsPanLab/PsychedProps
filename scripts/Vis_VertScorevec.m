@@ -1,4 +1,4 @@
-function Vis_Vertvec(VertVecL,VertVecR,Fn) 
+function Vis_VertScorevec(VertVecL,VertVecR,Fn) 
 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 
@@ -28,7 +28,12 @@ data=VertVecL;
 
 %%% circular
 mincol=0;
-maxcol=max(VertVecL);
+maxcol=max(VertVecL(:));
+
+% scale RGB values to max
+minVals = min(VertVecL);
+maxVals = max(VertVecL);
+RGBValues = (VertVecL - minVals) ./ (maxVals - minVals);
 
 %%% for red/blue 0-centered
 %mincol=-9;
@@ -97,11 +102,22 @@ maxcol=max(VertVecL);
 % mw to black
 %custommap(1,:)=[0 0 0];
 
+custommap = [
+    1 0 0;    % Red
+    0 1 0;    % Green
+    0 0 1;    % Blue
+    1 1 0;    % Yellow
+    0 1 1;    % Cyan
+    1 0 1;    % Magenta
+    0 0 0;    % Black
+    1 1 1     % White
+];
+
 figure
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 view([90 0]);
 colormap(custommap)
 daspect([1 1 1]);
@@ -113,13 +129,13 @@ camlight;
 	alpha(1)
 
 set(gca,'CLim',[mincol,maxcol]);
+aplot.FaceVertexCData=RGBValues;
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-colormap(custommap)
+%colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
 axis tight;
@@ -135,6 +151,14 @@ set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+%set(aplot, 'FaceColor', 'interp', 'FaceVertexCData', RGBValues);
+aplot.FaceVertexCData=RGBValues;
+
+
+
+print('~/test.png','-dpng','-r1000')
+
+
 
 
 %%% right hemisphere
@@ -146,7 +170,7 @@ asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis'
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-colormap(custommap)
+%colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
 axis tight;
@@ -166,7 +190,7 @@ set(gca,'CLim',[mincol,maxcol]);
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 view([90 0]);
-colormap(custommap)
+%colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
 axis tight;

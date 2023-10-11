@@ -39,6 +39,10 @@ for v=1:length(vx_l(nonMW_L))
 	% populate vector score matrix
 	vectorScores(v,:)=vectorScore;
 end
+% make a medial wall version
+MWvectorscores=zeros(2562,3);
+MWvectorscores(nonMW_L,:)=vectorScores;
+
 % saveout vector score matrix
 save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.mat'],'vectorScores')
 end
