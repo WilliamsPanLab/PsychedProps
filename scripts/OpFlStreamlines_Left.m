@@ -86,9 +86,6 @@ if numTRsVS ~= (mr_ts_trs + SegNum)
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% initialize TRP counter: for plopping u outputs into master struct w/o/r/t their segment
-% note trp = tr pair
-TRPC=1;
 % parallelize
 pool=parpool('local');
 
@@ -149,3 +146,6 @@ delete(pool);
 % save out this hemisphere
 fn=[childfp '/' subj '_' sesh '_' task '_streamConnectivity_L.mat'];
 save(fn,'AdjMatrix_L','-v7.3');
+% save out TR pairs
+fn=[childfp '/' subj '_' sesh '_' task '_streamConnectivity_L_TRPC.csv']
+save(table(TRPC),'AdjMatrix_L');; 

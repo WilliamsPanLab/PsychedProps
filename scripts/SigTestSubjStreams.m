@@ -71,8 +71,8 @@ for task = ["rs1" "rs2" "emotion" "gambling" "wm"];
 	mastNull=mastNull+nullStreams.AdjMatrix_L;
 end
 
-% get indices of where streams exist
-streamIndices = find(mastReal > 0);
+% get indices of where streams ended up
+streamIndices = find(mastReal > 1);
 [streamInd_row, streamInd_col]=ind2sub(size(mastReal), streamIndices);
 % real location
 real_locs = [streamInd_row, streamInd_col];
@@ -99,10 +99,8 @@ for L = 1:length(real_locs)
 	end
 end
 
-% save something out
+% save significant streams out
 save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_sigStreams.mat'],'sig_Streams','-v7.3');
-
-% find instances 
 
 
 % set diagonal to 0
@@ -110,16 +108,15 @@ save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_sigStreams.mat'],'sig_
 %subjStreams.AdjMatrix_L_z = subjStreams.AdjMatrix_L_z - diag(diag(subjStreams.AdjMatrix_L_z));
 
 % Calculate the similarity matrix (you may need to choose an appropriate distance metric)
-similarity_matrix = pdist(subjStreams.AdjMatrix_L_z, 'euclidean');
+%similarity_matrix = pdist(subjStreams.AdjMatrix_L_z, 'euclidean');
 % Perform hierarchical clustering
-cluster_tree = linkage(similarity_matrix, 'average'); % 'average' linkage method
+%cluster_tree = linkage(similarity_matrix, 'average'); % 'average' linkage method
 % set threshold
-threshold=9000
+%threshold=9000
 % Create a dendrogram to visualize the clustering results
-dendrogram(cluster_tree, 'ColorThreshold', threshold);
+%dendrogram(cluster_tree, 'ColorThreshold', threshold);
 % If you want to get the cluster assignments based on the threshold
-cluster_assignments = cluster(cluster_tree, 'cutoff', threshold, 'criterion', 'distance');
-print('~/testClust.png','-dpng')
+%cluster_assignments = cluster(cluster_tree, 'cutoff', threshold, 'criterion', 'distance');
+%print('~/testClust.png','-dpng')
 
-% add code to get vertex/count list of streams to visualize: ideally those that are connected
 

@@ -26,13 +26,13 @@ for v=1:length(vx_l(nonMW_L))
 	nonzvs=find(sigStreamRow);
 	for v2=nonzvs
 		% get current cell
-		cell=sigStreamRow(v2);
+		currcell=sigStreamRow(v2);
 		% get euclidean location of cell
 		eucLocV2=vx_l(nonMW_L(v2),:);
 		% get vector from v to v2
-		vectorV2V=eucLocV-eucLocV2;
+		vectorV2V=eucLocV2-eucLocV;
 		% multiply by counts, can later ammend to sqrt of counts
-		vectorV2V=vectorV2V*cell;
+		vectorV2V=vectorV2V*currcell;
 		% add derived vector to vector score
 		vectorScore=vectorScore+vectorV2V;
 	end
@@ -44,5 +44,5 @@ MWvectorscores=zeros(2562,3);
 MWvectorscores(nonMW_L,:)=vectorScores;
 
 % saveout vector score matrix
-save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.mat'],'vectorScores')
+save(['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.mat'],'MWvectorscores')
 end
