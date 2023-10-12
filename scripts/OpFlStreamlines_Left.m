@@ -98,18 +98,20 @@ parfor v=1:length(vx_l)
         	SegStart=CSI(seg,1);
 		% minus 1 because it's between TR measures and discontinuity incurs missing between volume
         	SegSpan=CSI(seg,2)-1;
-		% get corresponding TRs from aggregate time series
+		% get span of OpFl time series, which is betweenframes (excluding between frames where one frame is motion)
 		% note that we lose one "between frame" for each segment, as the bookend has no between calculation with the next book"begin"
-	        segTS_l=VF_L(:,:,(SegStart:((SegStart+SegSpan)-seg)));
+		OFSegSpan=SegSpan-seg;
+		% get corresponding TRs from aggregate time series
+	        segTS_l=VF_L(:,:,(SegStart:(SegStart+OFSegSpan)));
 		% loop over each TR-Pair: 1 fewer pair than number of TRs
-		for TRP=1:(SegSpan)
+		for TRP=1:OFSegSpan
 			% plant a new seed
 			CurrSeed=vx_l(v,:);
 			% set endpoint of tracking: if t + 85 > length of time series, cant track beyond ts
 			% allowing them to run for up to one minute of scan time (current tr = .71)
 			endpoint=85;
-			if (endpoint+TRP)>SegSpan
-				endpoint=SegSpan-TRP;
+			if (endpoint+TRP)>OFSegSpan
+				endpoint=OFSegSpan-TRP;
 			else
 			end
 			% for a max of one minute

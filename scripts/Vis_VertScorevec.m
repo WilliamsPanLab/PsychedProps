@@ -40,7 +40,6 @@ maxVal = max(VertVecL(:));
 RGBValues=(VertVecL+abs(minVal))./(maxVal+abs(minVal));
 
 
-
 % load in number of TRs to scale vectors by
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 numTRs=0;

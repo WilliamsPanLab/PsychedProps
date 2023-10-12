@@ -52,8 +52,8 @@ end
 ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L.mgh'];
 ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R.mgh'];
 % saveout
-dataL.vol=interpolatedData_L;
-dataR.vol=interpolatedData_R;
+dataL.vol=InterpData_L;
+dataR.vol=InterpData_R;
 MRIwrite(dataL,ofpl)
 MRIwrite(dataR,ofpr)
 % now convert vertices to faces: will have to save out as .csv outside of .mgh framework
@@ -80,16 +80,16 @@ P_L = TR_L.incenters;
 TR_R = TriRep(F_R,V_R);
 P_R = TR_R.incenters;
 % initialize output face matrix
-tsLength=size(interpolatedData_L);
+tsLength=size(InterpData_L);
 tsLength=tsLength(2);
 faceOutL=zeros(5120,tsLength);
 faceOutR=zeros(5120,tsLength);
 % convert to faces
 for t=1:tsLength
-	interpolatedData_L_frame=interpolatedData_L(:,t);
+	interpolatedData_L_frame=InterpData_L(:,t);
 	faceOutL(:,t)=sum(interpolatedData_L_frame(faces_l),2)./3;
 	% right hemisphere
-	interpolatedData_R_frame=interpolatedData_R(:,t);
+	interpolatedData_R_frame=InterpData_R(:,t);
 	faceOutR(:,t)=sum(interpolatedData_R_frame(faces_r),2)./3;
 end
 % save out unmasked version

@@ -48,21 +48,21 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
-sleep 20
+### /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
+### sleep 20
 
 # Downsample Subject's curvature
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
+### /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
 
 # cd to workaround addpath in matlab shell call
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
+### cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+### matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+### matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+### matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+### matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+### matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -71,11 +71,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
+### matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+### matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+### matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+### matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+### matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
@@ -98,11 +98,11 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 
 # extract relative angles
 # group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+### matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+### matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+### matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+### matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+### matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # combine angular time series with magnitude time series
 matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
