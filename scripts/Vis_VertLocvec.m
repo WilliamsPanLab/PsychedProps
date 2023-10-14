@@ -128,16 +128,16 @@ custommap = [
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 
 figure;
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
-hold on
 % for each location, plot original vertex location (seed vertex) and tagent line between the original location and meanLoc
 for v=1:length(vertices)
 	% retrieve original location
-	OGloc=vertices(v,:);
+	OGloc=vertices(v,1:3);
 	% get mean blockade location from input vertvecl
-	Blockloc=data(v,:);
+	Blockloc=data(v,1:3);
+	% Extract the weight and scale
+	weight = data(v, 4)/10; 
 	% if there are blockade values for this vertex
-	if Blockloc(1)==NaN
+	if isnan(Blockloc(1))
 	else
 		% and check for 0,0,0 from verts with no sig.
 		if Blockloc==[0 0 0]
@@ -148,21 +148,20 @@ for v=1:length(vertices)
 			scatter3(OGloc(1), OGloc(2), OGloc(3),1);
 			midPoint = (OGloc + Blockloc) / 2;
 			% plot tangent line in same 3d space (draw tangent line equidistant between the two locations)
-			plot3([OGloc(1), Blockloc(1)], [OGloc(2), Blockloc(2)], [OGloc(3), Blockloc(3)]);
+			plot3([OGloc(1), Blockloc(1)], [OGloc(2), Blockloc(2)], [OGloc(3), Blockloc(3)],'Color', [0.3, 0.5, 0.7],'LineWidth', weight);
         		% scale alpha of tangent line by z-scores below expected
 			hold on;
 		end
 	end
 end
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),'FaceColor', [0.5, 0.5, 0.5],'FaceAlpha',.5)
 % set face alpha
-aplot.FaceAlpha=.5;
 daspect([1 1 1]);
 axis tight;
 axis vis3d off;
 lighting none;
 shading flat;
 camlight;
-aplot.FaceVertexCData=0;
 % print out figure
 view([270 0]);
 print(Fn,'-dpng','-r2000')
