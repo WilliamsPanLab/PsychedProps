@@ -6,7 +6,6 @@ VectorSscores=load(VectorSscoresFP).MWvectorscores;
 VertVecL=VectorSscores;
 % output filename
 Fn=['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorScores.png'];
-
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 surfL = [SubjectsFolder '/lh.sphere'];
@@ -28,17 +27,14 @@ V_R=vx_r;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=VertVecL;
-
 % colors
 mincol=0;
 maxcol=max(VertVecL(:));
-
 % scale RGB values to max
 minVal = min(VertVecL(:));
 maxVal = max(VertVecL(:));
 % need everything to be above 0 (+absminval) but scaled 0-1 (./maxval+absminval)
 RGBValues=(VertVecL+abs(minVal))./(maxVal+abs(minVal));
-
 
 % load in number of TRs to scale vectors by
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -55,7 +51,7 @@ for task = ["rs1" "rs2" "emotion" "gambling" "wm"];
 	numTRs=numTRs+numTRsVS;
 end
 % scale vectors to be smaller if more TRs included
-scalingfactor=4000/numTRs;
+scalingfactor=3000/numTRs;
 % consider scaling RGB colors by this value as well
 
 
@@ -125,7 +121,6 @@ scalingfactor=4000/numTRs;
 %custommap=colormap(parula);
 % mw to black
 %custommap(1,:)=[0 0 0];
-
 custommap = [
     1 0 0;    % Red
     0 1 0;    % Green
@@ -136,18 +131,37 @@ custommap = [
     0 0 0;    % Black
     1 1 1     % White
 ];
-
-
-figure
 % medial left hemisphere
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
-asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
-
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 % add vector field with OG vector values
+% make VertVecL parallel to pial surface as "ret"
 ret=VertVecL;
-% * 1.02 to make vectors visible above  surface
-bplot=quiver3D(vertices(:,1)*1.02,vertices(:,2)*1.02,vertices(:,3)*1.02,ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
+% for each vector, subtract weighted surface-orthogonal component from original vector
+for v=1:length(vertices)
+	% retrieve original vector
+	OGvec=ret(v,:);
+	% find the three faces involved in this vertex 
+	[InvolvedFaces,~]=find(faces==v);
+	% get normal vectors of each involved face
+	normalVectors = cross(vertices(faces(InvolvedFaces, 2), :) - vertices(faces(InvolvedFaces, 1), :), vertices(faces(InvolvedFaces, 3), :) - vertices(faces(InvolvedFaces, 1), :));
+	% find vector as close as possible to orthogonal from these three faces
+	meanNormalVector = mean(normalVectors, 1);
+	% normalize normal vector
+	meanNormalVector=VecNormalize(meanNormalVector);
+	% get dot product of orthogonal vector and original vector
+	OGvecOrthogonal = dot(OGvec, meanNormalVector) * meanNormalVector;
+	% subtract orthogonal component of original vector from original vector
+	modVec = OGvec - OGvecOrthogonal;;
+	% add modified vector to initialized matrix
+	ret(v,:)=modVec;
+end
+
+% begin figure
+figure
+asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
 
 view([90 0]);
 colormap(custommap)
@@ -160,7 +174,7 @@ camlight;
 
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=RGBValues;
-aplot.FaceAlpha=.8;
+aplot.FaceAlpha=1;
 
 % other view of left hemisphere (lateral)
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
@@ -176,10 +190,8 @@ set(gcf,'Color','w')
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=RGBValues;
 
-% add vector field with OG vector values
-ret=VertVecL;
-% * 1.1 to make vectors visible above  surface
-bplot=quiver3D(vertices(:,1)*1.02,vertices(:,2)*1.02,vertices(:,3)*1.02,ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
+% removing upscaling vector field so vectors are locked to vertices
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
 rotate(bplot, [0 0 1], 180)
 
 daspect([1 1 1]);
@@ -192,7 +204,7 @@ camlight;
 
 % insert RGB colors onto surface
 aplot.FaceVertexCData=RGBValues;
-aplot.FaceAlpha=.8;
+aplot.FaceAlpha=1;
 % printout
 print(Fn,'-dpng','-r2000')
 

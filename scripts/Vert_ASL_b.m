@@ -2,7 +2,7 @@ function Vert_ASL(subj,sesh)
 % compute the vertex-wise anterior/superior/left vector from SigStreams
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % load in sigStreams
-sigStreams=load(['/scratch/users/apines/SimStreams/' subj '_' sesh '_sigStreams_a.mat']).sig_Streams_Above;
+sigStreams=load(['/scratch/users/apines/SimStreams/' subj '_' sesh '_sigStreams_b.mat']).sig_Streams_Below;
 % load in surface for euclidean locations
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 surfL = [SubjectsFolder '/lh.inflated'];
@@ -24,6 +24,8 @@ for v=1:length(vx_l(nonMW_L))
 	vectorScore=zeros(1,3);
 	% find each vertex with a nonzerovalue in this row
 	nonzvs=find(sigStreamRow);
+	% initialize a coordinate set to get the mean location of
+	coordSet=zeros(length(nonzvs),3);
 	for v2=nonzvs
 		% get current cell
 		currcell=sigStreamRow(v2);
