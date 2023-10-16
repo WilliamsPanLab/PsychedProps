@@ -19,4 +19,4 @@ module load freesurfer/7.3.2
 module load workbench
 
 # aggregate info
-matlab -nodisplay -r "SigTestSubjStreams('$1','$2')"
+matlab -nodisplay -r "SigTestGroupStreams"
