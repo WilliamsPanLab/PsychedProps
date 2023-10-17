@@ -1,4 +1,4 @@
-function Vis_VertScorevec(subj,sesh) 
+function Vis_VertLocvec(subj,sesh) 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 % recreate VertVecScore FP from subj and sesh
 VectorSscoresFP=['/scratch/users/apines/SimStreams/' subj '_' sesh '_vectorLocs.mat'];
@@ -126,35 +126,45 @@ custommap = [
 ];
 % medial left hemisphere
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
+% medial wall left hemisphere
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+% make binary "isn't medial wall" vector for vertices
+nonMW_L=setdiff(1:2562,mwIndVec_l);
 
 figure;
 % for each location, plot original vertex location (seed vertex) and tagent line between the original location and meanLoc
-for v=1:length(vertices)
+for v=nonMW_L
 	% retrieve original location
 	OGloc=vertices(v,1:3);
 	% get mean blockade location from input vertvecl
 	Blockloc=data(v,1:3);
-	% Extract the weight and scale
-	weight = data(v, 4)/10; 
 	% if there are blockade values for this vertex
 	if isnan(Blockloc(1))
 	else
 		% and check for 0,0,0 from verts with no sig.
 		if Blockloc==[0 0 0]
 		else
-			% get euclidean distance between them
-			%euclideanDist = norm(Blockloc - OGloc);
-			% plot OGloc in 3d space with scatter3
-			scatter3(OGloc(1), OGloc(2), OGloc(3),1);
-			midPoint = (OGloc + Blockloc) / 2;
-			% plot tangent line in same 3d space (draw tangent line equidistant between the two locations)
-			plot3([OGloc(1), Blockloc(1)], [OGloc(2), Blockloc(2)], [OGloc(3), Blockloc(3)],'Color', [0.3, 0.5, 0.7],'LineWidth', weight);
-        		% scale alpha of tangent line by z-scores below expected
-			hold on;
+			% Extract the weight and scale
+			weight = data(v, 4)/900;
+			% if weight is more than 2.5 z-scores away
+			%if abs(data(v, 4)) > 500
+				% get euclidean distance between them
+				%euclideanDist = norm(Blockloc - OGloc);
+				% plot OGloc in 3d space with scatter3
+				scatter3(OGloc(1), OGloc(2), OGloc(3),1);
+				midPoint = (OGloc + Blockloc) / 2;
+				% plot tangent line in same 3d space (draw tangent line equidistant between the two locations)
+				plot3([OGloc(1), Blockloc(1)], [OGloc(2), Blockloc(2)], [OGloc(3), Blockloc(3)],'Color', [0.3, 0.5, 0.7],'LineWidth', weight);
+        			% scale alpha of tangent line by z-scores below expected
+				hold on;
+			%else
+			%end
 		end
 	end
 end
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),'FaceColor', [0.5, 0.5, 0.5],'FaceAlpha',.5)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),'FaceColor', [0.5, 0.5, 0.5],'FaceAlpha',.3)
 % set face alpha
 daspect([1 1 1]);
 axis tight;
@@ -163,43 +173,44 @@ lighting none;
 shading flat;
 camlight;
 % print out figure
-view([270 0]);
-print(Fn,'-dpng','-r2000')
+view([90 0]);
+aplot.FaceAlpha=.5
+print(Fn,'-dpng','-r1000')
 
 
 
 %%%%%%%%% UNFINISHED
 % other view of left hemisphere (lateral)
-asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
-view([90 0]);
-rotate(aplot, [0 0 1], 180)
+%asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
+%aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+%view([90 0]);
+%rotate(aplot, [0 0 1], 180)
 %colormap(custommap)
-caxis([mincol; maxcol]);
- pos = get(asub, 'Position');
- posnew = pos; posnew(2) = posnew(2) + 0.13; posnew(1) = posnew(1) -.11; set(asub, 'Position', posnew);
-set(gcf,'Color','w')
+%caxis([mincol; maxcol]);
+% pos = get(asub, 'Position');
+% posnew = pos; posnew(2) = posnew(2) + 0.13; posnew(1) = posnew(1) -.11; set(asub, 'Position', posnew);
+%set(gcf,'Color','w')
 
-set(gca,'CLim',[mincol,maxcol]);
-aplot.FaceVertexCData=RGBValues;
+%set(gca,'CLim',[mincol,maxcol]);
+%aplot.FaceVertexCData=0;
 
 % removing upscaling vector field so vectors are locked to vertices
-bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
-rotate(bplot, [0 0 1], 180)
+%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[1 1 1],scalingfactor)
+%rotate(bplot, [0 0 1], 180)
 
-daspect([1 1 1]);
-axis tight;
-axis vis3d off;
-lighting none;
-material metal %shiny %metal;
-shading flat;
-camlight;
+%daspect([1 1 1]);
+%axis tight;
+%axis vis3d off;
+%lighting none;
+%material metal %shiny %metal;
+%shading flat;
+%camlight;
 
 % insert RGB colors onto surface
-aplot.FaceVertexCData=RGBValues;
-aplot.FaceAlpha=1;
+%aplot.FaceVertexCData=0;
+%aplot.FaceAlpha=.5;
 % printout
-print(Fn,'-dpng','-r2000')
+%print(Fn,'-dpng','-r2000')
 
 
 

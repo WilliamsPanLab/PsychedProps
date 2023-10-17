@@ -3,7 +3,7 @@ function AmygFC(subj,sesh)
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder'; 
 addpath(genpath(Paths{1}))
 % set cifti path
-ciftipath = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/bv_concat/' subj  '-concat.dtseries.nii'];
+ciftipath = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/ses-00/func/concatenated.dtseries.nii'];
 % load in cifti
 concatData=read_cifti(ciftipath);
 % get left and right amygdala grayords/voxels
@@ -18,6 +18,8 @@ A_mts_L=mean(A_ts_L);
 % right
 A_ts_R=concatData.cdata(RAmygStart:(RAmygStart+RAmygCount-1),:);
 A_mts_R=mean(A_ts_R);
+% and left PCC
+PCC_ts=concatData.cdata(11661,:);
 % get num of grayords
 numGrayords=size(concatData.cdata);
 numGrayords=numGrayords(1);
@@ -25,16 +27,20 @@ numGrayords=numGrayords(1);
 LamygFC=zeros(1,numGrayords);
 % R
 RamygFC=zeros(1,numGrayords);
+%PCC
+PCCFC=zeros(1,numGrayords);
 % get correlations across rest of brain (grayordinate-wise)
 for g=1:numGrayords
 	LamygFC(g)=corr(concatData.cdata(g,:)',A_mts_L');
 	RamygFC(g)=corr(concatData.cdata(g,:)',A_mts_R');
+	PCCFC(g)=corr(concatData.cdata(g,:)',PCC_ts');
 end
 % load in template cifti
 tCifti = read_cifti('/oak/stanford/groups/leanew1/users/apines/maps/hcp.gradients.dscalar.nii')
 % replace
 tCifti.cdata(:,1)=LamygFC;
 tCifti.cdata(:,2)=RamygFC;
+tCifti.cdata(:,3)=PCCFC;
 % saveout into new cifti
 write_cifti(tCifti,['/scratch/groups/leanew1/xcpd_outP50_36p_bp/bv_concat/' subj  '_amygFC.dscalar.nii']);
 

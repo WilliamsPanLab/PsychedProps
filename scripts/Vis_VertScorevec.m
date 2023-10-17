@@ -206,7 +206,7 @@ camlight;
 aplot.FaceVertexCData=RGBValues;
 aplot.FaceAlpha=1;
 % printout
-print(Fn,'-dpng','-r2000')
+print(Fn,'-dpng','-r1000')
 
 
 

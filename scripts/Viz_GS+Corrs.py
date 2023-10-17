@@ -1,5 +1,4 @@
 import nibabel as nb
-import hcp_utils as hcp
 import numpy as np
 import nilearn.plotting as plotting
 import matplotlib
@@ -96,7 +95,7 @@ for ses in range(0,4):
     # replace PG with correlation values
     ciftiData[0,:]=correlations;
     # replace first map with correlation values
-    new_cifti = nb.Cifti2Image(ciftiData,header=(time_axis, brain_model_axis),nifti_header=cifti.nifti_header)
+    new_cifti = nb.Cifti2Image(ciftiData,header=(time_axis, brain_model_axis),nifti_header=exampleCifti.nifti_header)
     # save out the cifti
     ciftiOutfp=parentfp + '/gsCorr_' + str(sesh) + '.dscalar.nii'
     nb.save(new_cifti, ciftiOutfp)

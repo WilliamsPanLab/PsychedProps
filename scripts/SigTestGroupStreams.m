@@ -105,8 +105,8 @@ parfor L = 1:length(real_locs)
 	EucD=bdsml(real_locs(L,1),real_locs(L,2))
 	% see what null range of connections is for this distance (within 1 mm)
 	ThisRangeEucD=find(bdsml > (EucD-1) & bdsml < (EucD+1));
-	% get 99.5th pecentile value for null connectiosn in this range
-	percentile_value = prctile(mastNull(ThisRangeEucD), 99.5);
+	% get 99th pecentile value for null connectiosn in this range
+	percentile_value = prctile(mastNull(ThisRangeEucD), 99);
 	trueValue=mastReal(real_locs(L,1),real_locs(L,2));
 	% 
 	if trueValue<percentile_value
@@ -133,8 +133,8 @@ parfor L = 1:length(real_locs)
         EucD=bdsml(real_locs(L,1),real_locs(L,2));
         % see what null range of connections is for this distance (within 1 mm)
         ThisRangeEucD=find(bdsml > (EucD-1) & bdsml < (EucD+1));
-        % get 99.5th pecentile value for null connectiosn in this range
-        percentile_value = prctile(mastNull(ThisRangeEucD), 00.5);
+        % get 1st pecentile value for null connectiosn in this range
+        percentile_value = prctile(mastNull(ThisRangeEucD), 1);
         trueValue=mastReal(real_locs(L,1),real_locs(L,2));
         % 
         if trueValue<percentile_value
