@@ -27,15 +27,15 @@ V_L=vx_l;
 
 % extract ROIs
 CalcFisInd=ct.table(46,5);
-CalcFisLocs=v(CalcFisInd,:);
+CalcFisLocs=find(label==CalcFisInd);
 M1Ind=ct.table(30,5);
-M1Locs=v(M1Ind,:);
+M1Locs=find(label==M1Ind);
 S1Ind=ct.table(29,5);
-S1Locs=v(S1Ind,:);
+S1Locs=find(label==S1Ind);
 InsulaInd=ct.table(50,5);
-InsulaLocs=v(InsulaInd,:);
+InsulaLocs=find(label==InsulaInd);
 TempPoleInd=ct.table(45,5);
-TempPoleLocs=v(TempPoleInd,:);
+TempPoleLocs=find(label==TempPoleInd);
 
 % get lobe indices
 [vl,labell,ctl]=read_annotation('/oak/stanford/groups/leanew1/users/apines/fsaverage4/label/lh.1.annot');
@@ -52,27 +52,52 @@ refStreams=zeros(2562,3,5);
 % mask by union of lobes: occipital and parietal 
 OccPar = (labell == OccInd) | (labell == ParInd);
 DStreamInds=find(OccPar);
+% get calc coords
+% get 
 % for each involved vertex, get distance from Calcarine and S1
 for v=1:length(DStreamInds)
 	% get real vertex index
 	vertInd=DStreamInds(v);
-	% get coordinates in euclidean space
-	EucCoords=vx_l(vertInd,:);
-	% get distance from calcarine
-	Dist=EucCoords-CalcFisLocs
-	% find nearest calcarine vertex
-	% get vector pointing directly away from it (note away!)
-	
-	% get distance from S1
-	% get vector pointing directly to it
-	% weight the both of them by both distances for aggregate vector
-	AggVec=
-	%%% flatten to spherical surface (holllla divya ty)
-	% get normal vector from nearby vertices
-	% normvec step
-	% 	
+	% if it's not a vertex already in calc fis. or S1
+	if label(vertInd)~=CalcFisInd && label(vertInd) ~= S1Ind
+		% get coordinates in euclidean space
+		EucCoords=vx_l(vertInd,:);
+		% get distance from calcarine
+		CDist=EucCoords-vx_l(CalcFisLocs,:);
+		% convert 3 coordinate difference to euclidean distance
+		CEuclideanDists = sqrt(sum(CDist.^2, 2));	
+		% find nearest calcarine vertex
+		[Cminimum,minInd]=min(CEuclideanDists);
+		% get vector pointing directly away from it (note away!)
+		CAwayVector = CDist(minInd, :);
+		% get distance from S1
+		SDist=EucCoords-vx_l(S1Locs,:);
+		% convert 3 coordinates to difference in euclidean distance
+		SEuclideanDists = sqrt(sum(SDist.^2, 2));
+		% find nearest S1 vertex
+		[Sminimum,minInd]=min(SEuclideanDists);
+		% get vector pointing directly to it (inverse of CAway vector)
+		STowardsVector = -SDist(minInd,:);
+		vecsL(vertInd,:)=STowardsVector;
+		% weight them both of them by both distances for aggregate vector
+		CS1Ratio=Cminimum/Sminimum;
+		S1CRatio=Sminimum/Cminimum;
+		AggVec=((CAwayVector.*CS1Ratio)+(STowardsVector.*S1CRatio))*2;
+		% flatten to surface
+		% find the faces involved in this vertex 
+		[InvolvedFaces,~]=find(faces_l==vertInd);
+		normalVectors = cross(vx_l(faces_l(InvolvedFaces, 2), :) - vx_l(faces_l(InvolvedFaces, 1), :), vx_l(faces_l(InvolvedFaces, 3), :) - vx_l(faces_l(InvolvedFaces, 1), :));
+		meanNormalVector = mean(normalVectors, 1);
+		% normalize normal vector
+	        meanNormalVector=VecNormalize(meanNormalVector);
+		% get dot product of orthogonal vector and original vector
+		OGvecOrthogonal = dot(AggVec, meanNormalVector) * meanNormalVector;
+		modVec = AggVec - OGvecOrthogonal;
+		%%% flatten to spherical surface (holllla divya ty)
+		vecsL(vertInd,:)=VecNormalize(modVec);
+	else
+	end
 end
-
 
 
 % Ventral Stream: Calc Fissure and Temporal Pole
