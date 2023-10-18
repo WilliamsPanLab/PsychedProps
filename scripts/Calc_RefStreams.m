@@ -22,6 +22,10 @@ F_L=faces_l;
 % vertices V
 V_L=vx_l;
 
+%%%%%%% LOOK HERE
+% load in spherical for vector norming
+% change vx_l(CalcFisLocs,:) to centroid of CalcFis! and so on and so forth!
+
 % read table
 [v,label,ct]=read_annotation('/share/software/user/open/freesurfer/7.4.1/subjects/fsaverage4/label/lh.aparc.a2009s.annot');
 
@@ -194,7 +198,7 @@ for v=1:length(MPInds)
 	% get real vertex index
 	vertInd=MPInds(v);
 	% if it's not a vertex already in calc fis. or SubPariSulc
-	if label(vertInd)~=CalcFisInd && label(vertInd) ~=SubPariLocs
+	if label(vertInd)~=CalcFisInd && label(vertInd) ~=SubPariInd
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
 		% get distance from calcarine
@@ -282,4 +286,9 @@ for v=1:length(MAInds)
 end
 
 % insert lobular corrections!
-
+% dorsal stream needs vertices anterior to S1 removed, lateral to S1 removed, and inferior to V1 removed
+% ventral stream needs vertices superior to V1 removed
+% Insular needs medial vertices removed
+% medial anterior needs lateral vertices removed
+% medial posterior needs lateral vertices removed
+% all could benefit from a vector smooth

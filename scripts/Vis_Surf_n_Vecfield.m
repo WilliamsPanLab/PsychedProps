@@ -26,7 +26,7 @@ V_R=vx_r;
 data=VertVecL;
 ret=vecl;
 % vector scaling factor
-scalingfactor=1;
+scalingfactor=2;
 % colors
 mincol=0;
 maxcol=max(VertVecL(:));
@@ -113,7 +113,7 @@ custommap = [
 % 0 to gray
 custommap(1,:)=[.5 .5 .5];
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.pial']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 
 % begin figure
 figure
