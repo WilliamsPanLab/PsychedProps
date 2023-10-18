@@ -33,10 +33,10 @@ maxcol=max(VertVecL);
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
-custommap=colormap(b2r(mincol,maxcol));
+%custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-custommap(126,:)=[.5 .5 .5];
-%custommap=colormap(jet)
+%custommap(126,:)=[.5 .5 .5];
+custommap=colormap(jet);
 
 % blue-orange color scheme
 %BO_cm=inferno(9);
