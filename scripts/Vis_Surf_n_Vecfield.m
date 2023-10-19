@@ -113,7 +113,7 @@ custommap = [
 % 0 to gray
 custommap(1,:)=[.5 .5 .5];
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.sphere']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 
 % begin figure
 figure

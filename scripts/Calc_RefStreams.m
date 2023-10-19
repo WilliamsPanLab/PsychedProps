@@ -91,7 +91,7 @@ for v=1:length(DStreamInds)
 		% weight them both of them by both distances for aggregate vector
 		CS1Ratio=Cminimum/Sminimum;
 		S1CRatio=Sminimum/Cminimum;
-		AggVec=((CAwayVector.*CS1Ratio)+(STowardsVector.*S1CRatio))*2;
+		AggVec=((CAwayVector.*S1CRatio)+(STowardsVector.*CS1Ratio))*2;
 		% flatten to surface
 		% find the faces involved in this vertex 
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -139,7 +139,7 @@ for v=1:length(VStreamInds)
 				% weight them both of them by both distances for aggregate vector
 				CTempRatio=Cminimum/Tminimum;
 				TempCRatio=Tminimum/Cminimum;
-				AggVec=((CAwayVector.*CTempRatio)+(TTowardsVector.*TempCRatio))*2;
+				AggVec=((CAwayVector.*TempCRatio)+(TTowardsVector.*CTempRatio))*2;
 				% flatten to surface
 				% find the faces involved in this vertex
 				[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -224,7 +224,7 @@ for v=1:length(MPInds)
 		% weight them both of them by both distances for aggregate vector
 		CSubRatio=Cminimum/Sminimum;
 		SubCRatio=Sminimum/Cminimum;
-		AggVec=((CAwayVector.*CSubRatio)+(STowardsVector.*SubCRatio))*2;
+		AggVec=((CAwayVector.*SubCRatio)+(STowardsVector.*CSubRatio))*2;
 		% flatten to surface
 		% find the faces involved in this vertex
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -272,7 +272,7 @@ for v=1:length(MAInds)
 		% weight them both of them by both distances for aggregate vector
 		MSubRatio=Mminimum/Sminimum;
 		SubMRatio=Sminimum/Mminimum;
-		AggVec=((MAwayVector.*MSubRatio)+(STowardsVector.*SubMRatio))*2;
+		AggVec=((MAwayVector.*SubMRatio)+(STowardsVector.*MSubRatio))*2;
 		% flatten to surface
 		% find the faces involved in this vertex
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -304,6 +304,7 @@ Insula_cent=mean(vx_l(InsulaLocs,:));
 TempPole_cent=mean(vx_l(TempPoleLocs,:));
 SubPari_cent=mean(vx_l(SubPariLocs,:));
 SubOrb_cent=mean(vx_l(SubOrbLocs,:));
+
 % dorsal stream needs vertices anterior to S1 removed and inferior to V1 removed
 % anterior to s1 removal purely by masking out central sulcus
 CSInd=ct.table(47,5);
@@ -314,12 +315,57 @@ DStreamInds_tooInf=DStreamInds(vx_l(DStreamInds,3)<(CalcFis_cent(3)));
 refStreams(DStreamInds_tooInf,:,1)=0;
 
 % ventral stream needs vertices superior to V1 removed
-VStreamInds_tooSup
+VStreamInds_tooSup=VStreamInds(vx_l(VStreamInds,3)>(CalcFis_cent(3)));
+refStreams(VStreamInds_tooSup,:,2)=0;
 
 % Insular needs medial vertices removed
-
-% medial anterior needs lateral vertices removed
+InsInds_tooMed=InsInds(vx_l(InsInds,1)>-17);
+refStreams(InsInds_tooMed,:,3)=0;
 
 % medial posterior needs lateral vertices removed
+MPInds_tooLat=MPInds(vx_l(MPInds,1)<-18);
+refStreams(MPInds_tooLat,:,4)=0;
+% and inferior to V1
+MPInds_tooInf=MPInds(vx_l(MPInds,3)<(CalcFis_cent(3)));
+refStreams(MPInds_tooInf,:,4)=0;
+% and superior to sub parietal sulcus
+MPInds_tooSup=MPInds(vx_l(MPInds,3)>(SubPari_cent(3)));
+refStreams(MPInds_tooSup,:,4)=0;
 
+% medial anterior needs lateral vertices removed
+MAInds_tooLat=MAInds(vx_l(MAInds,1)<-18);
+refStreams(MAInds_tooLat,:,5)=0;
+% and vertices posterior to m1 removed
+MAInds_tooPost=MAInds(vx_l(MAInds,2) < (M1_cent(2)));
+refStreams(MAInds_tooPost,:,5)=0;
+
+% make dummy surface values and visualize each stream
+DsurfL=zeros(2562,1);
+DsurfR=zeros(2562,1);
+DVecsR=zeros(2562,3);
+
+% vis dorsal stream
+DsurfL_d=DsurfL;
+DsurfL_d(CalcFisLocs)=1;
+DsurfL_d(S1Locs)=2;
+Vis_Surf_n_Vecfield(DsurfL_d,DsurfR,refStreams(:,:,1),refStreams(:,:,1),'~/Dorsal_Stream.png')
+% vis ventral stream
+DsurfL_v=DsurfL;
+DsurfL_v(CalcFisLocs)=1;
+DsurfL_v(TempPoleLocs)=2;
+Vis_Surf_n_Vecfield(DsurfL_v,DsurfR,refStreams(:,:,2),refStreams(:,:,2),'~/Ventral_Stream.png')
+% vis insular stream
+DsurfL_i=DsurfL;
+DsurfL_i(InsulaLocs)=1;
+Vis_Surf_n_Vecfield(DsurfL_i,DsurfR,refStreams(:,:,3),refStreams(:,:,3),'~/Insular_Stream.png')
+% vis medial posterior stream
+DsurfL_mp=DsurfL;
+DsurfL_mp(CalcFisLocs)=1;
+DsurfL_mp(SubPariLocs)=2;
+Vis_Surf_n_Vecfield(DsurfL_mp,DsurfR,refStreams(:,:,4),refStreams(:,:,4),'~/MedialPosterior_Stream.png')
+% vis medial posterior stream
+DsurfL_ma=DsurfL;
+DsurfL_ma(M1Locs)=1;
+DsurfL_ma(SubOrbLocs)=2;
+Vis_Surf_n_Vecfield(DsurfL_ma,DsurfR,refStreams(:,:,5),refStreams(:,:,5),'~/MedialAnterior_Stream.png')
 % all could benefit from a vector smooth
