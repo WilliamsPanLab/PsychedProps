@@ -26,7 +26,7 @@ V_R=vx_r;
 data=VertVecL;
 ret=vecl;
 % vector scaling factor
-scalingfactor=2;
+scalingfactor=4;
 % colors
 mincol=0;
 maxcol=max(VertVecL(:));
@@ -158,7 +158,7 @@ camlight;
 aplot.FaceVertexCData=VertVecL;
 aplot.FaceAlpha=.8;
 % printout
-print(Fn,'-dpng','-r1000')
+print(Fn,'-dpng','-r2000')
 
 
 

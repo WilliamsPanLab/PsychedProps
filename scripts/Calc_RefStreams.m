@@ -91,7 +91,7 @@ for v=1:length(DStreamInds)
 		% weight them both of them by both distances for aggregate vector
 		CS1Ratio=Cminimum/Sminimum;
 		S1CRatio=Sminimum/Cminimum;
-		AggVec=((CAwayVector.*S1CRatio)+(STowardsVector.*CS1Ratio))*2;
+		AggVec=((CAwayVector.*S1CRatio)+(STowardsVector.*CS1Ratio));
 		% flatten to surface
 		% find the faces involved in this vertex 
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -114,46 +114,46 @@ OccTemp = (labell == TempLobeInd) | (labell == OccInd);
 VStreamInds=find(OccTemp);
 % for each involved vertex, get distance from Calcarine and Temporal Pole
 for v=1:length(VStreamInds)
-		% get real vertex index
-		vertInd=VStreamInds(v);
-		% if it's not a vertex already in calc fis. or S1
-		if label(vertInd)~=CalcFisInd && label(vertInd) ~=TempPoleInd
-				% get coordinates in euclidean space
-				EucCoords=vx_l(vertInd,:);
-				% get distance from calcarine
-				CDist=EucCoords-CalcFis_cent;
-				% convert 3 coordinate difference to euclidean distance
-				CEuclideanDists = sqrt(sum(CDist.^2, 2));
-				% find nearest calcarine vertex
-				[Cminimum,minInd]=min(CEuclideanDists);
-				% get vector pointing directly away from it (note away!)
-				CAwayVector = VecNormalize(CDist(minInd, :));
-				% get distance from Temporal Pole
-				TDist=EucCoords-TempPole_cent;
-				% convert 3 coordinates to difference in euclidean distance
-				TEuclideanDists = sqrt(sum(TDist.^2, 2));
-				% find nearest Temporal Pole vertex
-				[Tminimum,minInd]=min(TEuclideanDists);
-				% get vector pointing directly to it (inverse of CAway vector)
-				TTowardsVector = VecNormalize(-TDist(minInd,:));
-				% weight them both of them by both distances for aggregate vector
-				CTempRatio=Cminimum/Tminimum;
-				TempCRatio=Tminimum/Cminimum;
-				AggVec=((CAwayVector.*TempCRatio)+(TTowardsVector.*CTempRatio))*2;
-				% flatten to surface
-				% find the faces involved in this vertex
-				[InvolvedFaces,~]=find(faces_l==vertInd);
-				normalVectors = cross(vx_l(faces_l(InvolvedFaces, 2), :) - vx_l(faces_l(InvolvedFaces, 1), :), vx_l(faces_l(InvolvedFaces, 3), :) - vx_l(faces_l(InvolvedFaces, 1), :));
-				meanNormalVector = mean(normalVectors, 1);
-				% normalize normal vector
-				meanNormalVector=VecNormalize(meanNormalVector);
-				% get dot product of orthogonal vector and original vector
-				OGvecOrthogonal = dot(AggVec, meanNormalVector) * meanNormalVector;
-				modVec = AggVec - OGvecOrthogonal;
-				% convert to unit vector
-				refStreams(vertInd,:,2)=VecNormalize(modVec);
-		else
-		end
+	% get real vertex index
+	vertInd=VStreamInds(v);
+	% if it's not a vertex already in calc fis. or S1
+	if label(vertInd)~=CalcFisInd && label(vertInd) ~=TempPoleInd
+			% get coordinates in euclidean space
+			EucCoords=vx_l(vertInd,:);
+			% get distance from calcarine
+			CDist=EucCoords-CalcFis_cent;
+			% convert 3 coordinate difference to euclidean distance
+			CEuclideanDists = sqrt(sum(CDist.^2, 2));
+			% find nearest calcarine vertex
+			[Cminimum,minInd]=min(CEuclideanDists);
+			% get vector pointing directly away from it (note away!)
+			CAwayVector = VecNormalize(CDist(minInd, :));
+			% get distance from Temporal Pole
+			TDist=EucCoords-TempPole_cent;
+			% convert 3 coordinates to difference in euclidean distance
+			TEuclideanDists = sqrt(sum(TDist.^2, 2));
+			% find nearest Temporal Pole vertex
+			[Tminimum,minInd]=min(TEuclideanDists);
+			% get vector pointing directly to it (inverse of CAway vector)
+			TTowardsVector = VecNormalize(-TDist(minInd,:));
+			% weight them both of them by both distances for aggregate vector
+			CTempRatio=Cminimum/Tminimum;
+			TempCRatio=Tminimum/Cminimum;
+			AggVec=((CAwayVector.*TempCRatio)+(TTowardsVector.*CTempRatio));
+			% flatten to surface
+			% find the faces involved in this vertex
+			[InvolvedFaces,~]=find(faces_l==vertInd);
+			normalVectors = cross(vx_l(faces_l(InvolvedFaces, 2), :) - vx_l(faces_l(InvolvedFaces, 1), :), vx_l(faces_l(InvolvedFaces, 3), :) - vx_l(faces_l(InvolvedFaces, 1), :));
+			meanNormalVector = mean(normalVectors, 1);
+			% normalize normal vector
+			meanNormalVector=VecNormalize(meanNormalVector);
+			% get dot product of orthogonal vector and original vector
+			OGvecOrthogonal = dot(AggVec, meanNormalVector) * meanNormalVector;
+			modVec = AggVec - OGvecOrthogonal;
+			% convert to unit vector
+			refStreams(vertInd,:,2)=VecNormalize(modVec);
+	else
+	end
 end
 
 %%%%% Insular Stream: Purely into insula
@@ -221,10 +221,10 @@ for v=1:length(MPInds)
 		[Sminimum,minInd]=min(SEuclideanDists);
 		% get vector pointing directly to it (inverse of CAway vector)
 		STowardsVector = VecNormalize(-SDist(minInd,:));
-		% weight them both of them by both distances for aggregate vector
-		CSubRatio=Cminimum/Sminimum;
+		% weight them both of them by both distances for aggregate vector, more important that it is directly into subPari than directly out of calc (*3)
+		CSubRatio=3*(Cminimum/Sminimum);
 		SubCRatio=Sminimum/Cminimum;
-		AggVec=((CAwayVector.*SubCRatio)+(STowardsVector.*CSubRatio))*2;
+		AggVec=((CAwayVector.*SubCRatio)+(STowardsVector.*CSubRatio));
 		% flatten to surface
 		% find the faces involved in this vertex
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -253,8 +253,8 @@ for v=1:length(MAInds)
 	if label(vertInd)~=M1Ind && label(vertInd) ~= SubOrbInd
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
-		% get distance from M1
-		MDist=EucCoords-M1_cent;
+		% get distance from M1 (centroid is too lateral, need to use closest vertex of M1)
+		MDist=EucCoords-vx_l(M1Locs,:);
 		% convert 3 coordinate difference to euclidean distance
 		MEuclideanDists = sqrt(sum(MDist.^2, 2));
 		% find nearest M1 vertex
@@ -271,8 +271,8 @@ for v=1:length(MAInds)
 		STowardsVector = VecNormalize(-SDist(minInd,:));
 		% weight them both of them by both distances for aggregate vector
 		MSubRatio=Mminimum/Sminimum;
-		SubMRatio=Sminimum/Mminimum;
-		AggVec=((MAwayVector.*SubMRatio)+(STowardsVector.*MSubRatio))*2;
+		SubMRatio=Sminimum/Mminimum*2;
+		AggVec=((MAwayVector.*SubMRatio)+(STowardsVector.*MSubRatio));
 		% flatten to surface
 		% find the faces involved in this vertex
 		[InvolvedFaces,~]=find(faces_l==vertInd);
@@ -311,29 +311,53 @@ CSInd=ct.table(47,5);
 CSLocs=find(label==CSInd);
 refStreams(CSLocs,:,1)=0;
 % inferior to V1 removed, 3 for z dimension
-DStreamInds_tooInf=DStreamInds(vx_l(DStreamInds,3)<(CalcFis_cent(3)));
+DStreamInds_tooInf=DStreamInds(vx_l(DStreamInds,3)<(CalcFis_cent(3)+3));
 refStreams(DStreamInds_tooInf,:,1)=0;
+% lateral to S1 removed
+%DStreamInds_tooLat=DStreamInds(vx_l(DStreamInds,1)<-55);
+%refStreams(DStreamInds_tooLat,:,1)=0;
+% remove supramarginal gyrus, planum temporale, and subcentral gyrus
+SupraMargInd=ct.table(27,5);
+SupraMargLocs=find(label==SupraMargInd);
+PLTInd=ct.table(37,5);
+PLTLocs=find(label==PLTInd);
+SCGInd=ct.table(5,5);
+SCGLocs=find(label==SCGInd);
+% remove Lat_Fis-post and S_circular_insula_sup
+LFPInd=ct.table(42,5);
+LFPLocs=find(label==LFPInd);
+SCIInd=ct.table(51,5);
+SCILocs=find(label==SCIInd);
+% mask out
+refStreams(SupraMargLocs,:,1)=0;
+refStreams(PLTLocs,:,1)=0;
+refStreams(SCGLocs,:,1)=0;
+refStreams(LFPLocs,:,1)=0;
+refStreams(SCILocs,:,1)=0;
 
 % ventral stream needs vertices superior to V1 removed
 VStreamInds_tooSup=VStreamInds(vx_l(VStreamInds,3)>(CalcFis_cent(3)));
 refStreams(VStreamInds_tooSup,:,2)=0;
 
 % Insular needs medial vertices removed
-InsInds_tooMed=InsInds(vx_l(InsInds,1)>-17);
+InsInds_tooMed=InsInds(vx_l(InsInds,1)>-20);
 refStreams(InsInds_tooMed,:,3)=0;
 
 % medial posterior needs lateral vertices removed
-MPInds_tooLat=MPInds(vx_l(MPInds,1)<-18);
+MPInds_tooLat=MPInds(vx_l(MPInds,1)<-20);
 refStreams(MPInds_tooLat,:,4)=0;
 % and inferior to V1
-MPInds_tooInf=MPInds(vx_l(MPInds,3)<(CalcFis_cent(3)));
+MPInds_tooInf=MPInds(vx_l(MPInds,3)<(CalcFis_cent(3)+3));
 refStreams(MPInds_tooInf,:,4)=0;
+% and posterior to V1
+MPInds_tooPost=MPInds(vx_l(MPInds,2)<(CalcFis_cent(2)));
+refStreams(MPInds_tooPost,:,4)=0;
 % and superior to sub parietal sulcus
 MPInds_tooSup=MPInds(vx_l(MPInds,3)>(SubPari_cent(3)));
 refStreams(MPInds_tooSup,:,4)=0;
 
 % medial anterior needs lateral vertices removed
-MAInds_tooLat=MAInds(vx_l(MAInds,1)<-18);
+MAInds_tooLat=MAInds(vx_l(MAInds,1)<-20);
 refStreams(MAInds_tooLat,:,5)=0;
 % and vertices posterior to m1 removed
 MAInds_tooPost=MAInds(vx_l(MAInds,2) < (M1_cent(2)));
@@ -368,4 +392,5 @@ DsurfL_ma=DsurfL;
 DsurfL_ma(M1Locs)=1;
 DsurfL_ma(SubOrbLocs)=2;
 Vis_Surf_n_Vecfield(DsurfL_ma,DsurfR,refStreams(:,:,5),refStreams(:,:,5),'~/MedialAnterior_Stream.png')
+
 % all could benefit from a vector smooth
