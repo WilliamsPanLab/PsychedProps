@@ -6,13 +6,13 @@ addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 % Dorsal Stream: Calc Fissure and S1
 % Ventral Stream: Calc Fissure and Temporal Pole
 % Insular: Purely into insula
-% Medial Posterior: Calc Fissure into PCC
-% Medial Anterior: M1 to mpfc
+% Medial Posterior: Calc Fissure into sub parietal sulcus
+% Medial Anterior: M1 to suborbital sulcus
 
 % load in fs4 and labels
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
-surfL = [SubjectsFolder '/lh.pial'];
+surfL = [SubjectsFolder '/lh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 % +1 the faces: begins indexing at 0
@@ -21,10 +21,6 @@ faces_l = faces_l + 1;
 F_L=faces_l;
 % vertices V
 V_L=vx_l;
-
-%%%%%%% LOOK HERE
-% load in spherical for vector norming
-% change vx_l(CalcFisLocs,:) to centroid of CalcFis! and so on and so forth!
 
 % read table
 [v,label,ct]=read_annotation('/share/software/user/open/freesurfer/7.4.1/subjects/fsaverage4/label/lh.aparc.a2009s.annot');
@@ -44,6 +40,14 @@ SubPariInd=ct.table(73,5);
 SubPariLocs=find(label==SubPariInd);
 SubOrbInd=ct.table(72,5);
 SubOrbLocs=find(label==SubOrbInd);
+% get centroid locations of each ROI
+CalcFis_cent=mean(vx_l(CalcFisLocs,:));
+M1_cent=mean(vx_l(M1Locs,:));
+S1_cent=mean(vx_l(S1Locs,:));
+Insula_cent=mean(vx_l(InsulaLocs,:));
+TempPole_cent=mean(vx_l(TempPoleLocs,:));
+SubPari_cent=mean(vx_l(SubPariLocs,:));
+SubOrb_cent=mean(vx_l(SubOrbLocs,:));
 
 % get lobe indices
 [vl,labell,ctl]=read_annotation('/oak/stanford/groups/leanew1/users/apines/fsaverage4/label/lh.1.annot');
@@ -69,15 +73,15 @@ for v=1:length(DStreamInds)
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
 		% get distance from calcarine
-		CDist=EucCoords-vx_l(CalcFisLocs,:);
+		CDist=EucCoords-CalcFis_cent;
 		% convert 3 coordinate difference to euclidean distance
 		CEuclideanDists = sqrt(sum(CDist.^2, 2));	
 		% find nearest calcarine vertex
 		[Cminimum,minInd]=min(CEuclideanDists);
-		% get vector pointing directly away from it (note away!)
+		% get vector pointing directly away from CENTROID %%% (note away!)
 		CAwayVector = VecNormalize(CDist(minInd, :));
 		% get distance from S1
-		SDist=EucCoords-vx_l(S1Locs,:);
+		SDist=EucCoords-S1_cent;
 		% convert 3 coordinates to difference in euclidean distance
 		SEuclideanDists = sqrt(sum(SDist.^2, 2));
 		% find nearest S1 vertex
@@ -117,7 +121,7 @@ for v=1:length(VStreamInds)
 				% get coordinates in euclidean space
 				EucCoords=vx_l(vertInd,:);
 				% get distance from calcarine
-				CDist=EucCoords-vx_l(CalcFisLocs,:);
+				CDist=EucCoords-CalcFis_cent;
 				% convert 3 coordinate difference to euclidean distance
 				CEuclideanDists = sqrt(sum(CDist.^2, 2));
 				% find nearest calcarine vertex
@@ -125,7 +129,7 @@ for v=1:length(VStreamInds)
 				% get vector pointing directly away from it (note away!)
 				CAwayVector = VecNormalize(CDist(minInd, :));
 				% get distance from Temporal Pole
-				TDist=EucCoords-vx_l(TempPoleLocs,:);
+				TDist=EucCoords-TempPole_cent;
 				% convert 3 coordinates to difference in euclidean distance
 				TEuclideanDists = sqrt(sum(TDist.^2, 2));
 				% find nearest Temporal Pole vertex
@@ -165,7 +169,7 @@ for v=1:length(InsInds)
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
 		% get distance from insula
-		IDist=EucCoords-vx_l(InsulaLocs,:);
+		IDist=EucCoords-Insula_cent;
 		% convert 3 coordinate difference to euclidean distance
 		IEuclideanDists = sqrt(sum(IDist.^2, 2));
 		% find nearest insula vertex
@@ -202,7 +206,7 @@ for v=1:length(MPInds)
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
 		% get distance from calcarine
-		CDist=EucCoords-vx_l(CalcFisLocs,:);
+		CDist=EucCoords-CalcFis_cent;
 		% convert 3 coordinate difference to euclidean distance
 		CEuclideanDists = sqrt(sum(CDist.^2, 2));
 		% find nearest calcarine vertex
@@ -210,7 +214,7 @@ for v=1:length(MPInds)
 		% get vector pointing directly away from it (note away!)
 		CAwayVector = VecNormalize(CDist(minInd, :));
 		% get distance from Sub Parietal Sulcus
-		SDist=EucCoords-vx_l(SubPariLocs,:);
+		SDist=EucCoords-SubPari_cent;
 		% convert 3 coordinates to difference in euclidean distance
 		SEuclideanDists = sqrt(sum(SDist.^2, 2));
 		% find nearest Sub Parietal Sulcus vertex
@@ -250,7 +254,7 @@ for v=1:length(MAInds)
 		% get coordinates in euclidean space
 		EucCoords=vx_l(vertInd,:);
 		% get distance from M1
-		MDist=EucCoords-vx_l(M1Locs,:);
+		MDist=EucCoords-M1_cent;
 		% convert 3 coordinate difference to euclidean distance
 		MEuclideanDists = sqrt(sum(MDist.^2, 2));
 		% find nearest M1 vertex
@@ -258,7 +262,7 @@ for v=1:length(MAInds)
 		% get vector pointing directly away from it (note away!)
 		MAwayVector = VecNormalize(MDist(minInd, :));
 		% get distance from suborbital
-		SDist=EucCoords-vx_l(SubOrbLocs,:);
+		SDist=EucCoords-SubOrb_cent;
 		% convert 3 coordinates to difference in euclidean distance
 		SEuclideanDists = sqrt(sum(SDist.^2, 2));
 		% find nearest suborbital vertex
@@ -286,9 +290,36 @@ for v=1:length(MAInds)
 end
 
 % insert lobular corrections!
-% dorsal stream needs vertices anterior to S1 removed, lateral to S1 removed, and inferior to V1 removed
+% real in pial for euclidean approximation
+surfL = [SubjectsFolder '/lh.pial'];
+% surface topography
+[vx_l, faces_l] = read_surf(surfL);
+% +1 the faces: begins indexing at 0
+faces_l = faces_l + 1;
+% update centroids to pial surface
+CalcFis_cent=mean(vx_l(CalcFisLocs,:));
+M1_cent=mean(vx_l(M1Locs,:));
+S1_cent=mean(vx_l(S1Locs,:));
+Insula_cent=mean(vx_l(InsulaLocs,:));
+TempPole_cent=mean(vx_l(TempPoleLocs,:));
+SubPari_cent=mean(vx_l(SubPariLocs,:));
+SubOrb_cent=mean(vx_l(SubOrbLocs,:));
+% dorsal stream needs vertices anterior to S1 removed and inferior to V1 removed
+% anterior to s1 removal purely by masking out central sulcus
+CSInd=ct.table(47,5);
+CSLocs=find(label==CSInd);
+refStreams(CSLocs,:,1)=0;
+% inferior to V1 removed, 3 for z dimension
+DStreamInds_tooInf=DStreamInds(vx_l(DStreamInds,3)<(CalcFis_cent(3)));
+refStreams(DStreamInds_tooInf,:,1)=0;
+
 % ventral stream needs vertices superior to V1 removed
+VStreamInds_tooSup
+
 % Insular needs medial vertices removed
+
 % medial anterior needs lateral vertices removed
+
 % medial posterior needs lateral vertices removed
+
 % all could benefit from a vector smooth
