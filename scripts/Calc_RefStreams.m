@@ -393,4 +393,5 @@ DsurfL_ma(M1Locs)=1;
 DsurfL_ma(SubOrbLocs)=2;
 Vis_Surf_n_Vecfield(DsurfL_ma,DsurfR,refStreams(:,:,5),refStreams(:,:,5),'~/MedialAnterior_Stream.png')
 
-% all could benefit from a vector smooth
+% save out reference streams
+save(['/scratch/users/apines/refStreams.mat'],'refStreams')

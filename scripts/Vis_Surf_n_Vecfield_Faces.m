@@ -16,6 +16,10 @@ faces_r = faces_r + 1;
 F_L=faces_l;
 % vertices V
 V_L=vx_l;
+% Get incenters of triangles.
+TR = TriRep(faces_l, vx_l);
+P = TR.incenters;
+
 % faces_R
 F_R=faces_r;
 % vertices V
@@ -120,7 +124,8 @@ figure
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 hold on;
-quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
+% P from incenters up top
+quiver3D(P(:,1),P(:,2),P(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 view([90 0]);
 colormap(custommap)
 daspect([1 1 1]);
@@ -141,8 +146,7 @@ view([90 0]);
 hold on;
 colormap(custommap);
 caxis([mincol; maxcol]);
-% removing upscaling vector field so vectors are locked to vertices
-bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
+bplot=quiver3D(P(:,1),P(:,2),P(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 daspect([1 1 1]);
 axis tight;
 rotate(aplot, [0 0 1], 180)
