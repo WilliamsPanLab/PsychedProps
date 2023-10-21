@@ -272,19 +272,24 @@ for k=1:6
         % average for this network before proceeding to next network loop
         % AllAngs=[NangDs_R(:)' NangDs_L(:)'];
         % average left-hemisphere values over time and plop into facematrix for this participant
-        faceMatrix(InclLeft,k,lenOpFl)=NangDs_L;
+        faceMatrix(InclLeft,k,:)=NangDs_L;
         % faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
         % and time series population
 	OutTs_L=NangDs_L;
 	%OutTs_R=NangDs_R;
 	% average angular distances across hemispheres
         % avgD=mean(AllAngs);
-        avgD=mean(NangDs_L);
+        avgD=mean(mean(NangDs_L));
 	Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['AngD' num2str(k)]];
 	SDstringVec=[stringVecSD ['AngSD' num2str(k)]];
 end
+% because base table functions get fussy
+restoredefaultpath
+%%% OMITTING RIGHT HEMISPHERE FOR NOW
+faceMatrix=faceMatrix(1:length(g_noMW_combined_L),:,:);
+
 % save out as csv
 T=table(Propvec','RowNames',stringVec);
 % calc outFP
@@ -292,7 +297,7 @@ outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 % write out
 writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix_gro.csv'])
+writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix.csv'])
 % save out time series
 writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_Prop_TS_L.csv'])
 %writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_Prop_TS_R.csv'])
