@@ -298,6 +298,8 @@ outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
 writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix.csv'])
+% savemat version
+save(['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix.mat'],'faceMatrix')
 % save out time series
 writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_Prop_TS_L.csv'])
 %writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_Prop_TS_R.csv'])
