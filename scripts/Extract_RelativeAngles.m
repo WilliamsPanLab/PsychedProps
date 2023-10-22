@@ -4,10 +4,13 @@ function Extract_RelativeAngles(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
-
 % Load in fsav4 opflow calc
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
+% if data exists
+if exist(datafp,'file')
+%%%%%%
+
 data=load(datafp)
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
@@ -303,3 +306,7 @@ save(['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix.
 % save out time series
 writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_Prop_TS_L.csv'])
 %writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_Prop_TS_R.csv'])
+% if data doesnt exist
+else
+	disp('file not found')
+end

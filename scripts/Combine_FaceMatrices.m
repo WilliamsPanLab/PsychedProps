@@ -1,7 +1,7 @@
 % combine angular distance from reference streams across subjects
 subjects = {'sub-MDMA001', 'sub-MDMA002', 'sub-MDMA003', 'sub-MDMA005', 'sub-MDMA007', 'sub-MDMA008', 'sub-MDMA009', 'sub-MDMA011', 'sub-MDMA012', 'sub-MDMA013', 'sub-MDMA014', 'sub-MDMA015', 'sub-MDMA016', 'sub-MDMA017'};
 sessions = {'ses-00'};
-tasks = {'rs1', 'rs2'};
+tasks = {'rs1', 'rs2','gambling','emotion','wm'};
 % initialize a histc counts matrix for each stream: 17 angular bins (0-10 degrees, 10-20 degrees, etc.)
 DMNcounts=zeros(18,14);
 Dorsalcounts=zeros(18,14);
@@ -27,6 +27,8 @@ for subcell=subjects
 			task=taskcell{1};
 			% load in data
 			fp=['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix.mat'];
+			% if file exists
+			if exist(fp,'file')
 			faceMatrix=load(fp).faceMatrix;
 			% stream 1, DMN
 			st1=faceMatrix(:,1,:);
@@ -54,6 +56,10 @@ for subcell=subjects
 			MedPost = MedPost(MedPost~=0);
 			MedAnt = [MedAnt st6(:)'];
 			MedAnt = MedAnt(MedAnt~=0);
+			% if it doesnt exist
+			else
+				disp('no file found')
+			end
 		end
 	end
 	% get counts

@@ -10,7 +10,10 @@ for subjectCell = subjects
         session = sessionCell{1};
         
 	% Call the function with Extract_RelativeAngles(subject, session, 'rs1')
-	Extract_RelativeAngles(subject, session, 'rs1');
-	Extract_RelativeAngles(subject, session, 'rs2');
+	%Extract_RelativeAngles(subject, session, 'rs1');
+	%Extract_RelativeAngles(subject, session, 'rs2');
+	Extract_RelativeAngles(subject, session, 'gambling');
+	Extract_RelativeAngles(subject, session, 'emotion');
+	Extract_RelativeAngles(subject, session, 'wm');
     end
 end
