@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=simStreamComb
-#SBATCH --time=20:50:00
-#SBATCH -n 4
+#SBATCH --time=48:00:00
+#SBATCH -n 1
 #SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
@@ -18,5 +18,14 @@ module load freesurfer/7.3.2
 # and workbench
 module load workbench
 
-# aggregate info
-matlab -nodisplay -r "SigTestGroupStreams"
+# subject name is input argument
+subj=$1
+# sesh is input 2
+sesh=$2
+
+# run matlab
+matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','wm')"
+matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','emotion')"

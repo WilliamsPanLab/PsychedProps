@@ -47,17 +47,17 @@ g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=zeros(1,5120);
-data(g_noMW_combined_L)=FaceVecL;
-
+%data(g_noMW_combined_L)=FaceVecL;
+data=FaceVecL;
 %%%%%%% fixed colorscale varities
 
 
 %%% for red/blue 0-centered
-mincol=-10;
-maxcol=10;
+mincol=-1;
+maxcol=1;
 custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-custommap(126,:)=[.5 .5 .5];
+%custommap(126,:)=[.5 .5 .5];
 
 % blue-orange color scheme
 %BO_cm=inferno(9);
@@ -165,8 +165,8 @@ set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 %%% right hemisphere
 data=zeros(1,5120);
-data(g_noMW_combined_R)=FaceVecR;
-
+%data(g_noMW_combined_R)=FaceVecR;
+data=FaceVecR;
 [vertices, faces] = freesurfer_read_surf(surfR);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
@@ -210,7 +210,7 @@ set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
 set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-%c=colorbar;
+c=colorbar;
 %c=colorbar('XTickLabel',{'.45', '.50', '.55'},'XTick', .45:.05:.55)
 %c.Location='southoutside'
 %colormap(custommap)
