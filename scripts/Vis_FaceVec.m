@@ -32,7 +32,6 @@ mw_L(mwIndVec_l)=1;
 mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 % convert to faces
-% convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
 % convert "partial" medial wall to medial wall
@@ -53,9 +52,10 @@ data=FaceVecL;
 
 
 %%% for red/blue 0-centered
-mincol=-1;
-maxcol=1;
+mincol=min(data);
+maxcol=max(data);
 custommap=colormap(b2r(mincol,maxcol));
+custommap=colormap('jet');
 % abscense of color to gray to accom. lighting "none"
 %custommap(126,:)=[.5 .5 .5];
 

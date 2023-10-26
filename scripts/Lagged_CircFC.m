@@ -147,8 +147,8 @@ for F=1:length(UpperCoords_x);
 	% get x and y coord
 	Xcoord=UpperCoords_x(F);
 	Ycoord=UpperCoords_y(F);
-	% inquire across possible delays: 7trs is 5 seconds in both directions %%%%%@@@@@@@@@@@@@@@2 
-	for delay=-7:7
+	% inquire across possible delays 
+	for delay=-4:4
 		% Determine the start and end indices for the overlapping portion
 		start_index = max(1, 1 - delay);
 		end_index = min(lenOpFl, lenOpFl - delay);
@@ -184,10 +184,10 @@ end
 % divide by total number of TRs
 mCFC_L=mCFC_L./fullLength;
 % mirror
-CFC_L=triu(CFC_L)+triu(CFC_L,1)';
+mCFC_L=triu(mCFC_L)+triu(mCFC_L,1)';
 CFC_R=triu(CFC_R)+triu(CFC_R,1)';
 % mask mw 0s out
-CFC_L=CFC_L(g_noMW_combined_L,g_noMW_combined_L);
+mCFC_L=mCFC_L(g_noMW_combined_L,g_noMW_combined_L);
 %CFC_R=CFC_R(g_noMW_combined_R,g_noMW_combined_R);
 % saveout
 %adjMats=struct('L',{CFC_L},'R',{CFC_R});
