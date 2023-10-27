@@ -1,4 +1,4 @@
-% Load your data
+% Load data
 above = load('/scratch/users/apines/SimStreams/Group_sigStreams_a.mat');
 below = load('/scratch/users/apines/SimStreams/Group_sigStreams_b.mat');
 
@@ -9,18 +9,21 @@ adjmat_below = below.sig_Streams_Below;
 A = adjmat_above - adjmat_below;
 
 % 100 iterations of louvain
-num_iterations = 100;
+num_iterations = 1000;
 % the number of nodes
 num_nodes = size(A, 1); 
 
 % Initialize the co-occurrence matrix
 co_occurrence_matrix = zeros(num_nodes);
-
+% keep track of q across iterations
+qs=zeros(1,1000);
+commAffs=zeros(num_nodes,1000);
 % for each louvain iteration
 for iter = 1:num_iterations
     % Run Louvain community detection
-    CommAff = community_louvain(A, 1, [], 'negative_asym');
-    
+    [CommAff,q] = community_louvain(A, 1, [], 'negative_asym');
+    qs(iter)=q;
+    commAffs(:,iter)=CommAff;
     % Update the co-occurrence matrix based on community assignments
     for i = 1:num_nodes
         for j = 1:num_nodes
@@ -31,50 +34,36 @@ for iter = 1:num_iterations
     end
 end
 
+% Find the solution with the maximum sum of MI (most consistent with others)
+[best_q, best_solution_idx] = max(qs);
+best_solution = commAffs(:, best_solution_idx);
+
+
 
 
 
 % consider a transparent cortical surface with edges between vertices drawn (color-coded by 
 
 
-
-
-
 % Define a threshold for co-occurrence
-threshold = 0.90 * num_iterations;
+threshold = 0.80 * num_iterations;
 
 % Create a vector to store labels for groups of nodes
-group_labels = zeros(1, num_nodes);
-% group multi-membership
-group_mm = zeros(1,num_nodes);
-% Initialize group counter
-group_counter = 1;
-
+zerolabs=zeros(num_nodes,1);
 % for each node
 for node = 1:num_nodes
-	% Count the number of links for the current node
-        num_links = sum(co_occurrence_matrix(node, :) >= threshold);
-        % if it has enough links to resemble a community
-        if num_links >= 20
-		% note if the vertex has a membership already
-    		if group_labels(node) == 0
-        		% Assign the current node to a new group
-       			group_labels(node) = group_counter;
-	
-	            	% Check other nodes for consistency and assign them to the same group
-	            	for other_node = (node + 1):num_nodes
-	            	    if co_occurrence_matrix(node, other_node) >= threshold
-	            	        group_labels(other_node) = group_counter;
-	            	    end
-	            	end
-
-	            	% Increment the group counter
-	            	group_counter = group_counter + 1;
-        	end
-    	end
+	% get this nodes community indices in best_solution
+	nodeComm=best_solution(node);
+	commInds=find(best_solution==nodeComm);
+	% get nodal value of co-occurence in communities in this matrix
+	nodalCoOc=sum(co_occurrence_matrix(node,commInds));
+	% retain thoose only greater than threshold
+	if nodalCoOc<(length(commInds)*threshold)
+		zerolabs(node)=1;
+	end
 end
-% note where group labels are still zero
-zerolabs=find(group_labels==0);
+% update winning community structure
+best_solution(logical(zerolabs))=0;
 
 % load in a medial wall set of vertices 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
@@ -100,10 +89,8 @@ nonMW_R=setdiff(1:2562,mwIndVec_r);
 % initialize a visualization vector
 VertVec=zeros(1,2562);
 % plop in communities
-VertVec(nonMW_L)=group_labels;
+VertVec(nonMW_L)=best_solution;
+Vis_Vertvec(VertVec,zeros(1,2562),'~/comms_80_coOc.png')
+% save out community structure
+save('~/best_solution.mat','VertVec')
 
-
-Vis_Vertvec(VertVec,zeros(1,2562),'~/comms.png')
-
-
-% figure out a way to multi-label 
