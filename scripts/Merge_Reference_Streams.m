@@ -54,5 +54,12 @@ for referenceStream = 1:12
     ReferenceStreams_L(:, 3, referenceStream) = F_Z(:, referenceStream);
 end
 
+% ensure all reference vectors are parallel to surface of sphere
+
+%%% align vectors in each stream
+% for each vector
+% get opposite-pointing vector
+% see if vector or it's inverse points more towards hierarchical ascent standard
+
 % save out
 save([funcgiiFolder 'group_ReferenceStreams_L.mat'],'ReferenceStreams_L')

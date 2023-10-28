@@ -8,7 +8,7 @@ above = load('/scratch/users/apines/SimStreams/Group_sigStreams_a.mat').sig_Stre
 % get stream directionality
 % load in surface for euclidean locations
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
-surfL = [SubjectsFolder '/lh.inflated'];
+surfL = [SubjectsFolder '/lh.sphere'];
 [vx_l, faces_l] = read_surf(surfL);
 % medial wall
 surfML = [SubjectsFolder '/lh.Medial_wall.label'];
