@@ -92,5 +92,5 @@ VertVec=zeros(1,2562);
 VertVec(nonMW_L)=best_solution;
 Vis_Vertvec(VertVec,zeros(1,2562),'~/comms_80_coOc.png')
 % save out community structure
-save('~/best_solution.mat','VertVec')
+save('~/best_solution.mat','best_solution')
 
