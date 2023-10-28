@@ -57,8 +57,33 @@ MWvectorscores(nonMW_L,3)=vectorScores(:,3);
 % make a full vector with MW zeroed
 vertvec=zeros(2562,1);
 vertvec(nonMW_L)=bestcomms;
-% set comms to 1
-vertvec(find(vertvec))=1;
+
+% get number of unique communities (0 as non-affiliated counts as a comm)
+numComs=length(unique(vertvec));
+
+% get original community labels
+OGlabs=unique(vertvec);
+Newlabs=zeros(2562,1);
+% make a community-dimensional vector field to use for reference vectors
+ComDimVF=zeros(2562,3,numComs);
+% re-label communities
+for c=2:numComs
+	commlabvec=zeros(2562,1);
+	commlabvec(vertvec==OGlabs(c))=.3;
+	sum(commlabvec)
+	% convert to rgb format
+	commlabvec=[commlabvec commlabvec commlabvec];
+	%Vis_Surf_n_Vecfield(commlabvec,zeros(2562,1),MWvectorscores,zeros(2562,3),['~/vRefvecs_' num2str(c) '.png'])
+
+	% populate comdimvf
+	ComDimVF(vertvec==OGlabs(c),1,c)=MWvectorscores(vertvec==OGlabs(c),1);
+	ComDimVF(vertvec==OGlabs(c),2,c)=MWvectorscores(vertvec==OGlabs(c),2);
+	ComDimVF(vertvec==OGlabs(c),3,c)=MWvectorscores(vertvec==OGlabs(c),3);
+end
+
+
+% save out vertex-wise referefence vectors
+save('~/vertexwise_RefVecs.mat','ComDimVF')
 
 % print out a version
 Vis_Surf_n_Vecfield(vertvec,zeros(2562,1),MWvectorscores,zeros(2562,3),'~/bestcomms_vecs.png')

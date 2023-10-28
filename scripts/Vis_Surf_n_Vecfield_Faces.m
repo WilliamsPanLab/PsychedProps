@@ -1,4 +1,4 @@
-function Vis_Surf_n_Vecfield(surfl,surfr,vecl,vecr,Fn) 
+function Vis_Surf_n_Vecfield_Faces(surfl,surfr,vecl,vecr,Fn) 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 % designed for fsaverage4 surface
 VertVecL=surfl;
@@ -28,9 +28,11 @@ V_R=vx_r;
 %%%%%%%%%%%%%%%%%%%%%%%%
 % set data in the plotting script's terms
 data=VertVecL;
-ret=vecl;
+ret=VecNormalize(vecl);
+% replace nans with 0
+ret(isnan(ret))=0;
 % vector scaling factor
-scalingfactor=4;
+scalingfactor=2;
 % colors
 mincol=0;
 maxcol=max(VertVecL(:));
@@ -137,7 +139,7 @@ camlight;
 
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=VertVecL;
-aplot.FaceAlpha=.8;
+aplot.FaceAlpha=.3;
 
 % other view of left hemisphere (lateral)
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
@@ -160,9 +162,9 @@ camlight;
 
 % insert RGB colors onto surface
 aplot.FaceVertexCData=VertVecL;
-aplot.FaceAlpha=.8;
+aplot.FaceAlpha=.3;
 % printout
-print(Fn,'-dpng','-r1000')
+print(Fn,'-dpng','-r2000')
 
 
 

@@ -5,19 +5,6 @@ addpath(genpath(ToolFolder));
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/lukaslang-ofd-614a2ffc50d6'))
 % this participant's filepath
 funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/'];
-netgiis_L=[funcgiiFolder 'group_L_AggNets_3k.func.gii'];
-netgiis_R=[funcgiiFolder 'group_R_AggNets_3k.func.gii'];
-% load in functional networks: Left
-Lnets=gifti(netgiis_L);
-% load in functional networks: Right
-Rnets=gifti(netgiis_R);
-% set to 4 networks
-Lnets=Lnets.cdata(:,1:4);
-Rnets=Rnets.cdata(:,1:4);
-% select DMN, k=2
-DMNL=Lnets(:,2);
-% boolean out areas less than .3 DMN
-DMNL(DMNL<0.3)=0;
 
 % Left only for now
 
@@ -32,24 +19,19 @@ faces_l = faces_l + 1;
 F_L=faces_l;
 % vertices V
 V_L=vx_l;
-% get gradient of DMN
-DMNGrad = grad(F_L, V_L, DMNL);
 
 % load in manual reference streams
-ManRef=load('/scratch/users/apines/refStreams.mat');
-ManRef=ManRef.refStreams;
-ReferenceStreams_L=zeros(5120,3,6);
-
-% DMN
-ReferenceStreams_L(:,:,1)=DMNGrad;
+ManRef=load('~/vertexwise_RefVecs.mat');
+ManRef=ManRef.ComDimVF;
+ReferenceStreams_L=zeros(5120,3,12);
 
 % Initialize arrays to store the face-wise values for x, y, and z components
-F_X = zeros(size(F_L, 1), size(ManRef, 3));
-F_Y = zeros(size(F_L, 1), size(ManRef, 3));
-F_Z = zeros(size(F_L, 1), size(ManRef, 3));
+F_X = zeros(size(F_L, 1), 12);
+F_Y = zeros(size(F_L, 1), 12);
+F_Z = zeros(size(F_L, 1), 12);
 
 % Convert vertex-wise values to face-wise values for each reference stream
-for referenceStream = 1:5
+for referenceStream = 1:12
     for faceIdx = 1:size(F_L, 1)
         vertexIndices = F_L(faceIdx, :);  % Vertex indices for the current face
         % Compute the average x, y, and z components for the current face and reference stream
@@ -65,12 +47,11 @@ for referenceStream = 1:5
 end
 
 % plug these values into referenceStreams_L
-for referenceStream = 1:5
+for referenceStream = 1:12
     % Assign the converted values to the referenceStreams_L array
-    % +1 because slot 1 is dmn
-    ReferenceStreams_L(:, 1, referenceStream+1) = F_X(:, referenceStream);
-    ReferenceStreams_L(:, 2, referenceStream+1) = F_Y(:, referenceStream);
-    ReferenceStreams_L(:, 3, referenceStream+1) = F_Z(:, referenceStream);
+    ReferenceStreams_L(:, 1, referenceStream) = F_X(:, referenceStream);
+    ReferenceStreams_L(:, 2, referenceStream) = F_Y(:, referenceStream);
+    ReferenceStreams_L(:, 3, referenceStream) = F_Z(:, referenceStream);
 end
 
 % save out

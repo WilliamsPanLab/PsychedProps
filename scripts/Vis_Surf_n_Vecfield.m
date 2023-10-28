@@ -124,7 +124,7 @@ camlight;
 
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=data;
-aplot.FaceAlpha=.9;
+aplot.FaceAlpha=.3;
 
 % other view of left hemisphere (lateral)
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
@@ -148,7 +148,7 @@ camlight;
 
 % insert RGB colors onto surface
 aplot.FaceVertexCData=data;
-aplot.FaceAlpha=.9;
+aplot.FaceAlpha=.3;
 % printout
 print(Fn,'-dpng','-r2000')
 
