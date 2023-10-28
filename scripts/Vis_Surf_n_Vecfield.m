@@ -69,7 +69,7 @@ RGBValues=(vecl+abs(minVal))./(maxVal+abs(minVal));
 
 % flatten vectors to surface
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.sphere']);
 % make VertVecL parallel to pial surface as "ret"
 % for each vector, subtract weighted surface-orthogonal component from original vector
 for v=1:length(vertices)
