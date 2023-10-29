@@ -54,37 +54,6 @@ for referenceStream = 1:12
     ReferenceStreams_L(:, 3, referenceStream) = F_Z(:, referenceStream);
 end
 
-% ensure all reference vectors are parallel to surface of sphere
-% for each stream
-for referenceStream = 1:12
-        % for each face
-        for f=1:length(F_L)
-                % retrieve original vector
-                OGvec=ReferenceStreams_L(f,:,referenceStream);
-                % if reference stream is >0
-                if OGvec(1)>0
-                        % find the three faces involved in this vertex
-                        InvolvedFace=F_L(f);
-                        % get normal vectors of each involved face
-                        normalVectors = cross(vertices(faces(InvolvedFace, 2), :) - vertices(faces(InvolvedFace, 1), :), vertices(faces(InvolvedFace, 3), :) - vertices(faces(InvolvedFace, 1), :));
-                        % find vector as close as possible to orthogonal from these three faces
-                        meanNormalVector = mean(normalVectors, 1);
-                        % normalize normal vector
-                        meanNormalVector=VecNormalize(meanNormalVector);
-                        % get dot product of orthogonal vector and original vector
-                        OGvecOrthogonal = dot(OGvec, meanNormalVector) * meanNormalVector;
-                        % subtract orthogonal component of original vector from original vector
-                        modVec = OGvec - OGvecOrthogonal;;
-                        % add modified vector to initialized matrix
-                        ReferenceStreams_L(v,:,referemceStream)=VecNormalize(modVec);
-                % if its a zero vector
-                else
-                end
-        end
-end
-% test visualization
-Vis_Surf_n
-
 %%%%%%% Now, load in cortical landmarks to anchor within-stream directionality
 % read table
 [v,label,ct]=read_annotation('/share/software/user/open/freesurfer/7.4.1/subjects/fsaverage4/label/lh.aparc.a2009s.annot');
@@ -121,22 +90,30 @@ surfL_p = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.pial'];
 
 % extract anteriormost point of OFC stream
 AntInd=find(ReferenceStreams_L(:,1,4));
-% get x y z locations of each face
-
-% get maximal (x?y?z?) location
-[AnteriorMostInd AntMost]=max(ReferenceStreams_L(AntInd,1,4)
+Locations=faces_lp(AntInd,:);
+% make into a vector
+Locations=Locations(:);
+[MaxX,MaxInd]=max(vx_l(Locations,2));
+MaxVert_OFCs=Locations(MaxInd);
 
 % extract anteriormost point of cingulate stream
-% get x y z locations of each face
-% get maximal (x?y?z?) location
+AntInd=find(ReferenceStreams_L(:,1,11));
+Locations=faces_lp(AntInd,:);
+% make into a vector
+Locations=Locations(:);
+[MaxX,MaxInd]=max(vx_l(Locations,2));
+MaxVert_CING=Locations(MaxInd);
 
 % make an array of reference points, xyz coordinates for each reference stream
-
+RefPoints=zeros(12,3);
 %%% set reference point for each stream
 % 1 = null
 % 2 = V1
+RefPoints(2,:)=CalcFis_cent
 % 3 = V1
+RefPoints(3,:)=CalcFis_cent
 % 4 = anteriormost point of ofc stream
+
 % 5 M1
 % 6 PCC
 % 7 = Premotor Eye field

@@ -70,7 +70,6 @@ ComDimVF=zeros(2562,3,numComs);
 for c=2:numComs
 	commlabvec=zeros(2562,1);
 	commlabvec(vertvec==OGlabs(c))=.3;
-	sum(commlabvec)
 	% convert to rgb format
 	commlabvec=[commlabvec commlabvec commlabvec];
 	%Vis_Surf_n_Vecfield(commlabvec,zeros(2562,1),MWvectorscores,zeros(2562,3),['~/vRefvecs_' num2str(c) '.png'])

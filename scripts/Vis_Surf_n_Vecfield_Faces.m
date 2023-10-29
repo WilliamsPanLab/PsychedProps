@@ -4,7 +4,7 @@ addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 VertVecL=surfl;
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
-surfL = [SubjectsFolder '/lh.inflated'];
+surfL = [SubjectsFolder '/lh.sphere'];
 surfR = [SubjectsFolder '/rh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
@@ -119,7 +119,7 @@ custommap = [
 % 0 to gray
 custommap(1,:)=[.5 .5 .5];
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.sphere']);
 
 % begin figure
 figure
