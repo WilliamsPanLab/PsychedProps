@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=5:00:00
+#SBATCH --time=1:00:00
 #SBATCH -n 1
 #SBATCH --mem=20G
 #SBATCH -p leanew1  # Queue names you can submit to

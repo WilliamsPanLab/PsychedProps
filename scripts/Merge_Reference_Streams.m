@@ -54,83 +54,56 @@ for referenceStream = 1:12
     ReferenceStreams_L(:, 3, referenceStream) = F_Z(:, referenceStream);
 end
 
-%%%%%%% Now, load in cortical landmarks to anchor within-stream directionality
-% read table
-[v,label,ct]=read_annotation('/share/software/user/open/freesurfer/7.4.1/subjects/fsaverage4/label/lh.aparc.a2009s.annot');
+% get center of sphere for norming to surface
+sphereCenter=mean(V_L);
 
-% extract ROIs
-CalcFisInd=ct.table(46,5);
-CalcFisLocs=find(label==CalcFisInd);
-M1Ind=ct.table(30,5);
-M1Locs=find(label==M1Ind);
-% need PCC S_subparietal 73
-SubParSulcInd=ct.table(73,5);
-SubParLocs=find(label==SubParSulcInd);
-% need Insula G_Ins_lg_and_S_cent_ins 18
-InsInd=ct.table(18,5);
-InsLocs=find(label==InsInd);
-% need PEF S_precentral-inf-part 70
-PEFInd=ct.table(70,5);
-PEFLocs=find(label==PEFInd);
-% need A1 Transverse temporal sulcus 76
-A1Ind=ct.table(76,5);
-A1Locs=find(label==A1Ind);
-% get centroid locations of each ROI
-CalcFis_cent=mean(vx_l(CalcFisLocs,:));
-M1_cent=mean(vx_l(M1Locs,:));
-SubPar_cent=mean(vx_l(SubParLocs,:));
-Ins_cent=mean(vx_l(InsLocs,:));
-PEF_cent=mean(vx_l(PEFLocs,:));
-A1_cent=mean(vx_l(A1Locs,:));
-
-% will need some locations in real space (pial) for anteriormost point establishment: load in surf
-surfL_p = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.pial'];
-% surface topography
-[vx_lp, faces_lp] = read_surf(surfL);
-
-% extract anteriormost point of OFC stream
-AntInd=find(ReferenceStreams_L(:,1,4));
-Locations=faces_lp(AntInd,:);
-% make into a vector
-Locations=Locations(:);
-[MaxX,MaxInd]=max(vx_l(Locations,2));
-MaxVert_OFCs=Locations(MaxInd);
-
-% extract anteriormost point of cingulate stream
-AntInd=find(ReferenceStreams_L(:,1,11));
-Locations=faces_lp(AntInd,:);
-% make into a vector
-Locations=Locations(:);
-[MaxX,MaxInd]=max(vx_l(Locations,2));
-MaxVert_CING=Locations(MaxInd);
-
-% make an array of reference points, xyz coordinates for each reference stream
-RefPoints=zeros(12,3);
-%%% set reference point for each stream
-% 1 = null
-% 2 = V1
-RefPoints(2,:)=CalcFis_cent
-% 3 = V1
-RefPoints(3,:)=CalcFis_cent
-% 4 = anteriormost point of ofc stream
-
-% 5 M1
-% 6 PCC
-% 7 = Premotor Eye field
-% 8 = insula
-% 9 = insula
-% 10 = A1
-% 11 = anteriormost point of cingulate stream
-% 12 = V1
-
-%%% align vectors in each stream
-% for each stream
-for referenceStream = 1:12
-% for each vector
-        for f=1:length(F_L)
-% get opposite-pointing vector
-% see if vector or it's inverse points more towards hierarchical ascent standard
-
-% save out
-save([funcgiiFolder 'group_ReferenceStreams_L.mat'],'ReferenceStreams_L')
-
+% get mean directionality of each stream to anchor invidivual vectors
+MeanVecs=zeros(12,3);
+for referenceStream = 2:12
+	RefVecs=ReferenceStreams_L(:,:,referenceStream);
+	ExtantVecs=find(RefVecs(:,1));
+	MeanVecs(referenceStream,:)=mean(RefVecs(ExtantVecs,:));
+	% now that we have a normative direction for each stream, re-align each vector to be itself or its inverse, whichever is more aligned with normative direction
+	for faceIdx = 1:size(F_L, 1)
+		% if its a non-zero vector
+		if sum(abs(ReferenceStreams_L(faceIdx,:,referenceStream)))>0
+			% get face's vector
+			fvec=ReferenceStreams_L(faceIdx,:,referenceStream);
+			%%% parallelize to surface
+			Curvertices = V_L(F_L(faceIdx, :), :);
+			% Calculate the midpoint of the current face
+			midpoint = mean(Curvertices);
+			% vector to current position and sphere origin
+			vectorToMidpoint = midpoint - sphereCenter;
+			% Calculate the unit normal vector at the midpoint
+			normalVector = vectorToMidpoint / norm(vectorToMidpoint);
+			% Calculate the dot product between the vector and the normal vector
+			dotProduct = dot(fvec, normalVector);
+			% Calculate the orthogonal component of the vector
+			orthogonalComponent = dotProduct * normalVector;
+			% Calculate the vector parallel to the sphere's surface
+			vectorParallelToSurface = fvec - orthogonalComponent;
+			% get dot product of mean stream direction and current vector
+			dotProductSphereSurf=dot(vectorParallelToSurface,MeanVecs(referenceStream, :));
+			% and inverse
+			ifvec=-1*vectorParallelToSurface;
+			% see which is closer, sub it into OG
+			dotProductInverse = dot(ifvec, MeanVecs(referenceStream, :));
+			% larger dot product indicates greater alignment
+			if dotProductSphereSurf < dotProductInverse
+				 ReferenceStreams_L(faceIdx, :, referenceStream) = ifvec;
+			else
+				ReferenceStreams_L(faceIdx, :, referenceStream) = vectorParallelToSurface;
+			end
+		else
+		end
+	end
+	% make a face-wise vector just to fulfill script requirements
+	dummyvec=zeros(5120,1);
+	dummyvec(10)=1;
+	% visualize
+	Vis_Surf_n_Vecfield_Faces(dummyvec,dummyvec,ReferenceStreams_L(:, :, referenceStream),ReferenceStreams_L(:, :, referenceStream),['~/MeanDir_aligned_' num2str(referenceStream) '.png']);
+	pause(10)
+end
+% saveout
+save([funcgiiFolder 'goup_ReferenceStreams_L.mat'],'ReferenceStreams_L')

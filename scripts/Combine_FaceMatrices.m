@@ -3,16 +3,20 @@ subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 
 % combine angular distance from reference streams across subjects
 subjects = {'sub-MDMA001', 'sub-MDMA002', 'sub-MDMA003', 'sub-MDMA005', 'sub-MDMA007', 'sub-MDMA008', 'sub-MDMA009', 'sub-MDMA011', 'sub-MDMA012', 'sub-MDMA013', 'sub-MDMA014', 'sub-MDMA015', 'sub-MDMA016', 'sub-MDMA017'};
-sessions = {'ses-00'};
 tasks = {'rs1', 'rs2','gambling','emotion','wm'};
 % initialize a histc counts matrix for each stream: 17 angular bins (0-10 degrees, 10-20 degrees, etc.)
 % last dimension (3) is for the 3 different sessions
-DMNcounts=zeros(18,14,3);
-Dorsalcounts=zeros(18,14,3);
-Ventralcounts=zeros(18,14,3);
-Insularcounts=zeros(18,14,3);
-MedPostcounts=zeros(18,14,3);
-MedAntcounts=zeros(18,14,3);
+VMmedcounts=zeros(18,14,3);
+Dcounts=zeros(18,14,3);
+OFCcounts=zeros(18,14,3);
+PostMedMotcounts=zeros(18,14,3);
+PostMedPCCcounts=zeros(18,14,3);
+AntLatMotcounts=zeros(18,14,3);
+SupInscounts=zeros(18,14,3);
+InfInscounts=zeros(18,14,3);
+AudCounts=zeros(18,14,3);
+MidCingcounts=zeros(18,14,3);
+VMlatcounts=zeros(18,14,3);
 
 iterator=0
 % get subj list
@@ -35,13 +39,18 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	for sessioncell=seshArray
 		% update session iterator
 		seshIterator=seshIterator+1;
-		% initialize DMN, Dorsal Stream, Ventral Stream, Insular Stream, Medial Posterior, and Medial Anterior streams
-		DMN = [];
-		Dorsal = [];
-		Ventral = [];
-		Insular = [];
-		MedPost = [];
-		MedAnt = [];
+		% initialize streams
+		VMmed = [];
+		D = [];
+		OFC = [];
+		PostMedMot = [];
+		PostMedPCC = [];
+		AntLatMot = [];
+		SupIns = [];
+		InfIns = [];
+		Aud = [];
+		MidCing = [];
+		VMlat = [];
 		sesh=sessioncell{1};
 		for taskcell=tasks
 			task=taskcell{1};
@@ -50,32 +59,52 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 			% if file exists
 			if exist(fp,'file')
 			faceMatrix=load(fp).faceMatrix;
-			% stream 1, DMN
-			st1=faceMatrix(:,1,:);
+			% first non-zero stream is ventral (medial)
+			st1=faceMatrix(:,2,:);
 			% dorsal stream
-			st2=faceMatrix(:,2,:);
-			% ventral stream
-	                st3=faceMatrix(:,3,:);
-			% insular stream
-                        st4=faceMatrix(:,4,:);
+			st2=faceMatrix(:,3,:);
+			% OFC stream
+	                st3=faceMatrix(:,4,:);
+			% Premotor
+                        st4=faceMatrix(:,5,:);
                         % posterior medial stream
-                        st5=faceMatrix(:,5,:);
-                        % anterior medial stream
-                        st6=faceMatrix(:,6,:);
+                        st5=faceMatrix(:,6,:);
+                        % premotor antlateral
+                        st6=faceMatrix(:,7,:);
+			% superior insular
+			st7=faceMatrix(:,8,:);
+			% inferior insular
+			st8=faceMatrix(:,9,:);
+			% audtiory
+			st9=faceMatrix(:,10,:);
+			% mid cingulate
+			st10=faceMatrix(:,11,:);
+			% ventral (lateral)
+			st11=faceMatrix(:,12,:);
 			% insert 1st dimension into DMN vector, 2nd to Dorsal, etc.
-			DMN = [DMN st1(:)'];
+			VMmed = [VMmed st1(:)'];
+			D = [D st2(:)'];
+			OFC = [OFC st3(:)'];
+			PostMedMot = [PostMedMot st4(:)'];
+			PostMedPCC = [PostMedPCC st5(:)'];
+			AntLatMot = [AntLatMot st6(:)'];
+			SupIns = [SupIns st7(:)'];
+			InfIns = [InfIns st8(:)'];
+			Aud = [Aud st9(:)'];
+			MidCing = [MidCing st10(:)'];
+			VMlat = [VMlat st11(:)'];
 			% eliminate null/0 values
-			DMN = DMN(DMN~=0);
-			Dorsal = [Dorsal st2(:)'];
-			Dorsal = Dorsal(Dorsal~=0);
-			Ventral = [Ventral st3(:)'];
-			Ventral = Ventral(Ventral~=0);
-			Insular = [Insular st4(:)'];
-			Insular = Insular(Insular~=0);
-			MedPost = [MedPost st5(:)'];
-			MedPost = MedPost(MedPost~=0);
-			MedAnt = [MedAnt st6(:)'];
-			MedAnt = MedAnt(MedAnt~=0);
+			VMmed = VMmed(VMmed~=0);
+			D = D(D~=0);
+			OFC = OFC(OFC~=0);
+			PostMedMot = PostMedMot(PostMedMot~=0);
+			PostMedPCC = PostMedPCC(PostMedPCC~=0);
+			AntLatMot = AntLatMot(AntLatMot~=0);
+			SupIns = SupIns(SupIns~=0);
+			InfIns = InfIns(InfIns~=0);
+			Aud = Aud(Aud~=0);
+			MidCing = MidCing(MidCing~=0);
+			VMlat = VMlat(VMlat~=0);
 			% if it doesnt exist
 			else
 				fp
@@ -83,40 +112,66 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 			end
 		end
 		% get counts
-		DMNcount=histc(DMN,0:10:180);
-		DMNcounts(:,iterator,seshIterator)=DMNcount(1:18);
-		Dorsalcount=histc(Dorsal,0:10:180);
-        	Dorsalcounts(:,iterator,seshIterator)=Dorsalcount(1:18);
-		Ventralcount=histc(Ventral,0:10:180);
-        	Ventralcounts(:,iterator,seshIterator)=Ventralcount(1:18);
-		Insularcount=histc(Insular,0:10:180);
-        	Insularcounts(:,iterator,seshIterator)=Insularcount(1:18);
-		MedPostcount=histc(MedPost,0:10:180);
-        	MedPostcounts(:,iterator,seshIterator)=MedPostcount(1:18);
-		MedAntcount=histc(MedAnt,0:10:180);
-        	MedAntcounts(:,iterator,seshIterator)=MedAntcount(1:18);	
-	% end session
+		VMmedcount=histc(VMmed,0:10:180);
+		VMmedcounts(:,iterator,seshIterator)=VMmedcount(1:18);
+		Dcount=histc(D,0:10:180);
+        	Dcounts(:,iterator,seshIterator)=Dcount(1:18);
+		OFCcount=histc(OFC,0:10:180);
+        	OFCcounts(:,iterator,seshIterator)=OFCcount(1:18);
+		PostMedMotcount=histc(PostMedMot,0:10:180);
+        	PostMedMotcounts(:,iterator,seshIterator)=PostMedMotcount(1:18);
+		PostMedPCCcount=histc(PostMedPCC,0:10:180);
+        	PostMedPCCcounts(:,iterator,seshIterator)=PostMedPCCcount(1:18);
+		AntLatMotcount=histc(AntLatMot,0:10:180);
+        	AntLatMotcounts(:,iterator,seshIterator)=AntLatMotcount(1:18);	
+		SupInscount=histc(SupIns,0:10:180);
+		SupInsMotcounts(:,iterator,seshIterator)=SupInscount(1:18);
+		InfInscount=histc(InfIns,0:10:180);
+                InfInscounts(:,iterator,seshIterator)=InfInscount(1:18);
+		Audcount=histc(Aud,0:10:180);
+                Audcounts(:,iterator,seshIterator)=Audcount(1:18);
+		MidCingcount=histc(MidCing,0:10:180);
+                MidCingcounts(:,iterator,seshIterator)=MidCingcount(1:18);
+		VMlatcount=histc(VMlat,0:10:180);
+                VMlatcounts(:,iterator,seshIterator)=VMlatcount(1:18);
+	% end session iteration
 	end
 % end subject
 end
 % saveout placebo
-writetable(table(DMNcounts(:,:,1)),'~/str_pl_DMNcounts.csv');
-writetable(table(Dorsalcounts(:,:,1)),'~/str_pl_DScounts.csv');
-writetable(table(Ventralcounts(:,:,1)),'~/str_pl_VScounts.csv');
-writetable(table(Insularcounts(:,:,1)),'~/str_pl_INScounts.csv');
-writetable(table(MedPostcounts(:,:,1)),'~/str_pl_MPcounts.csv');
-writetable(table(MedAntcounts(:,:,1)),'~/str_pl_MAcounts.csv');
+writetable(table(VMmedcounts(:,:,1)),'~/str_pl_VMcounts.csv');
+writetable(table(Dcounts(:,:,1)),'~/str_pl_Dcounts.csv');
+writetable(table(OFCcounts(:,:,1)),'~/str_pl_OFCcounts.csv');
+writetable(table(PostMedMotcounts(:,:,1)),'~/str_pl_PMMOTcounts.csv');
+writetable(table(PostMedPCCcounts(:,:,1)),'~/str_pl_PMPCCcounts.csv');
+writetable(table(AntLatMotcounts(:,:,1)),'~/str_pl_ALMcounts.csv');
+writetable(table(SupInscounts(:,:,1)),'~/str_pl_SIcounts.csv');
+writetable(table(InfInscounts(:,:,1)),'~/str_pl_IIcounts.csv');
+writetable(table(Audcounts(:,:,1)),'~/str_pl_Acounts.csv');
+writetable(table(MidCingcountscounts(:,:,1)),'~/str_pl_MCcounts.csv');
+writetable(table(VMlatcounts(:,:,1)),'~/str_pl_VLcounts.csv');
 % save out 80 mg
-writetable(table(DMNcounts(:,:,2)),'~/str_m8_DMNcounts.csv');
-writetable(table(Dorsalcounts(:,:,2)),'~/str_m8_DScounts.csv');
-writetable(table(Ventralcounts(:,:,2)),'~/str_m8_VScounts.csv');
-writetable(table(Insularcounts(:,:,2)),'~/str_m8_INScounts.csv');
-writetable(table(MedPostcounts(:,:,2)),'~/str_m8_MPcounts.csv');
-writetable(table(MedAntcounts(:,:,2)),'~/str_m8_MAcounts.csv');
+writetable(table(VMmedcounts(:,:,2)),'~/str_m8_VMcounts.csv');
+writetable(table(Dcounts(:,:,2)),'~/str_m8_Dcounts.csv');
+writetable(table(OFCcounts(:,:,2)),'~/str_m8_OFCcounts.csv');
+writetable(table(PostMedMotcounts(:,:,2)),'~/str_m8_PMMOTcounts.csv');
+writetable(table(PostMedPCCcounts(:,:,2)),'~/str_m8_PMPCCcounts.csv');
+writetable(table(AntLatMotcounts(:,:,2)),'~/str_m8_ALMcounts.csv');
+writetable(table(SupInscounts(:,:,2)),'~/str_m8_SIcounts.csv');
+writetable(table(InfInscounts(:,:,2)),'~/str_m8_IIcounts.csv');
+writetable(table(Audcounts(:,:,2)),'~/str_m8_Acounts.csv');
+writetable(table(MidCingcountscounts(:,:,2)),'~/str_m8_MCcounts.csv');
+writetable(table(VMlatcounts(:,:,2)),'~/str_m8_VLcounts.csv');
 % save out 120mg
-writetable(table(DMNcounts(:,:,3)),'~/str_m12_DMNcounts.csv');
-writetable(table(Dorsalcounts(:,:,3)),'~/str_m12_DScounts.csv');
-writetable(table(Ventralcounts(:,:,3)),'~/str_m12_VScounts.csv');
-writetable(table(Insularcounts(:,:,3)),'~/str_m12_INScounts.csv');
-writetable(table(MedPostcounts(:,:,3)),'~/str_m12_MPcounts.csv');
-writetable(table(MedAntcounts(:,:,3)),'~/str_m12_MAcounts.csv');
+writetable(table(VMmedcounts(:,:,3)),'~/str_m12_VMcounts.csv');
+writetable(table(Dcounts(:,:,3)),'~/str_m12_Dcounts.csv');
+writetable(table(OFCcounts(:,:,3)),'~/str_m12_OFCcounts.csv');
+writetable(table(PostMedMotcounts(:,:,3)),'~/str_m12_PMMOTcounts.csv');
+writetable(table(PostMedPCCcounts(:,:,3)),'~/str_m12_PMPCCcounts.csv');
+writetable(table(AntLatMotcounts(:,:,3)),'~/str_m12_ALMcounts.csv');
+writetable(table(SupInscounts(:,:,3)),'~/str_m12_SIcounts.csv');
+writetable(table(InfInscounts(:,:,3)),'~/str_m12_IIcounts.csv');
+writetable(table(Audcounts(:,:,3)),'~/str_m12_Acounts.csv');
+writetable(table(MidCingcountscounts(:,:,3)),'~/str_m12_MCcounts.csv');
+writetable(table(VMlatcounts(:,:,3)),'~/str_m12_VLcounts.csv');
+

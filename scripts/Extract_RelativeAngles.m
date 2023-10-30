@@ -157,7 +157,7 @@ el_R=el_R(g_noMW_combined_R);
 ReferenceStreams=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_ReferenceStreams_L.mat']);
 refs_LH=ReferenceStreams.ReferenceStreams_L;
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
-faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),2,lenOpFl);
+faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),12,lenOpFl);
 % for each reference stream (starts at 2)
 for k=2:12
         % n vectors of interest
