@@ -125,7 +125,7 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 		AntLatMotcount=histc(AntLatMot,0:10:180);
         	AntLatMotcounts(:,iterator,seshIterator)=AntLatMotcount(1:18);	
 		SupInscount=histc(SupIns,0:10:180);
-		SupInsMotcounts(:,iterator,seshIterator)=SupInscount(1:18);
+		SupInscounts(:,iterator,seshIterator)=SupInscount(1:18);
 		InfInscount=histc(InfIns,0:10:180);
                 InfInscounts(:,iterator,seshIterator)=InfInscount(1:18);
 		Audcount=histc(Aud,0:10:180);
@@ -148,7 +148,7 @@ writetable(table(AntLatMotcounts(:,:,1)),'~/str_pl_ALMcounts.csv');
 writetable(table(SupInscounts(:,:,1)),'~/str_pl_SIcounts.csv');
 writetable(table(InfInscounts(:,:,1)),'~/str_pl_IIcounts.csv');
 writetable(table(Audcounts(:,:,1)),'~/str_pl_Acounts.csv');
-writetable(table(MidCingcountscounts(:,:,1)),'~/str_pl_MCcounts.csv');
+writetable(table(MidCingcounts(:,:,1)),'~/str_pl_MCcounts.csv');
 writetable(table(VMlatcounts(:,:,1)),'~/str_pl_VLcounts.csv');
 % save out 80 mg
 writetable(table(VMmedcounts(:,:,2)),'~/str_m8_VMcounts.csv');
@@ -160,7 +160,7 @@ writetable(table(AntLatMotcounts(:,:,2)),'~/str_m8_ALMcounts.csv');
 writetable(table(SupInscounts(:,:,2)),'~/str_m8_SIcounts.csv');
 writetable(table(InfInscounts(:,:,2)),'~/str_m8_IIcounts.csv');
 writetable(table(Audcounts(:,:,2)),'~/str_m8_Acounts.csv');
-writetable(table(MidCingcountscounts(:,:,2)),'~/str_m8_MCcounts.csv');
+writetable(table(MidCingcounts(:,:,2)),'~/str_m8_MCcounts.csv');
 writetable(table(VMlatcounts(:,:,2)),'~/str_m8_VLcounts.csv');
 % save out 120mg
 writetable(table(VMmedcounts(:,:,3)),'~/str_m12_VMcounts.csv');
@@ -172,6 +172,6 @@ writetable(table(AntLatMotcounts(:,:,3)),'~/str_m12_ALMcounts.csv');
 writetable(table(SupInscounts(:,:,3)),'~/str_m12_SIcounts.csv');
 writetable(table(InfInscounts(:,:,3)),'~/str_m12_IIcounts.csv');
 writetable(table(Audcounts(:,:,3)),'~/str_m12_Acounts.csv');
-writetable(table(MidCingcountscounts(:,:,3)),'~/str_m12_MCcounts.csv');
+writetable(table(MidCingcounts(:,:,3)),'~/str_m12_MCcounts.csv');
 writetable(table(VMlatcounts(:,:,3)),'~/str_m12_VLcounts.csv');
 

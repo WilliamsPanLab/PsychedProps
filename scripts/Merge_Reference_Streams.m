@@ -84,17 +84,17 @@ for referenceStream = 2:12
 			% Calculate the vector parallel to the sphere's surface
 			vectorParallelToSurface = fvec - orthogonalComponent;
 			% get dot product of mean stream direction and current vector
-			dotProductSphereSurf=dot(vectorParallelToSurface,MeanVecs(referenceStream, :));
+%			dotProductSphereSurf=dot(vectorParallelToSurface,MeanVecs(referenceStream, :));
 			% and inverse
-			ifvec=-1*vectorParallelToSurface;
+%			ifvec=-1*vectorParallelToSurface;
 			% see which is closer, sub it into OG
-			dotProductInverse = dot(ifvec, MeanVecs(referenceStream, :));
+%			dotProductInverse = dot(ifvec, MeanVecs(referenceStream, :));
 			% larger dot product indicates greater alignment
-			if dotProductSphereSurf < dotProductInverse
-				 ReferenceStreams_L(faceIdx, :, referenceStream) = ifvec;
-			else
+%			if dotProductSphereSurf < dotProductInverse
+%				 ReferenceStreams_L(faceIdx, :, referenceStream) = ifvec;
+%			else
 				ReferenceStreams_L(faceIdx, :, referenceStream) = vectorParallelToSurface;
-			end
+%			end
 		else
 		end
 	end
@@ -102,8 +102,8 @@ for referenceStream = 2:12
 	dummyvec=zeros(5120,1);
 	dummyvec(10)=1;
 	% visualize
-	Vis_Surf_n_Vecfield_Faces(dummyvec,dummyvec,ReferenceStreams_L(:, :, referenceStream),ReferenceStreams_L(:, :, referenceStream),['~/MeanDir_aligned_' num2str(referenceStream) '.png']);
-	pause(10)
+	%Vis_Surf_n_Vecfield_Faces(dummyvec,dummyvec,ReferenceStreams_L(:, :, referenceStream),ReferenceStreams_L(:, :, referenceStream),['~/MeanDir_aligned_' num2str(referenceStream) '.png']);
+	%pause(10)
 end
 % saveout
 save([funcgiiFolder 'goup_ReferenceStreams_L.mat'],'ReferenceStreams_L')
