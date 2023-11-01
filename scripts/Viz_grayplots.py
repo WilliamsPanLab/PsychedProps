@@ -8,6 +8,7 @@ from matplotlib.pyplot import figure
 import copy
 import sys
 import os
+
 # import arguments
 subj = sys.argv[1]
 sesh = sys.argv[2]
@@ -72,7 +73,6 @@ GS2 = conf2['global_signal']
 gs=np.concatenate((rs1Conf,rs2Conf),axis=0)
 ### import motion-masked gs
 GS_file=parentfp + '/' + str(subj) + '_' + str(sesh) + '_GS_p2mm.csv';
-
 
 # get the dorsomedial thalamus time series
 SubcortTS1fp=parentfp + str(subj) + '_' + str(sesh) + '_rs_SubCortROIS.txt'

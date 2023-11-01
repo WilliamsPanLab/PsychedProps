@@ -1,4 +1,6 @@
 function AmygFC(subj,sesh)
+% establish normative FC between Nac Shell,Lat Amyg, MD thal, and DMN in this dataset
+scale3fp='/oak/stanford/groups/leanew1/users/apines/maps/Tian_Subcortex_S3_3T_32k.dlabel.nii';
 % load in concatenated cifti, calculate FC for this subject, print out onto two maps (L and R)
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder'; 
 addpath(genpath(Paths{1}))
@@ -6,6 +8,17 @@ addpath(genpath(Paths{1}))
 ciftipath = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/ses-00/func/concatenated.dtseries.nii'];
 % load in cifti
 concatData=read_cifti(ciftipath);
+% load in scale 3 data
+scale_3=read_cifti(scale3fp);
+% 9 for right DM thal
+% 34 for left DM thal
+% 22 for nac shell right hemi
+%% 47 for nac shell left hemi
+% rh lateral amyg - 19
+% lh lateral amyg 44
+% https://github.com/yetianmed/subcortex/blob/master/Group-Parcellation/3T/Subcortex-Only/Tian_Subcortex_S3_3T_label.txt
+% read it from scale_3 cdata!
+
 % get left and right amygdala grayords/voxels
 LAmygStart=concatData.diminfo{1}.models{5}.start;
 RAmygStart=concatData.diminfo{1}.models{6}.start;
