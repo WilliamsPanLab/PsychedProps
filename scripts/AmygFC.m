@@ -11,6 +11,7 @@ concatData=read_cifti(ciftipath);
 % load in scale 3 data
 scale_3=read_cifti(scale3fp);
 % 9 for right DM thal
+DMT_rInd=find(scale_3.cdata==9);
 % 34 for left DM thal
 % 22 for nac shell right hemi
 %% 47 for nac shell left hemi
