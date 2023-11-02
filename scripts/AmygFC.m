@@ -72,10 +72,8 @@ subjList=strcat(subjPrefix,subjSuffix')
 iterator=0
 corrMats=zeros(8,8,length([1 2 3 5 7 9 11 12 13 14 15 16 17]));
 % initialize master table to save out
-mastTab=cell(1,4);
+mastTab=cell(1,5);
 mastTabIterator=0;
-% column names
-mastTabColNames=['subj','sesh','task','AmFugFC'];
 % aggregate each subject, session, and task for each streams
 for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
         % add 1 to iterator
@@ -96,16 +94,34 @@ for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
 		subjdir = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/' sesh  '/func/'];
 		% get list of files
 		subjfiles=dir(fullfile(subjdir));
+		% get list of fmriprep output files
+		fmriprepdir = ['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/'];
+		fmriprepfiles=dir(fullfile(fmriprepdir));
 		% for each task
 		for taskcell=tasks
 			task=taskcell{1};
 			% get proper dtseries
 			matchingFiles = {};
-			for i = 1:length(subjfiles)
-           			if contains(subjfiles(i).name, task) && contains(subjfiles(i).name, 'desc-denoisedSmoothed_bold.dtseries.nii')
-                			matchingFiles = [matchingFiles, subjfiles(i).name];
-            			end
-        		end	
+			% sep naming convention for rs
+			if string(task)=="rs1"
+				for i = 1:length(subjfiles)
+                                	if contains(subjfiles(i).name, 'rs_acq-mb_dir-pe0') && contains(subjfiles(i).name, 'desc-denoisedSmoothed_bold.dtseries.nii')
+                                	        matchingFiles = [matchingFiles, subjfiles(i).name];
+                                	end
+                   		end
+			elseif string(task)=="rs2"
+                                for i = 1:length(subjfiles)
+                                	if contains(subjfiles(i).name, 'rs_acq-mb_dir-pe1') && contains(subjfiles(i).name, 'desc-denoisedSmoothed_bold.dtseries.nii')
+                                        	matchingFiles = [matchingFiles, subjfiles(i).name];
+                                	end
+				end
+                        else	
+				for i = 1:length(subjfiles)
+					if contains(subjfiles(i).name, task) && contains(subjfiles(i).name, 'desc-denoisedSmoothed_bold.dtseries.nii')
+                				matchingFiles = [matchingFiles, subjfiles(i).name];
+            				end
+        			end
+			end	
 			% if file exists
 			if isempty(matchingFiles)==0
 				mastTabIterator=mastTabIterator+1		
@@ -113,6 +129,31 @@ for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
 				ciftipath=[subjdir matchingFiles{1}];	
 				% load in cifti
 				concatData=read_cifti(ciftipath);
+				% get FD for this run 
+				confFile={};
+				% sep. naming convention for rs
+				if string(task)=="rs1"
+					for i = 1:length(fmriprepfiles)
+						if contains(fmriprepfiles(i).name, 'rs_acq-mb_dir-pe0') && contains(fmriprepfiles(i).name, '_desc-confounds_timeseries.tsv')
+                                                	confFile = [confFile, fmriprepfiles(i).name];
+                                        	end
+					end
+				elseif string(task)=="rs2"
+					for i = 1:length(fmriprepfiles)
+						if contains(fmriprepfiles(i).name, 'rs_acq-mb_dir-pe1') && contains(fmriprepfiles(i).name, '_desc-confounds_timeseries.tsv')
+                                        	        confFile = [confFile, fmriprepfiles(i).name];
+                                       		end
+					end
+				else
+					for i = 1:length(fmriprepfiles)
+						if contains(fmriprepfiles(i).name, task) && contains(fmriprepfiles(i).name, '_desc-confounds_timeseries.tsv')
+							confFile = [confFile, fmriprepfiles(i).name];
+						end
+					end
+				end
+				confpath = [fmriprepdir confFile{1}];
+				conf=readtable(confpath,"FileType","text",'Delimiter', '\t');
+				FD=table2array(conf(:,'framewise_displacement'));
 				% extract DM thalamic TS - left and right
 				% left
 				DMT_ts_L=concatData.cdata(DMT_lInd,:);
@@ -185,13 +226,22 @@ for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
 				mastTab{mastTabIterator,1}=subj;
 				mastTab{mastTabIterator,2}=seshIterator;		
 				mastTab{mastTabIterator,3}=task;
-				mastTab{mastTabIterator,4}=UniAmFugFC;	
+				mastTab{mastTabIterator,4}=mean(FD(~isnan(FD)));
+				mastTab{mastTabIterator,5}=UniAmFugFC	
 			% if file doesnt exist
 			else
 			end
 		end
 	end
 end
+% create column names
+mastTabColNames = 'subj,sesh,task,FD,AmFugFC';
+
+% Split the string into a cell array using the ',' delimiter
+columnNames = strsplit(mastTabColNames, ',');
+
+outTable=cell2table(mastTab,'VariableNames',columnNames)
+writetable(outTable,'~/AmFugFC.csv')
 % save out a long-format subj, dose, task dataframe from uniary AmFug FC structure
 % get average correlation matrix
 meanCor=mean(corrMats,3);
