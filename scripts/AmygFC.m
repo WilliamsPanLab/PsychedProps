@@ -50,7 +50,7 @@ templateCifti.cdata=zeros(91282,1);
 templateCifti.cdata(dmnIndL)=1;
 templateCifti.cdata(dmnIndR)=1;
 templateCifti.cdata(DMT_lInd)=2;
-templateCifti.cdata(DMT_rInd)2;
+templateCifti.cdata(DMT_rInd)=2;
 templateCifti.cdata(NAC_lInd)=3;
 templateCifti.cdata(NAC_rInd)=3;
 templateCifti.cdata(AmyLat_lInd)=4;
@@ -71,7 +71,11 @@ subjList=strcat(subjPrefix,subjSuffix')
 % start iterator
 iterator=0
 corrMats=zeros(8,8,length([1 2 3 5 7 9 11 12 13 14 15 16 17]));
-
+% initialize master table to save out
+mastTab=cell(1,4);
+mastTabIterator=0;
+% column names
+mastTabColNames=['subj','sesh','task','AmFugFC'];
 % aggregate each subject, session, and task for each streams
 for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
         % add 1 to iterator
@@ -81,13 +85,13 @@ for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
 	% get session info
         seshInfo=subSeshDose{s,2:5};
         % for placebo, 80mg, and 120mg
-        seshArray={seshInfo{2} seshInfo{3} seshInfo{4}};i
+        seshArray={seshInfo{2} seshInfo{3} seshInfo{4}};
 	% make an iterator for session
         seshIterator=0;
 	for sessioncell=seshArray
 		sesh=sessioncell{1}
 		% update session iterator
-		seshIterator=seshIterator+1;seshIterator=seshIterator+1;		
+		seshIterator=seshIterator+1;		
 		% set cifti path
 		subjdir = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/' sesh  '/func/'];
 		% get list of files
@@ -102,79 +106,89 @@ for s=[1 2 3 5 7 9 11 12 13 14 15 16 17]
                 			matchingFiles = [matchingFiles, subjfiles(i).name];
             			end
         		end	
-			% reconstruct cifti path
-			ciftipath=[subjdir matchingFiles{1}];	
-			% load in cifti
-			concatData=read_cifti(ciftipath);
-			% extract DM thalamic TS - left and right
-			% left
-			DMT_ts_L=concatData.cdata(DMT_lInd,:);
-			DMT_mts_L=mean(DMT_ts_L);
-			% right
-			DMT_ts_R=concatData.cdata(DMT_rInd,:);
-			DMT_mts_R=mean(DMT_ts_R);
+			% if file exists
+			if isempty(matchingFiles)==0
+				mastTabIterator=mastTabIterator+1		
+				% reconstruct cifti path
+				ciftipath=[subjdir matchingFiles{1}];	
+				% load in cifti
+				concatData=read_cifti(ciftipath);
+				% extract DM thalamic TS - left and right
+				% left
+				DMT_ts_L=concatData.cdata(DMT_lInd,:);
+				DMT_mts_L=mean(DMT_ts_L);
+				% right
+				DMT_ts_R=concatData.cdata(DMT_rInd,:);
+				DMT_mts_R=mean(DMT_ts_R);
 
-			% extract nac shell TS - left and right
-			% left
-			NAC_ts_L=concatData.cdata(NAC_lInd,:);
-			NAC_mts_L=mean(NAC_ts_L);
-			% right
-			NAC_ts_R=concatData.cdata(NAC_rInd,:);
-			NAC_mts_R=mean(NAC_ts_R);
+				% extract nac shell TS - left and right
+				% left
+				NAC_ts_L=concatData.cdata(NAC_lInd,:);
+				NAC_mts_L=mean(NAC_ts_L);
+				% right
+				NAC_ts_R=concatData.cdata(NAC_rInd,:);
+				NAC_mts_R=mean(NAC_ts_R);
 
-			% extract amygdalar TS - left and right
-			% left
-			A_ts_L=concatData.cdata(AmyLat_lInd,:);
-			A_mts_L=mean(A_ts_L);
-			% right
-			A_ts_R=concatData.cdata(AmyLat_rInd,:);
-			A_mts_R=mean(A_ts_R);
+				% extract amygdalar TS - left and right
+				% left
+				A_ts_L=concatData.cdata(AmyLat_lInd,:);
+				A_mts_L=mean(A_ts_L);
+				% right
+				A_ts_R=concatData.cdata(AmyLat_rInd,:);
+				A_mts_R=mean(A_ts_R);
 	
-			% DMN TS - left and right
-			% left
-			DMN_ts_L=concatData.cdata(dmnIndL,:);
-			DMN_mts_L=mean(DMN_ts_L);
-			% right
-			DMN_ts_R=concatData.cdata(dmnIndR,:);
-			DMN_mts_R=mean(DMN_ts_R);
+				% DMN TS - left and right
+				% left
+				DMN_ts_L=concatData.cdata(dmnIndL,:);
+				DMN_mts_L=mean(DMN_ts_L);
+				% right
+				DMN_ts_R=concatData.cdata(dmnIndR,:);
+				DMN_mts_R=mean(DMN_ts_R);
 	
-			% get big correlation matrix between all derived mean-time series
-			% initialize matrix
-			corrMat=zeros(8,8);
-			% fill in
-			corrMat(1,2)=corr(DMT_mts_L',DMT_mts_R');
-			corrMat(1,3)=corr(DMT_mts_L',NAC_mts_L');
-			corrMat(1,4)=corr(DMT_mts_L',NAC_mts_R');
-			corrMat(1,5)=corr(DMT_mts_L',A_mts_L');
-			corrMat(1,6)=corr(DMT_mts_L',A_mts_R');
-			corrMat(1,7)=corr(DMT_mts_L',DMN_mts_L');
-			corrMat(1,8)=corr(DMT_mts_L',DMN_mts_R');
-			corrMat(2,3)=corr(DMT_mts_R',NAC_mts_L');
-			corrMat(2,4)=corr(DMT_mts_R',NAC_mts_R');
-			corrMat(2,5)=corr(DMT_mts_R',A_mts_L');
-			corrMat(2,6)=corr(DMT_mts_R',A_mts_R');
-			corrMat(2,7)=corr(DMT_mts_R',DMN_mts_L');
-			corrMat(2,8)=corr(DMT_mts_R',DMN_mts_R');
-			corrMat(3,4)=corr(NAC_mts_L',NAC_mts_R');
-			corrMat(3,5)=corr(NAC_mts_L',A_mts_L');
-			corrMat(3,6)=corr(NAC_mts_L',A_mts_R');
-			corrMat(3,7)=corr(NAC_mts_L',DMN_mts_L');
-			corrMat(3,8)=corr(NAC_mts_L',DMN_mts_R');
-			corrMat(4,5)=corr(NAC_mts_R',A_mts_L');
-			corrMat(4,6)=corr(NAC_mts_R',A_mts_R');
-			corrMat(4,7)=corr(NAC_mts_R',DMN_mts_L');
-			corrMat(4,8)=corr(NAC_mts_R',DMN_mts_R');
-			corrMat(5,6)=corr(A_mts_L',A_mts_R');
-			corrMat(5,7)=corr(A_mts_L',DMN_mts_L');
-			corrMat(5,8)=corr(A_mts_L',DMN_mts_R');
-			corrMat(6,7)=corr(A_mts_R',DMN_mts_L');
-			corrMat(6,8)=corr(A_mts_R',DMN_mts_R');
-			corrMat(7,8)=corr(DMN_mts_L',DMN_mts_R');
-			% fill in lower triangle
-			corrMat=corrMat+corrMat'-diag(diag(corrMat));
-			% save correlation matrix
-		        % extract unitary AmFug FC
-			% populate unitary AmFug FC	
+				% get big correlation matrix between all derived mean-time series
+				% initialize matrix
+				corrMat=zeros(8,8);
+				% fill in
+				corrMat(1,2)=corr(DMT_mts_L',DMT_mts_R');
+				corrMat(1,3)=corr(DMT_mts_L',NAC_mts_L');
+				corrMat(1,4)=corr(DMT_mts_L',NAC_mts_R');
+				corrMat(1,5)=corr(DMT_mts_L',A_mts_L');
+				corrMat(1,6)=corr(DMT_mts_L',A_mts_R');
+				corrMat(1,7)=corr(DMT_mts_L',DMN_mts_L');
+				corrMat(1,8)=corr(DMT_mts_L',DMN_mts_R');
+				corrMat(2,3)=corr(DMT_mts_R',NAC_mts_L');
+				corrMat(2,4)=corr(DMT_mts_R',NAC_mts_R');
+				corrMat(2,5)=corr(DMT_mts_R',A_mts_L');
+				corrMat(2,6)=corr(DMT_mts_R',A_mts_R');
+				corrMat(2,7)=corr(DMT_mts_R',DMN_mts_L');
+				corrMat(2,8)=corr(DMT_mts_R',DMN_mts_R');
+				corrMat(3,4)=corr(NAC_mts_L',NAC_mts_R');
+				corrMat(3,5)=corr(NAC_mts_L',A_mts_L');
+				corrMat(3,6)=corr(NAC_mts_L',A_mts_R');
+				corrMat(3,7)=corr(NAC_mts_L',DMN_mts_L');
+				corrMat(3,8)=corr(NAC_mts_L',DMN_mts_R');
+				corrMat(4,5)=corr(NAC_mts_R',A_mts_L');
+				corrMat(4,6)=corr(NAC_mts_R',A_mts_R');
+				corrMat(4,7)=corr(NAC_mts_R',DMN_mts_L');
+				corrMat(4,8)=corr(NAC_mts_R',DMN_mts_R');
+				corrMat(5,6)=corr(A_mts_L',A_mts_R');
+				corrMat(5,7)=corr(A_mts_L',DMN_mts_L');
+				corrMat(5,8)=corr(A_mts_L',DMN_mts_R');
+				corrMat(6,7)=corr(A_mts_R',DMN_mts_L');
+				corrMat(6,8)=corr(A_mts_R',DMN_mts_R');
+				corrMat(7,8)=corr(DMN_mts_L',DMN_mts_R');
+				% fill in lower triangle
+				corrMat=corrMat+corrMat'-diag(diag(corrMat));
+			        % extract unitary AmFug FC
+				UniAmFugFC=mean([corrMat(1,2) corrMat(1,3) corrMat(1,4) corrMat(1,5) corrMat(1,6) corrMat(2,3) corrMat(2,4) corrMat(2,5) corrMat(2,6) corrMat(3,4) corrMat(3,5) corrMat(3,6) corrMat(4,5) corrMat(4,6) corrMat(5,6)]);
+				% populate unitary AmFug FC
+				mastTab{mastTabIterator,1}=subj;
+				mastTab{mastTabIterator,2}=seshIterator;		
+				mastTab{mastTabIterator,3}=task;
+				mastTab{mastTabIterator,4}=UniAmFugFC;	
+			% if file doesnt exist
+			else
+			end
 		end
 	end
 end
