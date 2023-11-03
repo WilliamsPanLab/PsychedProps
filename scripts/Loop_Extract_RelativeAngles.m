@@ -10,24 +10,24 @@ for subjectCell = subjects
         session = sessionCell{1}; 
 	% Call the function with Extract_RelativeAngles(subject, session, 'rs1')
 	% if output file doesn't exist
-	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_rs1_faceMatrix.mat'],'file')==0;
-	Extract_RelativeAngles(subject, session, 'rs1');
+	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_rs1_faceMatrix.matcantseeme'],'file')==0;
+	Extract_RelativeAngles_fs4(subject, session, 'rs1');
 	else
 	end
-	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_rs2_faceMatrix.mat'],'file')==0;
-	Extract_RelativeAngles(subject, session, 'rs2');
+	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_rs2_faceMatrix.matcantseeme'],'file')==0;
+	Extract_RelativeAngles_fs4(subject, session, 'rs2');
 	else
 	end
-	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_gambling_faceMatrix.mat'],'file')==0;
-	Extract_RelativeAngles(subject, session, 'gambling');
+	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_gambling_faceMatrix.matcantseeme'],'file')==0;
+	Extract_RelativeAngles_fs4(subject, session, 'gambling');
 	else
 	end
-	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_emotion_faceMatrix.mat'],'file')==0;
-	Extract_RelativeAngles(subject, session, 'emotion');
+	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_emotion_faceMatrix.matcantseeme'],'file')==0;
+	Extract_RelativeAngles_fs4(subject, session, 'emotion');
 	else
 	end
-	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_wm_faceMatrix.mat'],'file')==0;
-	Extract_RelativeAngles(subject, session, 'wm');
+	if exist(['/scratch/users/apines/gp/PropFeats/' subject '_' session '_wm_faceMatrix.matcantseeme'],'file')==0;
+	Extract_RelativeAngles_fs4(subject, session, 'wm');
 	else
 	end
     end

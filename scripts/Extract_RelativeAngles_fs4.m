@@ -1,12 +1,16 @@
-function Extract_RelativeAngles(subj,sesh,infileOpFl)
+function Extract_RelativeAngles_fs4(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% Load in fsav5 opflow calc
-data=load(infileOpFl)
+% Load in fsav4 opflow calc
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
+% if data exists
+if exist(datafp,'file')
+data=load(datafp);
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
@@ -294,10 +298,15 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
 T=table(Propvec','RowNames',stringVec);
 % calc outFP
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-% write out
-writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_gro_dmn4.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_groNew.csv'],'WriteRowNames',true)
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
 writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix_gro_dmn4.csv'])
 % save out time series
 writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn4_L.csv'])
 writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn4_R.csv'])
+
+
+% if data doesnt exist
+else
+        disp('file not found')
+end

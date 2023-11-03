@@ -45,11 +45,11 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 
 # extract relative angles
 # group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','wm')"
 
 #################
 echo "OpFl complete"
