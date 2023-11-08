@@ -1,9 +1,9 @@
-function ThalFC(subj)
+function DMThalFC(subj,sesh)
 % load in concatenated cifti, calculate FC for this subject, print out onto two maps (L and R)
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder'; 
 addpath(genpath(Paths{1}))
 % set cifti path
-ciftipath = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/ses-00/func/concatenated.dtseries.nii'];
+ciftipath = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/' sesh '/func/concatenated_rs.dtseries.nii'];
 % load in cifti
 concatData=read_cifti(ciftipath);
 
@@ -42,4 +42,4 @@ tCifti = read_cifti('/oak/stanford/groups/leanew1/users/apines/maps/hcp.gradient
 tCifti.cdata(:,1)=LdmtFC;
 tCifti.cdata(:,2)=RdmtFC;
 % saveout into new cifti
-write_cifti(tCifti,['/scratch/groups/leanew1/xcpd_outP50_36p_bp/bv_concat/' subj  '_dmtFC.dscalar.nii']);
+write_cifti(tCifti,['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj  '/' sesh '/func/' subj  '_' sesh '_dmtFC.dscalar.nii']);
