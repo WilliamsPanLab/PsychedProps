@@ -1,3 +1,4 @@
+restoredefaultpath
 % read in subj-session-dose correspondence
 subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 
@@ -131,7 +132,6 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 		outt_R(v)=stats.tstat;
 		% remember to re-mask out medial wall!!
 	end
-	end
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%%% LOAD IN THAL FC DATA
@@ -170,30 +170,41 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	mLeft=(m1FC(:,1)+m2FC(:,1)/2);
 	mRight=(m1FCr(:,2)+m2FCr(:,2)/2);
 	
+	% difference FC vector
+	diffFC_L=sobLeftFC-mLeft;
+	diffFC_R=sobRightFC-mRight;
+
 	%%%%%%% mask out dmn
 	% load in DMN
 	networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 	nets_LH=networks.nets.Lnets(:,2);
 	nets_RH=networks.nets.Rnets(:,2);
-
-	% ADAPT TO VERTICES
-	% boolean out areas where .3 or less DMN
-	F_MW_L(F_MW_L<0.1)=0;
-	F_MW_L=ceil(F_MW_L);
-	F_MW_R(F_MW_R<0.1)=0;
-	F_MW_R=ceil(F_MW_R);
-	% convert to within medial wall mask
-	DMN_L=logical(F_MW_L(g_noMW_combined_L));
-	DMN_R=logical(F_MW_R(g_noMW_combined_R));
-	% mask ts and ps
-	tvec_L_sub=tvec_L(DMN_L);
-	tvec_R_sub=tvec_R(DMN_R);
-
+	% mask vertices
+	nets_LH(nets_LH<0.1)=0;
+	nets_RH(nets_RH<0.1)=0;
+	% convert to within DMN mask
+	ts_L=outt_L(logical(nets_LH));
+	FCdelta_L=diffFC_L(logical(nets_LH))';
+	ts_R=outt_R(logical(nets_RH));
+	FCdelta_R=diffFC_R(logical(nets_RH))';
+	% get nan indices to mask out
+	nanBool=isnan(ts_L);
+	ts_L=ts_L(~nanBool);
+	FCdelta_L=FCdelta_L(~nanBool);
+	nanBool=isnan(ts_R);
+	ts_R=ts_R(~nanBool);
+	FCdelta_R=FCdelta_R(~nanBool);
 	% CREATE SCATTERPLOTS LEFT AND RIGHT	
-
-	%%%%
+	figure
+	scatter(ts_L,FCdelta_L,'MarkerEdgeAlpha', 0.5)
 	% png out filename
-	pngFN=['~/' subjList(s) '_ts.png'];
-	% scatter
+	pngFN=['~/' subjList(s) '_L_delta_fMR.png'];
+	print(strjoin(pngFN,''),'-dpng')
+	figure
+        scatter(ts_R,FCdelta_R,'MarkerEdgeAlpha', 0.5)
+        % png out filename
+        pngFN=['~/' subjList(s) '_R_delta_fMR.png'];
+        print(strjoin(pngFN,''),'-dpng')
+	corr(ts_R',FCdelta_R')
 end
 
