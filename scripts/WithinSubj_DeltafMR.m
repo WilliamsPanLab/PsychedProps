@@ -49,6 +49,7 @@ noMW_R=setdiff(1:2562,mwIndVec_r);
 
 % label filepath common for each subj
 commonFP=['/oak/stanford/groups/leanew1/users/apines/data/gp/PropFeats/'];
+FCfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/'];
 
 % get subj list
 subjPrefix=repmat('sub-MDMA0',17,1);
@@ -89,65 +90,97 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	m1r=load(m1FPr);
 	m2=load(m2FP);
 	m2r=load(m2FPr);
-	% concat sober into one ts
-	sobLeft=horzcat(bv,p1);
-	sobRight=horzcat(bvr,p1r);
+	% placebo into sober ts
+	sobLeft=p1;
+	sobRight=p1r;
 	% concat mdma into one ts
 	mLeft=horzcat(m1,m2);
 	mRight=horzcat(m1r,m2r);
+	% convert face-wise values to vertices by summing distributions at the faces each vertex touches per vertex
+	% get length of time series
+	tl=size(bv,2);
+	tl_m=size(mLeft,2);
+	% initialize out t-stats
+	outt_L=zeros(1,2562);
+	outt_R=zeros(1,2562);
+	% for each vertex
+	for v=1:2562
+		% get faces that touch vertex
+		faces_l=find(any(F_L==v,2));
+		faces_r=find(any(F_R==v,2));
+		% reconstruct time series with medial wall areas included
+		reconTS_l=zeros(5120,tl);
+		reconTS_r=zeros(5120,tl);
+		reconTS_l(g_noMW_combined_L,:)=sobLeft;
+		reconTS_r(g_noMW_combined_R,:)=sobRight;
+		% get values at those faces
+		sob_vals_l=reconTS_l(faces_l,:);
+		sob_vals_r=reconTS_r(faces_r,:);
+		% load in drug values
+		reconTS_l=zeros(5120,tl_m);
+		reconTS_r=zeros(5120,tl_m);
+		reconTS_l(g_noMW_combined_L,:)=mLeft;
+		reconTS_r(g_noMW_combined_R,:)=mRight;
+		% get values at those faces
+		m_vals_l=reconTS_l(faces_l,:);
+		m_vals_r=reconTS_r(faces_r,:);
+		% retrieve t-statistic for each vertex
+		[h,p,ci,stats] = ttest2(sob_vals_l(:),m_vals_l(:));
+		outt_L(v)=stats.tstat;
+		[h,p,ci,stats] = ttest2(sob_vals_r(:),m_vals_r(:));
+		outt_R(v)=stats.tstat;
+		% remember to re-mask out medial wall!!
+	end
+	end
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%%%%%%%%% LOAD IN THAL FC DATA
-
-
-
-	% no need for T's! we'll get two big vectors of delta FC and delta props
-
-	% init tvec and pvec
-	tvec_L=zeros(length(g_noMW_combined_L),1);
-	pvec_L=zeros(length(g_noMW_combined_L),1);
-	tvec_R=zeros(length(g_noMW_combined_R),1);
-	pvec_R=zeros(length(g_noMW_combined_R),1);
-	counter=0;
+	% load in thal FC data
+	bvFP=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_L_dmtFC_3k.func.gii'];
+	bvFP=char(strjoin(bvFP,''))
+	bvFPr=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_R_dmtFC_3k.func.gii'];
+	bvFPr=char(strjoin(bvFPr,''))
+	pFP=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_L_dmtFC_3k.func.gii'];
+	pFP=char(strjoin(pFP,''))
+	pFPr=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_R_dmtFC_3k.func.gii'];
+	pFPr=char(strjoin(pFPr,''))
+	m1FP=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_L_dmtFC_3k.func.gii'];
+	m1FP=char(strjoin(m1FP,''))
+	m1FPr=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_R_dmtFC_3k.func.gii'];
+	m1FPr=char(strjoin(m1FPr,''))
+	m2FP=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_L_dmtFC_3k.func.gii'];
+	m2FP=char(strjoin(m2FP,''))
+	m2FPr=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_R_dmtFC_3k.func.gii'];
+	m2FPr=char(strjoin(m2FPr,''))
+	% load in baseline session
+	bvFC=gifti(bvFP).cdata;
+	bvFCr=gifti(bvFPr).cdata;
+	% load in placebo session
+	p1FC=gifti(pFP).cdata;
+	p1FCr=gifti(pFPr).cdata;
+	% mdma sessions
+	m1FC=gifti(m1FP).cdata;
+	m1FCr=gifti(m1FPr).cdata;
+	m2FC=gifti(m2FP).cdata;
+	m2FCr=gifti(m2FPr).cdata;
+	% placebo into as sober
+	sobLeftFC=p1FC(:,1);
+	sobRightFC=p1FCr(:,2);
+	% average mdma sessions
+	mLeft=(m1FC(:,1)+m2FC(:,1)/2);
+	mRight=(m1FCr(:,2)+m2FCr(:,2)/2);
 	
-	%% note: will need to add DMN angles together for each face touching a vertex and to aggregate a vertex-wide measurement
-
-	% for each left vert
-	for F=1:length(g_noMW_combined_L)
-		counter=counter+1;
-		% t-test
-		[h,p,ci,stats] = ttest(sobLeft(F,:),mLeft(F,:));
-		tvec_L(counter)=stats.tstat;
-		pvec_L(counter)=p;
-	end
-	counter=0;
-	% for each right face
-	for F=1:length(g_noMW_combined_R)
-		counter=counter+1;
-		% t-test
-                [h,p,ci,stats] = ttest(sobRight(F,:),mRight(F,:));
-                tvec_R(counter)=stats.tstat;
-                pvec_R(counter)=p;
-	end
-	% combine ps
-	ps=[pvec_L' pvec_R'];
-	% combine ts
-	ts=[tvec_L' tvec_R'];
 	%%%%%%% mask out dmn
 	% load in DMN
 	networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 	nets_LH=networks.nets.Lnets(:,2);
 	nets_RH=networks.nets.Rnets(:,2);
-	% convert to faces
-	F_MW_L=sum(nets_LH(faces_l),2)./3;
-	F_MW_R=sum(nets_RH(faces_r),2)./3;
 
-	%%% should probably lessen this threshold to allow thalamic FC maps to fit in better
-
+	% ADAPT TO VERTICES
 	% boolean out areas where .3 or less DMN
-	F_MW_L(F_MW_L<0.3)=0;
+	F_MW_L(F_MW_L<0.1)=0;
 	F_MW_L=ceil(F_MW_L);
-	F_MW_R(F_MW_R<0.3)=0;
+	F_MW_R(F_MW_R<0.1)=0;
 	F_MW_R=ceil(F_MW_R);
 	% convert to within medial wall mask
 	DMN_L=logical(F_MW_L(g_noMW_combined_L));
@@ -155,27 +188,12 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	% mask ts and ps
 	tvec_L_sub=tvec_L(DMN_L);
 	tvec_R_sub=tvec_R(DMN_R);
-	pvec_L_sub=pvec_L(DMN_L);
-	pvec_R_sub=pvec_R(DMN_R);
-	% combine ps
-	ps=[pvec_L_sub' pvec_R_sub'];
-	% combine ts
-	ts=[tvec_L_sub' tvec_R_sub'];
-	% mafdr ps
-	fdred=mafdr(ps);
-	% print pre-thresh average of ts, positive reflects further distance from DMNG in unintox.
-	mean(ts)
-	% use it to thresh T's
-	ts(fdred>0.05)=0;
-	% data needs to be mw-mask-length for each
-	tvec_fin_l=zeros(1,length(g_noMW_combined_L));
-	tvec_fin_r=zeros(1,length(g_noMW_combined_R));
-	tvec_fin_l(DMN_L)=ts(1:sum(DMN_L));
-	tvec_fin_r(DMN_R)=ts((sum(DMN_L)+1):(sum(DMN_L)+sum(DMN_R)));
+
+	% CREATE SCATTERPLOTS LEFT AND RIGHT	
+
 	%%%%
 	% png out filename
 	pngFN=['~/' subjList(s) '_ts.png'];
-	% visfacevec of threshed T's
-	Vis_FaceVec(tvec_fin_l,tvec_fin_r,strjoin(pngFN,''))
+	% scatter
 end
 
