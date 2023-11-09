@@ -134,24 +134,39 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	end
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%%%%%%%%%%% LOAD IN THAL FC DATA
-	% load in thal FC data
-	bvFP=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_L_dmtFC_3k.func.gii'];
+	%%%%%%%%%%% LOAD IN ALFF DATA
+	bvFP=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff1_L_3k.func.gii'];
 	bvFP=char(strjoin(bvFP,''))
-	bvFPr=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_R_dmtFC_3k.func.gii'];
+	bvFPr=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff1_R_3k.func.gii'];
 	bvFPr=char(strjoin(bvFPr,''))
-	pFP=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_L_dmtFC_3k.func.gii'];
+	pFP=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff1_L_3k.func.gii'];
 	pFP=char(strjoin(pFP,''))
-	pFPr=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_R_dmtFC_3k.func.gii'];
+	pFPr=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff1_R_3k.func.gii'];
 	pFPr=char(strjoin(pFPr,''))
-	m1FP=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_L_dmtFC_3k.func.gii'];
+	m1FP=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff1_L_3k.func.gii'];
 	m1FP=char(strjoin(m1FP,''))
-	m1FPr=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_R_dmtFC_3k.func.gii'];
+	m1FPr=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff1_R_3k.func.gii'];
 	m1FPr=char(strjoin(m1FPr,''))
-	m2FP=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_L_dmtFC_3k.func.gii'];
+	m2FP=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff1_L_3k.func.gii'];
 	m2FP=char(strjoin(m2FP,''))
-	m2FPr=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_R_dmtFC_3k.func.gii'];
+	m2FPr=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff1_R_3k.func.gii'];
 	m2FPr=char(strjoin(m2FPr,''))
+	bvFP2=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff2_L_3k.func.gii'];
+        bvFP2=char(strjoin(bvFP,''))
+        bvFPr2=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff2_R_3k.func.gii'];
+        bvFPr2=char(strjoin(bvFPr,''))
+        pFP2=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff2_L_3k.func.gii'];
+        pFP2=char(strjoin(pFP,''))
+        pFPr2=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff2_R_3k.func.gii'];
+        pFPr2=char(strjoin(pFPr,''))
+        m1FP2=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff2_L_3k.func.gii'];
+        m1FP2=char(strjoin(m1FP,''))
+        m1FPr2=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff2_R_3k.func.gii'];
+        m1FPr2=char(strjoin(m1FPr,''))
+        m2FP2=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff2_L_3k.func.gii'];
+        m2FP2=char(strjoin(m2FP,''))
+        m2FPr2=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff2_R_3k.func.gii'];
+        m2FPr2=char(strjoin(m2FPr,''))
 	% load in baseline session
 	bvFC=gifti(bvFP).cdata;
 	bvFCr=gifti(bvFPr).cdata;
