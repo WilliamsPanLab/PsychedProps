@@ -168,26 +168,43 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
         m2FPr2=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff2_R_3k.func.gii'];
         m2FPr2=char(strjoin(m2FPr,''))
 	% load in baseline session
-	bvFC=gifti(bvFP).cdata;
-	bvFCr=gifti(bvFPr).cdata;
+	bvalf=gifti(bvFP).cdata;
+	bvalf_r=gifti(bvFPr).cdata;
+	bvalf2=gifti(bvFP2).cdata;
+	bvalf2_r=gifti(bvFPr2).cdata;
 	% load in placebo session
-	p1FC=gifti(pFP).cdata;
-	p1FCr=gifti(pFPr).cdata;
+	p1alf=gifti(pFP).cdata;
+	p1alf_r=gifti(pFPr).cdata;
+	p1alf2=gifti(pFP2).cdata;
+	p1alf2_r=gifti(pFPr2).cdata;
 	% mdma sessions
-	m1FC=gifti(m1FP).cdata;
-	m1FCr=gifti(m1FPr).cdata;
-	m2FC=gifti(m2FP).cdata;
-	m2FCr=gifti(m2FPr).cdata;
+	m1alf=gifti(m1FP).cdata;
+	m1alf_r=gifti(m1FPr).cdata;
+	m1alf2=gifti(m1FP2).cdata;
+	m1alf2_r=gifti(m1FPr2).cdata;
+	m2alf=gifti(m2FP).cdata;
+	m2alf_r=gifti(m2FPr).cdata;
+	m2alf2=gifti(m2FP2).cdata;
+	m2alf2_r=gifti(m2FPr2).cdata;
+	% average alff 1 and 2 together
+	bvAlf=(bvalf+bvalf2)/2;
+	bvAlf_r=(bvalf_r+bvalf2_r)/2;
+	p1Alf=(p1alf+p1alf2)/2;
+	p1Alf_r=(p1alf_r+p1alf2_r)/2;
+	m1Alf=(m1alf+m1alf2)/2;
+	m1Alf_r=(m1alf_r+m1alf2_r)/2;
+	m2Alf=(m2alf+m2alf2)/2;
+	m2Alf_r=(m2alf_r+m2alf2_r)/2;
 	% placebo into as sober
-	sobLeftFC=p1FC(:,1);
-	sobRightFC=p1FCr(:,2);
+	sobLeft_alff=p1Alf;
+	sobRight_alff=p1Alf_r;
 	% average mdma sessions
-	mLeft=(m1FC(:,1)+m2FC(:,1)/2);
-	mRight=(m1FCr(:,2)+m2FCr(:,2)/2);
+	mLeft_alff=(m1Alf+m2Alf)/2;
+	mRight_alff=(m1Alf_r+m2Alf_r)/2;
 	
 	% difference FC vector
-	diffFC_L=sobLeftFC-mLeft;
-	diffFC_R=sobRightFC-mRight;
+	diffAlff_L=sobLeft_alff-mLeft_alff;
+	diffAlff_R=sobRight_alff-mRight_alff;
 
 	%%%%%%% mask out dmn
 	% load in DMN
