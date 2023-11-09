@@ -62,11 +62,11 @@ matlab -nodisplay -r "DMThalFC('$subj','$sesh')"
 ${scripts}/DS_surf_DMThalFC.sh ${subj} ${sesh}
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles_fs4('$subj','$sesh','wm')"
 
 # Calculate restting-state FC propagation change correspondence
 matlab -nodisplay -r "WithinSubj_DeltafMR('$subj','$sesh','wm')"
