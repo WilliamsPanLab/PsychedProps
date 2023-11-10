@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=40:00:00
+#SBATCH --time=1:00:00
 #SBATCH -n 4
 #SBATCH --mem=20G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -27,7 +27,11 @@
 ##                \( \(     |/   |/
 # and delete interim files upon completion
 ##    mic & dwb  /_(/_(    /_(  /_(
-
+ml matlab
+# subject name is input argument
+subj=$1
+# sesh is input 2
+sesh=$2
 #############################
 #### module III: Calc. Angles
 #############################

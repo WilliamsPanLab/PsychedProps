@@ -8,7 +8,7 @@ addpath(genpath(ToolFolder));
 % Load in fsav4 opflow calc
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
 datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
-data=load(infileOpFl)
+data=load(datafp)
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
@@ -303,5 +303,5 @@ writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_gro.csv'],'WriteRowN
 % save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
 writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_faceMatrix_gro.csv'])
 % save out time series
-writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task' '_Prop_TS_dmn_L.csv'])
+writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_Prop_TS_dmn_L.csv'])
 writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_Prop_TS_dmn_R.csv'])

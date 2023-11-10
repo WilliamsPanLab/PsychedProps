@@ -32,7 +32,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		% load in baseline csvs
 		if exist(bvFP,'file')
 		bv=readmatrix(bvFP);
-	        outDF(s,1)=bv(5,2);
+	        outDF(s,1)=bv(1,2);
 		% load in remaining frames
 	        childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{1} ];
                 bvCSIfp=[childfp '/' subjList(s) '_' seshInfo{1} '_task-' task '_ValidSegments_Trunc.txt'];
@@ -46,7 +46,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(pFP,'file')
 		p=readmatrix(pFP);
 		% extract in group consensus atlas: placebo
-		outDF(s,2)=p(5,2);
+		outDF(s,2)=p(1,2);
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{2} ];
                 pCSIfp=[childfp '/' subjList(s) '_' seshInfo{2} '_task-' task '_ValidSegments_Trunc.txt'];
                 pCSIfp=strjoin(pCSIfp,'');
@@ -58,7 +58,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(m1FP,'file')
 		m1=readmatrix(m1FP);
 		% extact in group consensus atlas: mdma 1
-		outDF(s,3)=m1(5,2);
+		outDF(s,3)=m1(1,2);
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{3} ];
                 m1CSIfp=[childfp '/' subjList(s) '_' seshInfo{3} '_task-' task '_ValidSegments_Trunc.txt'];
                 m1CSIfp=strjoin(m1CSIfp,'');
@@ -70,7 +70,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(m2FP,'file')
 		m2=readmatrix(m2FP);
 		% extract in group consensus atlas: mdma 2
-		outDF(s,4)=m2(5,2);
+		outDF(s,4)=m2(1,2);
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{4} ];
                 m2CSIfp=[childfp '/' subjList(s) '_' seshInfo{4} '_task-' task '_ValidSegments_Trunc.txt'];
                 m2CSIfp=strjoin(m2CSIfp,'');
