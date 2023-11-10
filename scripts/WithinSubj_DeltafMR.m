@@ -152,21 +152,21 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	m2FPr=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff1_R_3k.func.gii'];
 	m2FPr=char(strjoin(m2FPr,''))
 	bvFP2=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff2_L_3k.func.gii'];
-        bvFP2=char(strjoin(bvFP,''))
+        bvFP2=char(strjoin(bvFP2,''))
         bvFPr2=[FCfp subjList(s) '/' seshInfo{1} '/func/' subjList(s) '_' seshInfo{1} '_alff2_R_3k.func.gii'];
-        bvFPr2=char(strjoin(bvFPr,''))
+        bvFPr2=char(strjoin(bvFPr2,''))
         pFP2=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff2_L_3k.func.gii'];
-        pFP2=char(strjoin(pFP,''))
+        pFP2=char(strjoin(pFP2,''))
         pFPr2=[FCfp subjList(s) '/' seshInfo{2} '/func/' subjList(s) '_' seshInfo{2} '_alff2_R_3k.func.gii'];
-        pFPr2=char(strjoin(pFPr,''))
+        pFPr2=char(strjoin(pFPr2,''))
         m1FP2=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff2_L_3k.func.gii'];
-        m1FP2=char(strjoin(m1FP,''))
+        m1FP2=char(strjoin(m1FP2,''))
         m1FPr2=[FCfp subjList(s) '/' seshInfo{3} '/func/' subjList(s) '_' seshInfo{3} '_alff2_R_3k.func.gii'];
-        m1FPr2=char(strjoin(m1FPr,''))
+        m1FPr2=char(strjoin(m1FPr2,''))
         m2FP2=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff2_L_3k.func.gii'];
-        m2FP2=char(strjoin(m2FP,''))
+        m2FP2=char(strjoin(m2FP2,''))
         m2FPr2=[FCfp subjList(s) '/' seshInfo{4} '/func/' subjList(s) '_' seshInfo{4} '_alff2_R_3k.func.gii'];
-        m2FPr2=char(strjoin(m2FPr,''))
+        m2FPr2=char(strjoin(m2FPr2,''))
 	% load in baseline session
 	bvalf=gifti(bvFP).cdata;
 	bvalf_r=gifti(bvFPr).cdata;
@@ -216,27 +216,27 @@ for s=[1 2 3 5 6 7 8 9 10 11 12 13 14 15 16 17]
 	nets_RH(nets_RH<0.1)=0;
 	% convert to within DMN mask
 	ts_L=outt_L(logical(nets_LH));
-	FCdelta_L=diffFC_L(logical(nets_LH))';
+	Alffdelta_L=diffAlff_L(logical(nets_LH))';
 	ts_R=outt_R(logical(nets_RH));
-	FCdelta_R=diffFC_R(logical(nets_RH))';
+	Alffdelta_R=diffAlff_R(logical(nets_RH))';
 	% get nan indices to mask out
 	nanBool=isnan(ts_L);
 	ts_L=ts_L(~nanBool);
-	FCdelta_L=FCdelta_L(~nanBool);
+	Alffdelta_L=Alffdelta_L(~nanBool);
 	nanBool=isnan(ts_R);
 	ts_R=ts_R(~nanBool);
-	FCdelta_R=FCdelta_R(~nanBool);
+	Alffdelta_R=Alffdelta_R(~nanBool);
 	% CREATE SCATTERPLOTS LEFT AND RIGHT	
 	figure
-	scatter(ts_L,FCdelta_L,'MarkerEdgeAlpha', 0.5)
+	scatter(ts_L,Alffdelta_L,'MarkerEdgeAlpha', 0.5)
 	% png out filename
 	pngFN=['~/' subjList(s) '_L_delta_fMR.png'];
 	print(strjoin(pngFN,''),'-dpng')
 	figure
-        scatter(ts_R,FCdelta_R,'MarkerEdgeAlpha', 0.5)
+        scatter(ts_R,Alffdelta_R,'MarkerEdgeAlpha', 0.5)
         % png out filename
         pngFN=['~/' subjList(s) '_R_delta_fMR.png'];
         print(strjoin(pngFN,''),'-dpng')
-	corr(ts_R',FCdelta_R')
+	corr(ts_R',Alffdelta_R')
 end
 
