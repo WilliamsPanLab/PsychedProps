@@ -8,69 +8,97 @@ Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(Paths{1}))
 
 % get autocorrelation FWHM for time series
-C=ft_read_cifti_mod(['/scratch/groups/leanew1/xcpd_outP50_36p_bp/bv_concat/' Subject '-concat.dtseries.nii'])
-C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii']; 
+C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']); 
 timeseries=C.data;
+
+% read in gordon parcellation
+GP=ft_read_cifti_mod('~/null_lL_WG33/Gordon333_FreesurferSubcortical.32k_fs_LR.dlabel.nii');
+
+% gordon parcel labels
+% https://balsa.wustl.edu/file/JX5V
 
 % get DMN-masked time series 
 % load in DMN
 dmn=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/SoftParcel.dscalar.nii');
-% mask as 0.3 or greater
-dmn.data(dmn.data<0.3)=0;
-dmn.data(dmn.data>=0.3)=1;
-% apply to time series
-%%% START HERE
+% second is DMN
+dmn.data=dmn.data(:,2);
 
-% Define the number of time points and the number of time series
-[num_verts, num_tps] = size(timeseries);
-% Preallocate an array to store FWHM values for each time series
-fwhm_values = zeros(num_verts, 1);
-
-% Compute the autocorrelation FWHM for each time series
-for i = 1:num_verts
-    i
-    % Extract the current time series
-    current_time_series = timeseries(i, :);
-
-    % Compute the autocorrelation of the current time series
-    [autocorr, lags] = xcorr(current_time_series,'normalized',10);
-
-    interpolated_lags = linspace(min(lags), max(lags), 100); % Adjust the number of points as needed
-    interpolated_autocorr = interp1(lags, autocorr, interpolated_lags);
-
-    % Determine the indices where autocorrelation is greater than or equal to half of the maximum value
-    half_max_value = .5;
-    above_half_max = interpolated_autocorr >= half_max_value;
-
-    % Find the first and last indices where autocorrelation is above half-maximum
-    first_index = find(above_half_max, 1, 'first');
-    last_index = find(above_half_max, 1, 'last');
-
-    % Calculate the FWHM for the current time series
-    fwhm = last_index - first_index + 1; % FWHM in terms of number of data points
-
-    % Store the FWHM value in the array, convert to seconds
-    fwhm_values(i) = fwhm*.355;
+% get average dmn value for each parcel
+pDMN=zeros(1,333);
+for p=1:333
+	        pDMN(p)=mean(dmn.data(GP.data==p));
 end
+% get gordon parcels where average DMN value is .3 or greater
+DMNParcels=find(pDMN>.3);
+% initialize autocor vector
+ACDMN=[];
 
-% insert DMN-only vertices into broader grayordinate vector
-% make full-size grayordinate vector
-full_grayord_vector=zeros(91282,1);
-% insert DMN-only vertices into full grayordinate vector
-full_grayord_vector(dmn.data==1)=fwhm_values;
+% for each parcel, get complexity of timeseries
+for p=DMNParcels
+	% within each parcel
+	% Define the number of time points and the number of time series
+	[num_verts, num_tps] = size(timeseries(GP.data==p,:));
+	% Preallocate an array to store FWHM values for each time series
+	fwhm_values = zeros(num_verts, 1);
+	% vertex indices
+	inds=(GP.data==p);
+	% Compute the autocorrelation FWHM for each time series
+	for i = 1:num_verts
+	    i;
+	    % get this particular vertex
+	    ind=inds(i);
+	    % Extract the current time series
+	    current_time_series = timeseries(i, :);
+
+	    % Compute the autocorrelation of the current time series
+	    [autocorr, lags] = xcorr(current_time_series,'normalized',10);
+
+	    interpolated_lags = linspace(min(lags), max(lags), 100); % Adjust the number of points as needed
+	    interpolated_autocorr = interp1(lags, autocorr, interpolated_lags);
+
+	    % Determine the indices where autocorrelation is greater than or equal to half of the maximum value
+	    half_max_value = .5;
+	    above_half_max = interpolated_autocorr >= half_max_value;
+
+	    % Find the first and last indices where autocorrelation is above half-maximum
+	    first_index = find(above_half_max, 1, 'first');
+	    last_index = find(above_half_max, 1, 'last');
+
+	    % Calculate the FWHM for the current time series
+	    fwhm = last_index - first_index + 1; % FWHM in terms of number of data points
+
+	    % Store the FWHM value in the array, convert to seconds
+	    fwhm_values(i) = fwhm*.355;
+	end
+	% get average autocor in this parcel
+	avAC=mean(fwhm_values);
+	ACDMN = [ACDMN avAC];
+end
+% can insert parcelwise saveout here later if interested
+FullParcels=zeros(1,333);
+FullParcels(DMNParcels)=1;
+GPdataOut=zeros(91282,1);
+iterator=1
+for p=DMNParcels
+        GPdataOut(GP.data==p)=ACDMN(iterator);
+        iterator=iterator+1;
+end
 % save out
-InfoMap_Ci = read_cifti('/oak/stanford/groups/leanew1/users/apines/NeuroSynthMaps/dmn_smooth.dscalar.nii')
-InfoMap_Ci.cdata=fwhm_values;
-InfoMap_Ci.diminfo{2}.length=1
-InfoMap_Ci.diminfo{2}.type='series'
-InfoMap_Ci.diminfo{2}.seriesUnit='SECOND'
-InfoMap_Ci.diminfo{2}.seriesStep=.71
-InfoMap_Ci.diminfo{2}.seriesStart=0.00
+ComplOut = read_cifti('/oak/stanford/groups/leanew1/users/apines/NeuroSynthMaps/dmn_smooth.dscalar.nii')
+ComplOut.cdata=GPdataOut;
+ComplOut.diminfo{2}.length=1
+ComplOut.diminfo{2}.type='series'
+ComplOut.diminfo{2}.seriesUnit='SECOND'
+ComplOut.diminfo{2}.seriesStep=.71
+ComplOut.diminfo{2}.seriesStart=0.00
+write_cifti(ComplOut,[parentfp '/' subj '_' sesh '_' task '_AutoCor.dtseries.nii']);
 
-write_cifti(InfoMap_Ci,['~/testACF.dtseries.nii']);
+
+% save out autocor for dmn
+avAC=mean(ACDMN);
+
+T=table(avAC,'RowNames',"Row1");
+outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+writetable(T,[outFP '/' subj '_' sesh '_' task '_AutoCor_gro.csv'],'WriteRowNames',true)
 
 
-% FINISH HERE
-% sum autocorrelation across grayordinates
-
-% save out autocorrelation

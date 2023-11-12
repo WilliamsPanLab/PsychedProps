@@ -23,17 +23,17 @@ wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_ru
 # separate hemispheres - right - pa resting state
 wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_rs2_TS.func.gii
 # separate hemispheres - left - ap emotion
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_emotion_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_emotion_TS.func.gii
 # separate hemispheres - right - ap emotion
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_emotion_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-emotion_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_emotion_TS.func.gii
 # separate hemispheres - left - ap gambling
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_gambling_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_gambling_TS.func.gii
 # separate hemispheres - right - ap gambling
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_gambling_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-gambling_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_gambling_TS.func.gii
 # separate hemispheres - left - ap working memory
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_wm_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_LEFT ${childfp}/${subj}_${sesh}_L_wm_TS.func.gii
 # separate hemispheres - right - ap working memory
-wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoised_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_wm_TS.func.gii
+wb_command -cifti-separate ${parentfp}/${subj}_${sesh}_task-wm_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii COLUMN -metric CORTEX_RIGHT ${childfp}/${subj}_${sesh}_R_wm_TS.func.gii
 
 ### resample both hemis to 2.5k vertices
 # rs1 - left
