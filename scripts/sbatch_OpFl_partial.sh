@@ -49,5 +49,19 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
+# extract autocorr
+matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','wm')"
+
+# extract entropy
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+
 #################
 echo "OpFl complete"

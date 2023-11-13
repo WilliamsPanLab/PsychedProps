@@ -7,8 +7,19 @@ parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/fu
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
 
+% re-adjust for rsfmri naming conventions
+if string(task)=="rs1"
+        fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+        C=ft_read_cifti_mod(fp);
+elseif string(task)=="rs2"
+        fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
+        C=ft_read_cifti_mod(fp);
+else
+% read in time series
+C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
+end
+
 % get autocorrelation FWHM for time series
-C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']); 
 timeseries=C.data;
 
 % read in gordon parcellation
@@ -67,8 +78,8 @@ for p=DMNParcels
 	    % Calculate the FWHM for the current time series
 	    fwhm = last_index - first_index + 1; % FWHM in terms of number of data points
 
-	    % Store the FWHM value in the array, convert to seconds
-	    fwhm_values(i) = fwhm*.355;
+	    % Store the FWHM value in t`he array, convert to seconds, divided by approx. 5 to account for interpolation above
+	    fwhm_values(i) = (fwhm*.71)/5;
 	end
 	% get average autocor in this parcel
 	avAC=mean(fwhm_values);
@@ -96,7 +107,6 @@ write_cifti(ComplOut,[parentfp '/' subj '_' sesh '_' task '_AutoCor.dtseries.nii
 
 % save out autocor for dmn
 avAC=mean(ACDMN);
-
 T=table(avAC,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_AutoCor_gro.csv'],'WriteRowNames',true)
