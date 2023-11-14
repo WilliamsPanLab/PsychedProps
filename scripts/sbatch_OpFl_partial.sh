@@ -63,5 +63,8 @@ matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
 matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
+# extract amygdalar FC (loops over tasks internally)
+matlab -nodisplay -r "Extract_AmygFC($subj','$sesh')
+
 #################
 echo "OpFl complete"
