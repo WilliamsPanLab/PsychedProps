@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=1:00:00
-#SBATCH -n 4
+#SBATCH --time=0:20:00
+#SBATCH -n 1
 #SBATCH --mem=20G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
@@ -64,7 +64,7 @@ matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
 # extract amygdalar FC (loops over tasks internally)
-matlab -nodisplay -r "Extract_AmygFC($subj','$sesh')
+matlab -nodisplay -r "Extract_AmygFC('$subj','$sesh')
 
 #################
 echo "OpFl complete"

@@ -155,6 +155,23 @@ networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitializat
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
 
+% create face-wise DMN mask
+DMN_bool_L=zeros(5120,1);
+DMN_bool_r=zeros(5120,1);
+DMN_bool_L=sum(nets_LH(faces_l),2)./3;
+DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+DMN_bool_L(DMN_bool_L>.3)=1;
+DMN_bool_R(DMN_bool_R>.3)=1;
+DMN_bool_L(DMN_bool_L<.3)=0;
+DMN_bool_R(DMN_bool_R<.3)=0;
+DMN_bool_L=logical(DMN_bool_L);
+DMN_bool_R=logical(DMN_bool_R);
+% combine with medial wall mask
+MasterMask_L=DMN_bool_L;
+MasterMask_R=DMN_bool_R;
+MasterMask_L(fmwIndVec_l)=0;
+MasterMask_R(fmwIndVec_r)=0;
+
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
 faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
 %% k = 2 to select DMN
@@ -166,12 +183,12 @@ for k=2
         ng_L = grad(F_L, V_L, n_LH);
         ng_R = grad(F_R, V_R, n_RH);
         % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        ng_L=ng_L(g_noMW_combined_L,:);
-        ng_R=ng_R(g_noMW_combined_R,:);
+        ng_L=ng_L(MasterMask_L,:);
+        ng_R=ng_R(MasterMask_R,:);
         % get NA vertices
         sumLeft=sum(ng_L,2);
         sumRight=sum(ng_R,2);
-        % finds 0s in left and right network gradients
+        % finds 0s in left and right network gradients - this is redundant/a backup but functionally inert at the moment
         emptyLeft=find(~sumLeft);
         emptyRight=find(~sumRight);
         InclLeft=find(sumLeft);

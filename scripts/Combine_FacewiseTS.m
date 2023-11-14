@@ -1,14 +1,18 @@
-function Combine_FacewiseTS(subj,sesh)
+function Combine_FacewiseTS(subj,sesh,task)
+% for table reading
+restoredefaultpath
 % load in interpolated facewise time series, combine with angular distance time series
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
-ofpl=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_L_faces.csv'];
-ofpr=[childfp '/' subj '_' sesh '_task-rs_p2mm_masked_interp_R_faces.csv'];
+ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L_faces_DMN.csv'];
+ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces_DMN.csv'];
 % load in interpTS
 iTS_l=readtable(ofpl);
 iTS_r=readtable(ofpr);
 % read in angular distances
-aTS_l=readtable([childfp '/' subj '_' sesh '_Prop_TS_dmn_L.csv']);
-aTS_r=readtable([childfp '/' subj '_' sesh '_Prop_TS_dmn_R.csv']);
+aTS_l=readtable([childfp '/' subj '_' sesh '_' task '_Prop_TS_dmn_L.csv']);
+aTS_r=readtable([childfp '/' subj '_' sesh '_' task '_Prop_TS_dmn_R.csv']);
+% for freesurfer functions
+addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % get dimensions to combine on
 spatialDim=size(iTS_l);
 spatialDim=spatialDim(1);
@@ -28,7 +32,7 @@ FullMatrix_R(:,:,1)=table2array(iTS_r);
 FullMatrix_R(:,:,2)=table2array(aTS_r);
 % Load in surface data
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
-SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf';
+SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 surfL = [SubjectsFolder '/lh.sphere'];
 surfR = [SubjectsFolder '/rh.sphere'];
 % surface topography
@@ -51,9 +55,9 @@ mwIndVec_l = read_medial_wall_label(surfML);
 surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make binary "is medial wall" vector for vertices
-mw_L=zeros(1,10242);
+mw_L=zeros(1,2562);
 mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,10242);
+mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
@@ -63,10 +67,8 @@ F_MW_L=ceil(F_MW_L);
 F_MW_R=ceil(F_MW_R);
 % face mask indices
 fmwIndVec_l=find(F_MW_L);
-fmwIndVec_r=find(F_MW_R);
-% make medial wall vector
-g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
+g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 % load in InclLeft InclRight
 Incl=load('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_nullGrad_vectors.mat');
 InclLeft=Incl.InclLeft;

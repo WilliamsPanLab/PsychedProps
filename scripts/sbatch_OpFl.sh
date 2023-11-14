@@ -105,7 +105,11 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # combine angular time series with magnitude time series
-matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','wm')"
 
 #############################
 #### module IV: Create figures

@@ -85,6 +85,8 @@ for taskcell=tasks
 		mastTabIterator=mastTabIterator+1		
 		% reconstruct cifti path
 		ciftipath=[subjdir matchingFiles{1}];	
+		% annoying way to deal with readtable malfunction on set path #1 
+		addpath(genpath(Paths{1}))
 		% load in cifti
 		concatData=read_cifti(ciftipath);
 		% get FD for this run 
@@ -110,6 +112,8 @@ for taskcell=tasks
 			end
 		end
 		confpath = [fmriprepdir confFile{1}];
+		% annoying way to deal with readtable malfunction on set path #2 
+		restoredefaultpath
 		conf=readtable(confpath,"FileType","text",'Delimiter', '\t');
 		FD=table2array(conf(:,'framewise_displacement'));
 

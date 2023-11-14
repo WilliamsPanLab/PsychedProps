@@ -93,17 +93,17 @@ for t=1:tsLength
 	faceOutR(:,t)=sum(interpolatedData_R_frame(faces_r),2)./3;
 end
 % save out unmasked version
-ofpl=[childfp '/' subj '_' sesh '_task-rs_unmasked_interp_L_faces.csv'];
-ofpr=[childfp '/' subj '_' sesh '_task-rs_unmasked_interp_R_faces.csv'];
+ofpl=[childfp '/' subj '_' sesh '_task-' task '_unmasked_interp_L_faces.csv'];
+ofpr=[childfp '/' subj '_' sesh '_task-' task '_unmasked_interp_R_faces.csv'];
 % saveout
 csvwrite(ofpl,faceOutL)
 csvwrite(ofpr,faceOutR)
 % medial wall mask
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.Medial_wall.label';
+surfML = '/oak/stanford/groups/leanew1/users/apines/surf/lh.Medial_wall.label';
 mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.Medial_wall.label';
+surfMR = '/oak/stanford/groups/leanew1/users/apines/surf/rh.Medial_wall.label';
 mwIndVec_r = read_medial_wall_label(surfMR);
 % make binary "is medial wall" vector for vertices
 mw_L=zeros(1,2562);
@@ -129,6 +129,22 @@ faceOutR=faceOutR(g_noMW_combined_R,:);
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets;
 nets_RH=networks.nets.Rnets;
+% create face-wise DMN mask
+DMN_bool_L=zeros(5120,1);
+DMN_bool_r=zeros(5120,1);
+DMN_bool_L=sum(nets_LH(faces_l),2)./3;
+DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+DMN_bool_L(DMN_bool_L>.3)=1;
+DMN_bool_R(DMN_bool_R>.3)=1;
+DMN_bool_L(DMN_bool_L<.3)=0;
+DMN_bool_R(DMN_bool_R<.3)=0;
+DMN_bool_L=logical(DMN_bool_L);
+DMN_bool_R=logical(DMN_bool_R);
+% combine with medial wall mask
+MasterMask_L=DMN_bool_L;
+MasterMask_R=DMN_bool_R;
+MasterMask_L(fmwIndVec_l)=0;
+MasterMask_R(fmwIndVec_r)=0;
 % network of interest
 n_LH=nets_LH(:,2);
 n_RH=nets_RH(:,2);
@@ -136,8 +152,8 @@ n_RH=nets_RH(:,2);
 ng_L = grad(F_L, V_L, n_LH);
 ng_R = grad(F_R, V_R, n_RH);
 % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-ng_L=ng_L(g_noMW_combined_L,:);
-ng_R=ng_R(g_noMW_combined_R,:);
+ng_L=ng_L(MasterMask_L,:);
+ng_R=ng_R(MasterMask_R,:);
 sumLeft=sum(ng_L,2);
 sumRight=sum(ng_R,2);
 % finds 0s in left and right network gradients
@@ -149,8 +165,8 @@ InclRight=find(sumRight);
 faceOutL=faceOutL(InclLeft,:);
 faceOutR=faceOutR(InclRight,:);
 % saveout
-ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L_faces.csv'];
-ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces.csv'];
+ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L_faces_DMN.csv'];
+ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces_DMN.csv'];
 % saveout
 csvwrite(ofpl,faceOutL)
 csvwrite(ofpr,faceOutR)
