@@ -1,3 +1,6 @@
+# aggregated covariate information
+covs=readRDS('/oak/stanford/groups/leanew1/users/apines/data/P50_cleaned_df.rds')
+
 # extract range of vertices to be covered in this run from VertBin
 Lfaces=1800
 Rfaces=1897
@@ -23,7 +26,12 @@ colnames(df)<-'SubjID'
 df$DMNProp_pl=rep(0,length(subjList))
 df$DMNProp_m1=rep(0,length(subjList))
 df$DMNProp_m2=rep(0,length(subjList))
-
+df$DMNProp_pl_FD=rep(0,length(subjList))
+df$DMNProp_m1_FD=rep(0,length(subjList))
+df$DMNProp_m2_FD=rep(0,length(subjList))
+df$DMNProp_pl_RemTRs=rep(0,length(subjList))
+df$DMNProp_m1_RemTRs=rep(0,length(subjList))
+df$DMNProp_m2_RemTRs=rep(0,length(subjList))
 # load session-dose information
 seshDose=read.csv('~/MDMA_Dose_info_unblinded_first17.csv',stringsAsFactors=FALSE)
 ### make session indices for each subject
@@ -59,33 +67,48 @@ write.table(data.frame(p1,p2,m1,m2),'~/subjSeshDoseCorresp.csv',quote=F,col.name
 
 # subjvec: no 4
 subjvec=c(1,2,3,5,7,8,9,11,12,13,14,15,16,17)
-
+tasks=c('rs','rs2','wm','gambling')
 # for each left hemi face
 for (f in 1:Lfaces){
 	print(f)
-	# load in BU props iteratively
+	# load in DMN props iteratively
 	for (s in subjvec){
 		subj=subjList[s]
-		#file paths
-		LbaselineFP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p1[s],'/',subj,'_',p1[s],'_',task,'_Prop_TS_dmn_L.csv')
-		Lp2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p2[s],'/',subj,'_',p2[s],'_',task,'_Prop_TS_dmn_L.csv')
-		Lm1FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m1[s],'/',subj,'_',m1[s],'_',task,'_Prop_TS_dmn_L.csv')
-		Lm2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m2[s],'/',subj,'_',m2[s],'_',task,'_Prop_TS_dmn_L.csv')
-		# load in dat data
-		Lbaseline=read.csv(LbaselineFP,header=F)
-		Lp2=read.csv(Lp2FP,header=F)
-		Lm1=read.csv(Lm1FP,header=F)
-		Lm2=read.csv(Lm2FP,header=F)
-	    	# extract DMN prop from placebo
-		Prop_pl=mean(unlist(Lp2[f,]))
-		df$DMNProp_pl[s]=Prop_pl
-		# extract from M1
-		Prop_m1=mean(unlist(Lm1[f,]))
-		df$DMNProp_m1[s]=Prop_m1
-		# extract from M2
-		Prop_m2=mean(unlist(Lm2[f,]))
-                Prop_m2=Lm2[f,1]
-		df$DMNProp_m2[s]=Prop_m2
+		# get covariate rows corresponding to this subject
+		CovRowsSubj=covs[covs$Subjects==subj,]
+		for (task in tasks)
+			# get covariate rows for this task
+			CovRowsTask=CovRowsSubj[CovRowsSubj$Task==task,]
+			#file paths
+			Lp2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p2[s],'/',subj,'_',p2[s],'_',task,'_Prop_TS_dmn_L.csv')
+			Lm1FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m1[s],'/',subj,'_',m1[s],'_',task,'_Prop_TS_dmn_L.csv')
+			Lm2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m2[s],'/',subj,'_',m2[s],'_',task,'_Prop_TS_dmn_L.csv')
+			# load in dat data
+			Lp2=read.csv(Lp2FP,header=F)
+			Lm1=read.csv(Lm1FP,header=F)
+			Lm2=read.csv(Lm2FP,header=F)
+	    		# extract DMN prop from placebo
+			Prop_pl=mean(unlist(Lp2[f,]))
+			df$DMNProp_pl[s]=Prop_pl
+			# extract FD
+			df$DMNProp_pl_FD[s]=CovRowsTask$MeanFD[CovRowsTask$Dosage=='Placebo']
+			# extract remaining TRs
+			df$DMNProp_pl_RemTRs[s]=CovRowsTask$RemTRs[CovRowsTask$Dosage=='Placebo']
+			# extract from M1
+			Prop_m1=mean(unlist(Lm1[f,]))
+			df$DMNProp_m1[s]=Prop_m1
+			# extract FD
+			
+                	# extract remaining TRs
+                	# extract from M1
+			# extract from M2
+			Prop_m2=mean(unlist(Lm2[f,]))
+                	Prop_m2=Lm2[f,1]
+			df$DMNProp_m2[s]=Prop_m2
+			# extract FD
+                	# extract remaining TRs
+                	# extract from M1
+		}
 	}
 	# remove null rows CHECK 
 	testdf=df[-c(4,6,10),]
