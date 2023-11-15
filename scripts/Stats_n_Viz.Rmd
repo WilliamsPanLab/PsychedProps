@@ -193,6 +193,9 @@ mergedDf$Task=as.factor(mergedDf$Task)
 # set rs to reference level
 mergedDf <- within(mergedDf, Task <- relevel(Task, ref = 2))
 
+# saveout merged DF for facewise analyses on HPC
+saveRDS(mergedDf,'~/P50_cleaned_df.rds')
+
 # model
 model <- lme(TDProp ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
 

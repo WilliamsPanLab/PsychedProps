@@ -1,6 +1,6 @@
 # extract range of vertices to be covered in this run from VertBin
-Lfaces=4589
-Rfaces=4595
+Lfaces=1800
+Rfaces=1897
 
 ### MANUALLY RECREATE SUBJ LIST
 subjPrefix=rep('sub-MDMA0',17)
@@ -20,8 +20,9 @@ df<-data.frame(subjList)
 colnames(df)<-'SubjID'
 
 # initialize iterable face value column - to avoid storing this data for multiple faces over this upcoming loop
-df$BuProp=rep(0,length(subjList))
-df$BuProp_mdma=rep(0,length(subjList))
+df$DMNProp_pl=rep(0,length(subjList))
+df$DMNProp_m1=rep(0,length(subjList))
+df$DMNProp_m2=rep(0,length(subjList))
 
 # load session-dose information
 seshDose=read.csv('~/MDMA_Dose_info_unblinded_first17.csv',stringsAsFactors=FALSE)
@@ -57,7 +58,7 @@ m2<-gsub(4,'ses-03',m2)
 write.table(data.frame(p1,p2,m1,m2),'~/subjSeshDoseCorresp.csv',quote=F,col.names=F)
 
 # subjvec: no 4
-subjvec=c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17)
+subjvec=c(1,2,3,5,7,8,9,11,12,13,14,15,16,17)
 
 # for each left hemi face
 for (f in 1:Lfaces){
@@ -66,28 +67,33 @@ for (f in 1:Lfaces){
 	for (s in subjvec){
 		subj=subjList[s]
 		#file paths
-		LbaselineFP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',p1[s],'_rs_BUTD_L.csv')
-		Lp2FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',p2[s],'_rs_BUTD_L.csv')
-		Lm1FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',m1[s],'_rs_BUTD_L.csv')
-		Lm2FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',m2[s],'_rs_BUTD_L.csv')
+		LbaselineFP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p1[s],'/',subj,'_',p1[s],'_',task,'_Prop_TS_dmn_L.csv')
+		Lp2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p2[s],'/',subj,'_',p2[s],'_',task,'_Prop_TS_dmn_L.csv')
+		Lm1FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m1[s],'/',subj,'_',m1[s],'_',task,'_Prop_TS_dmn_L.csv')
+		Lm2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m2[s],'/',subj,'_',m2[s],'_',task,'_Prop_TS_dmn_L.csv')
 		# load in dat data
-		Lbaseline=read.csv(LbaselineFP)
-		Lp2=read.csv(Lp2FP)
-		Lm1=read.csv(Lm1FP)
-		Lm2=read.csv(Lm2FP)
-	    	# extract rest BuProp
-		BuProp_p1=Lbaseline[f,1]
-		BuProp_p2=Lp2[f,1]
-		# averaging: mean buprop across placebo and baseline
-		df$BuProp[s]=mean(BuProp_p1,BuProp_p2)
-	    	# extract mdma BuProp
-		BuProp_m1=Lm1[f,1]
-                BuProp_m2=Lm2[f,1]
-		# averaging
-		df$BuProp_mdma[s]=mean(BuProp_m1,BuProp_m2)
+		Lbaseline=read.csv(LbaselineFP,header=F)
+		Lp2=read.csv(Lp2FP,header=F)
+		Lm1=read.csv(Lm1FP,header=F)
+		Lm2=read.csv(Lm2FP,header=F)
+	    	# extract DMN prop from placebo
+		Prop_pl=mean(unlist(Lp2[f,]))
+		df$DMNProp_pl[s]=Prop_pl
+		# extract from M1
+		Prop_m1=mean(unlist(Lm1[f,]))
+		df$DMNProp_m1[s]=Prop_m1
+		# extract from M2
+		Prop_m2=mean(unlist(Lm2[f,]))
+                Prop_m2=Lm2[f,1]
+		df$DMNProp_m2[s]=Prop_m2
 	}
-	# remove null rows 
-	testdf=df[-c(4,8,10,11),]
+	# remove null rows CHECK 
+	testdf=df[-c(4,6,10),]
+	# get associated FD and remaining TRs
+	# melt into long-format DF
+	# merge to drug condition
+	# mixed model with subject intercept for Prop and covarying for motion and remtrs in testing Drug condition
+	
 	# t test em
 	ttestres=t.test(testdf$BuProp,testdf$BuProp_mdma,paired=TRUE) 
 	# extract t stat
@@ -103,10 +109,10 @@ for (f in 1:Rfaces){
         for (s in subjvec){
                 subj=subjList[s]
                 #file paths
-                RbaselineFP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',p1[s],'_rs_BUTD_R.csv')
-                Rp2FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',p2[s],'_rs_BUTD_R.csv')
-                Rm1FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',m1[s],'_rs_BUTD_R.csv')
-                Rm2FP=paste0('/oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/',subj,'/',subj,'_',m2[s],'_rs_BUTD_R.csv')
+		RbaselineFP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p1[s],'/',subj,'_',p1[s],'_',task,'_Prop_TS_dmn_R.csv')
+		Rp2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',p2[s],'/',subj,'_',p2[s],'_',task,'_Prop_TS_dmn_R.csv')
+		Rm1FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m1[s],'/',subj,'_',m1[s],'_',task,'_Prop_TS_dmn_R.csv')
+		Rm2FP=paste0('/scratch/users/apines/data/mdma/',subj,'/',m2[s],'/',subj,'_',m2[s],'_',task,'_Prop_TS_dmn_R.csv')
                 # load in dat data
                 Rbaseline=read.csv(RbaselineFP)
                 Rp2=read.csv(Rp2FP)
@@ -124,7 +130,12 @@ for (f in 1:Rfaces){
                 df$BuProp_mdma[s]=mean(BuProp_m1,BuProp_m2)
         }
 	# remove null row 
-        testdf=df[-c(4,8,10,11),]
+	testdf=df[-c(4,6,10),]
+	# get associated FD and remaining TRs
+	# melt into long-format DF
+	# merge to drug condition
+	# mixed model with subject intercept for Prop and covarying for motion and remtrs in testing Drug condition
+
        # t test em
         ttestres=t.test(testdf$BuProp,testdf$BuProp_mdma,paired=TRUE)
         # extract t stat
@@ -132,6 +143,8 @@ for (f in 1:Rfaces){
         p_R[f]=ttestres$p.value
         dif_R[f]=ttestres$estimate
 }
+
+# do FDR correcting internally
 
 # saveout t stat and ps - still needs to be merged with results from other hemi for MC correction
 write.csv(T_L,paste0('/oak/stanford/groups/leanew1/users/apines/results/p_vs_mdma_L_ts.csv'))
