@@ -10,4 +10,5 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 module load R/4.1
-Rscript facewise_Drug.R
+# iteration is only argument
+Rscript facewise_Task_L.R $1
