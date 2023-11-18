@@ -52,7 +52,7 @@ sesh=$2
 sleep 20
 
 # Downsample Subject's curvature
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
+# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_curv.sh $1
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts

@@ -139,7 +139,7 @@ camlight;
 length(faces)
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
@@ -160,7 +160,7 @@ alpha(1)
 set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
 
 
 %%% right hemisphere
@@ -188,7 +188,7 @@ alpha(1)
 
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
@@ -209,7 +209,7 @@ set(gcf,'Color','w')
 
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
 c=colorbar;
 %c=colorbar('XTickLabel',{'.45', '.50', '.55'},'XTick', .45:.05:.55)
 %c.Location='southoutside'

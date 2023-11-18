@@ -3,7 +3,7 @@ library(nlme)
 iteration = as.numeric(commandArgs(trailingOnly=TRUE))
 
 # Check if the argument is provided
-if (is.na(iteration) || iteration < 1 || iteration > 7) {
+if (is.na(iteration) || iteration < 1 || iteration > 8) {
 	stop("I'm intended for iterating over the faces in chunks: 1, 2, 3, 4, 5, or 6 7. Tell me which chunk you want or find yourself another script.")
 }
 
@@ -11,6 +11,11 @@ if (is.na(iteration) || iteration < 1 || iteration > 7) {
 start_iteration <- (iteration - 1) * 271 + 1
 end_iteration <- iteration * 271
 
+# this is dumb, but its a catch for the last right-hemisphere face
+if(iteration==8){
+	start_iteration=1898
+	end_iteration=1898
+}
 # aggregated covariate information
 covs=readRDS('/oak/stanford/groups/leanew1/users/apines/data/P50_cleaned_df.rds')
 # change rs to rs1 to harmonize with later script

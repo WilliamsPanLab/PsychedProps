@@ -11,4 +11,4 @@
 # ------------------------------------------
 module load R/4.1
 # iteration is only argument
-Rscript facewise_Task_L.R $1
+Rscript facewise_Task_R.R $1

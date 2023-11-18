@@ -61,7 +61,7 @@ fmwIndVec_r=find(F_MW_R);
 g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
 g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 
-% save out mask for reference in python visualization script of ATS
+% save out mask for reference in python visualization script of ATS (not fs5)
 save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
 
 % extract size of time series
@@ -74,7 +74,6 @@ lenOpFl=NumTRs;
 % initialize out dataframes
 Propvec=[];
 stringVec={};
-stringVecSD={};
 
 % and azez and els for opflow vectors
 OpF_azes_L=zeros(length(g_noMW_combined_L),lenOpFl);
@@ -152,8 +151,8 @@ el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
-nets_LH=networks.nets.Lnets;
-nets_RH=networks.nets.Rnets;
+nets_LH=networks.nets.Lnets(:,2);
+nets_RH=networks.nets.Rnets(:,2);
 
 % create face-wise DMN mask
 DMN_bool_L=zeros(5120,1);
@@ -171,14 +170,16 @@ MasterMask_L=DMN_bool_L;
 MasterMask_R=DMN_bool_R;
 MasterMask_L(fmwIndVec_l)=0;
 MasterMask_R(fmwIndVec_r)=0;
-
+% save out for de-masking later
+writematrix(MasterMask_L,'~/MasterMask_L.csv')
+writematrix(MasterMask_R,'~/MasterMask_R.csv')
 % initialize matrix for each face over each of k=4 networks to saveout to scratch
 faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
 %% k = 2 to select DMN
 for k=2
         % network of interest
-        n_LH=nets_LH(:,k);
-        n_RH=nets_RH(:,k);
+        n_LH=nets_LH;
+        n_RH=nets_RH;
         % calculate network gradients on sphere
         ng_L = grad(F_L, V_L, n_LH);
         ng_R = grad(F_R, V_R, n_RH);
@@ -309,7 +310,6 @@ for k=2
         Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['AngD' num2str(k)]];
-	SDstringVec=[stringVecSD ['AngSD' num2str(k)]];
 end
 % save out as csv
 T=table(Propvec','RowNames',stringVec);
