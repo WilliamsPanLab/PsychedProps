@@ -4,8 +4,8 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 % this participant's filepath
 funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/'];
-netgiis_L=[funcgiiFolder '' subj '_L_AggNets_10k.func.gii'];
-netgiis_R=[funcgiiFolder '' subj '_R_AggNets_10k.func.gii'];
+netgiis_L=[funcgiiFolder '' subj '_L_AggNets_3k.func.gii'];
+netgiis_R=[funcgiiFolder '' subj '_R_AggNets_3k.func.gii'];
 % load in functional networks: Left
 Lnets=gifti(netgiis_L);
 % load in functional networks: Right
@@ -17,4 +17,4 @@ Rnets=Rnets.cdata(:,1:4);
 nets=struct;
 nets.Lnets=Lnets;
 nets.Rnets=Rnets;
-save([funcgiiFolder '' subj '_Nets_fs5.mat'],'nets')
+save([funcgiiFolder '' subj '_Nets_fs4.mat'],'nets')
