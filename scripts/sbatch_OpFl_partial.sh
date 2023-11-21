@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=0:20:00
+#SBATCH --time=0:18:00
 #SBATCH -n 1
 #SBATCH --mem=20G
-#SBATCH -p leanew1  # Queue names you can submit to
+#SBATCH -p leanew1,normal # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL

@@ -2,6 +2,7 @@ function Vis_Surf_n_Vecfield_Faces(surfl,surfr,vecl,vecr,Fn)
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 % designed for fsaverage4 surface
 VertVecL=surfl;
+VertVecR=surfr;
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
 surfL = [SubjectsFolder '/lh.sphere'];
@@ -24,6 +25,8 @@ P = TR.incenters;
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
+TR = TriRep(faces_r, vx_r);
+Pr = TR.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % set data in the plotting script's terms
@@ -32,7 +35,7 @@ ret=VecNormalize(vecl);
 % replace nans with 0
 ret(isnan(ret))=0;
 % vector scaling factor
-scalingfactor=2;
+scalingfactor=1;
 % colors
 mincol=0;
 maxcol=max(VertVecL(:));
@@ -105,19 +108,19 @@ maxVal = max(VertVecL(:));
 % make circular with flipud
 %custommap=vertcat(flipud(roybigbl_cm),roybigbl_cm);
 %custommap=roybigbl_cm;
-%custommap=colormap(parula);
-custommap = [
-    1 0 0;    % Red
-    0 1 0;    % Green
-    0 0 1;    % Blue
-    1 1 0;    % Yellow
-    0 1 1;    % Cyan
-    1 0 1;    % Magenta
-    0 0 0;    % Black
-    1 1 1     % White
-];
+custommap=colormap(parula);
+%custommap = [
+%    1 0 0;    % Red
+%    0 1 0;    % Green
+%    0 0 1;    % Blue
+%    1 1 0;    % Yellow
+%    0 1 1;    % Cyan
+%    1 0 1;    % Magenta
+%    0 0 0;    % Black
+%    1 1 1     % White
+%];
 % 0 to gray
-custommap(1,:)=[.5 .5 .5];
+%custommap(1,:)=[.5 .5 .5];
 % medial left hemisphere
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.sphere']);
 
@@ -139,7 +142,7 @@ camlight;
 
 set(gca,'CLim',[mincol,maxcol]);
 aplot.FaceVertexCData=VertVecL;
-aplot.FaceAlpha=.3;
+aplot.FaceAlpha=.7;
 
 % other view of left hemisphere (lateral)
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
@@ -162,15 +165,63 @@ camlight;
 
 % insert RGB colors onto surface
 aplot.FaceVertexCData=VertVecL;
-aplot.FaceAlpha=.3;
+aplot.FaceAlpha=.7;
+
+% right hemisphere
+ret=VecNormalize(vecr);
+% replace nans with 0
+ret(isnan(ret))=0;
+% vector scaling factor
+scalingfactor=1;
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.sphere']);
+asub = subaxis(2,2,2, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+hold on;
+% P from incenters up top
+quiver3D(Pr(:,1),Pr(:,2),Pr(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
+view([90 0]);
+colormap(custommap)
+daspect([1 1 1]);
+axis tight;
+axis vis3d off;
+lighting none;
+shading flat;
+camlight;
+
+set(gca,'CLim',[mincol,maxcol]);
+aplot.FaceVertexCData=VertVecR;
+aplot.FaceAlpha=.7;
+
+% other view of right hemisphere (lateral)
+asub = subaxis(2,2,3, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+view([90 0]);
+hold on;
+colormap(custommap);
+caxis([mincol; maxcol]);
+bplot=quiver3D(Pr(:,1),Pr(:,2),Pr(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
+daspect([1 1 1]);
+axis tight;
+rotate(aplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
+
+axis vis3d off;
+lighting none;
+material metal %shiny %metal;
+shading flat;
+camlight;
+
+% insert RGB colors onto surface
+aplot.FaceVertexCData=VertVecR;
+aplot.FaceAlpha=.7;
+
+
 % printout
-print(Fn,'-dpng','-r2000')
+print(Fn,'-dpng','-r1000')
 
 
 
 
-%%% right hemisphere
-% data=VertVecR;
 
 % [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
