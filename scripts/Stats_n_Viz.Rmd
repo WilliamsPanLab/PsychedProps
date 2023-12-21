@@ -40,50 +40,50 @@ wm=wm[-c(4),]
 
 # this is going to be ugly but simple
 # manually pair columns as sep. observations of baseline, placebo, 80, 120mg
-rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
-rs1p=data.frame(cbind(rs1$V2,rs1$V6))
-rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
-rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
-colnames(rs1bv)=c('TDProp','RemTRs')
-colnames(rs1p)=c('TDProp','RemTRs')
-colnames(rs1m1)=c('TDProp','RemTRs')
-colnames(rs1m2)=c('TDProp','RemTRs')
+rs1bv=data.frame(cbind(rs1$V1,rs1$V2,rs1$V3,rs1$V4,rs1$V17))
+rs1p=data.frame(cbind(rs1$V5,rs1$V6,rs1$V7,rs1$V8,rs1$V18))
+rs1m1=data.frame(cbind(rs1$V9,rs1$V10,rs1$V11,rs1$V12,rs1$V19))
+rs1m2=data.frame(cbind(rs1$V13,rs1$V14,rs1$V15,rs1$V16,rs1$V20))
+colnames(rs1bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs1p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs1m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs1m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
 
-rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
-rs2p=data.frame(cbind(rs2$V2,rs2$V6))
-rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
-rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
-colnames(rs2bv)=c('TDProp','RemTRs')
-colnames(rs2p)=c('TDProp','RemTRs')
-colnames(rs2m1)=c('TDProp','RemTRs')
-colnames(rs2m2)=c('TDProp','RemTRs')
+rs2bv=data.frame(cbind(rs2$V1,rs2$V2,rs2$V3,rs2$V4,rs2$V17))
+rs2p=data.frame(cbind(rs2$V5,rs2$V6,rs2$V7,rs2$V8,rs2$V18))
+rs2m1=data.frame(cbind(rs2$V9,rs2$V10,rs2$V11,rs2$V12,rs2$V19))
+rs2m2=data.frame(cbind(rs2$V13,rs2$V14,rs2$V15,rs2$V16,rs2$V20))
+colnames(rs2bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs2p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs2m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(rs2m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
 
-emobv=data.frame(cbind(emo$V1,emo$V5))
-emop=data.frame(cbind(emo$V2,emo$V6))
-emom1=data.frame(cbind(emo$V3,emo$V7))
-emom2=data.frame(cbind(emo$V4,emo$V8))
-colnames(emobv)=c('TDProp','RemTRs')
-colnames(emop)=c('TDProp','RemTRs')
-colnames(emom1)=c('TDProp','RemTRs')
-colnames(emom2)=c('TDProp','RemTRs')
+emobv=data.frame(cbind(emo$V1,emo$V2,emo$V3,emo$V4,emo$V17))
+emop=data.frame(cbind(emo$V5,emo$V6,emo$V7,emo$V8,emo$V18))
+emom1=data.frame(cbind(emo$V9,emo$V10,emo$V11,emo$V12,emo$V19))
+emom2=data.frame(cbind(emo$V13,emo$V14,emo$V15,emo$V16,emo$V20))
+colnames(emobv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(emop)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(emom1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(emom2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
 
-gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
-gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
-gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
-gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
-colnames(gamblingbv)=c('TDProp','RemTRs')
-colnames(gamblingp)=c('TDProp','RemTRs')
-colnames(gamblingm1)=c('TDProp','RemTRs')
-colnames(gamblingm2)=c('TDProp','RemTRs')
+gamblingbv=data.frame(cbind(gambling$V1,gambling$V2,gambling$V3,gambling$V4,gambling$V17))
+gamblingp=data.frame(cbind(gambling$V5,gambling$V6,gambling$V7,gambling$V8,gambling$V18))
+gamblingm1=data.frame(cbind(gambling$V9,gambling$V10,gambling$V11,gambling$V12,gambling$V19))
+gamblingm2=data.frame(cbind(gambling$V13,gambling$V14,gambling$V15,gambling$V16,gambling$V20))
+colnames(gamblingbv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(gamblingp)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(gamblingm1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(gamblingm2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
 
-wmbv=data.frame(cbind(wm$V1,wm$V5))
-wmp=data.frame(cbind(wm$V2,wm$V6))
-wmm1=data.frame(cbind(wm$V3,wm$V7))
-wmm2=data.frame(cbind(wm$V4,wm$V8))
-colnames(wmbv)=c('TDProp','RemTRs')
-colnames(wmp)=c('TDProp','RemTRs')
-colnames(wmm1)=c('TDProp','RemTRs')
-colnames(wmm2)=c('TDProp','RemTRs')
+wmbv=data.frame(cbind(wm$V1,wm$V2,wm$V3,wm$V4,wm$V17))
+wmp=data.frame(cbind(wm$V5,wm$V6,wm$V7,wm$V8,wm$V18))
+wmm1=data.frame(cbind(wm$V9,wm$V10,wm$V11,wm$V12,wm$V19))
+wmm2=data.frame(cbind(wm$V13,wm$V14,wm$V15,wm$V16,wm$V20))
+colnames(wmbv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(wmp)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(wmm1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+colnames(wmm2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
 
 # get subject IDs from this rds
 alff=readRDS('~/OutPlacDrug_alff.rds')
@@ -177,7 +177,10 @@ mergedDf$Drug=0
 mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
 mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
 mergedDf$Drug=as.factor(mergedDf$Drug)
+mergedDf$Subjects<-as.factor(mergedDf$Subjects)
+mergedDf$Dosage<-as.factor(mergedDf$Dosage)
 mergedDfProps=mergedDf
+
 
 # saveout merged DF for facewise analyses on HPC
 saveRDS(mergedDf,'~/P50_cleaned_df.rds')
@@ -190,14 +193,14 @@ mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
 mergedDf=mergedDf[mergedDf$RemTRs>250,]
 
 # change rs2 to rs for accurate task-modeling
-#mergedDf$Task[mergedDf$Task=='rs2']='rs'
+mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
 
 # set rs to reference level
-mergedDf <- within(mergedDf, Task <- relevel(Task, ref = 2))
+#mergedDf <- within(mergedDf, Task <- relevel(Task, ref = 2))
 
 # model
-model <- lme(TDProp ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+model <- lme(TDProp2 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
 
 # subset for p-80
 df_plot1=mergedDf[mergedDf$Dosage!="120mg",]
@@ -208,7 +211,7 @@ df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
 df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 # Plotting
-ggplot(df_plot1, aes(x = Drug, y = TDProp, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = TDProp2, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
@@ -225,7 +228,7 @@ mergedDfT=mergedDf[mergedDf$Task=='rs',]
 mergedDfT2=mergedDf[mergedDf$Task=='rs2',]
 mergedDfT=rbind(mergedDfT,mergedDfT2)
 # model
-model <- lme(TDProp ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
 # subset for p-80
 df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
 # for p-120
@@ -235,7 +238,7 @@ df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
 df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 # plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
@@ -250,7 +253,7 @@ summary(model)
 # WM
 mergedDfT=mergedDf[mergedDf$Task=='wm',]
 # model
-model <- lme(TDProp ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
 # subset for p-80
 df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
 # for p-120
@@ -261,7 +264,7 @@ df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 
 # plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
@@ -276,7 +279,7 @@ summary(model)
 # gambling
 mergedDfT=mergedDf[mergedDf$Task=='gambling',]
 # model
-model <- lme(TDProp ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
 # subset for p-80
 df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
 # for p-120
@@ -287,7 +290,7 @@ df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 
 # plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
@@ -298,6 +301,59 @@ ggplot(df_plot1, aes(x = Drug, y = TDProp, fill = Drug, group = SubjectTask, col
 # model output
 summary(model)
 
+```
+
+```{r}
+#meltedDf <- melt(mergedDf, id.vars = c("Subjects", "Task", "Dosage", "Session", "SpikesPercent", "MeanFD", "RemTRs", "Drug"))
+#meltedDf <- within(meltedDf, variable <- relevel(variable, ref = 3))
+#model <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+MeanFD*variable+RemTRs*variable, random = ~ 1 | Subjects/variable, data = meltedDf)
+#summary(model)
+#sjPlot::plot_model(model, type = "eff",show.values = T)
+#
+## great, now let's bootstrap it
+## Set the number of bootstrap samples
+#num_bootstrap_samples <- 1000
+## initialize t vectors
+#td1_d<-zeros(num_bootstrap_samples,1)
+#td1_fd<-zeros(num_bootstrap_samples,1)
+#td2_d<-zeros(num_bootstrap_samples,1)
+#td2_fd<-zeros(num_bootstrap_samples,1)
+#td3_d<-zeros(num_bootstrap_samples,1)
+#td3_fd<-zeros(num_bootstrap_samples,1)
+#td4_d<-zeros(num_bootstrap_samples,1)
+#td4_fd<-zeros(num_bootstrap_samples,1)
+#
+## bootstrap loops
+#set.seed(420)
+#for (i in 1:num_bootstrap_samples){
+#  # resample subjects instead of observations to be conserative
+#	BootSubjs=sample(unique(mergedDf$Subjects),14,replace=T)
+#	# Create an empty dataframe to store the resampled observations
+#	bootSamp <- data.frame()
+#	for (j in 1:length(BootSubjs)){
+#		subject_obs <- meltedDf[meltedDf$Subjects == BootSubjs[j], ]
+#		bootSamp <- rbind(bootSamp, subject_obs)
+#	}
+#  # fit model
+#  model_i <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+variable*MeanFD, random = ~ 1 | Subjects/variable, data = bootSamp)
+#  # get t-values
+#  td1_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp1", "t-value"]
+#  td1_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp1", "t-value"]
+#  td3_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp3", "t-value"]
+#  td3_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp3", "t-value"]
+#  td4_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp4", "t-value"]
+#  td4_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp4", "t-value"]
+#}
+#
+#bootstrap_results=data.frame(cbind(td1_d,td1_fd,td3_d,td3_fd,td4_d,td4_fd))
+#colnames(bootstrap_results)=c('td1_drug','td1_fd','td3_drug','td3_fd','td4_drug','td4_fd')
+#plotdf=melt(bootstrap_results)
+#
+## Create box-and-whisker plots
+#ggplot(plotdf, aes(x = variable, y = value,)) +
+#  geom_boxplot(position = position_dodge(width = 0.8)) +
+#  labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Drug and MeanFD") +
+#  theme_minimal(base_size = 16)+scale_fill_manual(values=c('blue','red'))
 ```
 
 ```{r}
@@ -656,7 +712,7 @@ mergedDfPropsComplAutoC$Task=as.factor(mergedDfPropsComplAutoC$Task)
 mergedDfPropsComplAutoC <- within(mergedDfPropsComplAutoC, Task <- relevel(Task, ref = 2))
 
 # model
-td_model <- lme(TDProp ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+td_model <- lme(TDProp1 ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
 sa_model <- lme(AutoCor ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
 cx_model <- lme(Complexity ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
 ```
@@ -679,7 +735,7 @@ for (i in 1:num_bootstrap_samples){
   # resample data
   data=mergedDfPropsComplAutoC[sample(nrow(mergedDfPropsComplAutoC), replace = TRUE), ]
   # fit on all models
-  td_model <- lme(TDProp ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
+  td_model <- lme(TDProp1 ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
   sa_model <- lme(AutoCor ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
   cx_model <- lme(Complexity ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
   # get t-values
@@ -718,14 +774,13 @@ cx_d$Model='Complexity'
 td_fd$Model='Top-Down'
 sa_fd$Model='AutoCor'
 cx_fd$Model='Complexity'
-bootstrap_results=rbind(td_d,td_fd,sa_d,sa_fd,cx_d,cx_fd)
+bootstrap_results=rbind(td_fd,td_d,sa_d,sa_fd,cx_d,cx_fd)
 
 # Create box-and-whisker plots
 ggplot(bootstrap_results, aes(x = Model, y = abs(tstat), fill = Cov)) +
   geom_boxplot(position = position_dodge(width = 0.8)) +
   labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Drug and MeanFD") +
-  theme_minimal(base_size = 16) +
-  theme(legend.position="none")  # Remove legend for simplicity
+  theme_minimal(base_size = 16)+scale_fill_manual(values=c('blue','red'))
 
 ```
 
@@ -746,6 +801,9 @@ model_summary <- summary(model)
 
 ```{r}
 # now compare with VAS
+vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
+# correct subject naming
+vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
 VASmerge=merge(vas,mergedDfPropsCompl,by=c("Subjects","Dosage"))
 
 # TD PROP
@@ -756,11 +814,11 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp','Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp2")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp2','Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "p-value"]
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "p-value"]
 #  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
 #  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
   colNameVec[i-39]=colnames(VASmerge)[i]
@@ -783,7 +841,7 @@ df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 # Create the plot using ggplot
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
-  geom_point(size=3) + xlim(-15,15)+
+  geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
   labs(x = "Values", y = "DAS Questions",title="Association with TD Props")+theme_minimal(base_size=26)
 
@@ -822,7 +880,7 @@ df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 # Create the plot using ggplot
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
-  geom_point(size=3) + xlim(-15,15)+
+  geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
   labs(x = "Values", y = "DAS Questions",title="Association with Drug")+theme_minimal(base_size=26)
 
@@ -838,12 +896,12 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp + Drug")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp','Subjects','Drug')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp2 + Drug")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp2','Subjects','Drug')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "t-value"]
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "t-value"]
   corvecD[i-39]<- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "p-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "p-value"]
   pvecD[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
 #  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
 #  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
@@ -869,7 +927,7 @@ df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 # Create the plot using ggplot
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
-  geom_point(size=3) + xlim(-15,15)+
+  geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
   labs(x = "Values", y = "DAS Questions",title="TD Props, Covarying for Drug")+theme_minimal(base_size=26)
 
@@ -892,7 +950,7 @@ df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 # Create the plot using ggplot
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
-  geom_point(size=3) + xlim(-15,15)+
+  geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
   labs(x = "Values", y = "DAS Questions",title="Drug, Covarying for TDProps")+theme_minimal(base_size=26)
 ```
