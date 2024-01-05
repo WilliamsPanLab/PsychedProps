@@ -200,7 +200,7 @@ mergedDf$Task=as.factor(mergedDf$Task)
 #mergedDf <- within(mergedDf, Task <- relevel(Task, ref = 2))
 
 # model
-model <- lme(TDProp2 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
 
 # subset for p-80
 df_plot1=mergedDf[mergedDf$Dosage!="120mg",]
@@ -211,7 +211,7 @@ df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
 df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 # Plotting
-ggplot(df_plot1, aes(x = Drug, y = TDProp2, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
@@ -358,11 +358,11 @@ summary(model)
 
 ```{r}
 # complexity
-rs1=read.csv('~/Downloads/P50 MDMA/rs1_complexityMerged.csv',header=F)
-rs2=read.csv('~/Downloads/P50 MDMA/rs2_complexityMerged.csv',header=F)
-emo=read.csv('~/Downloads/P50 MDMA/emotion_complexityMerged.csv',header=F)
-gambling=read.csv('~/Downloads/P50 MDMA/gambling_complexityMerged.csv',header=F)
-wm=read.csv('~/Downloads/P50 MDMA/wm_complexityMerged.csv',header=F)
+rs1=read.csv('~/Downloads/rs1_complexityMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_complexityMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_complexityMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_complexityMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_complexityMerged.csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -718,19 +718,50 @@ cx_model <- lme(Complexity ~ MeanFD + Drug, random = ~ 1 | Subjects, data = merg
 ```
 
 ```{r}
+# complexity plot
+
+# preproc for plot
+mergedDfPropsComplAutoC$Drug=0
+mergedDfPropsComplAutoC$Drug[mergedDfPropsComplAutoC$Dosage=="120mg"]=1
+mergedDfPropsComplAutoC$Drug[mergedDfPropsComplAutoC$Dosage=="80mg"]=1
+mergedDfPropsComplAutoC$Drug=as.factor(mergedDfPropsComplAutoC$Drug)
+mergedDfPropsComplAutoC$Subjects<-as.factor(mergedDfPropsComplAutoC$Subjects)
+mergedDfPropsComplAutoC$Dosage<-as.factor(mergedDfPropsComplAutoC$Dosage)
+# change rs2 to rs for accurate task-modeling
+mergedDfPropsComplAutoC$Task[mergedDfPropsComplAutoC$Task=='rs2']='rs'
+mergedDfPropsComplAutoC$Task=as.factor(mergedDfPropsComplAutoC$Task)
+df_plot1=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Dosage!="80mg",]
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+# Plotting
+ggplot(df_plot1, aes(x = Drug, y = Complexity, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('All Scans') +
+  theme_minimal(base_size = 22)
+```
+
+
+```{r}
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
 num_bootstrap_samples <- 1000
 # initialize t vectors
-td_d<-zeros(num_bootstrap_samples,1)
-td_fd<-zeros(num_bootstrap_samples,1)
-sa_d<-zeros(num_bootstrap_samples,1)
-sa_fd<-zeros(num_bootstrap_samples,1)
-cx_d<-zeros(num_bootstrap_samples,1)
-cx_fd<-zeros(num_bootstrap_samples,1)
+td_d<-rep(0,num_bootstrap_samples)
+td_fd<-rep(0,num_bootstrap_samples)
+sa_d<-rep(0,num_bootstrap_samples)
+sa_fd<-rep(0,num_bootstrap_samples)
+cx_d<-rep(0,num_bootstrap_samples)
+cx_fd<-rep(0,num_bootstrap_samples)
 
 # bootstrap loops
-set.seed(420)
+set.seed(1)
 for (i in 1:num_bootstrap_samples){
   # resample data
   data=mergedDfPropsComplAutoC[sample(nrow(mergedDfPropsComplAutoC), replace = TRUE), ]
@@ -814,11 +845,11 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp2")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp2','Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "p-value"]
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
 #  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
 #  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
   colNameVec[i-39]=colnames(VASmerge)[i]
@@ -896,12 +927,12 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp2 + Drug")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp2','Subjects','Drug')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1 + Drug")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects','Drug')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "t-value"]
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
   corvecD[i-39]<- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp2", "p-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
   pvecD[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
 #  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
 #  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
@@ -966,11 +997,11 @@ corvec_tdprop <- pvec_tdprop <- colNameVec_tdprop <- NULL
 for (i in 40:56) {
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp")
-  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp', 'Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
+  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp1', 'Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "t-value"]
-  pvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp", "p-value"]
+  corvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
+  pvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
   colNameVec_tdprop[i - 39] <- colnames(VASmerge)[i]
   print(summary(currModel)$tTable)
 }
