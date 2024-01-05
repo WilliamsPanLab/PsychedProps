@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=0:18:00
+#SBATCH --time=1:00:00
 #SBATCH -n 1
 #SBATCH --mem=20G
 #SBATCH -p leanew1,normal # Queue names you can submit to
@@ -64,11 +64,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
 # group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"
@@ -78,21 +78,21 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','wm')"
 
 # extract entropy
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
 # extract amygdalar FC (loops over tasks internally)
 #matlab -nodisplay -r "Extract_AmygFC('$subj','$sesh')"
 
 # make 2d histograms of DMN angle/magnitudes
-python3 Viz_AngMag.py $subj $sesh rs1
-python3 Viz_AngMag.py $subj $sesh rs2
-python3 Viz_AngMag.py $subj $sesh emotion
-python3 Viz_AngMag.py $subj $sesh gambling
-python3 Viz_AngMag.py $subj $sesh wm
+#python3 Viz_AngMag.py $subj $sesh rs1
+#python3 Viz_AngMag.py $subj $sesh rs2
+#python3 Viz_AngMag.py $subj $sesh emotion
+#python3 Viz_AngMag.py $subj $sesh gambling
+#python3 Viz_AngMag.py $subj $sesh wm
 
 #################
 echo "OpFl complete"

@@ -40,10 +40,42 @@ end
 % get gordon parcels where average DMN value is .3 or greater
 DMNParcels=find(pDMN>.3);
 cxDMN=[];
+
+% load in temporal mask
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
+tmask=load(tmaskfp);
+% just get ts length from fmriprep outputs to be safe/consistent
+confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
+% adapt if it is resting state
+if string(task)=="rs1"
+	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
+elseif string(task)=="rs2"
+	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv'];
+else
+end
+conf1=readtable(confFilepath1,"FileType","text",'Delimiter', '\t');
+% extract FD columns
+FD=table2array(conf1(:,'framewise_displacement'));
+
+% make binary mask for continuous segments
+TRwise_mask_cont=zeros(1,length(FD));
+% Loop through each row in Absolut
+for row = 1:size(tmask, 1)
+	if tmask(row, 3) == 1
+        	% Extract the start and end values from the current row
+                startValue = tmask(row, 1);
+                endValue = tmask(row, 2);
+                % change TRwise_mask_cont to 1 where this sequence of continuous good TRs occurs
+                TRwise_mask_cont(startValue:endValue)=1;
+        else
+        end
+end
+
 % for each parcel, get complexity of timeseries
 for p=DMNParcels
 	% apply to time series
-	dmn_ts=C_timeseries(logical(GP.data==p),:);
+	dmn_ts=C_timeseries(logical(GP.data==p),logical(TRwise_mask_cont));
 	% conduct temporal PCA to recover components m (# of grayordinates)
 	%[coeff, ~, explained] = pca(dmn_ts);
 	%[coeff,score,latent,tsquared,explained,mu] = pca(dmn_ts);
@@ -57,7 +89,7 @@ for p=DMNParcels
 	% get normalized entropy of the normalized eigenvalues, numerator divided by denominator * -1
 	%nGSC = -1 * (numerator / denominator);
 	
-	% explicitly using Josh's code, note scrubbing mask needed
+	% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
 	[~,~,~,~,EXPLAINED]=pca(dmn_ts);
 	EXPLAINED=EXPLAINED/100;
 	nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));

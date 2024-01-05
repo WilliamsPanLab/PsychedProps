@@ -121,7 +121,7 @@ if isfile(fpL)
 	segmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc'];
 	writetable(cell2table(ValidSegCell_Trunc),segmentfnTr,'WriteVariableNames',0)
 	% write 4 column, absolute segment output
-	asegmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_AllSegments'];
+	asegmentfnTr=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
 	writetable(cell2table(Absolut),asegmentfnTr,'WriteVariableNames',0)
 	% make binary mask for continuous segments
 	TRwise_mask_cont=zeros(1,length(FD));
