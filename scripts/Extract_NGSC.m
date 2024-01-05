@@ -73,21 +73,9 @@ for row = 1:size(tmask, 1)
 end
 
 % for each parcel, get complexity of timeseries
-for p=DMNParcels
+for p=1:333
 	% apply to time series
 	dmn_ts=C_timeseries(logical(GP.data==p),logical(TRwise_mask_cont));
-	% conduct temporal PCA to recover components m (# of grayordinates)
-	%[coeff, ~, explained] = pca(dmn_ts);
-	%[coeff,score,latent,tsquared,explained,mu] = pca(dmn_ts);
-	% get normalized eigenvalue of each principal component (divided by sum of eigenvalues)
-	% https://stackoverflow.com/questions/30792185/matlab-how-to-obtain-the-eigenvalues-from-the-pca
-	%norm_eig=explained/sum(explained);
-	% get the numerator for normalized entropy of the normalized eigenvalues, sum of the normalized eigenvalue * log(normalized eigenvalue) for each component
-	%numerator = sum(norm_eig .* log(norm_eig));
-	% get the denominator for normalized entropy of the normalized eigenvalues, log of the number of components
-	%denominator = log(length(norm_eig));
-	% get normalized entropy of the normalized eigenvalues, numerator divided by denominator * -1
-	%nGSC = -1 * (numerator / denominator);
 	
 	% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
 	[~,~,~,~,EXPLAINED]=pca(dmn_ts);
