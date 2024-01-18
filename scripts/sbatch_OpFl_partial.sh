@@ -30,14 +30,21 @@
 ml matlab
 # and freesurfer
 module load biology
+module load fsl
 module load freesurfer/7.3.2
 # and workbench
 module load workbench
 module load contribs poldrack anaconda/5.0.0-py36
+module load python/3.9
 # subject name is input argument
 subj=$1
 # sesh is input 2
 sesh=$2
+
+# SNR Masks: create precursors with fslmaths
+/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/antimask_subj.sh $subj
+# SNR Masks: calculate TSNR
+python /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/TSNR_mask_1_ExtractSNR_subjectwise.py $subj
 
 # interpolate fs4 time series to faces and between-timepoints
 #matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
@@ -78,11 +85,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','wm')"
 
 # extract entropy
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
 # extract amygdalar FC (loops over tasks internally)
 #matlab -nodisplay -r "Extract_AmygFC('$subj','$sesh')"

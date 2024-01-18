@@ -72,38 +72,34 @@ for row = 1:size(tmask, 1)
         end
 end
 
-% for each parcel, get complexity of timeseries
-for p=1:333
-	% apply to time series
-	dmn_ts=C_timeseries(logical(GP.data==p),logical(TRwise_mask_cont));
-	
-	% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
-	[~,~,~,~,EXPLAINED]=pca(dmn_ts);
-	EXPLAINED=EXPLAINED/100;
-	nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
-	cxDMN = [cxDMN nGSC];
-end
+% get complexity of full time series
+dmn_ts=C_timeseries(1:59412,logical(TRwise_mask_cont));
+% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
+[~,~,~,~,EXPLAINED]=pca(dmn_ts);
+EXPLAINED=EXPLAINED/100;
+nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
+cxDMN = nGSC;
 % can insert parcelwise saveout here later if interested
-FullParcels=zeros(1,333);
-FullParcels(DMNParcels)=1;
-GPdataOut=zeros(91282,1);
-iterator=1
-for p=DMNParcels
-   	GPdataOut(GP.data==p)=cxDMN(iterator);	
-	iterator=iterator+1;
-end
+%FullParcels=zeros(1,333);
+%FullParcels(DMNParcels)=1;
+%GPdataOut=zeros(91282,1);
+%iterator=1
+%for p=DMNParcels
+%   	GPdataOut(GP.data==p)=cxDMN(iterator);	
+%	iterator=iterator+1;
+%end
 % save out
-ComplOut = read_cifti('/oak/stanford/groups/leanew1/users/apines/NeuroSynthMaps/dmn_smooth.dscalar.nii')
-ComplOut.cdata=GPdataOut;
-ComplOut.diminfo{2}.length=1
-ComplOut.diminfo{2}.type='series'
-ComplOut.diminfo{2}.seriesUnit='SECOND'
-ComplOut.diminfo{2}.seriesStep=.71
-ComplOut.diminfo{2}.seriesStart=0.00
-write_cifti(ComplOut,[parentfp '/' subj '_' sesh '_' task '_Complexity.dtseries.nii']);
+%ComplOut = read_cifti('/oak/stanford/groups/leanew1/users/apines/NeuroSynthMaps/dmn_smooth.dscalar.nii')
+%ComplOut.cdata=GPdataOut;
+%ComplOut.diminfo{2}.length=1
+%ComplOut.diminfo{2}.type='series'
+%ComplOut.diminfo{2}.seriesUnit='SECOND'
+%ComplOut.diminfo{2}.seriesStep=.71
+%ComplOut.diminfo{2}.seriesStart=0.00
+%write_cifti(ComplOut,[parentfp '/' subj '_' sesh '_' task '_Complexity.dtseries.nii']);
 
 % save out normalized entropy for dmn
-avComplexity=mean(cxDMN);
+avComplexity=cxDMN;
 
 T=table(avComplexity,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
