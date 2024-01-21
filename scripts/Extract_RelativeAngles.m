@@ -150,11 +150,11 @@ az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4_Smooth.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
 
-%% k = 2 to select DMN
-Dnet_LH=networks.nets.Lnets(:,2);
-Dnet_RH=networks.nets.Rnets(:,2);
+%% k = 1 to select DMN
+Dnet_LH=networks.nets.Lnets(:,1);
+Dnet_RH=networks.nets.Rnets(:,1);
 for k=1:4
 	nets_LH=networks.nets.Lnets(:,k);
 	nets_RH=networks.nets.Rnets(:,k);
