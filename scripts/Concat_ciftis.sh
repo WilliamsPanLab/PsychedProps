@@ -26,7 +26,7 @@ for subdirectory in "$input_directory"/*; do
     files=()
     while IFS= read -r -d '' file; do
       files+=("-cifti" "$file")
-    done < <(find "$subj_directory" -type f -name "*task-rs_*denoisedSmoothed_bold.dtseries.nii" -print0)
+    done < <(find "$subj_directory" -type f -name "*denoisedSmoothed_bold.dtseries.nii" -print0)
 
     # Check if any files were found
     if [ ${#files[@]} -eq 0 ]; then

@@ -41,13 +41,16 @@ subj=$1
 # sesh is input 2
 sesh=$2
 
+# downsample baseline for NMF
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
+
 # SNR Masks: create precursors with fslmaths
 # /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/antimask_subj.sh $subj
 # SNR Masks: calculate TSNR
 # python /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/TSNR_mask_1_ExtractSNR_subjectwise.py $subj
 
 # downsample baseline to fsaverage5 for NMF
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_rs.sh $subj ses-00
+#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_rs.sh $subj ses-00
 
 # interpolate fs4 time series to faces and between-timepoints
 #matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
