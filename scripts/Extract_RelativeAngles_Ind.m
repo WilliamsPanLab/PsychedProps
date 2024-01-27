@@ -1,15 +1,17 @@
-function Extract_RelativeAnglesInd(subj,sesh,infileOpFl)
+function Extract_RelativeAngles(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% Load in fsav5 opflow calc
-data=load(infileOpFl)
+% Load in fsav4 opflow calc
+childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
+data=load(datafp)
 % Load in surface data
-surfL = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.sphere'];
-surfR = ['/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.sphere'];
+surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
+surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -35,17 +37,15 @@ TR_R = TriRep(F_R,V_R);
 P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/fs5surf/lh.Medial_wall.label';
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/fs5surf/rh.Medial_wall.label';
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
-mw_L=zeros(1,10242);
-mw_L(mwIndVec_l)=1;
-mw_R=zeros(1,10242);
-mw_R(mwIndVec_r)=1;
-% convert to faces
+% add TSNR mask, includes medial wall
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
+mw_L=zeros(1,2562);
+mw_L(mwAndTSNR_L==1)=1;
+mw_R=zeros(1,2562);
+mw_R(mwAndTSNR_R==1)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
@@ -56,10 +56,10 @@ F_MW_R=ceil(F_MW_R);
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
 % make medial wall vector
-g_noMW_combined_L=setdiff([1:20480],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:20480],fmwIndVec_r);
+g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 
-% save out mask for reference in python visualization script of ATS
+% save out mask for reference in python visualization script of ATS (not fs5)
 save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
 
 % extract size of time series
@@ -72,7 +72,6 @@ lenOpFl=NumTRs;
 % initialize out dataframes
 Propvec=[];
 stringVec={};
-stringVecSD={};
 
 % and azez and els for opflow vectors
 OpF_azes_L=zeros(length(g_noMW_combined_L),lenOpFl);
@@ -148,35 +147,61 @@ el_L=el_L(g_noMW_combined_L);
 az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
-% load in Network distances
-funcgiiFolder = ['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/ses-00/pfm'];
-netdists=load([funcgiiFolder '/' subj '_Nets_fs5.mat']);
-nets_LH=netdists.nets.Lnets;
-nets_RH=netdists.nets.Rnets;
+% load in Networks
+funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/'];
+networks=load([funcgiiFolder '/' subj '_Nets_fs4.mat']);
+Dnets_LH=netdists.nets.Lnets;
+Dnets_RH=netdists.nets.Rnets;
 
-% initialize matrix for each face to saveout to scratch
-faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
-	% red herring tabulation
-	% network of interest is DMN
-	n_LH=nets_LH(:,1);
-	n_RH=nets_RH(:,1);
+
+%% k = 1 to select DMN
+Dnet_LH=networks.nets.Lnets(:,1);
+Dnet_RH=networks.nets.Rnets(:,1);
+for k=1:4
+	nets_LH=networks.nets.Lnets(:,k);
+	nets_RH=networks.nets.Rnets(:,k);
+	% create face-wise network mask
+	DMN_bool_L=zeros(5120,1);
+	DMN_bool_r=zeros(5120,1);
+	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
+	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+	DMN_bool_L(DMN_bool_L>.3)=1;
+	DMN_bool_R(DMN_bool_R>.3)=1;
+	DMN_bool_L(DMN_bool_L<.3)=0;
+	DMN_bool_R(DMN_bool_R<.3)=0;
+	DMN_bool_L=logical(DMN_bool_L);
+	DMN_bool_R=logical(DMN_bool_R);
+	% combine with medial wall mask
+	MasterMask_L=DMN_bool_L;
+	MasterMask_R=DMN_bool_R;
+	MasterMask_L(fmwIndVec_l)=0;
+	MasterMask_R(fmwIndVec_r)=0;
+	% save out for de-masking later
+	% commented out for individual runs %%%%
+	%writematrix(MasterMask_L,['~/MasterMask_L_' num2str(k) '.csv'])
+	%writematrix(MasterMask_R,['~/MasterMask_R_' num2str(k) '.csv'])
+	% initialize matrix for each face over each of k=4 networks to saveout to scratch
+	faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
+        % network of interest
+        n_LH=Dnet_LH;
+        n_RH=Dnet_RH;
         % calculate network gradients on sphere
         ng_L = grad(F_L, V_L, n_LH);
         ng_R = grad(F_R, V_R, n_RH);
         % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        ng_L=ng_L(g_noMW_combined_L,:);
-        ng_R=ng_R(g_noMW_combined_R,:);
+        ng_L=ng_L(MasterMask_L,:);
+        ng_R=ng_R(MasterMask_R,:);
         % get NA vertices
         sumLeft=sum(ng_L,2);
         sumRight=sum(ng_R,2);
-        % finds 0s in left and right network gradients
+        % finds 0s in left and right network gradients - this is redundant/a backup but functionally inert at the moment
         emptyLeft=find(~sumLeft);
         emptyRight=find(~sumRight);
         InclLeft=find(sumLeft);
         InclRight=find(sumRight);
         % note InclLeft and Right presume mw mask already applied!	
 	% save InclLeft and Right to a reference .mat 
-	save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_nullGrad_vectors.mat', 'InclLeft', 'InclRight');
+	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors.mat'], 'InclLeft', 'InclRight');
 
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
         %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
@@ -228,7 +253,7 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
 	% initialize circ SD vectors
 	SD_L=zeros(1,length(InclLeft));
 	SD_R=zeros(1,length(InclRight));
-        Thetas_L=zeros(1,lenOpFl);
+	Thetas_L=zeros(1,lenOpFl);
 	Thetas_R=zeros(1,lenOpFl);
 	% get angular distance for each face for each timepoint
         for F=1:length(InclLeft);
@@ -239,9 +264,9 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
                         % get optical flow vector
                         OpFlVec=[OpF_azes_L_n(F,fr) OpF_els_L_n(F,fr)];
                         % extract native vector for circ stats (sd)
-                        OpFlVec_L= [OpFlVec(1) OpFlVec(2)];
-                        % store in output vector (r is redundant across all vecs, only using az and el)
-                        [Thetas_L(fr),Mags_L(fr)]=cart2pol(OpFlVec_L(1),OpFlVec_L(2));
+			OpFlVec_L= [OpFlVec(1) OpFlVec(2)];
+			% store in output vector (r is redundant across all vecs, only using az and el)
+			[Thetas_L(fr),Mags_L(fr)]=cart2pol(OpFlVec_L(1),OpFlVec_L(2));
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         % populate vector
@@ -249,10 +274,10 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
                 % end tp loop
                 end
 		% get circ SD
-                L_CSD=circ_std(Thetas_L');
-                % plop into outut vector for left hemi
+		L_CSD=circ_std(Thetas_L');
+        	% plop into outut vector for left hemi
 		SD_L(F)=L_CSD;
-        % end each face loop
+	% end each face loop
         end
         for F=1:length(InclRight);
                 % get vector for each face (network vector)
@@ -280,8 +305,8 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
         % average for this network before proceeding to next network loop
         AllAngs=[NangDs_R(:)' NangDs_L(:)'];
         % average left-hemisphere values over time and plop into facematrix for this participant
-        faceMatrix(InclLeft,1)=mean(NangDs_L,2);
-        faceMatrix((InclRight+length(InclLeft)),1)=mean(NangDs_R,2);
+        faceMatrix(InclLeft,k)=mean(NangDs_L,2);
+        faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
         % and time series population
 	OutTs_L=NangDs_L;
 	OutTs_R=NangDs_R;
@@ -289,24 +314,16 @@ faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
         avgD=mean(AllAngs);
         Propvec=[Propvec avgD];
         % add label
-        stringVec=[stringVec ['AngD' num2str(1)]];
-	SDstringVec=[stringVecSD ['AngSD' num2str(1)]];
-% save out as csv
-T=table(Propvec','RowNames',stringVec);
-% calc outFP
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-% write out
-writetable(T,[outFP '/' subj '_' sesh '_Prop_Feats_ind.csv'],'WriteRowNames',true)
-% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_faceMatrix_ind.csv'])
-% save out time series
-writematrix(OutTs_L,[outFP '/' subj '_' sesh '_Prop_TS_dmn_L_Ind.csv'])
-writematrix(OutTs_R,[outFP '/' subj '_' sesh '_Prop_TS_dmn_R_Ind.csv'])
-% save out SD face vectors
-save([outFP '/' subj '_' sesh '_SDs_dmnind_L.mat'],'SD_L')
-save([outFP '/' subj '_' sesh '_SDs_dmnind_R.mat'],'SD_R')
-% save out average SD in the network
-allSDs=[SD_L SD_R];
-meanSD=mean(allSDs);
-T=table(meanSD,'RowNames',SDstringVec);
-writetable(T,[outFP '/' subj '_' sesh '_Prop_SD_ind.csv'],'WriteRowNames',true)
+        stringVec=[stringVec ['AngD' num2str(k)]];
+	% save out as csv
+	T=table(Propvec','RowNames',stringVec);
+	% calc outFP
+	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+	% write out
+	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_ind.csv'],'WriteRowNames',true)
+	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
+	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_k' num2str(k) '_faceMatrix_ind.csv'])
+	% save out time series
+	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L_Ind.csv'])
+	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R_Ind.csv'])
+end

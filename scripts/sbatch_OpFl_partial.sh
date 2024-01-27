@@ -42,7 +42,7 @@ subj=$1
 sesh=$2
 
 # downsample baseline for NMF
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
+# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
 
 # SNR Masks: create precursors with fslmaths
 # /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/antimask_subj.sh $subj
@@ -51,6 +51,12 @@ sesh=$2
 
 # downsample baseline to fsaverage5 for NMF
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_rs.sh $subj ses-00
+
+# smooth subject's fs4 nets
+Smooth_DownSampled_Nets.sh $subj
+
+# convert to .mat file for extracting angles
+matlab -nodisplay -r "Netgiis_2_mat_Ind('$subj')"
 
 # interpolate fs4 time series to faces and between-timepoints
 #matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
@@ -77,11 +83,19 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
 # group
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+
+# individual
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','wm')"
+
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"

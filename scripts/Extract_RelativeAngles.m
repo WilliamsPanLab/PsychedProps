@@ -37,17 +37,15 @@ TR_R = TriRep(F_R,V_R);
 P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/surf/lh.Medial_wall.label';
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/surf/rh.Medial_wall.label';
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
+% add TSNR mask, includes medial wall
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
-mw_L(mwIndVec_l)=1;
+mw_L(mwAndTSNR_L==1)=1;
 mw_R=zeros(1,2562);
-mw_R(mwIndVec_r)=1;
-% convert to faces
+mw_R(mwAndTSNR_R==1)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
@@ -150,7 +148,7 @@ az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4_Smooth.mat']);
 
 %% k = 1 to select DMN
 Dnet_LH=networks.nets.Lnets(:,1);
