@@ -9,12 +9,12 @@ Lnets=zeros(2562,4);
 Rnets=zeros(2562,4);
 % for each of 4 networks
 for k=1:4
-	netgiis_L=[funcgiiFolder subj '_lh_Smooth_' num2str(k) '.func.gii'];
-	netgiis_R=[funcgiiFolder subj '_rh_Smooth_' num2str(k) '.func.gii'];
+	netgiis_L=[funcgiiFolder subj '_lh_Smooth_' num2str(k) '_3k.func.gii'];
+	netgiis_R=[funcgiiFolder subj '_rh_Smooth_' num2str(k) '_3k.func.gii'];
 	% load in functional networks: Left
-	Lnets=gifti(netgiis_L);
+	Lnets(:,k)=gifti(netgiis_L).cdata;
 	% load in functional networks: Right
-	Rnets=gifti(netgiis_R);
+	Rnets(:,k)=gifti(netgiis_R).cdata;
 	
 end
 % save out

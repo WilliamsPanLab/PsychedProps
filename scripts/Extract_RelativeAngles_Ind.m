@@ -1,4 +1,4 @@
-function Extract_RelativeAngles(subj,sesh,task)
+function Extract_RelativeAngles_Ind(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -150,8 +150,8 @@ el_R=el_R(g_noMW_combined_R);
 % load in Networks
 funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/'];
 networks=load([funcgiiFolder '/' subj '_Nets_fs4.mat']);
-Dnets_LH=netdists.nets.Lnets;
-Dnets_RH=netdists.nets.Rnets;
+Dnets_LH=networks.nets.Lnets;
+Dnets_RH=networks.nets.Rnets;
 
 
 %% k = 1 to select DMN
