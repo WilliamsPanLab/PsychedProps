@@ -52,6 +52,9 @@ sesh=$2
 # downsample baseline to fsaverage5 for NMF
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_rs.sh $subj ses-00
 
+# downsample NMF output to fs4 
+/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/DS_surf_Networks_fs5tofs4_ind.sh $subj
+
 # smooth subject's fs4 nets
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_DownSampled_Nets.sh $subj
 
