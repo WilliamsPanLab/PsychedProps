@@ -1,4 +1,4 @@
-function Extract_RelativeAngles(subj,sesh,task)
+function Extract_RelativeAngles_psil(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to gPercyNets.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -313,7 +313,7 @@ for k=1:4
 	% save out as csv
 	T=table(Propvec','RowNames',stringVec);
 	% calc outFP
-	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+	outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
 	% write out
 	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
