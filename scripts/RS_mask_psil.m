@@ -27,28 +27,35 @@ run1Ind=find(runInds==1);
 run2Ind=find(runInds==2);
 % ensure they are expected length
 if length(run1Ind) ~=512
-	error('unexpected RS length (rs1)')
+	if length(run1Ind) ~=509
+		error(['unexpected RS length (rs1): ' num2str(length(run1Ind))])
+	end
 end
-if length(run2Ind) ~=512
-	error ('unexpected RS length (rs2)')
-end
-
 % mask to make only resting state
 Cifti_rs1=Cifti_file.cdata(:,run1Ind);
-Cifti_rs2=Cifti_file.cdata(:,run2Ind);
-
 % finagle cifti header to let me save the file
-Cifti_file.diminfo{2}.length=512;
-
+Cifti_file.diminfo{2}.length=length(run1Ind);
 % implant rs1
 Cifti_file.cdata=Cifti_rs1;
 % save out cifti
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs1.dtseries.nii'];
+CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs1.dtseries.nii']
 write_cifti(Cifti_file,CiftiFp);
 
+% for rs 2
+if length(run2Ind) ~=512
+	if length(run2Ind) ~=509
+		error (['unexpected RS length (rs2): ' num2str(length(run2Ind))])
+	end
+end
+% re-initialize cifti
+CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
+Cifti_file=read_cifti(CiftiFp);
+% mask to make only resting state
+Cifti_rs2=Cifti_file.cdata(:,run2Ind);
+% finagle cifti header to let me save the file
+Cifti_file.diminfo{2}.length=length(run2Ind);
 % implant rs1
 Cifti_file.cdata=Cifti_rs2;
 % save out cifti
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs2.dtseries.nii'];
+CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs2.dtseries.nii']
 write_cifti(Cifti_file,CiftiFp);
-

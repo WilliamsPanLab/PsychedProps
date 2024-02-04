@@ -43,7 +43,10 @@ if isfile(fpL)
 	FD=conf1(2:end);
 	% ensure we are getting the right time series
 	if length(FD)~=512
-		error('you sure about that? check that bold1/2.fd corresponds to rs for this subj')
+		% some scans are 509-length
+		if length(FD)~=509
+			error('you sure about that? check that bold1/2.fd corresponds to rs for this subj')
+		end
 	end
 	% FD thresh of .3 for psilo data: slower TRs
 	TRwise_mask=FD>.3;

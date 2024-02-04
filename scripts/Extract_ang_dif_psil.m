@@ -1,5 +1,13 @@
 % extract network props from each session
 
+%%% resultant csv to look like this:
+% ___________| Condition A 1:4 | Condition B 1:4 | Condition C 1:4 | Condition D 1:4 | Remaining Frames A:D
+% Subj1 ses 1
+% Subj2 ses 1
+% ...
+% Subj11 ses 1
+% Subj 1 ses 2
+
 % add paths
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
@@ -46,8 +54,9 @@ for task=["rs1" "rs2"]
                 		bvCSIfp=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_task-' task '_ValidSegments_Trunc.txt'];
                 		bvCSIfp=strjoin(bvCSIfp,'');
                 		CSI = importdata(bvCSIfp);
-                		% trailing -1 is because the count column (,2) is inclusive of the start TR (,1)
-                		numTRsVS=sum(CSI(:,2));
+                		% get total numer of TRs
+				numTRsVS=sum(CSI(:,2));
+				% place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
                 		outDF(((s+(i*11))-11),17)=numTRsVS;	
 			else
 				disp([bvFP ' not found'])
