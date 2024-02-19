@@ -16,7 +16,9 @@ subjPrefix=repmat('PS',11,1);
 subjSuffix=["02","03","16","18","19","21","24","93","96","98","99"];
 subjList=strcat(subjPrefix,subjSuffix')
 % for collecting each task
-for task=["rs1" "rs2"]
+for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
+	% character version of task because matlab is picky
+	ctask=char(task);
 	% initialize output table: maximum of 8 observations per condition per subj (11 subjs x 8 possible, although much lower in most instances) 
 	outDF=zeros(88,24);
 	% extra column just for subj name
@@ -59,12 +61,9 @@ for task=["rs1" "rs2"]
 				% place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
                 		outDF(((s+(i*11))-11),17)=numTRsVS;
 				% load in FD
-				if task=="rs1"
-        			        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Baseline' num2str(i) '/func/Movement/bold1.fd'];
-        			elseif task=="rs2"
-        			        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Baseline' num2str(i) '/func/Movement/bold2.fd'];
-       				end
-       				conf1=load(strjoin(confFilePath1,''));
+        			runNum=ctask(end)
+        			confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Baseline' num2str(i) '/func/Movement/bold' runNum '.fd'];
+				conf1=load(strjoin(confFilePath,''));
         			% extract FD columns
         			FD=conf1(2:end);
 				% put mean FD in output
@@ -86,12 +85,9 @@ for task=["rs1" "rs2"]
                 		numTRsVS=sum(CSI(:,2));
                 		outDF(((s+(i*11))-11),18)=numTRsVS;
                                 % load in FD
-                                if string(task)=="rs1"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Between' num2str(i) '/func/Movement/bold1.fd'];
-                                elseif string(task)=="rs2"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Between' num2str(i) '/func/Movement/bold2.fd'];
-                                end
-                                conf1=load(strjoin(confFilePath1,''));
+                                runNum=ctask(end);
+                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Between' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                conf1=load(strjoin(confFilePath,''));
                                 % extract FD columns
                                 FD=conf1(2:end);
                                 % put mean FD in output
@@ -113,13 +109,10 @@ for task=["rs1" "rs2"]
                			numTRsVS=sum(CSI(:,2));
                 		outDF(((s+(i*11))-11),19)=numTRsVS;
                                 % load in FD
-                                if string(task)=="rs1"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_After' num2str(i) '/func/Movement/bold1.fd'];
-                                elseif string(task)=="rs2"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_After' num2str(i) '/func/Movement/bold2.fd'];
-                                end
-                                conf1=load(strjoin(confFilePath1,''));
-                                % extract FD columns
+                                runNum=ctask(end);
+                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_After' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                conf1=load(strjoin(confFilePath,''));
+				% extract FD columns
                                 FD=conf1(2:end);
                                 % put mean FD in output
                                 outDF(((s+(i*11))-11),23)=mean(FD); 
@@ -140,13 +133,10 @@ for task=["rs1" "rs2"]
                 		numTRsVS=sum(CSI(:,2));
                 		outDF(((s+(i*11))-11),20)=numTRsVS;
                                 % load in FD
-                                if string(task)=="rs1"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold1.fd'];
-                                elseif string(task)=="rs2"
-                                        confFilePath1=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold2.fd'];
-                                end
-                                conf1=load(strjoin(confFilePath1,''));
-                                % extract FD columns
+                                runNum=ctask(end);
+                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                conf1=load(strjoin(confFilePath,''));
+				% extract FD columns
                                 FD=conf1(2:end);
                                 % put mean FD in output
                                 outDF(((s+(i*11))-11),24)=mean(FD); 

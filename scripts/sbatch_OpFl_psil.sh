@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=8:00:00
-#SBATCH -n 4
+#SBATCH --time=10:00:00
+#SBATCH -n 1
 #SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
@@ -52,7 +52,6 @@ sesh=$2
 matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
 
 # Downsample the data 
-##### DO
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
 sleep 20
 
