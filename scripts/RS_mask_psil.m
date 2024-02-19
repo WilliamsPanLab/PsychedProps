@@ -21,41 +21,31 @@ end
 runBounds=find(Boundmask==0);
 % get run indices
 runInds=bwlabel(Boundmask);
-% get run 1
-run1Ind=find(runInds==1);
-% get run 2
-run2Ind=find(runInds==2);
-% ensure they are expected length
-if length(run1Ind) ~=512
-	if length(run1Ind) ~=509
-		error(['unexpected RS length (rs1): ' num2str(length(run1Ind))])
-	end
-end
-% mask to make only resting state
-Cifti_rs1=Cifti_file.cdata(:,run1Ind);
-% finagle cifti header to let me save the file
-Cifti_file.diminfo{2}.length=length(run1Ind);
-% implant rs1
-Cifti_file.cdata=Cifti_rs1;
-% save out cifti
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs1.dtseries.nii']
-write_cifti(Cifti_file,CiftiFp);
 
-% for rs 2
-if length(run2Ind) ~=512
-	if length(run2Ind) ~=509
-		error (['unexpected RS length (rs2): ' num2str(length(run2Ind))])
+% get number of RS scans
+tabulatedRunsInds=tabulate(runInds);
+LongScans=find(tabulatedRunsInds(:,2)>500);
+LongScanInds=tabulatedRunsInds(LongScans,1);
+% print number of rs scans found
+disp([num2str(length(LongScanInds)) ' rs scans found for ' subj ' session ' sesh])
+
+% alter to run for each RS scan
+for run=1:length(LongScanInds)
+	% re-initialize cifti
+	CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
+	Cifti_file=read_cifti(CiftiFp);
+	runInd=find(runInds==LongScanInds(run));
+	% ensure expected length
+	if length(runInd) ~=512
+   	     	if length(runInd) ~=509
+               		error(['unexpected RS length run' num2str(LongScanInds(run)) ': ' num2str(length(runInd))])
+        	end
 	end
-end
-% re-initialize cifti
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
-Cifti_file=read_cifti(CiftiFp);
-% mask to make only resting state
-Cifti_rs2=Cifti_file.cdata(:,run2Ind);
-% finagle cifti header to let me save the file
-Cifti_file.diminfo{2}.length=length(run2Ind);
-% implant rs1
-Cifti_file.cdata=Cifti_rs2;
-% save out cifti
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs2.dtseries.nii']
-write_cifti(Cifti_file,CiftiFp);
+	% mask master cifti for resting-only saveout
+	Cifti_rs=Cifti_file.cdata(:,runInd);
+	% implant masked time series
+	Cifti_file.cdata=Cifti_rs;
+	Cifti_file.diminfo{2}.length=length(runInd);
+	CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs' num2str(run) '.dtseries.nii']
+	write_cifti(Cifti_file,CiftiFp);
+end	

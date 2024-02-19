@@ -52,15 +52,20 @@ sesh=$2
 matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
 
 # Downsample the data 
+##### DO
 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
 sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
-# mask images: 8+ continuous frames only
+# mask images: 6+ continuous frames only
 matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
 matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs6')"
 
 ############################
 #### module II: Optical Flow
@@ -71,6 +76,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
 matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs1')"
 matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
@@ -92,6 +101,10 @@ mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj}
 # group
 matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
 matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 
 # combine angular time series with magnitude time series
 #matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs1')"

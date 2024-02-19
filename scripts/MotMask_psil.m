@@ -31,29 +31,49 @@ if isfile(fpL)
 	% get size
 	tsSize=size(tsl);
 	numTRs=tsSize(2);
-	% load in mask
-	if string(task)=="rs1"
-		confFilePath1=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/Movement/bold1.fd'];
-	elseif string(task)=="rs2"
-		confFilePath1=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/Movement/bold2.fd'];
-	else
-	end
-	conf1=load(confFilePath1);
+	%%% load in mask
+	% extract run number
+	runNum=task(end);
+	confFilePath=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/Movement/bold' runNum '.fd'];
+	conf1=load(confFilePath);
 	% extract FD columns
 	FD=conf1(2:end);
 	% ensure we are getting the right time series
 	if length(FD)~=512
 		% some scans are 509-length
 		if length(FD)~=509
-			error('you sure about that? check that bold1/2.fd corresponds to rs for this subj')
+			error('you sure about that? check that bold?.fd corresponds to rs for this subj')
 		end
 	end
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% load in t-mask to mask out union of tmask
+	Tmaskfp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/rsfMRI_tmask.txt'];
+	Tmask=load(Tmaskfp);
+	% need run bounds to delineate which section this scan is in tmask
+	Boundmaskfp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/run_boundaries_tmask.txt'];
+	Boundmask=load(Boundmaskfp);
+	%%% parse component that is specifically corresponding to this scan
+	% get run indices - matched to RS_mask_psil.m
+	runInds=bwlabel(Boundmask);
+	tabulatedRunsInds=tabulate(runInds);
+	LongScans=find(tabulatedRunsInds(:,2)>500);
+	LongScanInds=tabulatedRunsInds(LongScans,1);
+	runInd=find(runInds==str2num(runNum));
+	% extract corresponding segment of tmask
+	tmask_run=Tmask(runInd);
 	% FD thresh of .3 for psilo data: slower TRs
 	TRwise_mask=FD>.3;
 	% building in sanity check. Motion removed frames + interrupted sequence removed frames + ending frames should = start frame #
 	motRemovFrames=sum(TRwise_mask)
 	% 1 indicates flagged for FD over selected threshold, reverse 'em so 0 indicates removal
 	TRwise_mask=~TRwise_mask;
+	% make t=0 an addditional exclusion mask like TRwise_mask below	(combine with pre-existing t-mask)
+	pre_exist_tmask=find(tmask_run==0);
+	% get sum removed by pre-existant t-mask above and beyond fd
+	pre_T_Frames=sum(TRwise_mask==0);
+	TRwise_mask(pre_exist_tmask)=0;
+	post_T_Frames=sum(TRwise_mask==0);
+	addit_T_removed=post_T_Frames-pre_T_Frames
 	% find changepoints in binary bask
 	d = [true, diff(TRwise_mask') ~= 0];
 	% index of changepoints
@@ -77,7 +97,7 @@ if isfile(fpL)
 	% to do so, first add a duration column to absolut
 	Absolut(:,4)=cellfun(@minus, Absolut(:,2), Absolut(:,1), 'UniformOutput', false);
        	% and plus 1 because the TR range is inclusive: i.e., frames 1-3 is actually 3 frames, not 3 - 1 frames
-	Absolut(:,4)=num2cell(cell2mat(Absolut(:,4))+1) 
+	Absolut(:,4)=num2cell(cell2mat(Absolut(:,4))+1); 
 	% extract continuous segments as those where boolean include is = 1 in absolut
 	continuousSegments = Absolut([Absolut{:, 3}] == 1, 4);
 	% create a relative list of starting TR and duration of segments uninterupt. by combined mask
@@ -98,7 +118,7 @@ if isfile(fpL)
         OverThreshSegments=find(cell2mat(continuousSegments)>=Threshold);
         % sanity check for TRs excluded for being in interrupted segments
 	UnderThreshSegments=find(cell2mat(continuousSegments)<(Threshold));
-	ExcludedTRs=sum(cell2mat(continuousSegments(UnderThreshSegments)));
+	ExcludedTRs=sum(cell2mat(continuousSegments(UnderThreshSegments)))
 	% sum remaining segments to get included TRs if this thresh chosen
         RemainingTRs=sum(cell2mat(continuousSegments(OverThreshSegments)))
 	% index of which TR valid segments start at
@@ -147,7 +167,7 @@ if isfile(fpL)
 	ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_L.mgh'];
 	ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_R.mgh'];
         % implement sanity check. FD > thresh removed + noncontinuous segment removed + remaining = OG
-	assert(motRemovFrames + ExcludedTRs + sum(TRwise_mask_cont) == numTRs, 'Assertion failed: Over FD trs + noncontinuous TRs + remaining TRs is not equal to original TRs');
+	assert(motRemovFrames + addit_T_removed +ExcludedTRs + sum(TRwise_mask_cont) == numTRs, 'Assertion failed: Over FD trs + noncontinuous TRs + remaining TRs is not equal to original TRs');
 	% saveout time series
 	MRIwrite(dataL,ofpl);
 	MRIwrite(dataR,ofpr);
