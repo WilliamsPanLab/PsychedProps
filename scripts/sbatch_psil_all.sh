@@ -15,7 +15,7 @@ for subject_dir in "$base_dir"/*/; do
         session=${session##*_}
 
         # Define the file path to check
-        file_to_check="/scratch/users/apines/data/psil/${subject}/${session}/${subject}_${session}_rs2_k4_Prop_Feats_gro.csv"
+        file_to_check="/scratch/users/apines/data/psil/${subject}/${session}/${subject}_${session}_rs2_k4_Prop_Feats_groCantSeeMe.csv"
         
         if [ -e "$file_to_check" ]; then
             echo "File exists for $subject $session. Skipping inner loop."
