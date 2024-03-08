@@ -22,4 +22,4 @@ nets=struct;
 nets.Lnets=Lnets;
 nets.Rnets=Rnets;
 % save out
-save([funcgiiFolder 'gro_Nets_fs4.mat'],'nets')
+save([funcgiiFolder 'gro_Nets_fs4_Smooth.mat'],'nets')

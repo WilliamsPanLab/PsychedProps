@@ -60,7 +60,7 @@ g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
 g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
 
 % save out mask for reference in python visualization script of ATS (not fs5)
-save('/oak/stanford/groups/leanew1/users/apines/fs5surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
+save('/oak/stanford/groups/leanew1/users/apines/fs4surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
 
 % extract size of time series
 vfl=data.us.vf_left;
@@ -149,16 +149,14 @@ el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
-
-%% k = 1 to select DMN
+% note 1 appears to be insulomotor for smooth solution
+%% k = 1 to select DMN. k = 2 if smooth used
 Dnet_LH=networks.nets.Lnets(:,1);
 Dnet_RH=networks.nets.Rnets(:,1);
 for k=1:4
 	nets_LH=networks.nets.Lnets(:,k);
 	nets_RH=networks.nets.Rnets(:,k);
 	% create face-wise network mask
-	DMN_bool_L=zeros(5120,1);
-	DMN_bool_r=zeros(5120,1);
 	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
 	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
 	DMN_bool_L(DMN_bool_L>.3)=1;
@@ -195,7 +193,7 @@ for k=1:4
         InclLeft=find(sumLeft);
         InclRight=find(sumRight);
         % note InclLeft and Right presume mw mask already applied!	
-	% save InclLeft and Right to a reference .mat 
+	% save InclLeft and Right to a reference .mat
 	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors.mat'], 'InclLeft', 'InclRight');
 
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)

@@ -54,7 +54,7 @@ data=FaceVecL;
 %%% for red/blue 0-centered
 mincol=min(data);
 maxcol=max(data);
-custommap=colormap(b2r(mincol,maxcol));
+%custommap=colormap(b2r(mincol,maxcol));
 custommap=colormap('jet');
 % abscense of color to gray to accom. lighting "none"
 %custommap(126,:)=[.5 .5 .5];
@@ -170,7 +170,7 @@ data=FaceVecR;
 [vertices, faces] = freesurfer_read_surf(surfR);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
 colormap(custommap)
@@ -191,7 +191,7 @@ set(gca,'CLim',[mincol,maxcol]);
 set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
-aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 view([90 0]);
 colormap(custommap)
 caxis([mincol; maxcol]);

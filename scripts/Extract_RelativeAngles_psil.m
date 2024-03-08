@@ -153,6 +153,13 @@ networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/g
 %% k = 1 to select DMN
 Dnet_LH=networks.nets.Lnets(:,1);
 Dnet_RH=networks.nets.Rnets(:,1);
+
+% smoothed dmn version
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4_Smooth.mat']);
+%% k = 1 to select DMN. k = 2 if old smooth used
+Dnet_LH=networks.nets.Lnets(:,1);
+Dnet_RH=networks.nets.Rnets(:,1);
+
 for k=1:4
 	nets_LH=networks.nets.Lnets(:,k);
 	nets_RH=networks.nets.Rnets(:,k);

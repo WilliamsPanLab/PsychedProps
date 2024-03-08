@@ -53,11 +53,11 @@ sesh=ses-BL
 sleep 20
 
 # mask images: 8+ continuous frames only
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+matlab -nodisplay -r "MotMask_DES('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask_DES('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask_DES('$subj','$sesh','emotion')"
+matlab -nodisplay -r "MotMask_DES('$subj','$sesh','gambling')"
+matlab -nodisplay -r "MotMask_DES('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow

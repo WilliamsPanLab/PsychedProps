@@ -98,7 +98,7 @@ custommap=colormap(jet);
 %custommap(1,:)=[0 0 0];
 
 figure
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.pial']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
@@ -139,7 +139,8 @@ set(gca,'CLim',[mincol,maxcol]);
 
 %%% right hemisphere
 data=VertVecR;
-
+mincol=min(data);
+maxcol=max(data);
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
@@ -182,7 +183,7 @@ set(gcf,'Color','w')
 
 
 set(gca,'CLim',[mincol,maxcol]);
-%%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
+%set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 colorbar
 c=colorbar
 c.Location='southoutside'
