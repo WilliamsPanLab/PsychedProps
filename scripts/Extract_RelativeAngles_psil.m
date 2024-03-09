@@ -38,8 +38,8 @@ P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add TSNR mask, includes medial wall
-mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
-mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR_psil.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR_psil.func.gii';
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
