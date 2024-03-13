@@ -5,6 +5,7 @@ import nibabel as nib
 import glob
 import sys
 import os
+import numpy as np
 
 def process_cifti_files(folder_path, extension='.dtseries.nii'):
     """
@@ -30,6 +31,9 @@ def process_cifti_files(folder_path, extension='.dtseries.nii'):
 
         # Replace negative values with zeros
         data[data < 0] = 0
+
+        # and nans, 0'ed out in post subj 7 mb as well
+        data[np.isnan(data)]=0
 
         # Create a new CIFTI image with the modified data
         new_img = nib.Cifti2Image(data, header=img.header, nifti_header=img.nifti_header)

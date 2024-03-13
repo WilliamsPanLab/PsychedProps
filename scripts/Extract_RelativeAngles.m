@@ -297,7 +297,15 @@ for k=1:4
         end
         % average for this network before proceeding to next network loop
         AllAngs=[NangDs_R(:)' NangDs_L(:)'];
-        % average left-hemisphere values over time and plop into facematrix for this participant
+        % save out an AngDistMat for hierarchical distributions
+	AngDist=struct;
+	AngDist.Left=NangDs_L;
+	AngDist.Right=NangDs_R;
+	% calc outFP
+	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+	AngDistFP=[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_AngDistMat.mat'];
+	save(AngDistFP,'AngDist')
+	% average left-hemisphere values over time and plop into facematrix for this participant
         faceMatrix(InclLeft,k)=mean(NangDs_L,2);
         faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
         % and time series population
@@ -310,8 +318,6 @@ for k=1:4
         stringVec=[stringVec ['AngD' num2str(k)]];
 	% save out as csv
 	T=table(Propvec','RowNames',stringVec);
-	% calc outFP
-	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 	% write out
 	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
