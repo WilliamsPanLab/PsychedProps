@@ -3,12 +3,12 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 % group consensus filepath
 funcgiiFolder = ['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/'];
-Lnets=zeros(2562,4);
-Rnets=zeros(2562,4);
-% for each of 4 networks
-for k=1:4
-	netgiis_L=[funcgiiFolder 'Group_lh_Smooth_' num2str(k) '_3k.func.gii'];	
-	netgiis_R=[funcgiiFolder 'Group_rh_Smooth_' num2str(k) '_3k.func.gii'];	
+Lnets=zeros(2562,14);
+Rnets=zeros(2562,14);
+% for each of 14 networks
+for k=1:14
+	netgiis_L=[funcgiiFolder 'Group_lh_14Network_' num2str(k) '_3k.func.gii'];	
+	netgiis_R=[funcgiiFolder 'Group_rh_14Network_' num2str(k) '_3k.func.gii'];	
 	% load in functional networks: Left
 	Lnetsk=gifti(netgiis_L);
 	% load in functional networks: Right
@@ -22,4 +22,4 @@ nets=struct;
 nets.Lnets=Lnets;
 nets.Rnets=Rnets;
 % save out
-save([funcgiiFolder 'gro_Nets_fs4_Smooth.mat'],'nets')
+save([funcgiiFolder 'gro_14Nets_fs4.mat'],'nets')

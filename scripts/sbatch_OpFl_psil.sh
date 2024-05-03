@@ -73,12 +73,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
 
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}

@@ -86,12 +86,17 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
 # group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
+matlab -nodisplay -r "Extract_RelativeAngles_Granular('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_Granular('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_Granular('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles_Granular('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles_Granular('$subj','$sesh','wm')"
 # individual
 #matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Extract_RelativeAngles_Ind('$subj','$sesh','rs2')"

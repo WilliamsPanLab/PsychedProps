@@ -10,11 +10,11 @@ netgiis_R=[funcgiiFolder '' subj '_R_AggNets_3k.func.gii'];
 Lnets=gifti(netgiis_L);
 % load in functional networks: Right
 Rnets=gifti(netgiis_R);
-% set to 4 networks
-Lnets=Lnets.cdata(:,1:4);
-Rnets=Rnets.cdata(:,1:4);
+% set to 14 networks
+Lnets=Lnets.cdata(:,1:14);
+Rnets=Rnets.cdata(:,1:14);
 % save out
 nets=struct;
 nets.Lnets=Lnets;
 nets.Rnets=Rnets;
-save([funcgiiFolder '' subj '_Nets_fs4.mat'],'nets')
+save([funcgiiFolder '' subj '_14Nets_fs4.mat'],'nets')
