@@ -75,19 +75,20 @@ ntimesteps = size(data, timeDim) - 1;
 %        params.morletParam, timeDim));
 %end
 
+% AP - 5/4/24 - BPF in python hand-off script prior to this now, along w/ gaus smooth
 % AP - custom bpf: construct filter
 % sampling frequency per second
-F=1/15;
+%F=1/15;
 % nyquist
-Ny=F/2;
+%Ny=F/2;
 % lower and upper limit
-BW_Hz = [.01 .1];
-bp_order=2;
-BW_N = BW_Hz/Ny;
+%BW_Hz = [.01 .1];
+%bp_order=2;
+%BW_N = BW_Hz/Ny;
 % poorly-named parameters b and aa inform a butterworth filter
-[b, aa] = butter(ceil(bp_order/2),BW_N);
+%[b, aa] = butter(ceil(bp_order/2),BW_N);
 % bandpas the signal
-wvcfs = filtfilt(b,aa,double(data));
+%wvcfs = filtfilt(b,aa,double(data));
 
 toc
 
