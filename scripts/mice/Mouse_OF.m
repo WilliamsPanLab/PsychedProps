@@ -1,10 +1,11 @@
 function Mouse_OF(subj)
 % all credit to NeuroPattToolbox: https://github.com/BrainDynamicsUSYD/NeuroPattToolbox, at least Rory Townsend, Xian Long, and Pulin Gong
-
+addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/NeuroPattToolbox'))
 % Most of code is from:
 % Rory Townsend, Aug 2018
 % rory.townsend@sydney.edu.au
-
+% set sampling frequency
+Fs=15;
 params=struct;
 params.zscoreChannels=0;
 params.params.subtractBaseline=0;
@@ -15,15 +16,44 @@ params.opAlpha = 0.5;
 params.opBeta = 0.1;
 % note we don't want to analyze phase directly incase propagations of interest are aperiodic
 params.useAmplitude = true;
+
 % AP load in data: pre LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
 fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
 data=h5read(fn, '/processed_data');
 formask=h5read(fn, '/mask');
 
-%%
-% load in  post-scans as trials 2 3 4 5!
-%%
+%% add if/else
+% post 1
+basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+if exist(fn)
+	data(:,:,:,2)=h5read(fn, '/processed_data');
+end
+% post 2
+basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+if exist(fn)
+	data(:,:,:,3)=h5read(fn, '/processed_data');
+end
+% post 3
+basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+if exist(fn)
+	data(:,:,:,4)=h5read(fn, '/processed_data');
+end
+% post 4
+basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+if exist(fn)
+	data(:,:,:,5)=h5read(fn, '/processed_data');
+end
+% post 5
+basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+if exist(fn)
+	data(:,:,:,6)=h5read(fn, '/processed_data');
+end
 
 % AP - commenting out and replacing with mask derived from atlas
 mask = cellfun(@(x) strcmp(x, 'TRUE'), formask); 
@@ -66,9 +96,9 @@ for itrial = 1:size(wvcfs,4)
     meanCSteps(itrial) = mean(csteps);
     fprintf('Processed trial %i\n', itrial)
 end
-
-% AP: skipping SVD
-
+%
+%%% AP: skipping SVD could be useful at some point
+%
 % this is their pattern estimation, looks cool
 tic
 % Set up pattern structures
@@ -126,10 +156,9 @@ if size(vfs, 4) > 1
 end
 
 % Set all outputs
-if ~onlyPatterns
-    outputs.filteredSignal = wvcfs;
-    outputs.velocityFields = vfs;
-end
+% AP omitting onlyPatterns: we want dem vecta fieldz
+outputs.filteredSignal = wvcfs;
+outputs.velocityFields = vfs;
 outputs.badChannels = badChannels;
 outputs.nTimeSteps = ntimesteps;
 outputs.patternTypes = patternTypes;
@@ -141,9 +170,18 @@ outputs.pattTransitionsObs = nobs;
 outputs.pattTransitionsExp = nexp;
 outputs.Fs = Fs;
 outputs.processTime = datetime - startTime;
+outputs.pvals=pvals;
 
+% save outputs to mouse dir
+outfp=[basefp subj '_vf_out.mat'];
+save(outfp,'outputs');
 % visualize
 useAmplitude= true;
-vidName='~/testvideo'
+outFoldName=['~/' subj ];
+system(['mkdir ' outFoldName]);
+vidName=[outFoldName '/vecField_'];
+vidFps=10;
+resizeScale=1;
+vfScale=1;
 saveVelocityFieldVideo(wvcfs, vfs, vidName, vidFps, ...
     Fs, resizeScale, vfScale, useAmplitude)
