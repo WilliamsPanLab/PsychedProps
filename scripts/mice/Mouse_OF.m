@@ -1,4 +1,4 @@
-function Mouse_OF(subj)
+function Mouse_OF(subj,FB)
 % all credit to NeuroPattToolbox: https://github.com/BrainDynamicsUSYD/NeuroPattToolbox, at least Rory Townsend, Xian Long, and Pulin Gong
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/NeuroPattToolbox'))
 % Most of code is from:
@@ -11,6 +11,7 @@ params.zscoreChannels=0;
 params.params.subtractBaseline=0;
 % enforcement of smoothness of vector field
 params.opAlpha = 0.5;
+startTime=datetime
 % https://github.com/rorygt/NeuroPattToolbox/blob/master/setParams.m claims opBeta=0.01 is default, but it's not clear we can run the code with that low of a beta and 1 is what is actually set in the code. Trying 0.1 to afford some nonlinearity while being computationally tractable
 % enforcement of linearity of vector field (higher = more linear)
 params.opBeta = 0.1;
@@ -19,41 +20,47 @@ params.useAmplitude = true;
 
 % AP load in data: pre LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-data=h5read(fn, '/processed_data');
-formask=h5read(fn, '/mask');
-
+% load in specified frequency band
+if strcmp(FB, 'IS')
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	data=h5read(fn, '/processed_data');
+	formask=h5read(fn, '/mask');
+else
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	data=h5read(fn, '/processed_data');
+	formask=h5read(fn, '/mask');
+end
 %% add if/else
 % post 1
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-if exist(fn)
-	data(:,:,:,2)=h5read(fn, '/processed_data');
-end
+%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+%if exist(fn)
+%	data(:,:,:,2)=h5read(fn, '/processed_data');
+%end
 % post 2
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-if exist(fn)
-	data(:,:,:,3)=h5read(fn, '/processed_data');
-end
+%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+%if exist(fn)
+%	data(:,:,:,3)=h5read(fn, '/processed_data');
+%end
 % post 3
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-if exist(fn)
-	data(:,:,:,4)=h5read(fn, '/processed_data');
-end
+%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+%if exist(fn)
+%	data(:,:,:,4)=h5read(fn, '/processed_data');
+%end
 % post 4
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-if exist(fn)
-	data(:,:,:,5)=h5read(fn, '/processed_data');
-end
+%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+%if exist(fn)
+%	data(:,:,:,5)=h5read(fn, '/processed_data');
+%end
 % post 5
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-if exist(fn)
-	data(:,:,:,6)=h5read(fn, '/processed_data');
-end
+%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+%if exist(fn)
+%	data(:,:,:,6)=h5read(fn, '/processed_data');
+%end
 
 % AP - commenting out and replacing with mask derived from atlas
 mask = cellfun(@(x) strcmp(x, 'TRUE'), formask); 
@@ -170,18 +177,19 @@ outputs.pattTransitionsObs = nobs;
 outputs.pattTransitionsExp = nexp;
 outputs.Fs = Fs;
 outputs.processTime = datetime - startTime;
-outputs.pvals=pvals;
+% commented out for present moment: only running 1st "trial"
+%outputs.pvals=pvals;
 
 % save outputs to mouse dir
-outfp=[basefp subj '_vf_out.mat'];
+outfp=[basefp subj '_vf_out_' FB '.mat'];
 save(outfp,'outputs');
 % visualize
 useAmplitude= true;
-outFoldName=['~/' subj ];
+outFoldName=['/scratch/users/apines/mouseViz/' subj ];
 system(['mkdir ' outFoldName]);
-vidName=[outFoldName '/vecField_'];
-vidFps=10;
+vidName=[outFoldName '/vecField_' FB '_'];
+vidFps=15;
 resizeScale=1;
 vfScale=1;
 saveVelocityFieldVideo(wvcfs, vfs, vidName, vidFps, ...
-    Fs, resizeScale, vfScale, useAmplitude)
+    Fs, resizeScale, vfScale, useAmplitude,FB)

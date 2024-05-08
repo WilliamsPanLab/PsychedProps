@@ -1,9 +1,9 @@
 #!/bin/bash
 #
-#SBATCH --job-name=simStreamComb
+#SBATCH --job-name=MouseOF
 #SBATCH --time=48:00:00
 #SBATCH -n 1
-#SBATCH --mem=25G
+#SBATCH --mem=30G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -12,8 +12,18 @@
 
 # will need matlab
 module load matlab
+# for gif maker
+ml system
+ml ffmpeg/5.0
 
 # subject name is input argument
 subj=$1
 
-matlab -nodisplay -r "Mouse_OF('$subj')"
+# infraslow optical flow
+matlab -nodisplay -r "Mouse_OF('$subj','IS')"
+
+# Delta
+matlab -nodisplay -r "Mouse_OF('$subj','Del')"
+
+# Theta
+matlab -nodisplay -r "Mouse_OF('$subj','The')"
