@@ -18,7 +18,7 @@ ds_dims = (70, 67)
 fname_demo = '/scratch/users/apines/p50_mice/demo/ipynbdemo_data_v36.npz'
 
 # saveout - change FN to match post-bp gaus (IS)
-output_suffix = '_Gro_Masked_Sml_BP_Smoothed_Sml'
+output_suffix = '_Gro_Masked_Sml_BP_Smoothed_Sml_IS'
 
 # load in hard-coded mask filepath from predrug session. One subject (mouse) because they all have the same mask at this point
 fn='/scratch/users/apines/p50_mice/proc/20200228/thy1gc6s_0p3mgkg_m2000_preLSD0p3mgkg_1/masked_dff_DS_BP_Smoothed.h5'

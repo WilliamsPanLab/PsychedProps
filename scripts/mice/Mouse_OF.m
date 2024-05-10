@@ -1,4 +1,4 @@
-function Mouse_OF(subj,FB)
+function Mouse_OF(subj,FB,run)
 % all credit to NeuroPattToolbox: https://github.com/BrainDynamicsUSYD/NeuroPattToolbox, at least Rory Townsend, Xian Long, and Pulin Gong
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/NeuroPattToolbox'))
 % Most of code is from:
@@ -21,47 +21,63 @@ params.useAmplitude = true;
 % AP load in data: pre LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
 % load in specified frequency band
-if strcmp(FB, 'IS')
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-	data=h5read(fn, '/processed_data');
-	formask=h5read(fn, '/mask');
-else
+if run==1	
 	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
-	data=h5read(fn, '/processed_data');
-	formask=h5read(fn, '/mask');
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	else
+		disp('no run found')
+	end	
 end
 %% add if/else
 % post 1
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-%if exist(fn)
-%	data(:,:,:,2)=h5read(fn, '/processed_data');
-%end
+if run==2
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	else
+		disp('no run found')
+	end
+end
 % post 2
-%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-%if exist(fn)
-%	data(:,:,:,3)=h5read(fn, '/processed_data');
-%end
-% post 3
-%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-%if exist(fn)
-%	data(:,:,:,4)=h5read(fn, '/processed_data');
-%end
-% post 4
-%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-%if exist(fn)
-%	data(:,:,:,5)=h5read(fn, '/processed_data');
-%end
-% post 5
-%basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-%fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
-%if exist(fn)
-%	data(:,:,:,6)=h5read(fn, '/processed_data');
-%end
+if run==3	
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	else    
+                disp('no run found')
+        end
+end 
 
+% post 3
+if run==4
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	else
+		disp('no run found')
+% post 4
+if run==5
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	end
+else
+	disp('no run found')
+% post 5
+if run==6
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
+	if exist(fn)
+		data=h5read(fn, '/processed_data');
+		formask=h5read(fn, '/mask');
+	end
+else
+	disp('no run found')
 % AP - commenting out and replacing with mask derived from atlas
 mask = cellfun(@(x) strcmp(x, 'TRUE'), formask); 
 badChannels=mask;
@@ -83,7 +99,9 @@ meanCSteps = zeros(size(wvcfs,4), 1);
 
 % Calculate velocity fields for every trial: consider feeding in pre drug as trial one, and 4 post durgs as trials 1-5!
 % steps to converge
-for itrial = 1:size(wvcfs,4)
+% AP - Only one trial in this version
+for itrial = 1
+%for itrial = 1:size(wvcfs,4)
     [vx, vy, csteps] = opticalFlow2(wvcfs(:,:,:,itrial), badChannels, ...
         params.opAlpha, params.opBeta, ~params.useAmplitude);
     % alternatively, you can use Matlab built-in function 'opticalflowHS', 
@@ -144,23 +162,7 @@ disp('Fractional change between observed and expected')
 disp(nanmean((nobs-nexp)./nexp, 3));
 
 
-% Test differences between observed and expected if multiple trials are
-% present
-if size(vfs, 4) > 1
-
-    pvals = zeros(size(nobs,1));
-    for initPatt = 1:size(nobs,1)
-        for nextPatt = 1:size(nobs,2)
-            thisObs = nobs(initPatt, nextPatt, :);
-            thisExp = nexp(initPatt, nextPatt, :);
-            [h, p] = ttest(thisObs(:),  thisExp(:));
-            pvals(initPatt, nextPatt) = p;
-        end
-    end
-    disp('Paired t-test p-values')
-    fprintf('Bonferroni correction factor = %i\n', numel(pvals))
-    disp(pvals)
-end
+% AP - omitting tests across trials: runs too large to fit into one run anyway. Would have to run post-hoc after loading in derived vector fields
 
 % Set all outputs
 % AP omitting onlyPatterns: we want dem vecta fieldz
@@ -177,15 +179,13 @@ outputs.pattTransitionsObs = nobs;
 outputs.pattTransitionsExp = nexp;
 outputs.Fs = Fs;
 outputs.processTime = datetime - startTime;
-% commented out for present moment: only running 1st "trial"
-%outputs.pvals=pvals;
 
 % save outputs to mouse dir
-outfp=[basefp subj '_vf_out_' FB '.mat'];
+outfp=[basefp subj '_vf_out_' FB '_' num2str(run) '.mat'];
 save(outfp,'outputs');
 % visualize
 useAmplitude= true;
-outFoldName=['/scratch/users/apines/mouseViz/' subj ];
+outFoldName=['/scratch/users/apines/mouseViz/' subj '_' FB '_' num2str(run)];
 system(['mkdir ' outFoldName]);
 vidName=[outFoldName '/vecField_' FB '_'];
 vidFps=15;
