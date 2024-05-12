@@ -21,3 +21,8 @@ subj=$1
 
 # infraslow optical flow
 matlab -nodisplay -r "Mouse_OF('$subj','IS',1)"
+matlab -nodisplay -r "Mouse_OF('$subj','IS',2)"
+matlab -nodisplay -r "Mouse_OF('$subj','IS',3)"
+matlab -nodisplay -r "Mouse_OF('$subj','IS',4)"
+matlab -nodisplay -r "Mouse_OF('$subj','IS',5)"
+matlab -nodisplay -r "Mouse_OF('$subj','IS',6)"

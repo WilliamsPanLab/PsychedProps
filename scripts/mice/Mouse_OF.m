@@ -51,7 +51,6 @@ if run==3
                 disp('no run found')
         end
 end 
-
 % post 3
 if run==4
 	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
@@ -60,24 +59,28 @@ if run==4
 		formask=h5read(fn, '/mask');
 	else
 		disp('no run found')
+	end
+end
 % post 4
 if run==5
 	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
+	else
+		disp('no run found')
 	end
-else
-	disp('no run found')
+end
 % post 5
 if run==6
 	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
+	else	
+		disp('no run found')
 	end
-else
-	disp('no run found')
+end
 % AP - commenting out and replacing with mask derived from atlas
 mask = cellfun(@(x) strcmp(x, 'TRUE'), formask); 
 badChannels=mask;
