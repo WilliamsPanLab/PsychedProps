@@ -172,7 +172,7 @@ for k=1
                         % get optical flow vector
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
+			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
 			
 			% get angular distance at that timepoint (degrees)
                         %a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
@@ -194,48 +194,46 @@ for k=1
 			% populate vector
                         NangDs(F,fr)=a;
 			%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
-			fig=figure('Visible','off');
+			%fig=figure('Visible','off');
 			% Plot the reference vector (assuming nVec is already defined in your workspace)
-			quiver(0, 0, nVec(1), nVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'k', 'DisplayName', 'Reference Vector');
-			hold on;
+			%quiver(0, 0, nVec(1), nVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'k', 'DisplayName', 'Reference Vector');
+			%hold on;
 			% optical flow vectors
-			quiver(0, 0, OpFlVec(1), OpFlVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'r', 'DisplayName', 'Optical Flow Vector');
-			legend show;
-			title(sprintf('Angular Distance: %.2f degrees', a));
-			axis equal;
-			xlim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
-			ylim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+			%quiver(0, 0, OpFlVec(1), OpFlVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'r', 'DisplayName', 'Optical Flow Vector');
+			%legend show;
+			%title(sprintf('Angular Distance: %.2f degrees', a));
+			%axis equal;
+			%xlim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+			%ylim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
 			% Plot the optical flow vector
-			saveas(fig, ['~/vector_plot' num2str(fr) '.png']);
-			%%%%
+			%saveas(fig, ['~/vector_plot' num2str(fr) '.png']);
+			%%%% Seems to work, commenting out
 
                 % end tp loop
                 end
 		% get circ SD
-		L_CSD=circ_std(Thetas_L');
+		%CSD=circ_std(Thetas');
         	% plop into outut vector for left hemi
-		SD_L(F)=L_CSD;
+		%SD(F)=CSD;
 	% end each face loop
         end
-        % average for this network before proceeding to next network loop
-        AllAngs=[NangDs_R(:)' NangDs_L(:)'];
         % average left-hemisphere values over time and plop into facematrix for this participant
         faceMatrix(DMN_bool)=mean(NangDs,2);
         % and time series population
 	OutTs=NangDs;
 	% average angular distances across hemispheres
-        avgD=mean(NangDs);
+        avgD=mean(mean(NangDs));
         Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['AngD_1']];
 	% save out as csv
-	T=table(Propvec','RowNames',stringVec);
+	T=table(Propvec,'RowNames',stringVec);
 	% calc outFP
-	outFP=['/scratch/users/apines/data/mouse/' subj '/' sesh '_' FB];
+	outFP=['/scratch/users/apines/data/mouse/'];
 	% write out
-	writetable(T,[outFP '/' subj '_' sesh '_' FB '_Prop_Feats_gro.csv'],'WriteRowNames',true)
+	writetable(T,[outFP subj '_' num2str(sesh) '_' FB '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' FB '_faceMatrix_gro.csv'])
+	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_' FB '_faceMatrix_gro.csv'])
 	% save out time series
-	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn.csv'])
+	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_' FB '_Prop_TS_dmn.csv'])
 end
