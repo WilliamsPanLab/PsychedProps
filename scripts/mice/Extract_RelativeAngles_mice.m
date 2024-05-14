@@ -173,19 +173,39 @@ for k=1
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
 			[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
-			% get angular distance at that timepoint (degrees)
-                        a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
-                        % populate vector
-                        NangDs(F,fr)=a;
 			
+			% get angular distance at that timepoint (degrees)
+                        %a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
+                        
+			% Calculate angles from the origin to each vector using atan2
+        		%theta_nVec = atan2(nVec(2), nVec(1));
+        		%theta_OpFlVec = atan2(OpFlVec(2), OpFlVec(1));
+			% angular distance in radians
+			%angular_distance_rad = abs(theta_OpFlVec - theta_nVec);
+			% convert the angular distance from radians to degrees and normalize to [0, 180]
+        		%a = rad2deg(angular_distance_rad);
+        		%a = min(a, 360 - a);
+		
+			%https://www.mathworks.com/matlabcentral/answers/101590-how-can-i-determine-the-angle-between-two-vectors-in-matlab	
+			%a=atan2(norm(cross(OpFlVec,nVec)),dot(OpFlVec,nVec));
+			CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
+			a = real(acosd(CosTheta));
+	
+			% populate vector
+                        NangDs(F,fr)=a;
 			%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
-			fig=figure;
-			title(sprintf('Angular Distance: %.2f degrees', a));
+			fig=figure('Visible','off');
 			% Plot the reference vector (assuming nVec is already defined in your workspace)
 			quiver(0, 0, nVec(1), nVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'k', 'DisplayName', 'Reference Vector');
 			hold on;
-			% Plot the optical flow vector
+			% optical flow vectors
 			quiver(0, 0, OpFlVec(1), OpFlVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'r', 'DisplayName', 'Optical Flow Vector');
+			legend show;
+			title(sprintf('Angular Distance: %.2f degrees', a));
+			axis equal;
+			xlim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+			ylim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+			% Plot the optical flow vector
 			saveas(fig, ['~/vector_plot' num2str(fr) '.png']);
 			%%%%
 
