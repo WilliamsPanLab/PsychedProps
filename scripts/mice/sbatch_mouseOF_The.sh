@@ -21,3 +21,8 @@ subj=$1
 
 # Theta
 matlab -nodisplay -r "Mouse_OF('$subj','The',1)"
+matlab -nodisplay -r "Mouse_OF('$subj','The',2)"
+matlab -nodisplay -r "Mouse_OF('$subj','The',3)"
+matlab -nodisplay -r "Mouse_OF('$subj','The',4)"
+matlab -nodisplay -r "Mouse_OF('$subj','The',5)"
+matlab -nodisplay -r "Mouse_OF('$subj','The',6)"

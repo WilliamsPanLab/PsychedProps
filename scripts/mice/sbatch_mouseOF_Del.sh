@@ -21,4 +21,8 @@ subj=$1
 
 # Delta frequency band
 matlab -nodisplay -r "Mouse_OF('$subj','Del',1)"
-
+matlab -nodisplay -r "Mouse_OF('$subj','Del',2)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',3)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',4)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',5)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',6)"
