@@ -9,6 +9,8 @@ addpath(genpath(ToolFolder));
 % note this is for LSD only! Adapt recording date for ketamine if needed
 childfp='/scratch/users/apines/p50_mice/proc/20200228/'
 datafp=[childfp subj '_vf_out_' FB '_' num2str(sesh) '.mat']
+% adding in if it exists: ends all the way at the end of the script
+if exist(datafp)
 data=load(datafp)
 % load in mask
 %fn='/scratch/users/apines/p50_mice/proc/20200228/thy1gc6s_0p3mgkg_m2000_preLSD0p3mgkg_1/masked_dff_DS_BP_Smoothed.h5'
@@ -108,8 +110,8 @@ for k=1
 	nets=Dnet;
 	% create pixel-wise network mask
 	DMN_bool=Dnet;
-	DMN_bool(DMN_bool>.3)=1;
-	DMN_bool(DMN_bool<.3)=0;
+	DMN_bool(DMN_bool>.6)=1;
+	DMN_bool(DMN_bool<.6)=0;
 	DMN_bool=logical(DMN_bool);
 	% initialize matrix for each pixel to saveout to scratch
 	faceMatrix=zeros(sum(sum(DMN_bool)));
@@ -119,6 +121,7 @@ for k=1
         [nGx, nGy] =imgradientxy(net);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%% temporary visualization code to triple check stuff
+	%%%%% DMN gradient + vectors
 	%fig=figure;
 	%imagesc(net);
 	%colormap('jet');
@@ -130,6 +133,41 @@ for k=1
 	%quiver(x, y, nGx, nGy);
 	%hold off;
 	%saveas(fig, '~/DMNGrad_DMUnder.png');
+	%%%%% Ca2+ signal+vectors, DMN gradient vectors
+       	%fig=figure;
+	%imagesc(signalGrid(:,:,1));
+	%colormap('jet');
+	%hold on;
+	% Create a grid for the quiver plot
+        %[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
+        % Hold on to the current image and overlay the quiver plot
+        %hold on;
+        %quiver(x, y, nGx, nGy);
+        %hold on;
+	% quiver for of vectors
+	%quiver(x,y,OpF_x(:,:,1),OpF_y(:,:,1),'w')
+	%hold off;
+	%print(fig, '~/DMNGrad_SignalUnder', '-dpng', '-r600')
+	%%%%%% Boolean DMN mask, Ca2+ signal and DMN gradient vectors
+	%fig=figure;
+	%DMN_bool=Dnet;
+        %DMN_bool(DMN_bool>.6)=1;
+        %DMN_bool(DMN_bool<.6)=0;
+        %imagesc(DMN_bool);
+        %colormap('jet');
+        %hold on;
+        % Create a grid for the quiver plot
+        %[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
+        % Hold on to the current image and overlay the quiver plot
+        %hold on;
+        %quiver(x, y, nGx, nGy);
+        %hold on;
+        % quiver for of vectors
+        %quiver(x,y,OpF_x(:,:,1),OpF_y(:,:,1),'w')
+        %hold off;
+        %print(fig, '~/DMNGrad_BooleanUnder', '-dpng', '-r600')	
+	% reconversion to logical
+	%DMN_bool=logical(DMN_bool);
 	% looks good, commenting out for now
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -175,7 +213,7 @@ for k=1
 			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
 			
 			% get angular distance at that timepoint (degrees)
-                        %a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
+                        a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         
 			% Calculate angles from the origin to each vector using atan2
         		%theta_nVec = atan2(nVec(2), nVec(1));
@@ -188,8 +226,10 @@ for k=1
 		
 			%https://www.mathworks.com/matlabcentral/answers/101590-how-can-i-determine-the-angle-between-two-vectors-in-matlab	
 			%a=atan2(norm(cross(OpFlVec,nVec)),dot(OpFlVec,nVec));
-			CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
-			a = real(acosd(CosTheta));
+			
+			% These two lines are working!
+			%CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
+			%a = real(acosd(CosTheta));
 	
 			% populate vector
                         NangDs(F,fr)=a;
@@ -222,7 +262,7 @@ for k=1
         % and time series population
 	OutTs=NangDs;
 	% average angular distances across hemispheres
-        avgD=mean(mean(NangDs));
+        avgD=mean(mean(NangDs))
         Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['AngD_1']];
@@ -236,4 +276,7 @@ for k=1
 	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_' FB '_faceMatrix_gro.csv'])
 	% save out time series
 	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_' FB '_Prop_TS_dmn.csv'])
+end
+else
+	disp('file not found')
 end
