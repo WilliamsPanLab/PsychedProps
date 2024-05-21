@@ -1,4 +1,4 @@
-function Extract_RelativeAngles_mice(subj,sesh)
+function Extract_RelativeAngles_mice_ket(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each pixel.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -7,8 +7,8 @@ addpath(genpath(ToolFolder));
 
 % Load in flatmouse opflow calc
 % note this is for LSD only! Adapt recording date for ketamine if needed
-childfp='/scratch/users/apines/p50_mice/proc/20200228/'
-datafp=[childfp subj '_vf_out_' num2str(sesh) '.mat']
+childfp='/scratch/users/apines/p50_mice/proc/20200310/'
+datafp=[childfp subj '_vf_out_ket_' num2str(sesh) '.mat']
 % adding in if it exists: ends all the way at the end of the script
 if exist(datafp)
 data=load(datafp)
@@ -271,11 +271,11 @@ for k=1
 	% calc outFP
 	outFP=['/scratch/users/apines/data/mouse/'];
 	% write out
-	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
+	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro_ket.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro.csv'])
+	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro_ket.csv'])
 	% save out time series
-	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
+	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn_ket.csv'])
 end
 else
 	disp('file not found')
