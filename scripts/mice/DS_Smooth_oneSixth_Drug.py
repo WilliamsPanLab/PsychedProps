@@ -9,7 +9,7 @@ from skimage.measure import block_reduce as downscale_local_mean
 from scipy.ndimage import gaussian_filter
 
 data_dir = '/scratch/users/apines/p50_mice/proc'
-subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_preLSD.txt', delimiter=' ', names=['date', 'session'])
+subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_ketMixed.txt', delimiter=' ', names=['date', 'session'])
 fname = 'masked_dff.h5'
 data_key = 'vid'
 
@@ -36,7 +36,7 @@ for index, (date, sess) in subjlist.iterrows():
         data = downscale_local_mean(data, (1,) + 2*(downscale,))
         data = data[:, :ds_dims[0], :ds_dims[1]]
         # bandpass
-        sos = sp.signal.butter(2, [0.5, 4], 'bandpass', fs=15, output='sos')
+        sos = sp.signal.butter(2, [1, 4], 'bandpass', fs=15, output='sos')
         data = sp.signal.sosfiltfilt(sos, data, axis=0)
         # gaussian
         data = gaussian_filter(data, sigma=(0, 2, 2))

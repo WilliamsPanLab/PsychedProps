@@ -5,8 +5,8 @@ VertVecL=surfl;
 VertVecR=surfr;
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
-surfL = [SubjectsFolder '/lh.pial'];
-surfR = [SubjectsFolder '/rh.sphere'];
+surfL = [SubjectsFolder '/lh.inflated'];
+surfR = [SubjectsFolder '/rh.inflated'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -22,10 +22,24 @@ F_R=faces_r;
 % vertices V
 V_R=vx_r;
 
+%%% load in medial wall and SNR mask (to zero out medial wall in trisurf and quvier3)
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
+mw_L=zeros(1,2562);
+mw_L(mwAndTSNR_L==1)=1;
+mw_R=zeros(1,2562);
+mw_R(mwAndTSNR_R==1)=1;
+mw_L=logical(mw_L);
+mw_R=logical(mw_R);
 %%%%%%%%%%%%%%%%%%%%%%%%
 % set data in the plotting script's terms
 data=VertVecL;
 ret=vecl;
+% mask with medial wall... leading to rendering issue in vector fields? commented out for now
+%data(mw_L)=0;
+%ret(mw_L,:)=0;
 % vector scaling factor
 scalingfactor=1;
 % colors
@@ -42,7 +56,20 @@ if strcmp(Coloration,'Directional')
 	minVal = min(vecl(:));
 	maxVal = max(vecl(:));
 	% need everything to be above 0 (+absminval) but scaled 0-1 (./maxval+absminval)
-	RGBValues=(vecl+abs(minVal))./(maxVal+abs(minVal));
+	RGBValues_L=(vecl+abs(minVal))./(maxVal+abs(minVal));
+	% repeat for R
+	maxcol=max(vecl(:));
+        % scale RGB values to max
+        minVal = min(vecr(:));
+        maxVal = max(vecr(:));
+        % consider scaling RGB colors by this value as well
+        mincol=0;
+        maxcol=max(vecr(:));
+        % scale RGB values to max
+        minVal = min(vecr(:));
+        maxVal = max(vecr(:));
+        % need everything to be above 0 (+absminval) but scaled 0-1 (./maxval+absminval)
+        RGBValues_R=(vecr+abs(minVal))./(maxVal+abs(minVal));
 elseif strcmp(Coloration,'BOLD')
 	%mincol=min(min([VertVecL VertVecR]))
 	%maxcol=max(max([VertVecL VertVecR]))
@@ -109,7 +136,7 @@ end
 hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
-	quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues,scalingfactor)
+	quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
 elseif strcmp(Coloration,'BOLD')
 	quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -138,7 +165,7 @@ colormap(custommap);
 caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
-	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues,scalingfactor)
+	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -150,6 +177,73 @@ rotate(bplot, [0 0 1], 180)
 axis vis3d off;
 lighting none;
 shading flat;
+
+
+% RIGHT hemisphere
+data=VertVecR;
+ret=vecr;
+% mask with medial wall
+%data(mw_R)=0;
+%ret(mw_R,:)=0;
+% medial left hemisphere
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
+% begin figure
+asub = subaxis(2,2,2, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
+if strcmp(Coloration,'Directional')
+        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        set(aplot, 'EdgeColor', 'none');
+        set(aplot, 'FaceColor', 'w');
+        set(aplot, 'LineStyle', 'none');
+elseif strcmp(Coloration,'BOLD')
+        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot.FaceVertexCData=data;
+end
+hold on;
+% create a quiver if this is a directional plot, fill-in if not
+if strcmp(Coloration,'Directional')
+        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_R,scalingfactor)
+elseif strcmp(Coloration,'BOLD')
+        bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
+end
+view([90 0]);
+rotate(aplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
+colormap(custommap)
+daspect([1 1 1]);
+axis tight;
+axis vis3d off;
+lighting none;
+shading flat;
+set(gca,'CLim',[mincol,maxcol]);
+% other view of left hemisphere (lateral)
+asub = subaxis(2,2,3, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
+if strcmp(Coloration,'Directional')
+        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        set(aplot, 'EdgeColor', 'none');
+        set(aplot, 'FaceColor', 'w');
+        set(aplot, 'LineStyle', 'none');
+elseif strcmp(Coloration,'BOLD')
+        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot.FaceVertexCData=data;
+end
+hold on;
+colormap(custommap);
+caxis([mincol; maxcol]);
+% removing upscaling vector field so vectors are locked to vertices
+if strcmp(Coloration,'Directional')
+        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_R,scalingfactor)
+elseif strcmp(Coloration,'BOLD')
+        bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
+end
+view([90 0]);
+daspect([1 1 1]);
+axis tight;
+
+axis vis3d off;
+lighting none;
+shading flat;
+
+
 % printout
 print(Fn,'-dpng','-r1000')
 
@@ -164,7 +258,6 @@ print(Fn,'-dpng','-r1000')
 % asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
 % aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
 % view([90 0]);
-% rotate(aplot, [0 0 1], 180)
 %colormap(custommap)
 % caxis([mincol; maxcol]);
 % daspect([1 1 1]);

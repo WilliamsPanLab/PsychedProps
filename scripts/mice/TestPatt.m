@@ -20,8 +20,8 @@ params.opBeta = 0.1;
 % note we don't want to analyze phase directly incase propagations of interest are aperiodic
 params.useAmplitude = true;
 % initialize number of observations total and expected total
-nobs_tot=zeros(7,6);
-nexp_tot=zeros(7,6);
+nobs_tot=zeros(7,6,length(mList));
+nexp_tot=zeros(7,6,length(mList));
 % base filepath for LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/';
 % for each mouse
@@ -59,7 +59,7 @@ for i=1:length(mList)
 				currPatts = find(tempPattFreq(:,1)==j);
 				freq=tempPattFreq(currPatts,2)
 				% insert into cross-mouse df
-				nobs_tot(j, itrial) = nobs_tot(j, itrial) + freq;
+				nobs_tot(j, itrial,i) = freq;
         		end
 		end
 	end
@@ -104,7 +104,8 @@ for i=1:length(mList)
     	fprintf('Bonferroni correction factor = %i\n', numel(pvals))
     	disp(pvals)
 	end
-	nobs_tot
 end
 disp('all mice ran')
 nobs_tot
+% save out nobs total
+save('/oak/stanford/groups/leanew1/users/apines/data/p50/Patterns_mice_LSD.mat',nobs_tot)

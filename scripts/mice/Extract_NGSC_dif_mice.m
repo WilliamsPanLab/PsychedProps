@@ -4,9 +4,13 @@ function Extract_ang_dif_mice()
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 % set subj list, missing run 6 for 7507
-subjList = {'m2000','m7507','m7520','m7522','m7589','m7594'};;
+%subjList = {'m2000','m7507','m7520','m7522','m7589','m7594'};
+subjList = {'m2000','m7520','m7522','m7589','m7594'};
 % initialize output file, 6 sessions, 1 for name
 outDF=cell(length(subjList),7);
+% set sesh to date
+% LSD date
+sesh='20200228'
 % set common fp
 commonFP=['/scratch/users/apines/data/mouse/'];
 % for each mouse
@@ -15,8 +19,8 @@ for s=1:length(subjList);
 	for run=1:6
 		% insert subject ID as first column
 		outDF(s,1)=subjList(s);
-	        ofFP='/scratch/users/apines/data/mouse/'
-		ofFP=strjoin([ofFP subjList(s) '_' num2str(run) '_Prop_Feats_gro.csv'],'');
+	        ofFP=['/scratch/users/apines/data/mouse/' subjList(s) '/' sesh '/'];
+		ofFP=strjoin([ofFP subjList(s) '_' sesh '_' num2str(run) '_Complexity_gro.csv'],'');
 		% load in baseline csvs
 		if exist(ofFP,'file')
 			file=readmatrix(ofFP);
@@ -27,5 +31,5 @@ for s=1:length(subjList);
 % end for each mouse
 end
 % save out matrix
-writecell(outDF,'/oak/stanford/groups/leanew1/users/apines/data/mice_propsMerged_mice_LSD.csv')
+writecell(outDF,'/oak/stanford/groups/leanew1/users/apines/data/mice_Complexity_mice_LSD.csv')
 end
