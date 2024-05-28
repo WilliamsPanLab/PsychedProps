@@ -98,18 +98,16 @@ ofpr=[childfp '/' subj '_' sesh '_task-' task '_unmasked_interp_R_faces.csv'];
 % saveout
 csvwrite(ofpl,faceOutL)
 csvwrite(ofpr,faceOutR)
-% medial wall mask
+% medial wall mask (and TSNR)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% use native freesurfer command for mw mask indices
-surfML = '/oak/stanford/groups/leanew1/users/apines/surf/lh.Medial_wall.label';
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = '/oak/stanford/groups/leanew1/users/apines/surf/rh.Medial_wall.label';
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
-mw_L(mwIndVec_l)=1;
+mw_L(mwAndTSNR_L==1)=1;
 mw_R=zeros(1,2562);
-mw_R(mwIndVec_r)=1;
+mw_R(mwAndTSNR_R==1)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
@@ -122,16 +120,16 @@ fmwIndVec_r=find(F_MW_R);
 % make medial wall vector
 g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
 g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
+
+
 %%%%%% mask it
 faceOutL=faceOutL(g_noMW_combined_L,:);
 faceOutR=faceOutR(g_noMW_combined_R,:);
 %%%%% equivalent masking to extract_relativeangle.m
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4.mat']);
-nets_LH=networks.nets.Lnets;
-nets_RH=networks.nets.Rnets;
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
+nets_LH=networks.nets.Lnets(:,1);
+nets_RH=networks.nets.Rnets(:,1);
 % create face-wise DMN mask
-DMN_bool_L=zeros(5120,1);
-DMN_bool_r=zeros(5120,1);
 DMN_bool_L=sum(nets_LH(faces_l),2)./3;
 DMN_bool_R=sum(nets_RH(faces_r),2)./3;
 DMN_bool_L(DMN_bool_L>.3)=1;
@@ -146,8 +144,8 @@ MasterMask_R=DMN_bool_R;
 MasterMask_L(fmwIndVec_l)=0;
 MasterMask_R(fmwIndVec_r)=0;
 % network of interest
-n_LH=nets_LH(:,2);
-n_RH=nets_RH(:,2);
+n_LH=nets_LH;
+n_RH=nets_RH;
 % calculate network gradients on sphere
 ng_L = grad(F_L, V_L, n_LH);
 ng_R = grad(F_R, V_R, n_RH);

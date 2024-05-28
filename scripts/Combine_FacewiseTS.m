@@ -9,8 +9,8 @@ ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces_DMN.c
 iTS_l=readtable(ofpl);
 iTS_r=readtable(ofpr);
 % read in angular distances
-aTS_l=readtable([childfp '/' subj '_' sesh '_' task '_Prop_TS_dmn_L.csv']);
-aTS_r=readtable([childfp '/' subj '_' sesh '_' task '_Prop_TS_dmn_R.csv']);
+aTS_l=readtable([childfp '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_L.csv']);
+aTS_r=readtable([childfp '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_R.csv']);
 % for freesurfer functions
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % get dimensions to combine on
