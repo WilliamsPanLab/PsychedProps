@@ -1,4 +1,4 @@
-function MotMask(subj,sesh,task)
+function MotMask_psil(subj,sesh,task)
 % this function motion masks the concatenated runs 
 % note that both validsegcell_full and validsegcell_trunc are saved out: only _Trunc used in this workflow
 % validsegcell_full refers to the TR and span of segment in the outlier FD masked images
