@@ -38,8 +38,8 @@ P_R = TR_R.incenters;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add TSNR mask, includes medial wall
-mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR_psil.func.gii';
-mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR_psil.func.gii';
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
@@ -151,12 +151,6 @@ el_R=el_R(g_noMW_combined_R);
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
 
 %% k = 1 to select DMN
-Dnet_LH=networks.nets.Lnets(:,1);
-Dnet_RH=networks.nets.Rnets(:,1);
-
-% smoothed dmn version
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/group_Nets_fs4_Smooth.mat']);
-%% k = 1 to select DMN. k = 2 if old smooth used
 Dnet_LH=networks.nets.Lnets(:,1);
 Dnet_RH=networks.nets.Rnets(:,1);
 

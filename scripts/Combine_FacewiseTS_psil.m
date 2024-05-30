@@ -2,7 +2,7 @@ function Combine_FacewiseTS(subj,sesh,task)
 % for table reading
 restoredefaultpath
 % load in interpolated facewise time series, combine with angular distance time series
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+childfp=['/scratch/users/apines/data/psil/' subj '/' sesh ];
 ofpl=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_L_faces_DMN.csv'];
 ofpr=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_interp_R_faces_DMN.csv'];
 % load in interpTS
