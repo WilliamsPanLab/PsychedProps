@@ -1,4 +1,4 @@
-function Mouse_OpFl(subj,run)
+function Mouse_OF(subj,FB,run)
 % all credit to NeuroPattToolbox: https://github.com/BrainDynamicsUSYD/NeuroPattToolbox, at least Rory Townsend, Xian Long, and Pulin Gong
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/NeuroPattToolbox'))
 % Most of code is from:
@@ -15,14 +15,14 @@ startTime=datetime
 % https://github.com/rorygt/NeuroPattToolbox/blob/master/setParams.m claims opBeta=0.01 is default, but it's not clear we can run the code with that low of a beta and 1 is what is actually set in the code. Trying 0.1 to afford some nonlinearity while being computationally tractable
 % enforcement of linearity of vector field (higher = more linear)
 params.opBeta = 0.1;
-% note we don't want to analyze phase directly in case propagations of interest are aperiodic
+% note we don't want to analyze phase directly incase propagations of interest are aperiodic
 params.useAmplitude = true;
 
 % AP load in data: pre LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
-% load in specified scan
+% load in specified frequency band
 if run==1	
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -33,7 +33,7 @@ end
 %% add if/else
 % post 1
 if run==2
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_0/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -43,7 +43,7 @@ if run==2
 end
 % post 2
 if run==3	
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_5/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -53,7 +53,7 @@ if run==3
 end 
 % post 3
 if run==4
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_10/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -63,7 +63,7 @@ if run==4
 end
 % post 4
 if run==5
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_15/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -73,7 +73,7 @@ if run==5
 end
 % post 5
 if run==6
-	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
+	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_postLSD0p3mgkg_20/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml_' FB '.h5']
 	if exist(fn)
 		data=h5read(fn, '/processed_data');
 		formask=h5read(fn, '/mask');
@@ -184,15 +184,15 @@ outputs.Fs = Fs;
 outputs.processTime = datetime - startTime;
 
 % save outputs to mouse dir
-outfp=[basefp subj '_vf_out_' num2str(run) '.mat'];
+outfp=[basefp subj '_vf_out_' FB '_' num2str(run) '.mat'];
 save(outfp,'outputs');
 % visualize
 useAmplitude= true;
-outFoldName=['/scratch/users/apines/mouseViz/' subj '_' num2str(run)];
+outFoldName=['/scratch/users/apines/mouseViz/' subj '_' FB '_' num2str(run)];
 system(['mkdir ' outFoldName]);
-vidName=[outFoldName '/vecField_'];
+vidName=[outFoldName '/vecField_' FB '_'];
 vidFps=15;
 resizeScale=1;
 vfScale=1;
 saveVelocityFieldVideo(wvcfs, vfs, vidName, vidFps, ...
-    Fs, resizeScale, vfScale, useAmplitude,'_Gen')
+    Fs, resizeScale, vfScale, useAmplitude,FB)
