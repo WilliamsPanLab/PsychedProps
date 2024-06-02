@@ -10,15 +10,16 @@ date: "2023-07-13"
 library(reshape2)
 library(ggplot2)
 library(visreg)
+library(nlme)
 ```
 
 ```{r}
 # prop angles
-rs1=read.csv('~/Downloads/P50 MDMA/rs1_propsMerged.csv',header=F)
-rs2=read.csv('~/Downloads/P50 MDMA/rs2_propsMerged.csv',header=F)
-emo=read.csv('~/Downloads/P50 MDMA/emotion_propsMerged.csv',header=F)
-gambling=read.csv('~/Downloads/P50 MDMA/gambling_propsMerged.csv',header=F)
-wm=read.csv('~/Downloads/P50 MDMA/wm_propsMerged.csv',header=F)
+rs1=read.csv('~/rs1_propsMerged.csv',header=F)
+rs2=read.csv('~/rs2_propsMerged.csv',header=F)
+emo=read.csv('~/emotion_propsMerged.csv',header=F)
+gambling=read.csv('~/gambling_propsMerged.csv',header=F)
+wm=read.csv('~/wm_propsMerged.csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -164,7 +165,7 @@ wmp$Dosage='Placebo'
 wmm1$Dosage='80mg'
 wmm2$Dosage='120mg'
 
-# comibine all
+# combine all
 allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,emobv,emop,emom1,emom2,gamblingbv,gamblingp,gamblingm1,gamblingm2,wmbv,wmp,wmm1,wmm2)
 
 # read in motion
@@ -196,11 +197,13 @@ mergedDf=mergedDf[mergedDf$RemTRs>250,]
 mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
 
-# set rs to reference level
-#mergedDf <- within(mergedDf, Task <- relevel(Task, ref = 2))
-
 # model
 model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+
+# get head-motion regressed values for plotting
+model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs, data = mergedDf)
+mergedDf$Residuals<-model_to_reg$residuals
+
 
 # subset for p-80
 df_plot1=mergedDf[mergedDf$Dosage!="120mg",]
@@ -217,8 +220,54 @@ ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, co
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
   geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
   scale_color_viridis_d(option = "plasma") +
-  ggtitle('All Scans') +
-  theme_minimal(base_size = 22)
+  ggtitle('') +
+  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('MDMA')
+
+# with boxplots
+# Creating separate datasets for box plots
+boxplot_data_left <- df_plot1 %>%
+  filter(Dosage == 'Placebo')
+
+boxplot_data_right <- df_plot1 %>%
+  filter(Dosage == '80mg')
+
+boxplot_data_right2 <- df_plot2 %>%
+  filter(Dosage == '120mg')
+
+# combine drug data for box and whiskers
+boxplot_data_right=rbind(boxplot_data_right,boxplot_data_right2)
+
+# Plotting
+ggplot() +
+  # Scatter plot and lines for df_plot1
+  geom_point(data = df_plot1, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects, alpha = 0.7), size = 4) +
+  geom_line(data = df_plot1, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects)) +
+  # Scatter plot and lines for df_plot2
+  geom_point(data = df_plot2, aes(x = as.numeric(Drug), y = TDProp1, color = Subjects, alpha = 0.7), size = 4) +
+  geom_line(data = df_plot2, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects)) +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Drug) - 0.25, y = TDProp1, group = Drug), width = 0.2, outlier.shape = NA, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Drug) + 0.25, y = TDProp1, group = Drug), width = 0.2, outlier.shape = NA, color = "black") +
+  # Custom color scale
+  scale_color_viridis_d(option = "plasma") +
+  # Theme and labels
+  theme_minimal(base_size = 22) +
+  ylab('Degrees from Bottom-up') +
+  xlab('MDMA') +
+  # Adjust the x-axis limits to accommodate the box plots
+  scale_x_continuous(breaks = unique(as.numeric(df_plot1$Drug)), limits = c(min(as.numeric(df_plot1$Drug)) - 1, max(as.numeric(df_plot1$Drug)) + 1))
+
+# regress out head motion for comparison plot
+ggplot(df_plot1, aes(x = Drug, y = Residuals, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('FD regressed') +
+  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('MDMA')
+
 
 summary(model)
 
@@ -304,6 +353,75 @@ summary(model)
 ```
 
 ```{r}
+# extract standout sessions/participants
+library(dplyr)
+
+# Calculate the difference in TDProp1 between Drug and Placebo conditions
+df_diff <- mergedDf %>%
+  group_by(Subjects) %>%
+  summarise(Diff_TDProp1 = mean(TDProp1[Drug == 1]) - mean(TDProp1[Drug == 0], na.rm = TRUE))
+
+# Identify the participant with the greatest increase in TDProp1
+max_diff_subject <- df_diff %>%
+  filter(Diff_TDProp1 == max(Diff_TDProp1, na.rm = TRUE)) %>%
+  pull(Subjects)
+
+print(max_diff_subject)
+```
+
+
+```{r}
+# added chunk to code which sessions are post-mdma in macro timeline of study
+
+# initialize new column in mergedDf
+mergedDf$PostMDMASession <- 2
+
+# load in subjSeshDoseCorrep (read delim, sep=' ')
+subjSeshDoseCorrep <- read.table("~/Downloads/subjSeshDoseCorresp.csv", sep = ' ')
+
+# for each subject
+for (i in 1:nrow(subjSeshDoseCorrep)) {
+  # if i <10
+  if(i<10){
+    subjectID <- paste0("sub-MDMA00", i)  # Reconstruct subject ID
+  } else if(i>9){
+    subjectID <- paste0("sub-MDMA0", i)  # Reconstruct subject ID
+  }
+  # get position of placebo
+  placeboPos <- which(subjSeshDoseCorrep[i, 2:5] == "ses-01")
+  print(placeboPos)
+  # get position in mergedDf
+  placeboRows <- mergedDf$Subject == subjectID & mergedDf$Dosage == "Placebo"
+  # baseline is pos one, placebo is pos 2, 80 is pos 3, 120 is pos 4
+  # if placebo is ses-01, leave as initialize 0
+  # if placebo is ses-02, 1 for post-drugMacro
+  # if placebo is ses-03, 1 for post-drugMacro
+  if (placeboPos == 2) {
+      mergedDf$PostMDMASession[placeboRows] <- 0
+    } else if (placeboPos == 3 ) {
+      mergedDf$PostMDMASession[placeboRows] <- 1
+    } else if (placeboPos == 4) {
+      mergedDf$PostMDMASession[placeboRows] <- 1
+    }
+}
+
+# make post drug a separate placebo condition
+mergedDf$Drug2<-as.numeric(mergedDf$Drug)
+mergedDf$Drug2[mergedDf$PostMDMASession==1]=3
+# placebo pre-drug is 1
+# placebo post-drug is 3
+# drug is 2
+
+mergedDf$Drug2<-as.factor(mergedDf$Drug2)
+mergedDf <- within(mergedDf, Drug2 <- relevel(Drug2, ref = 1))
+# set MDMA visits to post MDMA
+mergedDf$PostMDMASession[mergedDf$Drug==1]=1
+
+model <- lme(TDProp1 ~ MeanFD +Drug2+ RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+```
+
+
+```{r}
 #meltedDf <- melt(mergedDf, id.vars = c("Subjects", "Task", "Dosage", "Session", "SpikesPercent", "MeanFD", "RemTRs", "Drug"))
 #meltedDf <- within(meltedDf, variable <- relevel(variable, ref = 3))
 #model <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+MeanFD*variable+RemTRs*variable, random = ~ 1 | Subjects/variable, data = meltedDf)
@@ -358,11 +476,11 @@ summary(model)
 
 ```{r}
 # complexity
-rs1=read.csv('~/Downloads/rs1_complexityMerged.csv',header=F)
-rs2=read.csv('~/Downloads/rs2_complexityMerged.csv',header=F)
-emo=read.csv('~/Downloads/emotion_complexityMerged.csv',header=F)
-gambling=read.csv('~/Downloads/gambling_complexityMerged.csv',header=F)
-wm=read.csv('~/Downloads/wm_complexityMerged.csv',header=F)
+rs1=read.csv('~/Downloads/rs1_complexityMerged (3).csv',header=F)
+rs2=read.csv('~/Downloads/rs2_complexityMerged (3).csv',header=F)
+emo=read.csv('~/Downloads/emotion_complexityMerged (3).csv',header=F)
+gambling=read.csv('~/Downloads/gambling_complexityMerged (3).csv',header=F)
+wm=read.csv('~/Downloads/wm_complexityMerged (3).csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -712,9 +830,9 @@ mergedDfPropsComplAutoC$Task=as.factor(mergedDfPropsComplAutoC$Task)
 mergedDfPropsComplAutoC <- within(mergedDfPropsComplAutoC, Task <- relevel(Task, ref = 2))
 
 # model
-td_model <- lme(TDProp1 ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
-sa_model <- lme(AutoCor ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
-cx_model <- lme(Complexity ~ MeanFD + Drug, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
 ```
 
 ```{r}
@@ -745,8 +863,32 @@ ggplot(df_plot1, aes(x = Drug, y = Complexity, fill = Drug, group = SubjectTask,
   scale_color_viridis_d(option = "plasma") +
   ggtitle('All Scans') +
   theme_minimal(base_size = 22)
+
+# by task
+ggplot(mergedDfPropsComplAutoC, aes(x = Task, y = Complexity)) +
+  geom_boxplot(size = 1, aes(alpha = 0.7)) +
+  ggtitle('All Scans') +
+  theme_minimal(base_size = 22)
+
+cx_task_model <- lme(Complexity ~ MeanFD + Task+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
 ```
 
+```{r}
+# extract standout sessions/participants for COMPLEXITY this time
+# Calculate the difference in Complexity between Drug and Placebo conditions
+df_diff <- mergedDfPropsComplAutoC %>%
+  group_by(Subjects) %>%
+  summarise(Diff_Compl = mean(Complexity[Drug == 1]) - mean(Complexity[Drug == 0], na.rm = TRUE))
+
+# Identify the participant with the greatest increase in Complexity
+max_diff_subject <- df_diff %>%
+  filter(Diff_Compl == max(Diff_Compl, na.rm = TRUE)) %>%
+  pull(Subjects)
+
+
+print(max_diff_subject)
+
+```
 
 ```{r}
 # great, now let's bootstrap them
@@ -766,9 +908,9 @@ for (i in 1:num_bootstrap_samples){
   # resample data
   data=mergedDfPropsComplAutoC[sample(nrow(mergedDfPropsComplAutoC), replace = TRUE), ]
   # fit on all models
-  td_model <- lme(TDProp1 ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
-  sa_model <- lme(AutoCor ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
-  cx_model <- lme(Complexity ~ MeanFD + Drug, random = ~ 1 | Subjects, data = data)
+  td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
   # get t-values
   td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug1", "t-value"]
   td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "MeanFD", "t-value"]
@@ -817,25 +959,212 @@ ggplot(bootstrap_results, aes(x = Model, y = abs(tstat), fill = Cov)) +
 
 
 ```{r}
-library(sjPlot)
-# visualize
-sjPlot::plot_model(model, type = "eff",show.values = T)
-
-# summarize
-summary(model)
-
-# Summarize the model
-model_summary <- summary(model)
-
-
-```
-
-```{r}
 # now compare with VAS
 vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
 # correct subject naming
 vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
-VASmerge=merge(vas,mergedDfPropsCompl,by=c("Subjects","Dosage"))
+VASmerge=merge(vas,mergedDfPropsComplAutoC,by=c("Subjects","Dosage"))
+
+# extract DAS for pca
+Das=vas[,40:56]
+# retain parallel version with subject names and session to recover them later
+Das_SubjSesh=cbind(vas$Subjects,vas$Dosage,Das)
+
+# Remove rows with NA values
+DasNoNa <- na.omit(Das)
+#parallel
+Das_SubjSesh=na.omit(Das_SubjSesh)
+
+# record subjets and sessions where all = 0
+ZeroIndex=rowMeans(Das_SubjSesh[,3:19])==0
+zeroSubjsRemade=Das_SubjSesh[ZeroIndex,]
+
+# Check for rows with all zeros in the cleaned data
+zero_rows <- apply(DasNoNa, 1, function(x) all(x == 0))
+print(any(zero_rows))  # Should print TRUE
+
+# Remove zero rows if found
+DasNoNa <- DasNoNa[!zero_rows, ]
+Das_SubjSesh <-Das_SubjSesh[!zero_rows, ]
+
+# Verify the dimensions and check for NA values
+print(dim(DasNoNa))
+print(any(is.na(DasNoNa)))
+print(dim(Das_SubjSesh))
+
+# Load the NMF library
+library(NMF)
+
+# Function to calculate reconstruction error
+reconstruction_error <- function(nmf_result, data) {
+  fitted <- fitted(nmf_result)
+  return(sqrt(sum((data - fitted)^2)))
+}
+
+# Range of components to test
+num_components_range <- 1:12
+
+# Store reconstruction errors
+errors <- numeric(length(num_components_range))
+
+set.seed(1)
+
+# Calculate reconstruction errors for each number of components
+for (k in num_components_range) {
+  nmf_result <- nmf(DasNoNa, k)
+  errors[k] <- reconstruction_error(nmf_result, DasNoNa)
+}
+
+# Plot reconstruction errors
+plot(num_components_range, errors, type = "b", pch = 19, xlab = "Number of Components", ylab = "Reconstruction Error",
+     main = "Reconstruction Error vs Number of Components")
+
+# Set the number of components
+num_components <- 8
+
+# Run NMF
+nmf_result <- nmf(DasNoNa, num_components)
+
+# Extract the basis matrix (W) and coefficient matrix (H)
+basis_matrix <- basis(nmf_result)
+coef_matrix <- coef(nmf_result)
+
+# make a vector of DAS scale names
+dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
+
+
+# Function to create and print plot for a specific component
+create_plot <- function(component_index) {
+  loadings <- coef_matrix[component_index, ]
+  sorted_indices <- order(loadings, decreasing = TRUE)
+  sorted_loadings <- loadings[sorted_indices]
+  sorted_names <- dascNames[sorted_indices]
+  
+  loadings_df <- data.frame(Question = factor(sorted_names, levels = sorted_names), Loading = sorted_loadings)
+  
+  p <- ggplot(loadings_df, aes(x = Question, y = Loading)) +
+    geom_bar(stat = "identity", fill = "gray") +
+    ggtitle(paste("Component", component_index)) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+    ylim(0, 0.35)+xlab('')
+  
+  print(p)
+}
+create_plot(1)
+create_plot(2)
+create_plot(3)
+create_plot(4)
+create_plot(5)
+create_plot(6)
+create_plot(7)
+create_plot(8)
+
+
+# use subj sesh to re-establish subject/session component loadings
+Das_SubjSesh$Comp1<-basis_matrix[,1]
+Das_SubjSesh$Comp2<-basis_matrix[,2]
+Das_SubjSesh$Comp3<-basis_matrix[,3]
+Das_SubjSesh$Comp4<-basis_matrix[,4]
+Das_SubjSesh$Comp5<-basis_matrix[,5]
+Das_SubjSesh$Comp6<-basis_matrix[,6]
+Das_SubjSesh$Comp7<-basis_matrix[,7]
+Das_SubjSesh$Comp8<-basis_matrix[,8]
+```
+
+```{r}
+# set column names to equivalent
+colnames(Das_SubjSesh)[1:2]<-c('Subjects','Dosage')
+colnames(zeroSubjsRemade)[1:2]<-c('Subjects','Dosage')
+### you CAN re-insert the 0-DAS items row for an extra piece of brain data... safe to assume they would load as 0 onto all components
+zeroSubjsRemade$Comp1<-0
+zeroSubjsRemade$Comp2<-0
+zeroSubjsRemade$Comp3<-0
+zeroSubjsRemade$Comp4<-0
+zeroSubjsRemade$Comp5<-0
+zeroSubjsRemade$Comp6<-0
+zeroSubjsRemade$Comp7<-0
+zeroSubjsRemade$Comp8<-0
+
+# add back in
+Das_SubjSesh=rbind(Das_SubjSesh,zeroSubjsRemade)
+
+# regenerate 
+mergedDf=merge(Das_SubjSesh,mergedDfPropsComplAutoC,by=c("Subjects","Dosage"))
+
+# loop over each component (1-8), return coefficient and p-value of association with both complexity and tdprop1, populate 4 resultant vectors with these values for subsequent plotting
+
+# Initialize vectors to store coefficients and p-values for subsequent plotting
+coef_complexity <- numeric(8)
+pval_complexity <- numeric(8)
+coef_tdprop1 <- numeric(8)
+pval_tdprop1 <- numeric(8)
+
+# Loop over each component (1-8)
+for (i in 1:8) {
+  # Construct the formula dynamically for the current component
+  formulaTD <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + TDProp1+ Complexity", sep = ""))
+  formulaCompl <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + Complexity", sep = ""))
+  # Fit the linear mixed-effects model
+  modelT <- lme(formulaTD, random = ~ 1 | Subjects, data = mergedDf)
+  modelC <- lme(formulaCompl, random = ~ 1 | Subjects, data = mergedDf)
+  # Extract coefficients and p-values for both Complexity (Intercept) and TDProp1
+  coef_complexity[i] <- summary(modelC)$tTable["Complexity", "t-value"]
+  pval_complexity[i] <- summary(modelC)$tTable["Complexity", "p-value"]
+  coef_tdprop1[i] <- summary(modelT)$tTable["TDProp1", "t-value"]
+  pval_tdprop1[i] <- summary(modelT)$tTable["TDProp1", "p-value"]
+}
+
+```
+
+```{r}
+# plot it
+library(circular)
+library(plotrix)
+
+# Adjust p-values for multiple comparisons using FDR method
+pval_complexity_mc <- p.adjust(pval_complexity, method = 'fdr')
+pval_tdprop1_mc <- p.adjust(pval_tdprop1, method = 'fdr')
+
+# Create a data frame with the coefficients and p-values
+plot_df <- data.frame(
+  Component = factor(1:8),
+  Coef_Complexity = coef_complexity,
+  Pval_Complexity = pval_complexity,
+  Coef_TDProp1 = coef_tdprop1,
+  Pval_TDProp1 = pval_tdprop1,
+  Pval_Complexity_MC = pval_complexity_mc,
+  Pval_TDProp1_MC = pval_tdprop1_mc
+)
+
+# Function to generate circular barplot with three colors
+circular_barplot <- function(df, coef_column, pval_column, pval_mc_column, title) {
+  ggplot(df, aes(x = Component, y = !!sym(coef_column))) +
+    geom_bar(aes(fill = factor(ifelse(!!sym(pval_mc_column) < 0.05, "FDR", 
+                                      ifelse(!!sym(pval_column) < 0.05, "Uncr", "NS")))), 
+             stat = "identity", width = 0.8) +
+    scale_fill_manual(values = c("FDR" = "red", "Uncr" = "blue", "NS" = "grey")) +
+    coord_polar(theta = "x", start = 0) +
+    labs(title = title, fill = "P-value") +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(size = 12),
+      axis.title = element_blank()
+    )
+}
+
+circular_barplot(plot_df, "Coef_Complexity", "Pval_Complexity", "Pval_Complexity_MC", "Coefficients of Complexity")
+
+circular_barplot(plot_df, "Coef_TDProp1", "Pval_TDProp1", "Pval_TDProp1_MC", "Coefficients of TDProp1")
+
+```
+
+
+```{r}
+# make a vector of DAS scale names
+dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
+
+
 
 # TD PROP
 # initialize correlation vector for dasc
@@ -861,7 +1190,8 @@ df <- data.frame(Values = corvec, ColumnNames = colNameVec)
 
 # Order the ColumnNames as an ordered factor based on the Values
 df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
-
+df$ColumnNamesFull<-dascNames
+df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
 # make a color vector by significance
 fdrp=p.adjust(pvec,method='fdr')
 colorvec=rep('NS',length(fdrp))
@@ -871,10 +1201,10 @@ df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 # Create the plot using ggplot
-ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
-  geom_point(size=3) + xlim(-20,20)+
+ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig)) +
+  geom_point(size=3) + xlim(-5,5)+
   scale_color_manual(values = colors) +
-  labs(x = "Values", y = "DAS Questions",title="Association with TD Props")+theme_minimal(base_size=26)
+  labs(x = "t-Values", y = "DAS Questions",title="Association with Propagation Directions")+theme_minimal(base_size=18)
 
   
 # DRUG
@@ -913,7 +1243,7 @@ colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
   geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
-  labs(x = "Values", y = "DAS Questions",title="Association with Drug")+theme_minimal(base_size=26)
+  labs(x = "Values", y = "DAS Questions",title="Association with Drug")+theme_minimal(base_size=18)
 
 
 
@@ -960,7 +1290,7 @@ colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
   geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
-  labs(x = "Values", y = "DAS Questions",title="TD Props, Covarying for Drug")+theme_minimal(base_size=26)
+  labs(x = "Values", y = "DAS Questions",title="TD Props, Covarying for Drug")+theme_minimal(base_size=18)
 
 # drug covarying for td
 # Create a dataframe with the values and column names
@@ -983,447 +1313,171 @@ colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
 ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
   geom_point(size=3) + xlim(-20,20)+
   scale_color_manual(values = colors) +
-  labs(x = "Values", y = "DAS Questions",title="Drug, Covarying for TDProps")+theme_minimal(base_size=26)
-```
-```{r}
-library(ggplot2)
+  labs(x = "Values", y = "DAS Questions",title="Drug, Covarying for TDProps")+theme_minimal(base_size=18)
 
-# Combine the two conditions into a single data frame
-VASmerge <- merge(vas, mergedDfPropsCompl, by = c("Subjects", "Dosage"))
 
-# TD PROP
+# COMPLEXITY
 # initialize correlation vector for dasc
-corvec_tdprop <- pvec_tdprop <- colNameVec_tdprop <- NULL
-for (i in 40:56) {
+corvec=NULL
+pvec=NULL
+colNameVec=NULL
+for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
-  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp1', 'Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + Complexity")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','Complexity','Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
-  pvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
-  colNameVec_tdprop[i - 39] <- colnames(VASmerge)[i]
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexity", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexity", "p-value"]
+#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
+#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
+  colNameVec[i-39]=colnames(VASmerge)[i]
   print(summary(currModel)$tTable)
 }
 
-# Create a dataframe with the values and column names for TD PROP
-df_tdprop <- data.frame(Values = corvec_tdprop, ColumnNames = colNameVec_tdprop)
-df_tdprop$ColumnNames <- factor(df_tdprop$ColumnNames, levels = df_tdprop$ColumnNames[order(df_tdprop$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp_tdprop <- p.adjust(pvec_tdprop, method = 'fdr')
-colorvec_tdprop <- rep('NS', length(fdrp_tdprop))
-colorvec_tdprop[pvec_tdprop < .05] <- 'Uncr'
-colorvec_tdprop[fdrp_tdprop < .05] <- 'FDR'
-df_tdprop$Sig <- factor(colorvec_tdprop, levels = c('NS', 'Uncr', 'FDR'))
+# Create a dataframe with the values and column names
+df <- data.frame(Values = corvec, ColumnNames = colNameVec)
 
-# DRUG
-# initialize correlation vector for dasc
-corvec_drug <- pvec_drug <- colNameVec_drug <- NULL
-for (i in 40:56) {
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + Drug")
-  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'Drug', 'Subjects')])
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec_drug[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
-  pvec_drug[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
-  colNameVec_drug[i - 39] <- colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names for DRUG
-df_drug <- data.frame(Values = corvec_drug, ColumnNames = colNameVec_drug)
-df_drug$ColumnNames <- factor(df_drug$ColumnNames, levels = df_drug$ColumnNames[order(df_drug$Values, decreasing = FALSE)])
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+df$ColumnNamesFull<-dascNames
+df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
 # make a color vector by significance
-fdrp_drug <- p.adjust(pvec_drug, method = 'fdr')
-colorvec_drug <- rep('NS', length(fdrp_drug))
-colorvec_drug[pvec_drug < .05] <- 'Uncr'
-colorvec_drug[fdrp_drug < .05] <- 'FDR'
-df_drug$Sig <- factor(colorvec_drug, levels = c('NS', 'Uncr', 'FDR'))
-
-# TD, COV DRUG
-# initialize correlation vector for dasc
-corvec_tdprop_cov_drug <- corvec_drug_cov_tdprop <- pvec_tdprop_cov_drug <- pvec_drug_cov_tdprop <- colNameVec_tdprop_cov_drug <- NULL
-for (i in 40:56) {
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  formula_str_tdprop_cov_drug <- paste(das_col, "~ MeanFD + TDProp + Drug")
-  df_tdprop_cov_drug <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp', 'Subjects', 'Drug')])
-  currModel_tdprop_cov_drug <- lme(as.formula(formula_str_tdprop_cov_drug), random = ~ 1 | Subjects, data = df_tdprop_cov_drug)
-  corvec_tdprop_cov_drug[i - 39] <- summary(currModel_tdprop_cov_drug)$tTable[rownames(summary(currModel_tdprop_cov_drug)$tTable) == "TDProp", "t-value"]
-  pvec_tdprop_cov_drug[i - 39] <- summary(currModel_tdprop_cov_drug)$tTable[rownames(summary(currModel_tdprop_cov_drug)$tTable) == "TDProp", "p-value"]
-  colNameVec_tdprop_cov_drug[i - 39] <- colnames(VASmerge)[i]
-  
-  formula_str_drug_cov_tdprop <- paste(das_col, "~ MeanFD + Drug + TDProp")
-  df_drug_cov_tdprop <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'Drug', 'Subjects', 'TDProp')])
-  currModel_drug_cov_tdprop <- lme(as.formula(formula_str_drug_cov_tdprop), random = ~ 1 | Subjects, data = df_drug_cov_tdprop)
-  corvec_drug_cov_tdprop[i - 39] <- summary(currModel_drug_cov_tdprop)$tTable[rownames(summary(currModel_drug_cov_tdprop)$tTable) == "Drug1", "t-value"]
-  pvec_drug_cov_tdprop[i - 39] <- summary(currModel_drug_cov_tdprop)$tTable[rownames(summary(currModel_drug_cov_tdprop)$tTable) == "Drug1", "p-value"]
-  print(summary(currModel_tdprop_cov_drug)$tTable)
-  print(summary(currModel_drug_cov_tdprop)$tTable)
-}
-# merge into tdprop df
-df_tdprop2=df_tdprop
-df_tdprop2$Values=corvec_tdprop_cov_drug
-# Create a dataframe with the values and column names for TD, COV DRUG
-df_tdprop_cov_drug <- data.frame(Values = corvec_tdprop_cov_drug, ColumnNames = colNameVec_tdprop_cov_drug)
-df_tdprop_cov_drug$ColumnNames <- factor(df_tdprop_cov_drug$ColumnNames, levels = df_tdprop_cov_drug$ColumnNames[order(df_tdprop_cov_drug$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp_tdprop_cov_drug <- p.adjust(pvec_tdprop_cov_drug, method = 'fdr')
-colorvec_tdprop_cov_drug <- rep('NS', length(fdrp_tdprop_cov_drug))
-colorvec_tdprop_cov_drug[pvec_tdprop_cov_drug < .05] <- 'Uncr'
-colorvec_tdprop_cov_drug[fdrp_tdprop_cov_drug < .05] <- 'FDR'
-# merge into tdprop df
-df_tdprop2$Sig <- factor(colorvec_tdprop_cov_drug, levels = c('NS', 'Uncr', 'FDR'))
-df_tdpropBoth=rbind(df_tdprop,df_tdprop2)
-df_tdpropBoth$Covarying=ones(34,1)
-df_tdpropBoth$Covarying[1:17]=0
-df_tdpropBoth$Covarying=as.factor(df_tdpropBoth$Covarying)
-# merge into Drug df
-df_drug2=df_drug
-df_drug2$Values=corvec_drug_cov_tdprop
-# Create a dataframe with the values and column names for DRUG, COV TD
-df_drug_cov_tdprop <- data.frame(Values = corvec_drug_cov_tdprop, ColumnNames = colNameVec_tdprop_cov_drug)
-df_drug_cov_tdprop$ColumnNames <- factor(df_drug_cov_tdprop$ColumnNames, levels = df_drug_cov_tdprop$ColumnNames[order(df_drug_cov_tdprop$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp_drug_cov_tdprop <- p.adjust(pvec_drug_cov_tdprop, method = 'fdr')
-colorvec_drug_cov_tdprop <- rep('NS', length(fdrp_drug_cov_tdprop))
-colorvec_drug_cov_tdprop[pvec_drug_cov_tdprop < .05] <- 'Uncr'
-colorvec_drug_cov_tdprop[fdrp_drug_cov_tdprop < .05] <- 'FDR'
-# merge into Drug df
-df_drug2$Sig <- factor(colorvec_drug_cov_tdprop, levels = c('NS', 'Uncr', 'FDR'))
-df_DrugBoth=rbind(df_drug,df_drug2)
-df_DrugBoth$Covarying=ones(34,1)
-df_DrugBoth$Covarying[1:17]=0
-df_DrugBoth$Covarying=as.factor(df_DrugBoth$Covarying)
+fdrp=p.adjust(pvec,method='fdr')
+colorvec=rep('NS',length(fdrp))
+colorvec[pvec<.05]='Uncr'
+colorvec[fdrp<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-
-# Create the plot using ggplot for TD PROP
-plot_tdprop <- ggplot(df_tdpropBoth, aes(x = Values, y = ColumnNames, color = Sig,shape=Covarying)) +
-  geom_point(size = 3) +
-  geom_line(aes(group = ColumnNames), linetype = "solid") +
-  xlim(-15, 15) +
+# Create the plot using ggplot
+ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig)) +
+  geom_point(size=3) + xlim(-5,5)+
   scale_color_manual(values = colors) +
-  labs(x = "t-Values", y = "DAS Questions", title = "Association with TD Props") +
-  theme_minimal(base_size = 26)
+  labs(x = "t-Values", y = "DAS Questions",title="Association with Complexity")+theme_minimal(base_size=18)
+```
 
-# Create the plot using ggplot for DRUG
-plot_drug <- ggplot(df_DrugBoth, aes(x = Values, y = ColumnNames, color = Sig,shape=Covarying)) +
-  geom_point(size = 3) +
-  geom_line(aes(group = ColumnNames), linetype = "solid") +
-  xlim(-15, 15) +
-  scale_color_manual(values = colors) +
-  labs(x = "t-Values", y = "DAS Questions", title = "Association with Drug") +
-  theme_minimal(base_size = 26)
+```{r}
+# load in angle histograms for more precise view of which direction of hierarchical propagations in changing
 
-# Combine the plots
-gridExtra::grid.arrange(plot_tdprop, plot_drug, ncol = 2)
+# placebo angles
+placAngles=read.csv('~/Downloads/plac_subsAngHist.csv')
+
+# mdma
+mdmaAngles=read.csv('~/Downloads/drug_subsAngHist.csv')
+
+# get normative sum of each column
+placAnglesTot=colSums(placAngles)
+# divide by total to get percentage for each
+placAnglesTot=placAnglesTot/sum(placAngles)
+
+# get normative sum of each column
+mdmaAnglesTot=colSums(mdmaAngles)
+# divide by total to get percentage for each
+mdmaAnglesTot=mdmaAnglesTot/sum(mdmaAngles)
+
+
+plotdataf<-data.frame(seq(1,18),placAnglesTot-mdmaAnglesTot)
+# correct to be degrees rather than histogram bin index
+plotdataf$seq.1..18.<-plotdataf$seq.1..18.*10
+
+p<-ggplot(plotdataf,aes(x=seq.1..18.,y=placAnglesTot...mdmaAnglesTot))
+p+geom_bar(stat='identity',color='black',aes(fill= ..x..),binwidth = 10)+xlab("Distance (Degrees)")+theme_classic(base_size = 23)+scale_x_continuous(limits=(c(0,190)))+scale_fill_gradientn("value",colors=c("blue","cyan","green","yellow","orange","red"))+ggtitle("Placebo - MDMA Propagation Directions")+theme(plot.title= element_text(size=30, face="bold"), axis.title = element_text(size=30, face="bold"),axis.text = element_text(face="bold",size=30),legend.title=element_blank(),legend.text=element_text(size=20),legend.position=c(1.07,.41),plot.margin=margin(b=.1,t=.1,l=.1,r=2.3, unit='cm'))+ylab('Propagation %')
+```
+
+```{r}
+# simple plot of point estimates of different drugs
+tvector=c(4.26465,3.63167,2.621,-0.30648,-0.27721)
+drugVector=c('LSD (mice)', 'MDMA','Psilocybin','Ritalin','Ketamine')
+# make dataframe
+plotdf=data.frame(tvector,drugVector)
+# sort order
+plotdf$drugVector <- factor(plotdf$drugVector, levels = plotdf$drugVector[order(plotdf$tvector, decreasing = TRUE)])
+ggplot(data=plotdf,aes(x=drugVector,y=tvector))+geom_point(size=8)+theme_minimal(base_size=30)+xlab('Drug')+ylab('t-Values')
+```
+
+
+```{r}
+library(igraph)
+# create a correlation matrix of DAS items for a spring loaded graph
+Das <- vas[, 40:56]
+
+# Calculate the correlation matrix
+cor_matrix <- cor(Das, use = "complete.obs")
+
+# Convert the correlation matrix to an adjacency matrix
+# You can set a threshold to filter out weak correlations
+threshold <- 0.6
+adj_matrix <- cor_matrix
+adj_matrix[abs(adj_matrix) < threshold] <- 0
+
+# Create a graph object
+graph <- graph_from_adjacency_matrix(adj_matrix, mode = "undirected", weighted = TRUE, diag = FALSE)
+
+# Set vertex labels
+V(graph)$name <- dascNames
+
+# Perform community detection using the Louvain method
+communities <- cluster_louvain(graph)
+
+# Add community membership as a vertex attribute
+V(graph)$community <- communities$membership
+
+# Set a color palette for the communities
+community_colors <- rainbow(length(unique(V(graph)$community)))
+
+layout_fr <- layout_with_fr(graph, weights = E(graph)$weight)
+
+# Plot the graph with a spring layout and community colors
+plot(graph, layout = layout_fr, vertex.label = V(graph)$name,
+     vertex.size = 15, vertex.label.cex = 0.8, edge.width = E(graph)$weight * 2,
+     vertex.color = community_colors[V(graph)$community], main = "Spring-loaded Graph of DAS Items with Communities")
 
 ```
 
 ```{r}
-# load in vas
-els=read.csv('~/Downloads/MDMA_Questionnaires_baseline.csv')
-# correct subject naming
-els$Subjects <- paste0("sub-MDMA", sprintf("%03d", els$Subjects))
-testV=merge(els,test,by=c("Subjects"))
+# Calculate within-module and between-module correlations for each node
+within_between_ratios <- numeric(vcount(graph))
 
-```
+for (node in 1:vcount(graph)) {
+  community <- V(graph)$community[node]
+  
+  # Nodes in the same community
+  community_nodes <- which(V(graph)$community == community)
+  
+  # Nodes in different communities
+  other_nodes <- which(V(graph)$community != community)
+  
+  # Within-module correlations
+  within_correlations <- cor_matrix[node, community_nodes]
+  # drop autocorrelation
+  within_correlations=within_correlations[within_correlations!=1.0]
+  avg_within <- mean(within_correlations[within_correlations != 0])
+  
+  # Between-module correlations
+  between_correlations <- cor_matrix[node, other_nodes]
+  avg_between <- mean(between_correlations[between_correlations != 0])
+  
+  if (is.na(avg_within)) avg_within <- 0
+  if (is.na(avg_between)) avg_between <- 0
+  
+  within_between_ratios[node] <- avg_within / avg_between
+}
 
+# Normalize ratios for coloring
+colors <- colorRampPalette(c("blue", "red"))(length(unique(within_between_ratios)))
 
+# Assign colors based on normalized ratios
+V(graph)$color <- colors[as.numeric(cut(within_between_ratios, breaks = length(colors)))]
 
+# Plot the graph with a spring layout and ratio colors
+plot(graph, layout = layout_fr, vertex.label = V(graph)$name,
+     vertex.size = 15, vertex.label.cex = 0.8, edge.width = E(graph)$weight * 2,
+     vertex.color = V(graph)$color, main = "Spring-loaded Graph of DAS Items with Within/Between Ratio")
 
-```{r}
-# Amyg DMN Fc
-rs1=read.csv('~/Downloads/P50 MDMA/rs1_DMN_AmygFC_Merged.csv',header=F)
-rs2=read.csv('~/Downloads/P50 MDMA/rs2_DMN_AmygFC_Merged.csv',header=F)
-emo=read.csv('~/Downloads/P50 MDMA/emotion_DMN_AmygFC_Merged.csv',header=F)
-gambling=read.csv('~/Downloads/P50 MDMA/gambling_DMN_AmygFC_Merged.csv',header=F)
-wm=read.csv('~/Downloads/P50 MDMA/wm_DMN_AmygFC_Merged.csv',header=F)
-noncon=read.csv('~/Downloads/P50 MDMA/nonconscious_DMN_AmygFC_Merged.csv',header=F)
-con=read.csv('~/Downloads/P50 MDMA/conscious_DMN_AmygFC_Merged.csv',header=F)
-gng=read.csv('~/Downloads/P50 MDMA/gonogo_DMN_AmygFC_Merged.csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-rs1$Task='rs'
-rs2$Task='rs2'
-emo$Task='emotion'
-gambling$Task='gambling'
-wm$Task='wm'
-noncon$Task='nonconscious'
-con$Task='conscious'
-gng$Task='gonogo'
-
-# remove subj 4
-rs1=rs1[-c(4),]
-rs2=rs2[-c(4),]
-emo=emo[-c(4),]
-gambling=gambling[-c(4),]
-wm=wm[-c(4),]
-noncon=noncon[-c(4),]
-con=con[-c(4),]
-gng=gng[-c(4),]
-
-# this is going to be ugly but simple
-# manually pair columns as sep. observations of baseline, placebo, 80, 120mg
-rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
-rs1p=data.frame(cbind(rs1$V2,rs1$V6))
-rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
-rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
-colnames(rs1bv)=c('TDProp','RemTRs')
-colnames(rs1p)=c('TDProp','RemTRs')
-colnames(rs1m1)=c('TDProp','RemTRs')
-colnames(rs1m2)=c('TDProp','RemTRs')
-
-rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
-rs2p=data.frame(cbind(rs2$V2,rs2$V6))
-rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
-rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
-colnames(rs2bv)=c('TDProp','RemTRs')
-colnames(rs2p)=c('TDProp','RemTRs')
-colnames(rs2m1)=c('TDProp','RemTRs')
-colnames(rs2m2)=c('TDProp','RemTRs')
-
-emobv=data.frame(cbind(emo$V1,emo$V5))
-emop=data.frame(cbind(emo$V2,emo$V6))
-emom1=data.frame(cbind(emo$V3,emo$V7))
-emom2=data.frame(cbind(emo$V4,emo$V8))
-colnames(emobv)=c('TDProp','RemTRs')
-colnames(emop)=c('TDProp','RemTRs')
-colnames(emom1)=c('TDProp','RemTRs')
-colnames(emom2)=c('TDProp','RemTRs')
-
-gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
-gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
-gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
-gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
-colnames(gamblingbv)=c('TDProp','RemTRs')
-colnames(gamblingp)=c('TDProp','RemTRs')
-colnames(gamblingm1)=c('TDProp','RemTRs')
-colnames(gamblingm2)=c('TDProp','RemTRs')
-
-wmbv=data.frame(cbind(wm$V1,wm$V5))
-wmp=data.frame(cbind(wm$V2,wm$V6))
-wmm1=data.frame(cbind(wm$V3,wm$V7))
-wmm2=data.frame(cbind(wm$V4,wm$V8))
-colnames(wmbv)=c('TDProp','RemTRs')
-colnames(wmp)=c('TDProp','RemTRs')
-colnames(wmm1)=c('TDProp','RemTRs')
-colnames(wmm2)=c('TDProp','RemTRs')
-
-nonconbv=data.frame(cbind(noncon$V1,noncon$V5))
-nonconp=data.frame(cbind(noncon$V2,noncon$V6))
-nonconm1=data.frame(cbind(noncon$V3,noncon$V7))
-nonconm2=data.frame(cbind(noncon$V4,noncon$V8))
-colnames(nonconbv)=c('TDProp','RemTRs')
-colnames(nonconp)=c('TDProp','RemTRs')
-colnames(nonconm1)=c('TDProp','RemTRs')
-colnames(nonconm2)=c('TDProp','RemTRs')
-
-conbv=data.frame(cbind(con$V1,con$V5))
-conp=data.frame(cbind(con$V2,con$V6))
-conm1=data.frame(cbind(con$V3,con$V7))
-conm2=data.frame(cbind(con$V4,con$V8))
-colnames(conbv)=c('TDProp','RemTRs')
-colnames(conp)=c('TDProp','RemTRs')
-colnames(conm1)=c('TDProp','RemTRs')
-colnames(conm2)=c('TDProp','RemTRs')
-
-gngbv=data.frame(cbind(gng$V1,gng$V5))
-gngp=data.frame(cbind(gng$V2,gng$V6))
-gngm1=data.frame(cbind(gng$V3,gng$V7))
-gngm2=data.frame(cbind(gng$V4,gng$V8))
-colnames(gngbv)=c('TDProp','RemTRs')
-colnames(gngp)=c('TDProp','RemTRs')
-colnames(gngm1)=c('TDProp','RemTRs')
-colnames(gngm2)=c('TDProp','RemTRs')
-
-# get subject IDs from this rds
-alff=readRDS('~/OutPlacDrug_alff.rds')
-rs1bv$Subjects=alff$SubjID
-rs1p$Subjects=alff$SubjID
-rs1m1$Subjects=alff$SubjID
-rs1m2$Subjects=alff$SubjID
-
-rs2bv$Subjects=alff$SubjID
-rs2p$Subjects=alff$SubjID
-rs2m1$Subjects=alff$SubjID
-rs2m2$Subjects=alff$SubjID
-
-emobv$Subjects=alff$SubjID
-emop$Subjects=alff$SubjID
-emom1$Subjects=alff$SubjID
-emom2$Subjects=alff$SubjID
-
-gamblingbv$Subjects=alff$SubjID
-gamblingp$Subjects=alff$SubjID
-gamblingm1$Subjects=alff$SubjID
-gamblingm2$Subjects=alff$SubjID
-
-wmbv$Subjects=alff$SubjID
-wmp$Subjects=alff$SubjID
-wmm1$Subjects=alff$SubjID
-wmm2$Subjects=alff$SubjID
-
-nonconbv$Subjects=alff$SubjID
-nonconp$Subjects=alff$SubjID
-nonconm1$Subjects=alff$SubjID
-nonconm2$Subjects=alff$SubjID
-
-conbv$Subjects=alff$SubjID
-conp$Subjects=alff$SubjID
-conm1$Subjects=alff$SubjID
-conm2$Subjects=alff$SubjID
-
-gngbv$Subjects=alff$SubjID
-gngp$Subjects=alff$SubjID
-gngm1$Subjects=alff$SubjID
-gngm2$Subjects=alff$SubjID
-
-# add in task (rs to be made equivalent after motion merge)
-rs1bv$Task='rs'
-rs1p$Task='rs'
-rs1m1$Task='rs'
-rs1m2$Task='rs'
-
-rs2bv$Task='rs2'
-rs2p$Task='rs2'
-rs2m1$Task='rs2'
-rs2m2$Task='rs2'
-
-emobv$Task='emotion'
-emop$Task='emotion'
-emom1$Task='emotion'
-emom2$Task='emotion'
-
-gamblingbv$Task='gambling'
-gamblingp$Task='gambling'
-gamblingm1$Task='gambling'
-gamblingm2$Task='gambling'
-
-wmbv$Task='wm'
-wmp$Task='wm'
-wmm1$Task='wm'
-wmm2$Task='wm'
-
-nonconbv$Task='nonconscious'
-nonconp$Task='nonconscious'
-nonconm1$Task='nonconscious'
-nonconm2$Task='nonconscious'
-
-conbv$Task='conscious'
-conp$Task='conscious'
-conm1$Task='conscious'
-conm2$Task='conscious'
-
-gngbv$Task='gonogo'
-gngp$Task='gonogo'
-gngm1$Task='gonogo'
-gngm2$Task='gonogo'
-
-# add in dosage
-rs1bv$Dosage='baseline'
-rs1p$Dosage='Placebo'
-rs1m1$Dosage='80mg'
-rs1m2$Dosage='120mg'
-
-rs2bv$Dosage='baseline'
-rs2p$Dosage='Placebo'
-rs2m1$Dosage='80mg'
-rs2m2$Dosage='120mg'
-
-emobv$Dosage='baseline'
-emop$Dosage='Placebo'
-emom1$Dosage='80mg'
-emom2$Dosage='120mg'
-
-gamblingbv$Dosage='baseline'
-gamblingp$Dosage='Placebo'
-gamblingm1$Dosage='80mg'
-gamblingm2$Dosage='120mg'
-
-wmbv$Dosage='baseline'
-wmp$Dosage='Placebo'
-wmm1$Dosage='80mg'
-wmm2$Dosage='120mg'
-
-nonconbv$Dosage='baseline'
-nonconp$Dosage='Placebo'
-nonconm1$Dosage='80mg'
-nonconm2$Dosage='120mg'
-
-conbv$Dosage='baseline'
-conp$Dosage='Placebo'
-conm1$Dosage='80mg'
-conm2$Dosage='120mg'
-
-gngbv$Dosage='baseline'
-gngp$Dosage='Placebo'
-gngm1$Dosage='80mg'
-gngm2$Dosage='120mg'
-
-# combine all
-allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,emobv,emop,emom1,emom2,gamblingbv,gamblingp,gamblingm1,gamblingm2,wmbv,wmp,wmm1,wmm2,nonconbv,nonconp,nonconm1,nonconm2,conbv,conp,conm1,conm2,gngbv,gngp,gngm1,gngm2)
-
-# read in motion
-mot=read.csv('~/Desktop/MDMA_spikes_summary.csv')
-
-# motion merge
-mergedDf=merge(mot,allScans,by=c('Subjects','Task','Dosage'))
-mergedDf$Drug=0
-mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
-mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
-mergedDf$Drug=as.factor(mergedDf$Drug)
-mergedDfFC=mergedDf
-
-# code rs as one task
-mergedDfFC$Task[mergedDfFC$Task=='rs1']='rs'
-mergedDfFC$Task[mergedDfFC$Task=='rs2']='rs'
-# set rs to reference
-mergedDfFC$Task<-as.factor(mergedDfFC$Task)
-mergedDfFC$Task <- relevel(mergedDfFC$Task, ref = "rs")
-# remove >.3 fd
-mergedDfFC=mergedDfFC[mergedDfFC$MeanFD<.3,]
-```
-
-```{r}
-# test if amyg DMN FC changes after dose
-# group by time interaction
-# group 1 is placebo second visit
-# group 2 is placebo after second visit
-# expecting FC to go down with time in second group
-# manually delineate groups
-mergedDfFC$Group=1
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA002']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA004']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA008']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA009']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA011']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA015']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA017']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA005']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA006']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA007']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA010']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA014']=2
-mergedDfFC$Group=as.factor(mergedDfFC$Group)
-# PTs to eliminate for consistency (4 already excluded)
-mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA006',]
-mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA010',]
-# eliminate drug visits
-mergedDfFC_sob=mergedDfFC[mergedDfFC$Drug==0,]
-# get change 
-# make name accurate
-mergedDfFC_sob$AmyFC=mergedDfFC_sob$TDProp
-
-
-model <- lme(AmyFC ~ MeanFD +Task+ Group*Dosage,random = ~ 1 | Subjects,data = mergedDfFC_sob)
-
-sjPlot::plot_model(model, type = "eff",show.values = T)
-sjPlot::plot_model(model, type = "int")
+# Additional customization (optional)
+plot(graph, layout = layout_with_fr, vertex.label = V(graph)$name,
+     vertex.size = 15, vertex.label.cex = 0.8, edge.width = E(graph)$weight * 2,
+     vertex.color = V(graph)$color, edge.color = "gray", 
+     main = "Spring-loaded Graph of DAS Items with Within/Between Ratio")
 ```
