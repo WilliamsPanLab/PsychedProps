@@ -23,9 +23,12 @@ subj=$1
 # sesh is input 2
 sesh=$2
 
+matlab -nodisplay -r "ExampleFrames_MDMA('$subj','$sesh','rs1')"
+matlab -nodisplay -r "ExampleFrames_MDMA('$subj','$sesh','rs2')"
+
 # run matlab
-matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','wm')"
-matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','emotion')"

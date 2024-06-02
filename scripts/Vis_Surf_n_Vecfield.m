@@ -245,7 +245,7 @@ shading flat;
 
 
 % printout
-print(Fn,'-dpng','-r1000')
+print(Fn,'-dpng','-r600')
 
 
 

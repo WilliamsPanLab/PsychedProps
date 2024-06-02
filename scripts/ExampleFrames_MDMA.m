@@ -15,10 +15,10 @@ Props = [PropsL; PropsR];
 % average at each timepoint
 colMeans = mean(Props, 1);
 % find columns with 3 highest average values (to be labeled prop 1, 2, 3 in output)
-[~, idx] = sort(colMeans, 'descend'); % Sort column means in descending order
+[~, idx] = sort(colMeans, 'ascend'); % Sort column means in descending order
 top3_cols = idx(1:3); % Get indices of the top 3 columns
 % print maximum full-brain value for TD prop angle
-disp('3 highest average values:');
+disp('3 lowest average values:');
 disp(colMeans(top3_cols));
 
 % pull in time series

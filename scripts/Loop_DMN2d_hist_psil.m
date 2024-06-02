@@ -1,12 +1,13 @@
 % generate 2d dmn histograms (radial plots) for each subject session and task, to be merged later 
 % list psil subjects
 subjects={'PS03','PS16','PS18','PS19','PS21','PS24','PS93','PS96','PS98'}
+subjects={'PS21','PS24','PS93','PS96','PS98'}
+subjects={'PS96'}
 % list all possible psil sessions (will just return a lot of "file is missing")
 sessions = {'Baseline1','Baseline2','Baseline3','Baseline4','Baseline5','Baseline6','Baseline7','Baseline8','Baseline9',...
 		'Drug1','Drug2'...
 	       	'Between1','Between2','Between3','Between4','Between5',...
 	       	'After1','After2','After3','After4','After5','After6','After7','After8'};
-subjects={'PS16','PS18'};
 tasks = {'rs1', 'rs2','rs3','rs4','rs5','rs6'};
 % for each subject
 for i=1:length(subjects)

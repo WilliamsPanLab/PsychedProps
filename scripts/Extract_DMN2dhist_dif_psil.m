@@ -86,7 +86,7 @@ for t=1:length(tasks);
 			% load in da hist
 			fp=[basefp subject '/' preScan '/' subject '_' preScan '_task-' task '_DMN_2dhist.csv'];
 			if exist(fp,'file')
-				preScan2dhist=readmatrix(fp)
+				preScan2dhist=readmatrix(fp);
 				outDF_pre(:,:,s)=outDF_pre(:,:,s)+preScan2dhist;
 			end
 		end
@@ -96,7 +96,7 @@ for t=1:length(tasks);
                         % load in da hist
                         fp=[basefp subject '/' psilScan '/' subject '_' psilScan '_task-' task '_DMN_2dhist.csv'];
                         if exist(fp,'file')
-                                psilScan2dhist=readmatrix(fp)
+                                psilScan2dhist=readmatrix(fp);
                                 outDF_psil(:,:,s)=outDF_psil(:,:,s)+psilScan2dhist;
                         end
                 end
@@ -106,7 +106,7 @@ for t=1:length(tasks);
                         % load in da hist
                         fp=[basefp subject '/' methScan '/' subject '_' methScan '_task-' task '_DMN_2dhist.csv'];
                         if exist(fp,'file')
-                                methScan2dhist=readmatrix(fp)
+                                methScan2dhist=readmatrix(fp);
                                 outDF_meth(:,:,s)=outDF_meth(:,:,s)+methScan2dhist;
                         end
                 end
@@ -116,13 +116,13 @@ for t=1:length(tasks);
 			% load in drug1 to add to psil sessions
 			fp=[basefp surrogateSubjName '/Drug1/' surrogateSubjName '_Drug1_task-' task '_DMN_2dhist.csv'];
 			if exist(fp,'file')
-                                psilScan2dhist=readmatrix(fp)
+                                psilScan2dhist=readmatrix(fp);
                                 outDF_psil(:,:,s)=outDF_psil(:,:,s)+psilScan2dhist;
                         end
 		end
 	end
 end
 % save out matrices
-save('/oak/stanford/groups/leanew1/users/apines/data/pre_psil_DMN_2dhist_merged.csv','outDF_pre');
-save('/oak/stanford/groups/leanew1/users/apines/data/during_psil_DMN_2dhist_merged.csv','outDF_psil');
-save('/oak/stanford/groups/leanew1/users/apines/data/during_meth_DMN_2dhist_merged.csv','outDF_meth');
+save('/oak/stanford/groups/leanew1/users/apines/data/pre_psil_DMN_2dhist_merged.mat','outDF_pre');
+save('/oak/stanford/groups/leanew1/users/apines/data/during_psil_DMN_2dhist_merged.mat','outDF_psil');
+save('/oak/stanford/groups/leanew1/users/apines/data/during_meth_DMN_2dhist_merged.mat','outDF_meth');
