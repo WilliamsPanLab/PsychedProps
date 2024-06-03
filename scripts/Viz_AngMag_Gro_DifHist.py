@@ -3,6 +3,8 @@ import nibabel as nb
 import numpy as np
 import nilearn.plotting as plotting
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib.pyplot import figure
 import sys
 import os
@@ -26,7 +28,8 @@ for i, session in enumerate(sessions):
     
     # Combine binned percentile magnitudes for each task
     combined_data = np.sum(session_data, axis=0)  # Adjust combining method as needed
-    
+    total_measurements = np.sum(session_data)
+    normalized_data = combined_data / total_measurements
     # Create a polar contour plot
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     
@@ -34,7 +37,7 @@ for i, session in enumerate(sessions):
     extent = [0, np.pi, 0, 100]
     
     # Create polar plot using contourf
-    contour = ax.contourf(combined_data.T, extent=extent, cmap='inferno')
+    contour = ax.contourf(normalized_data.T, extent=extent, cmap='inferno', vmin=0.0096, vmax=0.01050)
     
     # Add a colorbar
     cbar = plt.colorbar(contour, ax=ax)

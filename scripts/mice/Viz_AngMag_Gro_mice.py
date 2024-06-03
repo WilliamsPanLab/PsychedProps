@@ -4,6 +4,7 @@ import nibabel as nb
 import numpy as np
 import nilearn.plotting as plotting
 import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 import copy
@@ -31,12 +32,15 @@ percentiles = np.linspace(0, 100, num_magnitude_bins+1)  # 0-100% divided into n
 
 # run 1
 binned_percentile_magnitudes=np.genfromtxt(fn1,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')
@@ -51,12 +55,15 @@ plt.savefig(outfp, bbox_inches='tight')
 
 # run 2
 binned_percentile_magnitudes=np.genfromtxt(fn2,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')
@@ -71,12 +78,15 @@ plt.savefig(outfp, bbox_inches='tight')
 
 # run 3
 binned_percentile_magnitudes=np.genfromtxt(fn3,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')
@@ -91,12 +101,15 @@ plt.savefig(outfp, bbox_inches='tight')
 
 # run 4
 binned_percentile_magnitudes=np.genfromtxt(fn4,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')
@@ -111,12 +124,15 @@ plt.savefig(outfp, bbox_inches='tight')
 
 # run 5
 binned_percentile_magnitudes=np.genfromtxt(fn5,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')
@@ -130,12 +146,15 @@ plt.savefig(outfp, bbox_inches='tight')
 
 # run 6
 binned_percentile_magnitudes=np.genfromtxt(fn6,delimiter=',')
+# totals + normalization
+totals=np.sum(binned_percentile_magnitudes)
+normalized_data=binned_percentile_magnitudes / totals
 # Create a polar contour plot
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 # define extent (note radial axis is in radians, but labeled as degrees for interp.)
 extent = [0, np.pi, 0, 100]
 # Create polar plot using contourf
-contour = ax.contourf(binned_percentile_magnitudes.T,extent=extent,cmap='inferno')
+contour = ax.contourf(normalized_data.T,extent=extent,cmap='inferno', vmin=0.0060, vmax=0.0165)
 # Add a colorbar
 cbar = plt.colorbar(contour, ax=ax)
 cbar.set_label('Percentile Magnitude')

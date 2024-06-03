@@ -4,6 +4,8 @@ import numpy as np
 import nilearn.plotting as plotting
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+import matplotlib
+matplotlib.use('Agg')
 import sys
 import os
 from PIL import Image
@@ -26,12 +28,14 @@ for i, session in enumerate(sessions):
     session_data = session_data[matrix_name]
     # Combine binned percentile magnitudes for each task
     combined_data = np.sum(session_data, axis=2)  # Adjust combining method as needed
+    total_measurements = np.sum(session_data)
+    normalized_data = combined_data / total_measurements
     # Create a polar contour plot
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     # Define extent (note radial axis is in radians, but labeled as degrees for interp.)
     extent = [0, np.pi, 0, 100]
     # Create polar plot using contourf
-    contour = ax.contourf(combined_data.T, extent=extent, cmap='inferno')
+    contour = ax.contourf(normalized_data.T, extent=extent, cmap='inferno',vmin= 0.00945,vmax=0.01050)
     # Add a colorbar
     cbar = plt.colorbar(contour, ax=ax)
     cbar.set_label('Percentile Magnitude')
