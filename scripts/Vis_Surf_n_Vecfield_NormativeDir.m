@@ -70,11 +70,13 @@ if strcmp(Coloration,'Directional')
         %maxVal = max(vecr(:));
         % need everything to be above 0 (+absminval) but scaled 0-1 (./maxval+absminval)
         %RGBValues_R=(vecr+abs(minVal))./(maxVal+abs(minVal));
-elseif strcmp(Coloration,'BOLD')
+elseif strcmp(Coloration,'STD')
 	%mincol=min(min([VertVecL VertVecR]))
 	%maxcol=max(max([VertVecL VertVecR]))
-	mincol=-10;
-	maxcol=10;
+	%mincol=0.86;
+	%maxcol=1.39;
+	mincol=1.25;
+	maxcol=1.35;
 end
 
 disp(maxcol)
@@ -93,33 +95,8 @@ if strcmp(Coloration,'Directional')
 	    0 0 0;    % Black
 	    1 1 1     % White
 	];
-elseif strcmp(Coloration,'BOLD')
-	roybigbl_cm=inferno(16);
-	roybigbl_cm(1,:)=[255, 255, 0 ];
-	roybigbl_cm(2,:)=[255, 200, 0];
-	roybigbl_cm(3,:)=[255, 120, 0];
-	roybigbl_cm(4,:)=[255, 0, 0 ];
-	roybigbl_cm(5,:)=[200, 0, 0 ];
-	roybigbl_cm(6,:)=[150, 0, 0 ];
-	roybigbl_cm(7,:)=[100, 0, 0 ];
-	roybigbl_cm(8,:)=[60, 0, 0 ];
-	roybigbl_cm(9,:)=[0, 0, 80 ];
-	roybigbl_cm(10,:)=[0, 0, 170];
-	roybigbl_cm(11,:)=[75, 0, 125];
-	roybigbl_cm(12,:)=[125, 0, 160];
-	roybigbl_cm(13,:)=[75, 125, 0];
-	roybigbl_cm(14,:)=[0, 200, 0];
-	roybigbl_cm(15,:)=[0, 255, 0];
-	roybigbl_cm(16,:)=[0, 255, 255];
-	% scale to 1
-	roybigbl_cm=roybigbl_cm.*(1/255);
-	% interpolate color gradient
-	interpsteps=[0 0.0666 0.1333 0.2 0.2666 0.3333 0.4 0.4666 0.5333 0.6 0.6666 0.7333 0.8 0.86666 0.9333 1];
-	roybigbl_cm=interp1(interpsteps,roybigbl_cm,linspace(0,1,255));
-	% yellow as high
-	roybigbl_cm=flipud(roybigbl_cm);
-	% reduce just a little bit on the close-to-white coloring
-	custommap=roybigbl_cm(15:240,:);
+elseif strcmp(Coloration,'STD')
+	custommap=inferno;
 end
 % medial left hemisphere
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
@@ -131,7 +108,7 @@ if strcmp(Coloration,'Directional')
 	set(aplot, 'EdgeColor', 'none');
 	set(aplot, 'FaceColor', 'w');
 	set(aplot, 'LineStyle', 'none');
-elseif strcmp(Coloration,'BOLD')
+elseif strcmp(Coloration,'STD')
 	aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
 	aplot.FaceVertexCData=data;
 end
@@ -139,7 +116,7 @@ hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
 	quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
-elseif strcmp(Coloration,'BOLD')
+elseif strcmp(Coloration,'STD')
 	quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
 view([90 0]);
@@ -157,7 +134,7 @@ if strcmp(Coloration,'Directional')
 	set(aplot, 'EdgeColor', 'none');
 	set(aplot, 'FaceColor', 'w');
 	set(aplot, 'LineStyle', 'none');
-elseif strcmp(Coloration,'BOLD')
+elseif strcmp(Coloration,'STD')
         aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
         aplot.FaceVertexCData=data;
 end
@@ -168,7 +145,7 @@ caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
 	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
-elseif strcmp(Coloration,'BOLD')
+elseif strcmp(Coloration,'STD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
 daspect([1 1 1]);

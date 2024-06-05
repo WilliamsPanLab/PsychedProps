@@ -1,4 +1,5 @@
 % read in subject dosage correspondence, has to be before addpath for some silly reason
+restoredefaultpath
 subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 
 % add paths
@@ -79,6 +80,11 @@ bv_g_anglesz=zeros(17,5120);
 p_g_anglesz=zeros(17,5120);
 m1_g_anglesz=zeros(17,5120);
 m2_g_anglesz=zeros(17,5120);
+% within subject standard deviations
+bv_g_std_th=zeros(17,5120);
+p_g_std_th=zeros(17,5120);
+m1_g_std_th=zeros(17,5120);
+m2_g_std_th=zeros(17,5120);
 % load each subject and get mean value within and across subjects at each vertex
 % get subj list
 subjPrefix=repmat('sub-MDMA0',17,1);
@@ -86,7 +92,7 @@ subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14
 subjList=strcat(subjPrefix,subjSuffix')
 
 % variable task name
-task='rs1'
+task='rs2'
 
 % initialize a vector to track length of OpFl, so I can threshold by same criteria used for main stats (>250 TRs remaining)
 RemTrsVec_p=zeros(1,17);
@@ -121,8 +127,8 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	NumTRs=NumTRs(2);
 	lenOpFl=NumTRs;
 	% save thetas a rho
-	Thetas_L=zeros(1,5120);
-	Rhos_L=zeros(1,5120);
+	Thetas_L=zeros(lenOpFl,5120);
+	Rhos_L=zeros(lenOpFl,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% initialize angles for this face over time
@@ -137,17 +143,16 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	        	x_Face(fr)=relVf_L(F,1);
 	        	y_Face(fr)=relVf_L(F,2);
 	        	z_Face(fr)=relVf_L(F,3);
+			% convert to circular for circular STD
+			vs_L=cart2sphvec(double([x_Face(fr);y_Face(fr);z_Face(fr)]),azd_L(F),eld_L(F));
+			[Thetas_L(fr,F),Rhos_L(fr,F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 		% get average angle over time
 		bv_g_anglesx(s,F)=mean(x_Face);
 		bv_g_anglesy(s,F)=mean(y_Face);
 		bv_g_anglesz(s,F)=mean(z_Face);
-		% might still use this for Standard deviation (circular)
-		vs_L=cart2sphvec(double([mean(x_Face);mean(y_Face);mean(z_Face)]),azd_L(F),eld_L(F));
-		[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
+		bv_g_std_th(s,F)=circ_std(Thetas_L(:,F));
 	end
-	% populate baseline dataframe leaving this out for now to keep aggregated angles as cartesian
-	%[bv_g_anglesx(s,:),bv_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 	else
 	end
 
@@ -160,8 +165,8 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	RemTrsVec_p(s)=lenOpFl;
 	% rhos and thetas
-	Thetas_L=zeros(1,5120);
-	Rhos_L=zeros(1,5120);
+	Thetas_L=zeros(lenOpFl,5120);
+	Rhos_L=zeros(lenOpFl,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% initialize angles for this face over time
@@ -176,19 +181,16 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	        	x_Face(fr)=relVf_L(F,1);
 	        	y_Face(fr)=relVf_L(F,2);
 	        	z_Face(fr)=relVf_L(F,3);
+			% convert to circular for circular STD
+                        vs_L=cart2sphvec(double([x_Face(fr);y_Face(fr);z_Face(fr)]),azd_L(F),eld_L(F));
+                        [Thetas_L(fr,F),Rhos_L(fr,F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 		% get average angle over time
                 p_g_anglesx(s,F)=mean(x_Face);
                 p_g_anglesy(s,F)=mean(y_Face);
                 p_g_anglesz(s,F)=mean(z_Face);
-		% convert to spherical coord system
-	       	vs_L=cart2sphvec(double([mean(x_Face);mean(y_Face);mean(z_Face)]),azd_L(F),eld_L(F));
-		% store in output vector (r is redundant across all vecs, only using az and el)
-		[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
+		p_g_std_th(s,F)=circ_std(Thetas_L(:,F));
 	end
-	% populate placebo dataframe - leaving out now in favor of cartesian storage
-        %[p_g_anglesx(s,:),p_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
-
 	else
 	end
 	
@@ -201,8 +203,8 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	RemTrsVec_m1(s)=lenOpFl;
 	% rhos and thetas
-	Thetas_L=zeros(1,5120);
-	Rhos_L=zeros(1,5120);
+	Thetas_L=zeros(lenOpFl,5120);
+	Rhos_L=zeros(lenOpFl,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% initialize angles for this face over time
@@ -217,18 +219,16 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 			x_Face(fr)=relVf_L(F,1);
                         y_Face(fr)=relVf_L(F,2);
                         z_Face(fr)=relVf_L(F,3);
+			% convert to circular for circular STD
+                        vs_L=cart2sphvec(double([x_Face(fr);y_Face(fr);z_Face(fr)]),azd_L(F),eld_L(F));
+                        [Thetas_L(fr,F),Rhos_L(fr,F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 		% get average angle over time
                 m1_g_anglesx(s,F)=mean(x_Face);
                 m1_g_anglesy(s,F)=mean(y_Face);
                 m1_g_anglesz(s,F)=mean(z_Face);
-		% convert to spherical coord system
-	       	vs_L=cart2sphvec(double([mean(x_Face);mean(y_Face);mean(z_Face)]),azd_L(F),eld_L(F));
-		% store in output vector (r is redundant across all vecs, only using az and el)
-		[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
+		m1_g_std_th(s,F)=circ_std(Thetas_L(:,F));
 	end
-	% populate m1 dataframe
-        % leaving out for now in favor of cartesian storage[m1_g_anglesx(s,:),m1_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 	else
 	end
 	%%% m2 as left Hemi
@@ -240,8 +240,8 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	lenOpFl=NumTRs;
 	RemTrsVec_m2(s)=lenOpFl;
 	% rhos and thetas
-	Thetas_L=zeros(1,5120);
-	Rhos_L=zeros(1,5120);
+	Thetas_L=zeros(lenOpFl,5120);
+	Rhos_L=zeros(lenOpFl,5120);
 	% loop over each face
 	for F=g_noMW_combined_L
 		% initialize angles for this face over time
@@ -256,35 +256,60 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
                         x_Face(fr)=relVf_L(F,1);
                         y_Face(fr)=relVf_L(F,2);
                         z_Face(fr)=relVf_L(F,3);
+			% convert to circular for circular STD
+                        vs_L=cart2sphvec(double([x_Face(fr);y_Face(fr);z_Face(fr)]),azd_L(F),eld_L(F));
+                        [Thetas_L(fr,F),Rhos_L(fr,F)]=cart2pol(vs_L(1),vs_L(2));
 		end
 		% get average angle over time
                 m2_g_anglesx(s,F)=mean(x_Face);
                 m2_g_anglesy(s,F)=mean(y_Face);
                 m2_g_anglesz(s,F)=mean(z_Face);
-		% convert to spherical coord system
-	       	vs_L=cart2sphvec(double([mean(x_Face);mean(y_Face);mean(z_Face)]),azd_L(F),eld_L(F));
-		% store in output vector (r is redundant across all vecs, only using az and el)
-		[Thetas_L(F),Rhos_L(F)]=cart2pol(vs_L(1),vs_L(2));
+		m2_g_std_th(s,F)=circ_std(Thetas_L(:,F));
 	end
-	% populate m2 dataframe commenting out for now in favor of cartesian storage
-        %[m2_g_anglesx(s,:),m2_g_anglesy(s,:)]=pol2cart(Thetas_L,Rhos_L);
 	else
 	end
 end
 
+% now threhsold by remaining TRs
+ThreshVal=250;
+passes_p=RemTrsVec_p>ThreshVal;
+passes_m1=RemTrsVec_m1>ThreshVal;
+passes_m2=RemTrsVec_m2>ThreshVal;
+% apply threshold
+p_g_anglesx=p_g_anglesx(passes_p,:);
+p_g_anglesy=p_g_anglesy(passes_p,:);
+p_g_anglesz=p_g_anglesz(passes_p,:);
+m1_g_anglesx=m1_g_anglesx(passes_m1,:);
+m1_g_anglesy=m1_g_anglesy(passes_m1,:);
+m1_g_anglesz=m1_g_anglesz(passes_m1,:);
+m2_g_anglesx=m2_g_anglesx(passes_m2,:);
+m2_g_anglesy=m2_g_anglesy(passes_m2,:);
+m2_g_anglesz=m2_g_anglesz(passes_m2,:);
+
+% same to standard deviation
+p_g_std_th=p_g_std_th(passes_p,:);
+m1_g_std_th=m1_g_std_th(passes_m1,:);
+m2_g_std_th=m2_g_std_th(passes_m2,:);
+
 % remove blank rows (should be 4, 6, 10)
-bv_g_anglesx = bv_g_anglesx(~all(bv_g_anglesx == 0, 2), :);
-bv_g_anglesy = bv_g_anglesy(~all(bv_g_anglesy == 0, 2), :);
-bv_g_anglesz = bv_g_anglesz(~all(bv_g_anglesz == 0, 2), :);
-p_g_anglesx = p_g_anglesx(~all(p_g_anglesx == 0, 2), :);
-p_g_anglesy = p_g_anglesy(~all(p_g_anglesy == 0, 2), :);
-p_g_anglesz = p_g_anglesz(~all(p_g_anglesz == 0, 2), :);
-m1_g_anglesx = m1_g_anglesx(~all(m1_g_anglesx == 0, 2), :);
-m1_g_anglesy = m1_g_anglesy(~all(m1_g_anglesy == 0, 2), :);
-m1_g_anglesz = m1_g_anglesz(~all(m1_g_anglesz == 0, 2), :);
-m2_g_anglesx = m2_g_anglesx(~all(m2_g_anglesx == 0, 2), :);
-m2_g_anglesy = m2_g_anglesy(~all(m2_g_anglesy == 0, 2), :);
-m2_g_anglesz = m2_g_anglesz(~all(m2_g_anglesz == 0, 2), :);
+%bv_g_anglesx = bv_g_anglesx(~all(bv_g_anglesx == 0, 2), :);
+%bv_g_anglesy = bv_g_anglesy(~all(bv_g_anglesy == 0, 2), :);
+%bv_g_anglesz = bv_g_anglesz(~all(bv_g_anglesz == 0, 2), :);
+%p_g_anglesx = p_g_anglesx(~all(p_g_anglesx == 0, 2), :);
+%p_g_anglesy = p_g_anglesy(~all(p_g_anglesy == 0, 2), :);
+%p_g_anglesz = p_g_anglesz(~all(p_g_anglesz == 0, 2), :);
+%m1_g_anglesx = m1_g_anglesx(~all(m1_g_anglesx == 0, 2), :);
+%m1_g_anglesy = m1_g_anglesy(~all(m1_g_anglesy == 0, 2), :);
+%m1_g_anglesz = m1_g_anglesz(~all(m1_g_anglesz == 0, 2), :);
+%m2_g_anglesx = m2_g_anglesx(~all(m2_g_anglesx == 0, 2), :);
+%m2_g_anglesy = m2_g_anglesy(~all(m2_g_anglesy == 0, 2), :);
+%m2_g_anglesz = m2_g_anglesz(~all(m2_g_anglesz == 0, 2), :);
+% apply same to standard deviations
+%bv_g_std_th = bv_g_std_th(~all(bv_g_std_th == 0, 2), :);
+%p_g_std_th = p_g_std_th(~all(p_g_std_th == 0, 2), :);
+%m1_g_std_th = m1_g_std_th(~all(m1_g_std_th == 0, 2), :);
+%m2_g_std_th = m2_g_std_th(~all(m2_g_std_th == 0, 2), :);
+
 % get means across angles across each participant
 bv_g_angles_meanx=mean(bv_g_anglesx);
 p_g_angles_meanx=mean(p_g_anglesx);
@@ -301,7 +326,62 @@ p_g_angles_meanz=mean(p_g_anglesz);
 m1_g_angles_meanz=mean(m1_g_anglesz);
 m2_g_angles_meanz=mean(m2_g_anglesz);
 
-% this would be a good spot to orthogonalize to the surface of inflated
+% initialize across-subject mean angle thetas (radians) by session
+sizeP=size(p_g_anglesx);
+sizem1=size(m1_g_anglesx);
+sizem2=size(m2_g_anglesx);
+cross_subjs_means_p=zeros(sizeP(1),5120);
+cross_subjs_means_m1=zeros(sizem1(1),5120);
+cross_subjs_means_m2=zeros(sizem2(1),5120);
+
+% and output scalar
+cross_subjs_std_p=zeros(1,5120);
+cross_subjs_std_m1=zeros(1,5120);
+cross_subjs_std_m2=zeros(1,5120);
+
+% get across subject SD
+for F=g_noMW_combined_L
+	subjMeanX_p=p_g_anglesx(:,F);
+	subjMeanY_p=p_g_anglesy(:,F);
+	subjMeanZ_p=p_g_anglesz(:,F);
+	subjMeanX_m1=m1_g_anglesx(:,F);
+        subjMeanY_m1=m1_g_anglesy(:,F);
+        subjMeanZ_m1=m1_g_anglesz(:,F);
+	subjMeanX_m2=m2_g_anglesx(:,F);
+        subjMeanY_m2=m2_g_anglesy(:,F);
+        subjMeanZ_m2=m2_g_anglesz(:,F);
+	% get size of remaining observations
+	p_obs=size(subjMeanX_p);
+	p_obs=p_obs(1);
+	m1_obs=size(subjMeanX_m1);
+        m1_obs=m1_obs(1);
+	m2_obs=size(subjMeanX_m2);
+        m2_obs=m2_obs(1);
+	% for each remaining S
+	for S=1:p_obs
+		% convert each to radians
+		vs_L_p=cart2sphvec(double([subjMeanX_p(S);subjMeanY_p(S);subjMeanZ_p(S)]),azd_L(F),eld_L(F));
+		[cross_subjs_means_p(S,F), temp ]=cart2pol(vs_L_p(1),vs_L_p(2));
+	end
+	% 80 mg
+	for S=1:m1_obs
+                % convert each to radians
+                vs_L_m1=cart2sphvec(double([subjMeanX_m1(S);subjMeanY_m1(S);subjMeanZ_m1(S)]),azd_L(F),eld_L(F));
+                [cross_subjs_means_m1(S,F), temp ]=cart2pol(vs_L_m1(1),vs_L_m1(2));
+        end
+	% 120 mg
+	for S=1:m2_obs
+                % convert each to radians
+                vs_L_m2=cart2sphvec(double([subjMeanX_m2(S);subjMeanY_m2(S);subjMeanZ_m2(S)]),azd_L(F),eld_L(F));
+                [cross_subjs_means_m2(S,F), temp ]=cart2pol(vs_L_m2(1),vs_L_m2(2));
+        end
+	% get std of this face
+	cross_subjs_std_p(F)=circ_std(cross_subjs_means_p(:,F));
+	cross_subjs_std_m1(F)=circ_std(cross_subjs_means_m1(:,F));
+	cross_subjs_std_m2(F)=circ_std(cross_subjs_means_m2(:,F));	
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % orthogonalize to the surface of inflated
 % inflated
 surfLi = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.inflated'];
@@ -319,17 +399,33 @@ TriR_R = TriRep(faces_ri, vx_ri);
 R_inc = TriR_R.incenters;
 % initialize flattened vectors
 flattenedVectors_L=zeros(2562,3);
-
+flattenedVectors_L_m1=zeros(2562,3);
+flattenedVectors_L_m2=zeros(2562,3);
+flattenedSTD_Win_p_L=zeros(2562,1);
+flattenedSTD_Btw_p_L=zeros(2562,1);
+flattenedSTD_Win_m1_L=zeros(2562,1);
+flattenedSTD_Btw_m1_L=zeros(2562,1);
+flattenedSTD_Win_m2_L=zeros(2562,1);
+flattenedSTD_Btw_m2_L=zeros(2562,1);
 % change OG vecs for each condition. First = placebo
 OGVecs_L=[p_g_angles_meanx; p_g_angles_meany; p_g_angles_meanz]';
-% get magnitude of each vector
-magnitudes = sqrt(sum(OGVecs_L.^2, 2));
-% for each vertex
+OGVecs_L_m1=[m1_g_angles_meanx; m1_g_angles_meany; m1_g_angles_meanz]';
+OGVecs_L_m2=[m2_g_angles_meanx; m2_g_angles_meany; m2_g_angles_meanz]';
+% for each vertex (this one is for placebo and the vector STDs
 for vertInd=1:2562
 	% get faces intertwined with this vertex
 	[InvolvedFaces_l,~]=find(faces_l==vertInd);
+	% extract valid faces from this vector
+	InvolvedFaces_l=intersect(InvolvedFaces_l,g_noMW_combined_L);	
 	% get mean vector directionality at these faces (x y z)
-	OGVec_L=mean(OGVecs_L(InvolvedFaces_l,:));
+	OGVec_L=mean(OGVecs_L(InvolvedFaces_l,:),1);
+	% get mean SDs at these faces	
+	flattenedSTD_Win_p_L(vertInd)=mean(mean(p_g_std_th(:,InvolvedFaces_l)));
+	flattenedSTD_Win_m1_L(vertInd)=mean(mean(m1_g_std_th(:,InvolvedFaces_l)));
+	flattenedSTD_Win_m2_L(vertInd)=mean(mean(m2_g_std_th(:,InvolvedFaces_l)));
+	flattenedSTD_Btw_p_L(vertInd)=mean(cross_subjs_std_p(InvolvedFaces_l));
+	flattenedSTD_Btw_m1_L(vertInd)=mean(cross_subjs_std_m1(InvolvedFaces_l));
+	flattenedSTD_Btw_m2_L(vertInd)=mean(cross_subjs_std_m2(InvolvedFaces_l));	
 	% initialize projection vector (directionality and magnitude w/r/t neighboring faces)
         projection_L=zeros(5,3);
 	faceCounter=1;
@@ -366,18 +462,140 @@ for vertInd=1:2562
         modVec_L = VecNormalize(modVec_L);
 	flattenedVectors_L(vertInd, :) = modVec_L;
 end
-% set right hemisphere vectors as null
+% for m1
+% for each vertex (this one is for placebo and the vector STDs
+for vertInd=1:2562
+        % get faces intertwined with this vertex
+        [InvolvedFaces_l,~]=find(faces_l==vertInd);
+        % extract valid faces from this vector
+        InvolvedFaces_l=intersect(InvolvedFaces_l,g_noMW_combined_L);
+        % get mean vector directionality at these faces (x y z)
+        OGVec_L=mean(OGVecs_L_m1(InvolvedFaces_l,:),1);
+        % initialize projection vector (directionality and magnitude w/r/t neighboring faces)
+        projection_L=zeros(5,3);
+        faceCounter=1;
+        % construe vector in terms of how much it points to each neighboring face
+        for neighborFace = InvolvedFaces_l'
+                % Calculate normal vector for the neighboring face
+                normalVectors = cross(vx_l(faces_l(neighborFace, 2), :) - vx_l(faces_l(neighborFace, 1), :), ...
+                                vx_l(faces_l(neighborFace, 3), :) - vx_l(faces_l(neighborFace, 1), :));
+                meanNormalVector = mean(normalVectors, 1);
+                meanNormalVector = VecNormalize(meanNormalVector);
+
+                % Project the original vector onto the normal vector
+                projection_L(faceCounter, :) = dot(OGVec_L, meanNormalVector) * meanNormalVector;
+                faceCounter = faceCounter + 1;
+        end
+        % Reconstruct the vector on the inflated surface (new surface)
+        % Using vx_li and vx_ri for new surface vertices
+        reconstructedVec_L = zeros(1, 3);
+        for i = 1:length(InvolvedFaces_l)
+                neighborFace = InvolvedFaces_l(i);
+                newVertexCoords_L = vx_li(faces_li(neighborFace, :), :);
+                meanNewVertex_L = mean(newVertexCoords_L, 1); % Get the mean position of the new face vertices
+                reconstructedVec_L = reconstructedVec_L + projection_L(i, :) .* meanNewVertex_L; % Element-wise multiplication
+        end
+        % Remove orthogonal component to flatten to the inflated surface
+        involvedFaces_L = find(any(faces_li == vertInd, 2)); % Find faces involving this vertex
+        normalVectors_L = cross(vx_li(faces_li(involvedFaces_L, 2), :) - vx_li(faces_li(involvedFaces_L, 1), :), ...
+                        vx_li(faces_li(involvedFaces_L, 3), :) - vx_li(faces_li(involvedFaces_L, 1), :));
+        meanNormalVector_L = mean(normalVectors_L, 1);
+        meanNormalVector_L = VecNormalize(meanNormalVector_L);
+
+        OGvecOrthogonal_L = dot(reconstructedVec_L, meanNormalVector_L) * meanNormalVector_L;
+        modVec_L = reconstructedVec_L - OGvecOrthogonal_L;
+        modVec_L = VecNormalize(modVec_L);
+        flattenedVectors_L_m1(vertInd, :) = modVec_L;
+end
+% for m2
+% for each vertex (this one is for placebo and the vector STDs
+for vertInd=1:2562
+        % get faces intertwined with this vertex
+        [InvolvedFaces_l,~]=find(faces_l==vertInd);
+        % extract valid faces from this vector
+        InvolvedFaces_l=intersect(InvolvedFaces_l,g_noMW_combined_L);
+        % get mean vector directionality at these faces (x y z)
+        OGVec_L=mean(OGVecs_L_m2(InvolvedFaces_l,:),1);
+        % initialize projection vector (directionality and magnitude w/r/t neighboring faces)
+        projection_L=zeros(5,3);
+        faceCounter=1;
+        % construe vector in terms of how much it points to each neighboring face
+        for neighborFace = InvolvedFaces_l'
+                % Calculate normal vector for the neighboring face
+                normalVectors = cross(vx_l(faces_l(neighborFace, 2), :) - vx_l(faces_l(neighborFace, 1), :), ...
+                                vx_l(faces_l(neighborFace, 3), :) - vx_l(faces_l(neighborFace, 1), :));
+                meanNormalVector = mean(normalVectors, 1);
+                meanNormalVector = VecNormalize(meanNormalVector);
+
+                % Project the original vector onto the normal vector
+                projection_L(faceCounter, :) = dot(OGVec_L, meanNormalVector) * meanNormalVector;
+                faceCounter = faceCounter + 1;
+        end
+        % Reconstruct the vector on the inflated surface (new surface)
+        % Using vx_li and vx_ri for new surface vertices
+        reconstructedVec_L = zeros(1, 3);
+        for i = 1:length(InvolvedFaces_l)
+                neighborFace = InvolvedFaces_l(i);
+                newVertexCoords_L = vx_li(faces_li(neighborFace, :), :);
+                meanNewVertex_L = mean(newVertexCoords_L, 1); % Get the mean position of the new face vertices
+                reconstructedVec_L = reconstructedVec_L + projection_L(i, :) .* meanNewVertex_L; % Element-wise multiplication
+        end
+        % Remove orthogonal component to flatten to the inflated surface
+        involvedFaces_L = find(any(faces_li == vertInd, 2)); % Find faces involving this vertex
+        normalVectors_L = cross(vx_li(faces_li(involvedFaces_L, 2), :) - vx_li(faces_li(involvedFaces_L, 1), :), ...
+                        vx_li(faces_li(involvedFaces_L, 3), :) - vx_li(faces_li(involvedFaces_L, 1), :));
+        meanNormalVector_L = mean(normalVectors_L, 1);
+        meanNormalVector_L = VecNormalize(meanNormalVector_L);
+
+        OGvecOrthogonal_L = dot(reconstructedVec_L, meanNormalVector_L) * meanNormalVector_L;
+        modVec_L = reconstructedVec_L - OGvecOrthogonal_L;
+        modVec_L = VecNormalize(modVec_L);
+        flattenedVectors_L_m2(vertInd, :) = modVec_L;
+end
+
+%%%%%%%%%%%%%%%%%%%%%%% plotting
+
+% set right hemisphere vect rs as null
 flattenedVectors_R=zeros(2562,3);
-% adjust flattenedVectors as function of original magnitude
-flattenedVectors_L=flattenedVectors_L/magnitudes;
 % read in DMN as background
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
 nets_LH=networks.nets.Lnets(:,1);
 nets_RH=networks.nets.Rnets(:,1);
-fn='~/testAggVecs.png'
+% binarized DMN mask
+% print em out: p m1 m2 by normative directionality color, then colored by within subj SD and between subj SD
+fn='~/placeboVecs_directions.png'
 Vis_Surf_n_Vecfield_NormativeDir(nets_LH,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'Directional');
-
-
-% ADD IN CIRCULAR SD, CALC WITHIN SUBJECTS 17X5120, CAN THEN AVERAGE
-% ADD IN CIRCULAR SD FOR BETWEEN SUBJECTS: 1X5120 (FROM 17X5120 NORMATIVE DIRECTIONALITY
-% COLOR ARROWS BY SD: WILL NEED TO RUN SD VALUES NEXT TO INTERPOLATION TO VERTICES
+% replace nans with 0s
+flattenedSTD_Win_p_L(isnan(flattenedSTD_Win_p_L))=0;
+fn='~/placeboVecs_WinSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Win_p_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% replace nans with 0s
+flattenedSTD_Btw_p_L(isnan(flattenedSTD_Btw_p_L))=0;
+fn='~/placeboVecs_BWSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Btw_p_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% m1
+fn='~/m80_directions.png'
+Vis_Surf_n_Vecfield_NormativeDir(nets_LH,nets_RH,flattenedVectors_L_m1,flattenedVectors_R,fn,'Directional');
+% replace nans with 0s
+flattenedSTD_Win_m1_L(isnan(flattenedSTD_Win_m1_L))=0;
+fn='~/m80_WinSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Win_m1_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% replace nans with 0s
+flattenedSTD_Btw_m1_L(isnan(flattenedSTD_Btw_m1_L))=0;
+fn='~/m80_BWSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Btw_m1_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% m2
+fn='~/m120_directions.png'
+Vis_Surf_n_Vecfield_NormativeDir(nets_LH,nets_RH,flattenedVectors_L_m2,flattenedVectors_R,fn,'Directional');
+% replace nans with 0s
+flattenedSTD_Win_m2_L(isnan(flattenedSTD_Win_m2_L))=0;
+fn='~/m120_WinSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Win_m2_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% replace nans with 0s
+flattenedSTD_Btw_m2_L(isnan(flattenedSTD_Btw_m2_L))=0;
+fn='~/m120_BWSTD.png'
+Vis_Surf_n_Vecfield_NormativeDir(flattenedSTD_Btw_m2_L,nets_RH,flattenedVectors_L,flattenedVectors_R,fn,'STD');
+% done
+disp('donezo')
+~                                                                                                              
+~                                                                                                              
