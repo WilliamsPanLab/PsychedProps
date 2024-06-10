@@ -308,7 +308,9 @@ for k=1:4
 	OutTs_R=NangDs_R;
 	% average angular distances across hemispheres
         avgD=mean(AllAngs);
-        Propvec=[Propvec avgD];
+        % 6/8/24: replacing with percentage for attempt at clearer presentation of results
+        percBUP=length(AllAngs(AllAngs<90))/(length(AllAngs));
+        Propvec=[Propvec percBUP];
         % add label
         stringVec=[stringVec ['AngD' num2str(k)]];
 	% save out as csv

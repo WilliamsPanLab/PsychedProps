@@ -10,25 +10,8 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 
+# dumb cd
+cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/
 # will need matlab
 module load matlab
-# and freesurfer
-module load biology
-module load freesurfer/7.3.2
-# and workbench
-module load workbench
-
-# subject name is input argument
-subj=$1
-# sesh is input 2
-sesh=$2
-
-matlab -nodisplay -r "ExampleFrames_MDMA('$subj','$sesh','rs1')"
-matlab -nodisplay -r "ExampleFrames_MDMA('$subj','$sesh','rs2')"
-
-# run matlab
-#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','wm')"
-#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Lagged_CircFC('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Loop_FTLE_mice"

@@ -262,8 +262,13 @@ for k=1
         % and time series population
 	OutTs=NangDs;
 	% average angular distances across hemispheres
-        avgD=mean(mean(NangDs))
-        Propvec=[Propvec avgD];
+        avgD=mean(mean(NangDs));
+	% 6/8/24: replacing with percentage for attempt at clearer presentation of results
+	% num points
+	sizeOutput=size(NangDs);
+	numPoints=sizeOutput(1)*sizeOutput(2);
+        percBUP=length(NangDs(NangDs<90))/(numPoints);
+        Propvec=[Propvec percBUP];
         % add label
         stringVec=[stringVec ['AngD_1']];
 	% save out as csv

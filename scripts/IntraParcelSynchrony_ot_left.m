@@ -122,12 +122,12 @@ for p=1:numParcels;
 			% fancy way of saying standard deviation
 			% signal for this tp
 			tpSig=parcSig(:,i);
-			tpSynchrony=1/std(tpSig);
+			tpSynchrony=std(tpSig);
 			% insert into eventTSs
 			eventTSs_BOLD(E,indexCounter)=tpSynchrony;
 			% extract vector uniformity: going to lean into euclidean distance 
 			tpVecs=parcVecs(:,i,:);
-			tpVecSync=0.01/(mean(std(tpVecs)));
+			tpVecSync=(mean(std(tpVecs)));
 			eventTSs_Vecs(E,indexCounter)=tpVecSync;
 			% udpate index counter
 			indexCounter=indexCounter+1;
@@ -155,5 +155,6 @@ for p=1:numParcels;
 	end
 end
 % save out to scratch... r-friendly format
-save([parentfp 'Bold_Vec_Sync_L.mat'],'outDF');
+save([parentfp '/' task '_' 'Bold_Vec_Sync_L.mat'],'outDF');
 % note parcel size is also stored via parcelTable: might need as covariate later
+% also note: with removal of 1/std, we are now capturing asynchrony, not synchrony

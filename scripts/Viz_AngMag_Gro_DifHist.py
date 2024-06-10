@@ -31,8 +31,9 @@ for i, session in enumerate(sessions):
     total_measurements = np.sum(session_data)
     normalized_data = combined_data / total_measurements
     # Create a polar contour plot
-    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
-    
+    #fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    fig, ax = plt.subplots()
+
     # Define extent (note radial axis is in radians, but labeled as degrees for interp.)
     extent = [0, np.pi, 0, 100]
     
@@ -44,10 +45,10 @@ for i, session in enumerate(sessions):
     cbar.set_label('Percentile Magnitude')
     
     # Customize the plot if needed (e.g., labels, title, etc.)
-    ax.set_thetamin(0)  # Set the starting angle
-    ax.set_thetamax(180)  # Set the ending angle
-    ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
-    ax.set_theta_zero_location("N")  # Set the zero angle to the north
+    #ax.set_thetamin(0)  # Set the starting angle
+    #ax.set_thetamax(180)  # Set the ending angle
+    #ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
+    #ax.set_theta_zero_location("N")  # Set the zero angle to the north
 
     # Output file path
     outfp = f'/oak/stanford/groups/leanew1/users/apines/data/p50/Group_AllTasks_Polar_AngMag_{session}.png'
@@ -95,46 +96,49 @@ outfp_difference_pl_m2 = '/oak/stanford/groups/leanew1/users/apines/data/p50/Dif
 outfp_difference_merged = '/oak/stanford/groups/leanew1/users/apines/data/p50/Difference_Histogram_pl_vs_drug.png'
 
 # colormap contour levels
-contour_levels = np.linspace(-0.025, 0.025, 11)
+contour_levels = np.linspace(-0.03125, 0.03125, 11)
 
 # Create a 2D histogram of the differences (m1 vs. pl)
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+#fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+fig, ax = plt.subplots()
 contour_pl_m1 = ax.contourf(difference_pl_m1.T, extent=extent,levels=contour_levels, cmap='seismic')
 
 cbar_pl_m1 = plt.colorbar(contour_pl_m1, ax=ax)
 cbar_pl_m1.set_label('Difference Magnitude (pl - m1)')
-ax.set_thetamin(0)  # Set the starting angle
-ax.set_thetamax(180)  # Set the ending angle
-ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
-ax.set_theta_zero_location("N")  # Set the zero angle to the north
+#ax.set_thetamin(0)  # Set the starting angle
+#ax.set_thetamax(180)  # Set the ending angle
+#ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
+#ax.set_theta_zero_location("N")  # Set the zero angle to the north
 
 # Save the 2D difference histogram (m1 vs. pl)
 plt.savefig(outfp_difference_pl_m1, bbox_inches='tight')
 plt.close()  # Close the figure to avoid overlapping plots
 
 # Create a 2D histogram of the differences (m2 vs. pl)
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+#fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+fig, ax = plt.subplots()
 contour_pl_m2 = ax.contourf(difference_pl_m2.T, extent=extent,levels=contour_levels, cmap='seismic')
 cbar_pl_m2 = plt.colorbar(contour_pl_m2, ax=ax)
 cbar_pl_m2.set_label('Difference Magnitude (pl - m2)')
-ax.set_thetamin(0)  # Set the starting angle
-ax.set_thetamax(180)  # Set the ending angle
-ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
-ax.set_theta_zero_location("N")  # Set the zero angle to the north
+#ax.set_thetamin(0)  # Set the starting angle
+#ax.set_thetamax(180)  # Set the ending angle
+#ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
+#ax.set_theta_zero_location("N")  # Set the zero angle to the north
 
 # Save the 2D difference histogram (m2 vs. pl)
 plt.savefig(outfp_difference_pl_m2, bbox_inches='tight')
 plt.close()  # Close the figure to avoid overlapping plots
 
 # Create a 2D histogram of the differences (drug vs. pl)
-fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+#fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+fig, ax = plt.subplots()
 contour_pl_m2 = ax.contourf(difference_pl_drug.T, extent=extent,levels=contour_levels, cmap='seismic')
 cbar_pl_m2 = plt.colorbar(contour_pl_m2, ax=ax)
 cbar_pl_m2.set_label('Difference Magnitude (pl - drug)')
-ax.set_thetamin(0)  # Set the starting angle
-ax.set_thetamax(180)  # Set the ending angle
-ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
-ax.set_theta_zero_location("N")  # Set the zero angle to the north
+#ax.set_thetamin(0)  # Set the starting angle
+#ax.set_thetamax(180)  # Set the ending angle
+#ax.set_theta_direction(-1)  # Rotate clockwise (adjust as needed)
+#ax.set_theta_zero_location("N")  # Set the zero angle to the north
 
 # Save the 2D difference histogram (m2 vs. pl)
 plt.savefig(outfp_difference_merged, bbox_inches='tight')
