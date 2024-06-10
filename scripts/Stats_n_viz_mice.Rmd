@@ -1,0 +1,216 @@
+---
+title: "stats_n_viz_mice"
+output: html_document
+date: "2024-05-15"
+---
+
+```{r}
+library(ggplot2)
+# load in average DMN angles
+DMNAngs=read.csv('~/Downloads/mice_Del_propsMerged_mice(1).csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Signal direction relative to Gradient of DMN", x = "Timepoint", y = "Value", color = "Variable") +
+  theme_minimal()
+
+# add drug value and test standalone
+DMNAngs_long$Drug=1
+DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
+# remove any NA values
+DMNAngs_long=na.omit(DMNAngs_long)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+
+# for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=4,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=6,]
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==1]=0
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==5]=1
+
+# equivalent plot
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  geom_point(size = 4) +
+  geom_line() +
+  
+  scale_color_viridis_d(option = "plasma") +
+  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('LSD (mice)')
+
+boxplot_data_left <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[1])
+
+boxplot_data_right <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[2])
+
+# Plotting with boxplots
+ggplot() +
+  # Scatter plot and lines
+  geom_point(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1), size = 4) +
+  geom_line(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Timepoint) - 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Timepoint) + 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Custom color scale
+  scale_color_viridis_d(option = "plasma") +
+  # Theme and labels
+  theme_minimal(base_size = 22) +
+  ylab('Degrees from Bottom-up') +
+  xlab('LSD (mice)') +
+  # Adjust the x-axis limits to accommodate the box plots
+  scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
+
+# NOTE BELOW CODE ASSUMES INCOMPLETE MOUSE IS EXCLUDED
+
+# load in planars
+planars=read.delim('~/Planar_mouse_LSD5.txt',sep=',',header=F)
+planars$mice=DMNAngs$V1
+planars <- planars[, c("mice","V1","V2","V3","V4","V5","V6")]
+# Reshape the data to long format using base R
+planars_long <- reshape(planars, 
+                        varying = list(names(planars)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(planars), 
+                        direction = "long")
+# Adjust the timepoint to start from 1
+planars_long$Timepoint <- planars_long$Timepoint - 1
+
+ggplot(planars_long, aes(x = Timepoint, y = Value, color = mice, group = mice)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "# planar waves", x = "Timepoint", y = "Value", color = "Variable") +
+  theme_minimal()
+
+# test basic cor
+colnames(planars_long)=c('mice','Timepoint','Waves','id')
+combined=cbind(DMNAngs_long,planars_long)
+# add drug column to see above and beyond assoc
+combined$Drug=1
+combined$Drug[combined$Timepoint==1]=0
+combined$Drug<-as.factor(combined$Drug)
+# association seems to carry above and beyond drug
+fit_lme <- lme(Value ~ Waves+Drug, random = ~ 1 | V1, data = combined)
+summary(fit_lme)
+# raw association
+fit_lme <- lme(Value ~ Waves, random = ~ 1 | V1, data = combined)
+
+
+# load in complexity
+Complx=read.csv('~/Downloads/mice_Complexity_mice_LSD(1).csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(Complx) <- c("V1", paste0("V", 2:ncol(Complx)))
+
+# Reshape the data to long format using base R
+Complx_long <- reshape(Complx, 
+                        varying = list(names(Complx)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(Complx), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+Complx_long$Timepoint <- Complx_long$Timepoint - 1
+
+# Reset row names
+rownames(Complx_long) <- NULL
+
+# remove incompoelte pt
+#Complx_long=Complx_long[Complx_long$V1!='m7507',]
+
+# plot it out
+ggplot(Complx_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Complexity: LSD", x = "Timepoint", y = "Value", color = "Variable") +
+  theme_minimal()
+
+
+fit_lme <- lme(Value ~ Timepoint, random = ~ 1 | V1, data = Complx_long)
+
+
+# combined
+# test basic cor
+colnames(Complx_long)=c('mice','Timepoint','Complexity','id')
+colnames(DMNAngs_long)[1]<-'mice'
+# First merge DMNAngs_long with planars_long
+DMNAngs_long$mice<-as.factor(DMNAngs_long$mice)
+planars_long$mice<-as.factor(planars_long$mice)
+Complx_long$mice<-as.factor(Complx_long$mice)
+
+combined1 <- merge(DMNAngs_long, planars_long, by = c('mice', 'Timepoint', 'id'))
+# Then merge the result with Complx_long
+combined <- merge(combined1, Complx_long, by = c('mice', 'Timepoint', 'id'))
+
+# association seems to carry above and beyond drug
+fit_lme <- lme(Complexity ~ Value+Drug+Waves, random = ~ 1 | mice, data = combined)
+summary(fit_lme)
+# raw association
+fit_lme <- lme(Value ~ Waves, random = ~ 1 | V1, data = combined)
+
+#standalone complexity
+Complx_long$Drug=1
+Complx_long$Drug[Complx_long$Timepoint==1]=0
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = Complx_long)
+summary(fit_lme)
+```
+
+```{r}
+# chunk for ketamine
+# load in average DMN angles
+DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_ket.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Ketamine: Signal direction relative to Gradient of DMN", x = "Timepoint", y = "Value", color = "Variable") +
+  theme_minimal()
+
+```

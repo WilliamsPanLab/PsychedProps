@@ -1,0 +1,2076 @@
+---
+title: "p50 psil"
+output:
+  html_document: default
+  pdf_document: default
+date: "2024-02-03"
+---
+
+
+```{r}
+library(reshape2)
+library(ggplot2)
+library(visreg)
+library(nlme)
+```
+
+```{r}
+# prop angles
+rs1=read.csv('~/rs1_Psil_propsMerged.csv',header=F)
+rs2=read.csv('~/rs2_Psil_propsMerged.csv',header=F)
+rs3=read.csv('~/rs3_Psil_propsMerged.csv',header=F)
+rs4=read.csv('~/rs4_Psil_propsMerged.csv',header=F)
+rs5=read.csv('~/rs5_Psil_propsMerged.csv',header=F)
+rs6=read.csv('~/rs6_Psil_propsMerged.csv',header=F)
+# set colnames
+#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1$Task='rs'
+rs2$Task='rs2'
+rs3$Task='rs3'
+rs4$Task='rs4'
+rs5$Task='rs5'
+rs6$Task='rs6'
+
+# add an OG row column to determine which came first/second chronologically
+rs1$OgRow=seq(1:dim(rs1)[1])
+rs2$OgRow=seq(1:dim(rs2)[1])
+rs3$OgRow=seq(1:dim(rs3)[1])
+rs4$OgRow=seq(1:dim(rs4)[1])
+rs5$OgRow=seq(1:dim(rs5)[1])
+rs6$OgRow=seq(1:dim(rs6)[1])
+
+# this is going to be ugly but simple
+# NOTE VARIABLE NAMES ARE FOR EQUIVALENCE WITH MDMA PROC: 
+# BV = BASELINE
+# P = BETWEEN
+# M1 = AFTER
+# M2 = DRUG
+# manually pair columns as sep. observations of baseline, placebo, 80, 120mg
+rs1bv=data.frame(cbind(rs1$V1,rs1$V2,rs1$V3,rs1$V4,rs1$V17,rs1$OgRow,rs1$V21))
+rs1p=data.frame(cbind(rs1$V5,rs1$V6,rs1$V7,rs1$V8,rs1$V18,rs1$OgRow,rs1$V22))
+rs1m1=data.frame(cbind(rs1$V9,rs1$V10,rs1$V11,rs1$V12,rs1$V19,rs1$OgRow,rs1$V23))
+rs1m2=data.frame(cbind(rs1$V13,rs1$V14,rs1$V15,rs1$V16,rs1$V20,rs1$OgRow,rs1$V24))
+colnames(rs1bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs1p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs1m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs1m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+rs2bv=data.frame(cbind(rs2$V1,rs2$V2,rs2$V3,rs2$V4,rs2$V17,rs2$OgRow,rs2$V21))
+rs2p=data.frame(cbind(rs2$V5,rs2$V6,rs2$V7,rs2$V8,rs2$V18,rs2$OgRow,rs2$V22))
+rs2m1=data.frame(cbind(rs2$V9,rs2$V10,rs2$V11,rs2$V12,rs2$V19,rs2$OgRow,rs2$V23))
+rs2m2=data.frame(cbind(rs2$V13,rs2$V14,rs2$V15,rs2$V16,rs2$V20,rs2$OgRow,rs2$V24))
+colnames(rs2bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs2p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs2m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs2m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+rs3bv=data.frame(cbind(rs3$V1,rs3$V2,rs3$V3,rs3$V4,rs3$V17,rs3$OgRow,rs3$V21))
+rs3p=data.frame(cbind(rs3$V5,rs3$V6,rs3$V7,rs3$V8,rs3$V18,rs3$OgRow,rs3$V22))
+rs3m1=data.frame(cbind(rs3$V9,rs3$V10,rs3$V11,rs3$V12,rs3$V19,rs3$OgRow,rs3$V23))
+rs3m2=data.frame(cbind(rs3$V13,rs3$V14,rs3$V15,rs3$V16,rs3$V20,rs3$OgRow,rs3$V24))
+colnames(rs3bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs3p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs3m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs3m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+rs4bv=data.frame(cbind(rs4$V1,rs4$V2,rs4$V3,rs4$V4,rs4$V17,rs4$OgRow,rs4$V21))
+rs4p=data.frame(cbind(rs4$V5,rs4$V6,rs4$V7,rs4$V8,rs4$V18,rs4$OgRow,rs4$V22))
+rs4m1=data.frame(cbind(rs4$V9,rs4$V10,rs4$V11,rs4$V12,rs4$V19,rs4$OgRow,rs4$V23))
+rs4m2=data.frame(cbind(rs4$V13,rs4$V14,rs4$V15,rs4$V16,rs4$V20,rs4$OgRow,rs4$V24))
+colnames(rs4bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs4p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs4m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs4m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+rs5bv=data.frame(cbind(rs5$V1,rs5$V2,rs5$V3,rs5$V4,rs5$V17,rs5$OgRow,rs5$V21))
+rs5p=data.frame(cbind(rs5$V5,rs5$V6,rs5$V7,rs5$V8,rs5$V18,rs5$OgRow,rs5$V22))
+rs5m1=data.frame(cbind(rs5$V9,rs5$V10,rs5$V11,rs5$V12,rs5$V19,rs5$OgRow,rs5$V23))
+rs5m2=data.frame(cbind(rs5$V13,rs5$V14,rs5$V15,rs5$V16,rs5$V20,rs5$OgRow,rs5$V24))
+colnames(rs5bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs5p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs5m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs5m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+rs6bv=data.frame(cbind(rs6$V1,rs6$V2,rs6$V3,rs6$V4,rs6$V17,rs6$OgRow,rs6$V21))
+rs6p=data.frame(cbind(rs6$V5,rs6$V6,rs6$V7,rs6$V8,rs6$V18,rs6$OgRow,rs6$V22))
+rs6m1=data.frame(cbind(rs6$V9,rs6$V10,rs6$V11,rs6$V12,rs6$V19,rs6$OgRow,rs6$V23))
+rs6m2=data.frame(cbind(rs6$V13,rs6$V14,rs6$V15,rs6$V16,rs6$V20,rs6$OgRow,rs6$V24))
+colnames(rs6bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs6p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs6m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+colnames(rs6m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs','OgRow','FD')
+
+# get subject IDs subject order csv (should both be identical)
+subjOrder_rs1=read.delim('~/rs1_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+subjOrder_rs2=read.delim('~/rs2_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+subjOrder_rs3=read.delim('~/rs3_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+subjOrder_rs4=read.delim('~/rs4_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+subjOrder_rs5=read.delim('~/rs5_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+subjOrder_rs6=read.delim('~/rs6_Psil_propsMerged_subjOrder.csv',blank.lines.skip = FALSE)
+rs1bv$Subjects=subjOrder_rs1$SubjNameCol
+rs2bv$Subjects=subjOrder_rs2$SubjNameCol
+rs3bv$Subjects=subjOrder_rs3$SubjNameCol
+rs4bv$Subjects=subjOrder_rs4$SubjNameCol
+rs5bv$Subjects=subjOrder_rs5$SubjNameCol
+rs6bv$Subjects=subjOrder_rs6$SubjNameCol
+rs1p$Subjects=subjOrder_rs1$SubjNameCol
+rs2p$Subjects=subjOrder_rs2$SubjNameCol
+rs3p$Subjects=subjOrder_rs3$SubjNameCol
+rs4p$Subjects=subjOrder_rs4$SubjNameCol
+rs5p$Subjects=subjOrder_rs5$SubjNameCol
+rs6p$Subjects=subjOrder_rs6$SubjNameCol
+rs1m1$Subjects=subjOrder_rs1$SubjNameCol
+rs2m1$Subjects=subjOrder_rs2$SubjNameCol
+rs3m1$Subjects=subjOrder_rs3$SubjNameCol
+rs4m1$Subjects=subjOrder_rs4$SubjNameCol
+rs5m1$Subjects=subjOrder_rs5$SubjNameCol
+rs6m1$Subjects=subjOrder_rs6$SubjNameCol
+rs1m2$Subjects=subjOrder_rs1$SubjNameCol
+rs2m2$Subjects=subjOrder_rs2$SubjNameCol
+rs3m2$Subjects=subjOrder_rs3$SubjNameCol
+rs4m2$Subjects=subjOrder_rs4$SubjNameCol
+rs5m2$Subjects=subjOrder_rs5$SubjNameCol
+rs6m2$Subjects=subjOrder_rs6$SubjNameCol
+# add in task (rs to be made equivalent after motion merge)
+rs1bv$Task='rs'
+rs1p$Task='rs'
+rs1m1$Task='rs'
+rs1m2$Task='rs'
+
+rs2bv$Task='rs2'
+rs2p$Task='rs2'
+rs2m1$Task='rs2'
+rs2m2$Task='rs2'
+
+rs3bv$Task='rs3'
+rs3p$Task='rs3'
+rs3m1$Task='rs3'
+rs3m2$Task='rs3'
+
+rs4bv$Task='rs4'
+rs4p$Task='rs4'
+rs4m1$Task='rs4'
+rs4m2$Task='rs4'
+
+rs5bv$Task='rs5'
+rs5p$Task='rs5'
+rs5m1$Task='rs5'
+rs5m2$Task='rs5'
+
+rs6bv$Task='rs6'
+rs6p$Task='rs6'
+rs6m1$Task='rs6'
+rs6m2$Task='rs6'
+
+```
+
+```{r}
+# change to account for psy_pfm structure
+# add in dosage
+rs1bv$Dosage='none'
+rs1p$Dosage='none'
+rs1m1$Dosage='none'
+rs1m2$Dosage='Drug'
+
+rs2bv$Dosage='none'
+rs2p$Dosage='none'
+rs2m1$Dosage='none'
+rs2m2$Dosage='Drug'
+
+rs3bv$Dosage='none'
+rs3p$Dosage='none'
+rs3m1$Dosage='none'
+rs3m2$Dosage='Drug'
+
+rs4bv$Dosage='none'
+rs4p$Dosage='none'
+rs4m1$Dosage='none'
+rs4m2$Dosage='Drug'
+
+rs5bv$Dosage='none'
+rs5p$Dosage='none'
+rs5m1$Dosage='none'
+rs5m2$Dosage='Drug'
+
+rs6bv$Dosage='none'
+rs6p$Dosage='none'
+rs6m1$Dosage='none'
+rs6m2$Dosage='Drug'
+```
+
+
+```{r}
+# BEFORE/AFTER VERSION
+# change to account for psy_pfm structure
+# add in dosage
+rs1bv$Dosage='before'
+rs1p$Dosage='between'
+rs1m1$Dosage='after'
+rs1m2$Dosage='Drug'
+#
+rs2bv$Dosage='before'
+rs2p$Dosage='between'
+rs2m1$Dosage='after'
+rs2m2$Dosage='Drug'
+#
+rs3bv$Dosage='before'
+rs3p$Dosage='between'
+rs3m1$Dosage='after'
+rs3m2$Dosage='Drug'
+#
+rs4bv$Dosage='before'
+rs4p$Dosage='between'
+rs4m1$Dosage='after'
+rs4m2$Dosage='Drug'
+#
+rs5bv$Dosage='before'
+rs5p$Dosage='between'
+rs5m1$Dosage='after'
+rs5m2$Dosage='Drug'
+#
+rs6bv$Dosage='before'
+rs6p$Dosage='between'
+rs6m1$Dosage='after'
+rs6m2$Dosage='Drug'
+```
+
+```{r}
+
+# parse out only existin grows 
+rs1bv=rs1bv[rs1bv$TDProp1>0,]
+rs1p=rs1p[rs1p$TDProp1>0,]
+rs1m1=rs1m1[rs1m1$TDProp1>0,]
+rs1m2=rs1m2[rs1m2$TDProp1>0,]
+
+rs2bv=rs2bv[rs2bv$TDProp1>0,]
+rs2p=rs2p[rs2p$TDProp1>0,]
+rs2m1=rs2m1[rs2m1$TDProp1>0,]
+rs2m2=rs2m2[rs2m2$TDProp1>0,]
+
+rs3bv=rs3bv[rs3bv$TDProp1>0,]
+rs3p=rs3p[rs3p$TDProp1>0,]
+rs3m1=rs3m1[rs3m1$TDProp1>0,]
+rs3m2=rs3m2[rs3m2$TDProp1>0,]
+
+rs4bv=rs4bv[rs4bv$TDProp1>0,]
+rs4p=rs4p[rs4p$TDProp1>0,]
+rs4m1=rs4m1[rs4m1$TDProp1>0,]
+rs4m2=rs4m2[rs4m2$TDProp1>0,]
+
+rs5bv=rs5bv[rs5bv$TDProp1>0,]
+rs5p=rs5p[rs5p$TDProp1>0,]
+rs5m1=rs5m1[rs5m1$TDProp1>0,]
+rs5m2=rs5m2[rs5m2$TDProp1>0,]
+
+rs6bv=rs6bv[rs6bv$TDProp1>0,]
+rs6p=rs6p[rs6p$TDProp1>0,]
+rs6m1=rs6m1[rs6m1$TDProp1>0,]
+rs6m2=rs6m2[rs6m2$TDProp1>0,]
+```
+
+
+```{r}
+# decode Methylphenidate vs. psilocybin for each PT
+subjDoseCorresp=read.csv('~/subjSeshDoseCorresp_psilo.csv',header=F)
+subjDoseCorresp=data.frame(t(subjDoseCorresp))
+subjDoseCorresp$X2<-as.numeric(subjDoseCorresp$X2)
+# initialize new drug column in all dfs
+rs1bv$Drug <- rep('none', nrow(rs1bv))
+rs1bv$Drug <- factor(rs1bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs2bv$Drug=rep('none', nrow(rs2bv))
+rs2bv$Drug<- factor(rs2bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs1p$Drug=rep('none', nrow(rs1p))
+rs1p$Drug<- factor(rs1p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs2p$Drug=rep('none', nrow(rs2p))
+rs2p$Drug<- factor(rs2p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs1m1$Drug=rep('none', nrow(rs1m1))
+rs1m1$Drug<- factor(rs1m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs2m1$Drug=rep('none', nrow(rs2m1))
+rs2m1$Drug<- factor(rs2m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs1m2$Drug=rep('none', nrow(rs1m2))
+rs1m2$Drug<- factor(rs1m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs2m2$Drug=rep('none', nrow(rs2m2))
+rs2m2$Drug<- factor(rs2m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs3bv$Drug=rep('none', nrow(rs3bv))
+rs3bv$Drug<- factor(rs3bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs3p$Drug=rep('none', nrow(rs3p))
+rs3p$Drug<- factor(rs3p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs3m1$Drug=rep('none', nrow(rs3m1))
+rs3m1$Drug<- factor(rs3m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs3m2$Drug=rep('none', nrow(rs3m2))
+rs3m2$Drug<- factor(rs3m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs4bv$Drug=rep('none', nrow(rs4bv))
+rs4bv$Drug<- factor(rs4bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs4p$Drug=rep('none', nrow(rs4p))
+rs4p$Drug<- factor(rs4p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs4m1$Drug=rep('none', nrow(rs4m1))
+rs4m1$Drug<- factor(rs4m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs4m2$Drug=rep('none', nrow(rs4m2))
+rs4m2$Drug<- factor(rs4m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs5bv$Drug=rep('none', nrow(rs5bv))
+rs5bv$Drug<- factor(rs5bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs5p$Drug=rep('none', nrow(rs5p))
+rs5p$Drug<- factor(rs5p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs5m1$Drug=rep('none', nrow(rs5m1))
+rs5m1$Drug<- factor(rs5m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs5m2$Drug=rep('none', nrow(rs5m2))
+rs5m2$Drug<- factor(rs5m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs6bv$Drug=rep('none', nrow(rs6bv))
+rs6bv$Drug<- factor(rs6bv$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs6p$Drug=rep('none', nrow(rs6p))
+rs6p$Drug<- factor(rs6p$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs6m1$Drug=rep('none', nrow(rs6m1))
+rs6m1$Drug<- factor(rs6m1$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+rs6m2$Drug=rep('none', nrow(rs6m2))
+rs6m2$Drug<- factor(rs6m2$Drug, levels = c('none', 'Methyl', 'Psilo','Drug1','Drug2','Drug'))
+
+# for resting-state 1
+for (s in 1:length(unique(rs1m2$Subjects))){
+  # this subject
+  subj=unique(rs1m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs1m2[rs1m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  } 
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs1m2$Drug[rs1m2$OgRow==MethylRows[1]]='Methyl'
+  rs1m2$Drug[rs1m2$OgRow==PsiloRows[1]]='Psilo'
+}
+# for resting-state 2
+for (s in 1:length(unique(rs2m2$Subjects))){
+  # this subject
+  subj=unique(rs2m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs2m2[rs2m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  } 
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs2m2$Drug[rs2m2$OgRow==MethylRows[1]]='Methyl'
+  rs2m2$Drug[rs2m2$OgRow==PsiloRows[1]]='Psilo'
+}
+# for resting-state 3
+for (s in 1:length(unique(rs3m2$Subjects))){
+  # this subject
+  subj=unique(rs3m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs3m2[rs3m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  }
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs3m2$Drug[rs3m2$OgRow==MethylRows[1]]='Methyl'
+  rs3m2$Drug[rs3m2$OgRow==PsiloRows[1]]='Psilo'
+}
+# for resting-state 4
+for (s in 1:length(unique(rs4m2$Subjects))){
+  # this subject
+  subj=unique(rs4m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs4m2[rs4m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  }
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs4m2$Drug[rs4m2$OgRow==MethylRows[1]]='Methyl'
+  rs4m2$Drug[rs4m2$OgRow==PsiloRows[1]]='Psilo'
+}
+# for resting-state 5
+for (s in 1:length(unique(rs5m2$Subjects))){
+  # this subject
+  subj=unique(rs5m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs5m2[rs5m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  }
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs5m2$Drug[rs5m2$OgRow==MethylRows[1]]='Methyl'
+  rs5m2$Drug[rs5m2$OgRow==PsiloRows[1]]='Psilo'
+}
+# for resting-state 6
+for (s in 1:length(unique(rs6m2$Subjects))){
+  # this subject
+  subj=unique(rs6m2$Subjects)[s]
+  print(subj)
+  # Subset rows for the current subject
+  subjRows <- rs6m2[rs6m2$Subjects == subj, ]
+  # Subset rows for the 'Drug' dosage
+  subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
+  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  # if min=max, label only 1 drug
+  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+    subjDrugRows$Drug='DrugOnly'
+    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  } else {
+    # Assign 'Drug' values to the original rows
+    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+  }
+  ### Now pull out methyl vs. psilo
+  DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
+  # if Drug1 = 1 in key, Drug1 = psilo
+  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+    subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
+  } else if (DoseCorresp$X2 == 1) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Methyl'
+  } else if (DoseCorresp$X2 == 2) {
+    subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Methyl'
+    subjRows$Drug[subjRows$Drug == 'Drug2'] <- 'Psilo'
+  }
+  # find where OG row corresponds to methyl
+  MethylRows=subjRows$OgRow[subjRows$Drug=='Methyl']
+  # and psilo
+  PsiloRows=subjRows$OgRow[subjRows$Drug=='Psilo']
+  # set
+  rs6m2$Drug[rs6m2$OgRow==MethylRows[1]]='Methyl'
+  rs6m2$Drug[rs6m2$OgRow==PsiloRows[1]]='Psilo'
+}
+
+# combine all
+allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,rs3bv,rs3p,rs3m1,rs3m2,rs4bv,rs4p,rs4m1,rs4m2,rs5bv,rs5p,rs5m1,rs5m2,rs6bv,rs6p,rs6m1,rs6m2)
+# before scans
+Before=rbind(rs1bv,rs2bv,rs3bv,rs4bv,rs5bv,rs6bv)
+Before$Chronology='Before'
+# after
+After=rbind(rs1m1,rs2m1,rs3m1,rs4m1,rs5m1,rs6m1)
+After$Chronology='After'
+B_A=rbind(Before,After)
+# set non-drug conditions to none
+allScans$Drug[allScans$Dosage=='none']='none'
+```
+
+
+```{r}
+# saveout merged DF for facewise analyses on HPC
+saveRDS(allScans,'~/P50_psil_cleaned_df.rds')
+```
+
+```{r}
+### make chronological order column.
+allScans$TemporalOrder=0
+for (s in 1:length(unique(allScans$Subjects))){
+  # get subject ID
+  subject=(unique(allScans$Subjects))[s]
+  allScansSubj=allScans[allScans$Subjects==subject,]
+  # first logical temporal determination is in Dosage column: before < drug 1 < between < drug 2 < after
+  allScansSubj$TemporalOrder[allScansSubj$Dosage=='before']=1000
+  allScansSubj$TemporalOrder[allScansSubj$Dosage=='Drug']=2000
+  # note drug1 vs drug 2 to be demarcated later, after this loop, using Drug column 
+  allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
+  allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=4000
+  # second logical temporal determination is OgRow column: lower og row number = earlier on
+  allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+  # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
+  allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
+  allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
+  # convert to by-1 sequence
+  for (i in 1:length(unique(allScansSubj$TemporalOrder))){
+      numberOfInterest=sort(unique(allScansSubj$TemporalOrder))[i]
+      allScansSubj_TemporalOrder[allScansSubj_TemporalOrder==numberOfInterest]=i
+  }
+  allScansSubj$TemporalOrder<-allScansSubj_TemporalOrder
+  allScans[allScans$Subject == subject, ]$TemporalOrder <- allScansSubj$TemporalOrder
+}
+```
+
+```{r}
+# Now we need to place drug2 scans after all betweens. Subtract # of drug2 scans from between temporal order, plop drug2 in the integer sequence space between is translated down by.
+
+
+# use subjDoseCorresp X2 to find where methyl is drug1 (X2=2 indicates methyl is drug1, X2=1 indicates psilo is drug1)
+
+# New loop to adjust TemporalOrder based on drug2 placement
+for (s in 1:length(unique(allScans$Subject))) {
+  # get subject ID
+  subject <- (unique(allScans$Subject))[s]
+  allScansSubj <- allScans[allScans$Subject == subject, ]
+  # get which dose is psil/methyl
+  DoseCorresp=subjDoseCorresp$X2[subjDoseCorresp$X1==subject]
+  # if methyl is drug 1
+  if (DoseCorresp==1){
+        # all drug 2 gets + # of between scans added to temporal order
+    allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=(allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl'])+length(unique(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']))
+    # all between scans gets + # of drug2 scans subtracted from temporal order
+     allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])-length(unique(allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']))
+  } else if (DoseCorresp==2) {
+    # all drug 2 gets + # of between scans added to temporal order
+    allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])+length(unique(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']))
+    # all between scans gets + # of drug2 scans subtracted from temporal order
+     allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])-length(unique(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']))
+  }
+  allScans[allScans$Subject == subject, ]$TemporalOrder <- allScansSubj$TemporalOrder
+# end loop
+}
+
+```
+
+```{r}
+# load in MEQ data
+#MEQ=read.csv('~/Downloads/FCChange_LME_data_table_small.csv')
+#MEQ=read.csv('~/Desktop/FCChange_LME_data_table.csv')
+#MEQ$Subjects=MEQ$SubID
+## weed out nondrug scans
+#DrugScans=allScans[allScans$Drug!='none',]
+#DrugScans=DrugScans[DrugScans$Drug!='after',]
+#
+#results <- data.frame(Subjects = character(), Avg_TDProp1 = numeric(), Drug = numeric(), stringsAsFactors = FALSE)
+#
+## Get a list of unique subjects
+#unique_subjects <- unique(DrugScans$Subjects)
+#
+## Loop over each subject
+#for (subj in unique_subjects) {
+#    # Subset the data for the current subject
+#    SubjData <- DrugScans[DrugScans$Subjects == subj,]
+#    # Calculate the average of TDProp1 for Methyl scans
+#    avg_TDProp1 <- mean(SubjData$TDProp1[SubjData$Drug == 'Methyl'], na.rm = TRUE)
+#    Drug='Methyl'
+#    temp <- data.frame(Subjects = subj, avg_TDProp1 = avg_TDProp1, Drug = Drug)
+#    # Append the temporary data frame to the results data frame
+#    results <- rbind(results, temp)
+#    # Calculate the average of TDProp1 for Psilo scans
+#    avg_TDProp1 <- mean(SubjData$TDProp1[SubjData$Drug == 'Psilo'], na.rm = TRUE)
+#    # Create a temporary data frame to store the current subject and their averages
+#    temp <- data.frame(Subjects = subj, avg_TDProp1 = avg_TDProp1, Drug = Drug)
+#    Drug='Psilo'
+#    # Append the temporary data frame to the results data frame
+#    results <- rbind(results, temp)
+#}
+#
+## remove NaN rows (no methylphenidate for replication subsample)
+#
+## pull temporal order to match to subjectIDs
+#IDsTempOrd=unique(data.frame(DrugScans$TemporalOrder,DrugScans$Subjects))
+#colnames(IDsTempOrd)<-c('TemporalOrder','Subjects')
+#Props_IDs=merge(averaged_TDProp1,IDsTempOrd,by='TemporalOrder')
+## merge w/ MEQ
+#MEQMerged=merge(IDsTempOrd,MEQ,by='Subjects')
+```
+
+```{r}
+### match 99's to <9x ID's
+
+# temporal order of 99's has to be after 03 16 18 19!
+allScans$TemporalOrder[allScans$Subjects=='PS93']=allScans$TemporalOrder[allScans$Subjects=='PS93']+max(allScans$TemporalOrder[allScans$Subjects=='PS03'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS96']=allScans$TemporalOrder[allScans$Subjects=='PS96']+max(allScans$TemporalOrder[allScans$Subjects=='PS16'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS98']=allScans$TemporalOrder[allScans$Subjects=='PS98']+max(allScans$TemporalOrder[allScans$Subjects=='PS18'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS99']=allScans$TemporalOrder[allScans$Subjects=='PS99']+max(allScans$TemporalOrder[allScans$Subjects=='PS19'])
+
+# this technically makes all non drug scans "after" for these PTs
+allScans$Dosage[allScans$Subjects=='PS93']='after'
+allScans$Dosage[allScans$Subjects=='PS96']='after'
+allScans$Dosage[allScans$Subjects=='PS98']='after'
+allScans$Dosage[allScans$Subjects=='PS99']='after'
+
+# rename to formally fold into same subject ID
+allScans$Subjects[allScans$Subjects=='PS93']='PS03'
+allScans$Subjects[allScans$Subjects=='PS96']='PS16'
+allScans$Subjects[allScans$Subjects=='PS98']='PS18'
+allScans$Subjects[allScans$Subjects=='PS99']='PS19'
+allScans$Subjects=as.factor(allScans$Subjects)
+```
+
+```{r}
+# remove data that needs to be removed (<250 TRs)
+allScans=allScans[allScans$RemTRs>250,]
+# model
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of MDMA):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=FALSE))
+```
+
+```{r}
+# plot timecourse for each subject. X-axis is temporal order. y axis is tdprop1. Demarcate psilocybin x-axis interger with geom_vline.
+
+# Adjust the data accordingly if needed
+ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
+  geom_point(aes(color=Dosage)) +
+  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
+  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
+  theme_minimal()+geom_smooth()+
+  facet_wrap(~Subjects, scales = "free_y")
+```
+
+```{r}
+# model for before vs. after psilo
+allScans$Dosage[allScans$Drug=='Methyl']='Methyl'
+allScans$Dosage<-as.factor(allScans$Dosage)
+allScans <- within(allScans, Dosage <- relevel(Dosage, ref = 2))
+fit_lme <- lme(TDProp1 ~ Dosage + RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
+```
+
+```{r}
+# alternative coding to above
+allScans$Condition=allScans$Dosage
+# correct betweens to after where psilo has already occurred
+for (s in 1:length(unique(allScans$Subject))) {
+  # get subject ID
+  subject <- (unique(allScans$Subject))[s]
+  allScansSubj <- allScans[allScans$Subject == subject, ]
+  if (min(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])<min(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])){
+    allScansSubj$Dosage[allScansSubj$Dosage=='between']='after'
+    # alter between visits to after if this condition is met
+    allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Dosage
+  }
+}
+
+ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
+  geom_point(aes(color=Condition)) +
+  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
+  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
+  theme_minimal()+geom_smooth()+
+  facet_wrap(~Subjects, scales = "free_y")
+
+
+# model
+allScans$Condition<-as.factor(allScans$Condition)
+#allScans <- within(allScans, Condition <- relevel(Condition, ref = 2))
+fit_lme <- lme(TDProp1 ~ Condition + RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
+
+```
+
+```{r}
+allScans$Dosage <- factor(allScans$Dosage, levels = c("before", "Drug", "between","after", "Methyl"))
+
+ggplot(allScans, aes(x = Dosage, y = TDProp1, color = Subjects)) +
+  geom_point(size=2) +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), size = 1, linetype = "dashed", color = "black") +
+  labs(x = "Dosage",
+       y = "TDProp1") +
+  theme_minimal()
+
+### and make a matching version: before and drug
+allScans2=allScans[allScans$Dosage!='between',]
+allScans2=allScans2[allScans2$Dosage!='Methyl',]
+allScans2=allScans2[allScans2$Dosage!='after',]
+
+boxplot_data_left <- allScans2 %>%
+  filter(Dosage == 'before')
+
+boxplot_data_right <- allScans2 %>%
+  filter(Dosage == 'Drug')
+
+
+# equivalent plot
+ggplot(allScans2, aes(x = Dosage, y = TDProp1, group = Subjects, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = .7)) +
+  geom_line() +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Dosage)- 0.25, y = TDProp1, group = Dosage), width = 0.2, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Dosage)+.25, y = TDProp1, group = Dosage), width = 0.2, color = "black") +
+  scale_color_viridis_d(option = "plasma") +
+  theme_minimal(base_size = 22) +
+  ylab('Degrees from Bottom-up') +
+  xlab('Psilocybin')
+
+```
+
+```{r}
+# Create a ggplot with individual plots for each subject
+
+ggplot(allScans, aes(x = Dosage, y = TDProp1, color = Subjects)) +
+  geom_point() +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), size = 1, linetype = "dashed", color = "black") +
+  labs(title = "Individual Subject Plots with Mixed Effects",
+       x = "Dosage",
+       y = "TDProp1") +
+  theme_minimal() +
+  facet_wrap(~Subjects, scales = "free_y", ncol = 2)  # Adjust ncol as needed
+```
+
+```{r}
+# below this is old
+
+````
+
+
+```{r}
+# subset for p-80
+df_plot1=mergedDf[mergedDf$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDf[mergedDf$Dosage!="80mg",]
+
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+# Plotting
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('All Scans') +
+  theme_minimal(base_size = 22)
+
+summary(model)
+
+# and plot each task separately to gauge samples needed for robust effect
+# RS
+mergedDfT=mergedDf[mergedDf$Task=='rs',]
+mergedDfT2=mergedDf[mergedDf$Task=='rs2',]
+mergedDfT=rbind(mergedDfT,mergedDfT2)
+# model
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+# subset for p-80
+df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
+
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+# plot
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('Resting-state') +
+  theme_minimal(base_size = 22)
+
+# model output
+summary(model)
+
+# WM
+mergedDfT=mergedDf[mergedDf$Task=='wm',]
+# model
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+# subset for p-80
+df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
+
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+
+# plot
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('Working Memory') +
+  theme_minimal(base_size = 22)
+
+# model output
+summary(model)
+
+# gambling
+mergedDfT=mergedDf[mergedDf$Task=='gambling',]
+# model
+model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
+# subset for p-80
+df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
+
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+
+# plot
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('Gambling') +
+  theme_minimal(base_size = 22)
+# model output
+summary(model)
+
+```
+
+```{r}
+#meltedDf <- melt(mergedDf, id.vars = c("Subjects", "Task", "Dosage", "Session", "SpikesPercent", "MeanFD", "RemTRs", "Drug"))
+#meltedDf <- within(meltedDf, variable <- relevel(variable, ref = 3))
+#model <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+MeanFD*variable+RemTRs*variable, random = ~ 1 | Subjects/variable, data = meltedDf)
+#summary(model)
+#sjPlot::plot_model(model, type = "eff",show.values = T)
+#
+## great, now let's bootstrap it
+## Set the number of bootstrap samples
+#num_bootstrap_samples <- 1000
+## initialize t vectors
+#td1_d<-zeros(num_bootstrap_samples,1)
+#td1_fd<-zeros(num_bootstrap_samples,1)
+#td2_d<-zeros(num_bootstrap_samples,1)
+#td2_fd<-zeros(num_bootstrap_samples,1)
+#td3_d<-zeros(num_bootstrap_samples,1)
+#td3_fd<-zeros(num_bootstrap_samples,1)
+#td4_d<-zeros(num_bootstrap_samples,1)
+#td4_fd<-zeros(num_bootstrap_samples,1)
+#
+## bootstrap loops
+#set.seed(420)
+#for (i in 1:num_bootstrap_samples){
+#  # resample subjects instead of observations to be conserative
+#	BootSubjs=sample(unique(mergedDf$Subjects),14,replace=T)
+#	# Create an empty dataframe to store the resampled observations
+#	bootSamp <- data.frame()
+#	for (j in 1:length(BootSubjs)){
+#		subject_obs <- meltedDf[meltedDf$Subjects == BootSubjs[j], ]
+#		bootSamp <- rbind(bootSamp, subject_obs)
+#	}
+#  # fit model
+#  model_i <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+variable*MeanFD, random = ~ 1 | Subjects/variable, data = bootSamp)
+#  # get t-values
+#  td1_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp1", "t-value"]
+#  td1_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp1", "t-value"]
+#  td3_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp3", "t-value"]
+#  td3_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp3", "t-value"]
+#  td4_d[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "Drug1:variableTDProp4", "t-value"]
+#  td4_fd[i]=summary(model_i)$tTable[rownames(summary(model_i)$tTable) == "MeanFD:variableTDProp4", "t-value"]
+#}
+#
+#bootstrap_results=data.frame(cbind(td1_d,td1_fd,td3_d,td3_fd,td4_d,td4_fd))
+#colnames(bootstrap_results)=c('td1_drug','td1_fd','td3_drug','td3_fd','td4_drug','td4_fd')
+#plotdf=melt(bootstrap_results)
+#
+## Create box-and-whisker plots
+#ggplot(plotdf, aes(x = variable, y = value,)) +
+#  geom_boxplot(position = position_dodge(width = 0.8)) +
+#  labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Drug and MeanFD") +
+#  theme_minimal(base_size = 16)+scale_fill_manual(values=c('blue','red'))
+```
+
+```{r}
+# complexity
+rs1=read.csv('~/Downloads/rs1_complexityMerged (3).csv',header=F)
+rs2=read.csv('~/Downloads/rs2_complexityMerged (3).csv',header=F)
+emo=read.csv('~/Downloads/emotion_complexityMerged (3).csv',header=F)
+gambling=read.csv('~/Downloads/gambling_complexityMerged (3).csv',header=F)
+wm=read.csv('~/Downloads/wm_complexityMerged (3).csv',header=F)
+# set colnames
+#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1$Task='rs'
+rs2$Task='rs2'
+emo$Task='emotion'
+gambling$Task='gambling'
+wm$Task='wm'
+
+# remove subj 4
+rs1=rs1[-c(4),]
+rs2=rs2[-c(4),]
+emo=emo[-c(4),]
+gambling=gambling[-c(4),]
+wm=wm[-c(4),]
+
+# this is going to be ugly but simple
+# manually pair columns as sep. observations of baseline, placebo, 80, 120mg
+rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
+rs1p=data.frame(cbind(rs1$V2,rs1$V6))
+rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
+rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
+colnames(rs1bv)=c('Complexity','RemTRs')
+colnames(rs1p)=c('Complexity','RemTRs')
+colnames(rs1m1)=c('Complexity','RemTRs')
+colnames(rs1m2)=c('Complexity','RemTRs')
+
+rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
+rs2p=data.frame(cbind(rs2$V2,rs2$V6))
+rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
+rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
+colnames(rs2bv)=c('Complexity','RemTRs')
+colnames(rs2p)=c('Complexity','RemTRs')
+colnames(rs2m1)=c('Complexity','RemTRs')
+colnames(rs2m2)=c('Complexity','RemTRs')
+
+emobv=data.frame(cbind(emo$V1,emo$V5))
+emop=data.frame(cbind(emo$V2,emo$V6))
+emom1=data.frame(cbind(emo$V3,emo$V7))
+emom2=data.frame(cbind(emo$V4,emo$V8))
+colnames(emobv)=c('Complexity','RemTRs')
+colnames(emop)=c('Complexity','RemTRs')
+colnames(emom1)=c('Complexity','RemTRs')
+colnames(emom2)=c('Complexity','RemTRs')
+
+gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
+gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
+gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
+gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
+colnames(gamblingbv)=c('Complexity','RemTRs')
+colnames(gamblingp)=c('Complexity','RemTRs')
+colnames(gamblingm1)=c('Complexity','RemTRs')
+colnames(gamblingm2)=c('Complexity','RemTRs')
+
+wmbv=data.frame(cbind(wm$V1,wm$V5))
+wmp=data.frame(cbind(wm$V2,wm$V6))
+wmm1=data.frame(cbind(wm$V3,wm$V7))
+wmm2=data.frame(cbind(wm$V4,wm$V8))
+colnames(wmbv)=c('Complexity','RemTRs')
+colnames(wmp)=c('Complexity','RemTRs')
+colnames(wmm1)=c('Complexity','RemTRs')
+colnames(wmm2)=c('Complexity','RemTRs')
+
+# get subject IDs from this rds
+alff=readRDS('~/OutPlacDrug_alff.rds')
+rs1bv$Subjects=alff$SubjID
+rs1p$Subjects=alff$SubjID
+rs1m1$Subjects=alff$SubjID
+rs1m2$Subjects=alff$SubjID
+
+rs2bv$Subjects=alff$SubjID
+rs2p$Subjects=alff$SubjID
+rs2m1$Subjects=alff$SubjID
+rs2m2$Subjects=alff$SubjID
+
+emobv$Subjects=alff$SubjID
+emop$Subjects=alff$SubjID
+emom1$Subjects=alff$SubjID
+emom2$Subjects=alff$SubjID
+
+gamblingbv$Subjects=alff$SubjID
+gamblingp$Subjects=alff$SubjID
+gamblingm1$Subjects=alff$SubjID
+gamblingm2$Subjects=alff$SubjID
+
+wmbv$Subjects=alff$SubjID
+wmp$Subjects=alff$SubjID
+wmm1$Subjects=alff$SubjID
+wmm2$Subjects=alff$SubjID
+
+# add in task (rs to be made equivalent after motion merge)
+rs1bv$Task='rs'
+rs1p$Task='rs'
+rs1m1$Task='rs'
+rs1m2$Task='rs'
+
+rs2bv$Task='rs2'
+rs2p$Task='rs2'
+rs2m1$Task='rs2'
+rs2m2$Task='rs2'
+
+emobv$Task='emotion'
+emop$Task='emotion'
+emom1$Task='emotion'
+emom2$Task='emotion'
+
+gamblingbv$Task='gambling'
+gamblingp$Task='gambling'
+gamblingm1$Task='gambling'
+gamblingm2$Task='gambling'
+
+wmbv$Task='wm'
+wmp$Task='wm'
+wmm1$Task='wm'
+wmm2$Task='wm'
+
+# add in dosage
+rs1bv$Dosage='baseline'
+rs1p$Dosage='Placebo'
+rs1m1$Dosage='80mg'
+rs1m2$Dosage='120mg'
+
+rs2bv$Dosage='baseline'
+rs2p$Dosage='Placebo'
+rs2m1$Dosage='80mg'
+rs2m2$Dosage='120mg'
+
+emobv$Dosage='baseline'
+emop$Dosage='Placebo'
+emom1$Dosage='80mg'
+emom2$Dosage='120mg'
+
+gamblingbv$Dosage='baseline'
+gamblingp$Dosage='Placebo'
+gamblingm1$Dosage='80mg'
+gamblingm2$Dosage='120mg'
+
+wmbv$Dosage='baseline'
+wmp$Dosage='Placebo'
+wmm1$Dosage='80mg'
+wmm2$Dosage='120mg'
+
+# comibine all
+allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,emobv,emop,emom1,emom2,gamblingbv,gamblingp,gamblingm1,gamblingm2,wmbv,wmp,wmm1,wmm2)
+
+# read in motion
+mot=read.csv('~/Desktop/MDMA_spikes_summary.csv')
+
+# motion merge
+mergedDf=merge(mot,allScans,by=c('Subjects','Task','Dosage'))
+mergedDf=mergedDf[mergedDf$Dosage!='baseline',]
+mergedDf$Drug=0
+mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
+mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
+mergedDf$Drug=as.factor(mergedDf$Drug)
+
+mergedDfPropsCompl=merge(mergedDfProps,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
+
+```
+
+```{r}
+# autocorrelation
+rs1=read.csv('~/Downloads/P50 MDMA/rs1_autocorMerged.csv',header=F)
+rs2=read.csv('~/Downloads/P50 MDMA/rs2_autocorMerged.csv',header=F)
+emo=read.csv('~/Downloads/P50 MDMA/emotion_autocorMerged.csv',header=F)
+gambling=read.csv('~/Downloads/P50 MDMA/gambling_autocorMerged.csv',header=F)
+wm=read.csv('~/Downloads/P50 MDMA/wm_autocorMerged.csv',header=F)
+# set colnames
+#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1$Task='rs'
+rs2$Task='rs2'
+emo$Task='emotion'
+gambling$Task='gambling'
+wm$Task='wm'
+
+# remove subj 4
+rs1=rs1[-c(4),]
+rs2=rs2[-c(4),]
+emo=emo[-c(4),]
+gambling=gambling[-c(4),]
+wm=wm[-c(4),]
+
+# this is going to be ugly but simple
+# manually pair columns as sep. observations of baseline, placebo, 80, 120mg
+rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
+rs1p=data.frame(cbind(rs1$V2,rs1$V6))
+rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
+rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
+colnames(rs1bv)=c('AutoCor','RemTRs')
+colnames(rs1p)=c('AutoCor','RemTRs')
+colnames(rs1m1)=c('AutoCor','RemTRs')
+colnames(rs1m2)=c('AutoCor','RemTRs')
+
+rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
+rs2p=data.frame(cbind(rs2$V2,rs2$V6))
+rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
+rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
+colnames(rs2bv)=c('AutoCor','RemTRs')
+colnames(rs2p)=c('AutoCor','RemTRs')
+colnames(rs2m1)=c('AutoCor','RemTRs')
+colnames(rs2m2)=c('AutoCor','RemTRs')
+
+emobv=data.frame(cbind(emo$V1,emo$V5))
+emop=data.frame(cbind(emo$V2,emo$V6))
+emom1=data.frame(cbind(emo$V3,emo$V7))
+emom2=data.frame(cbind(emo$V4,emo$V8))
+colnames(emobv)=c('AutoCor','RemTRs')
+colnames(emop)=c('AutoCor','RemTRs')
+colnames(emom1)=c('AutoCor','RemTRs')
+colnames(emom2)=c('AutoCor','RemTRs')
+
+gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
+gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
+gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
+gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
+colnames(gamblingbv)=c('AutoCor','RemTRs')
+colnames(gamblingp)=c('AutoCor','RemTRs')
+colnames(gamblingm1)=c('AutoCor','RemTRs')
+colnames(gamblingm2)=c('AutoCor','RemTRs')
+
+wmbv=data.frame(cbind(wm$V1,wm$V5))
+wmp=data.frame(cbind(wm$V2,wm$V6))
+wmm1=data.frame(cbind(wm$V3,wm$V7))
+wmm2=data.frame(cbind(wm$V4,wm$V8))
+colnames(wmbv)=c('AutoCor','RemTRs')
+colnames(wmp)=c('AutoCor','RemTRs')
+colnames(wmm1)=c('AutoCor','RemTRs')
+colnames(wmm2)=c('AutoCor','RemTRs')
+
+# get subject IDs from this rds
+alff=readRDS('~/OutPlacDrug_alff.rds')
+rs1bv$Subjects=alff$SubjID
+rs1p$Subjects=alff$SubjID
+rs1m1$Subjects=alff$SubjID
+rs1m2$Subjects=alff$SubjID
+
+rs2bv$Subjects=alff$SubjID
+rs2p$Subjects=alff$SubjID
+rs2m1$Subjects=alff$SubjID
+rs2m2$Subjects=alff$SubjID
+
+emobv$Subjects=alff$SubjID
+emop$Subjects=alff$SubjID
+emom1$Subjects=alff$SubjID
+emom2$Subjects=alff$SubjID
+
+gamblingbv$Subjects=alff$SubjID
+gamblingp$Subjects=alff$SubjID
+gamblingm1$Subjects=alff$SubjID
+gamblingm2$Subjects=alff$SubjID
+
+wmbv$Subjects=alff$SubjID
+wmp$Subjects=alff$SubjID
+wmm1$Subjects=alff$SubjID
+wmm2$Subjects=alff$SubjID
+
+# add in task (rs to be made equivalent after motion merge)
+rs1bv$Task='rs'
+rs1p$Task='rs'
+rs1m1$Task='rs'
+rs1m2$Task='rs'
+
+rs2bv$Task='rs2'
+rs2p$Task='rs2'
+rs2m1$Task='rs2'
+rs2m2$Task='rs2'
+
+emobv$Task='emotion'
+emop$Task='emotion'
+emom1$Task='emotion'
+emom2$Task='emotion'
+
+gamblingbv$Task='gambling'
+gamblingp$Task='gambling'
+gamblingm1$Task='gambling'
+gamblingm2$Task='gambling'
+
+wmbv$Task='wm'
+wmp$Task='wm'
+wmm1$Task='wm'
+wmm2$Task='wm'
+
+# add in dosage
+rs1bv$Dosage='baseline'
+rs1p$Dosage='Placebo'
+rs1m1$Dosage='80mg'
+rs1m2$Dosage='120mg'
+
+rs2bv$Dosage='baseline'
+rs2p$Dosage='Placebo'
+rs2m1$Dosage='80mg'
+rs2m2$Dosage='120mg'
+
+emobv$Dosage='baseline'
+emop$Dosage='Placebo'
+emom1$Dosage='80mg'
+emom2$Dosage='120mg'
+
+gamblingbv$Dosage='baseline'
+gamblingp$Dosage='Placebo'
+gamblingm1$Dosage='80mg'
+gamblingm2$Dosage='120mg'
+
+wmbv$Dosage='baseline'
+wmp$Dosage='Placebo'
+wmm1$Dosage='80mg'
+wmm2$Dosage='120mg'
+
+# comibine all
+allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,emobv,emop,emom1,emom2,gamblingbv,gamblingp,gamblingm1,gamblingm2,wmbv,wmp,wmm1,wmm2)
+
+# read in motion
+mot=read.csv('~/Desktop/MDMA_spikes_summary.csv')
+
+# motion merge
+mergedDf=merge(mot,allScans,by=c('Subjects','Task','Dosage'))
+mergedDf=mergedDf[mergedDf$Dosage!='baseline',]
+mergedDf$Drug=0
+mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
+mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
+mergedDf$Drug=as.factor(mergedDf$Drug)
+```
+
+```{r}
+# combine complexity and props
+mergedDfPropsComplAutoC=merge(mergedDfPropsCompl,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
+```
+
+```{r}
+# remove data that needs to be removed (subs 6 and 10, <250 TRs)
+mergedDfPropsComplAutoC=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Subjects!='sub-MDMA006',]
+mergedDfPropsComplAutoC=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Subjects!='sub-MDMA010',]
+mergedDfPropsComplAutoC=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$RemTRs>250,]
+
+# change rs2 to rs for accurate task-modeling
+mergedDfPropsComplAutoC$Task[mergedDfPropsComplAutoC$Task=='rs2']='rs'
+mergedDfPropsComplAutoC$Task=as.factor(mergedDfPropsComplAutoC$Task)
+
+# set rs to reference level
+mergedDfPropsComplAutoC <- within(mergedDfPropsComplAutoC, Task <- relevel(Task, ref = 2))
+
+# model
+td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+```
+
+```{r}
+# complexity plot
+
+# preproc for plot
+mergedDfPropsComplAutoC$Drug=0
+mergedDfPropsComplAutoC$Drug[mergedDfPropsComplAutoC$Dosage=="120mg"]=1
+mergedDfPropsComplAutoC$Drug[mergedDfPropsComplAutoC$Dosage=="80mg"]=1
+mergedDfPropsComplAutoC$Drug=as.factor(mergedDfPropsComplAutoC$Drug)
+mergedDfPropsComplAutoC$Subjects<-as.factor(mergedDfPropsComplAutoC$Subjects)
+mergedDfPropsComplAutoC$Dosage<-as.factor(mergedDfPropsComplAutoC$Dosage)
+# change rs2 to rs for accurate task-modeling
+mergedDfPropsComplAutoC$Task[mergedDfPropsComplAutoC$Task=='rs2']='rs'
+mergedDfPropsComplAutoC$Task=as.factor(mergedDfPropsComplAutoC$Task)
+df_plot1=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Dosage!="120mg",]
+# for p-120
+df_plot2=mergedDfPropsComplAutoC[mergedDfPropsComplAutoC$Dosage!="80mg",]
+df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
+df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+
+# Plotting
+ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+  geom_point(size = 4, aes(alpha = 0.7)) +
+  geom_line() +
+  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
+  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
+  scale_color_viridis_d(option = "plasma") +
+  ggtitle('All Scans') +
+  theme_minimal(base_size = 22)
+
+# by task
+ggplot(mergedDfPropsComplAutoC, aes(x = Task, y = Complexity)) +
+  geom_boxplot(size = 1, aes(alpha = 0.7)) +
+  ggtitle('All Scans') +
+  theme_minimal(base_size = 22)
+
+cx_task_model <- lme(Complexity ~ MeanFD + Task+RemTRs, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoC)
+```
+
+
+```{r}
+# great, now let's bootstrap them
+# Set the number of bootstrap samples
+num_bootstrap_samples <- 1000
+# initialize t vectors
+td_d<-rep(0,num_bootstrap_samples)
+td_fd<-rep(0,num_bootstrap_samples)
+sa_d<-rep(0,num_bootstrap_samples)
+sa_fd<-rep(0,num_bootstrap_samples)
+cx_d<-rep(0,num_bootstrap_samples)
+cx_fd<-rep(0,num_bootstrap_samples)
+
+# bootstrap loops
+set.seed(1)
+for (i in 1:num_bootstrap_samples){
+  # resample data
+  data=mergedDfPropsComplAutoC[sample(nrow(mergedDfPropsComplAutoC), replace = TRUE), ]
+  # fit on all models
+  td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  # get t-values
+  td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug1", "t-value"]
+  td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "MeanFD", "t-value"]
+  sa_d[i]=summary(sa_model)$tTable[rownames(summary(sa_model)$tTable) == "Drug1", "t-value"]
+  sa_fd[i]=summary(sa_model)$tTable[rownames(summary(sa_model)$tTable) == "MeanFD", "t-value"]
+  cx_d[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "Drug1", "t-value"]
+  cx_fd[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "MeanFD", "t-value"]
+  
+}
+# convert to dataframes
+td_d=data.frame(td_d)
+sa_d=data.frame(sa_d)
+cx_d=data.frame(cx_d)
+td_fd=data.frame(td_fd)
+sa_fd=data.frame(sa_fd)
+cx_fd=data.frame(cx_fd)
+colnames(td_d)='tstat'
+colnames(sa_d)='tstat'
+colnames(cx_d)='tstat'
+colnames(td_fd)='tstat'
+colnames(sa_fd)='tstat'
+colnames(cx_fd)='tstat'
+
+# set column names for merging
+td_d$Cov='Drug'
+sa_d$Cov='Drug'
+cx_d$Cov='Drug'
+td_fd$Cov='FD'
+sa_fd$Cov='FD'
+cx_fd$Cov='FD'
+td_d$Model='Top-Down'
+sa_d$Model='AutoCor'
+cx_d$Model='Complexity'
+td_fd$Model='Top-Down'
+sa_fd$Model='AutoCor'
+cx_fd$Model='Complexity'
+bootstrap_results=rbind(td_fd,td_d,sa_d,sa_fd,cx_d,cx_fd)
+
+# Create box-and-whisker plots
+ggplot(bootstrap_results, aes(x = Model, y = abs(tstat), fill = Cov)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Drug and MeanFD") +
+  theme_minimal(base_size = 16)+scale_fill_manual(values=c('blue','red'))
+
+```
+
+
+```{r}
+library(sjPlot)
+# visualize
+sjPlot::plot_model(model, type = "eff",show.values = T)
+
+# summarize
+summary(model)
+
+# Summarize the model
+model_summary <- summary(model)
+
+
+```
+
+```{r}
+# now compare with VAS
+vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
+# correct subject naming
+vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
+VASmerge=merge(vas,mergedDfPropsCompl,by=c("Subjects","Dosage"))
+
+# TD PROP
+# initialize correlation vector for dasc
+corvec=NULL
+pvec=NULL
+colNameVec=NULL
+for (i in 40:56){
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects')])
+  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
+#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
+#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
+  colNameVec[i-39]=colnames(VASmerge)[i]
+  print(summary(currModel)$tTable)
+}
+
+# Create a dataframe with the values and column names
+df <- data.frame(Values = corvec, ColumnNames = colNameVec)
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+
+# make a color vector by significance
+fdrp=p.adjust(pvec,method='fdr')
+colorvec=rep('NS',length(fdrp))
+colorvec[pvec<.05]='Uncr'
+colorvec[fdrp<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
+# Create the plot using ggplot
+ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
+  geom_point(size=3) + xlim(-20,20)+
+  scale_color_manual(values = colors) +
+  labs(x = "Values", y = "DAS Questions",title="Association with TD Props")+theme_minimal(base_size=26)
+
+  
+# DRUG
+# initialize correlation vector for dasc
+corvec=NULL
+pvec=NULL
+colNameVec=NULL
+for (i in 40:56){
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str <- paste(das_col, "~ MeanFD + Drug")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','Drug','Subjects')])
+  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
+#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
+#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
+  colNameVec[i-39]=colnames(VASmerge)[i]
+  print(summary(currModel)$tTable)
+}
+
+# Create a dataframe with the values and column names
+df <- data.frame(Values = corvec, ColumnNames = colNameVec)
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp=p.adjust(pvec,method='fdr')
+colorvec=rep('NS',length(fdrp))
+colorvec[pvec<.05]='Uncr'
+colorvec[fdrp<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
+# Create the plot using ggplot
+ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
+  geom_point(size=3) + xlim(-20,20)+
+  scale_color_manual(values = colors) +
+  labs(x = "Values", y = "DAS Questions",title="Association with Drug")+theme_minimal(base_size=26)
+
+
+
+# TD, COV DRUG
+# initialize correlation vector for dasc
+corvec=NULL
+corvecD=NULL
+pvec=NULL
+pvecD=NULL
+colNameVec=NULL
+for (i in 40:56){
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1 + Drug")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects','Drug')])
+  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
+  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
+  corvecD[i-39]<- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
+  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
+  pvecD[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
+#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
+#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
+  colNameVec[i-39]=colnames(VASmerge)[i]
+  print(summary(currModel)$tTable)
+}
+
+# Create a dataframe with the values and column names
+df <- data.frame(Values = corvec, ColumnNames = colNameVec)
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp=p.adjust(pvec,method='fdr')
+colorvec=rep('NS',length(fdrp))
+colorvec[pvec<.05]='Uncr'
+colorvec[fdrp<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
+# Create the plot using ggplot
+ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
+  geom_point(size=3) + xlim(-20,20)+
+  scale_color_manual(values = colors) +
+  labs(x = "Values", y = "DAS Questions",title="TD Props, Covarying for Drug")+theme_minimal(base_size=26)
+
+# drug covarying for td
+# Create a dataframe with the values and column names
+df <- data.frame(Values = corvecD, ColumnNames = colNameVec)
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+
+# Order the ColumnNames as an ordered factor based on the Values
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp=p.adjust(pvecD,method='fdr')
+colorvec=rep('NS',length(fdrp))
+colorvec[pvecD<.05]='Uncr'
+colorvec[fdrp<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
+# Create the plot using ggplot
+ggplot(df, aes(x = Values, y = ColumnNames,color=Sig)) +
+  geom_point(size=3) + xlim(-20,20)+
+  scale_color_manual(values = colors) +
+  labs(x = "Values", y = "DAS Questions",title="Drug, Covarying for TDProps")+theme_minimal(base_size=26)
+```
+```{r}
+library(ggplot2)
+
+# Combine the two conditions into a single data frame
+VASmerge <- merge(vas, mergedDfPropsCompl, by = c("Subjects", "Dosage"))
+
+# TD PROP
+# initialize correlation vector for dasc
+corvec_tdprop <- pvec_tdprop <- colNameVec_tdprop <- NULL
+for (i in 40:56) {
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
+  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp1', 'Subjects')])
+  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
+  corvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
+  pvec_tdprop[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
+  colNameVec_tdprop[i - 39] <- colnames(VASmerge)[i]
+  print(summary(currModel)$tTable)
+}
+
+# Create a dataframe with the values and column names for TD PROP
+df_tdprop <- data.frame(Values = corvec_tdprop, ColumnNames = colNameVec_tdprop)
+df_tdprop$ColumnNames <- factor(df_tdprop$ColumnNames, levels = df_tdprop$ColumnNames[order(df_tdprop$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp_tdprop <- p.adjust(pvec_tdprop, method = 'fdr')
+colorvec_tdprop <- rep('NS', length(fdrp_tdprop))
+colorvec_tdprop[pvec_tdprop < .05] <- 'Uncr'
+colorvec_tdprop[fdrp_tdprop < .05] <- 'FDR'
+df_tdprop$Sig <- factor(colorvec_tdprop, levels = c('NS', 'Uncr', 'FDR'))
+
+# DRUG
+# initialize correlation vector for dasc
+corvec_drug <- pvec_drug <- colNameVec_drug <- NULL
+for (i in 40:56) {
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str <- paste(das_col, "~ MeanFD + Drug")
+  df <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'Drug', 'Subjects')])
+  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
+  corvec_drug[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
+  pvec_drug[i - 39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
+  colNameVec_drug[i - 39] <- colnames(VASmerge)[i]
+  print(summary(currModel)$tTable)
+}
+
+# Create a dataframe with the values and column names for DRUG
+df_drug <- data.frame(Values = corvec_drug, ColumnNames = colNameVec_drug)
+df_drug$ColumnNames <- factor(df_drug$ColumnNames, levels = df_drug$ColumnNames[order(df_drug$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp_drug <- p.adjust(pvec_drug, method = 'fdr')
+colorvec_drug <- rep('NS', length(fdrp_drug))
+colorvec_drug[pvec_drug < .05] <- 'Uncr'
+colorvec_drug[fdrp_drug < .05] <- 'FDR'
+df_drug$Sig <- factor(colorvec_drug, levels = c('NS', 'Uncr', 'FDR'))
+
+# TD, COV DRUG
+# initialize correlation vector for dasc
+corvec_tdprop_cov_drug <- corvec_drug_cov_tdprop <- pvec_tdprop_cov_drug <- pvec_drug_cov_tdprop <- colNameVec_tdprop_cov_drug <- NULL
+for (i in 40:56) {
+  das_col <- colnames(VASmerge)[i]
+  print(das_col)
+  formula_str_tdprop_cov_drug <- paste(das_col, "~ MeanFD + TDProp + Drug")
+  df_tdprop_cov_drug <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'TDProp', 'Subjects', 'Drug')])
+  currModel_tdprop_cov_drug <- lme(as.formula(formula_str_tdprop_cov_drug), random = ~ 1 | Subjects, data = df_tdprop_cov_drug)
+  corvec_tdprop_cov_drug[i - 39] <- summary(currModel_tdprop_cov_drug)$tTable[rownames(summary(currModel_tdprop_cov_drug)$tTable) == "TDProp", "t-value"]
+  pvec_tdprop_cov_drug[i - 39] <- summary(currModel_tdprop_cov_drug)$tTable[rownames(summary(currModel_tdprop_cov_drug)$tTable) == "TDProp", "p-value"]
+  colNameVec_tdprop_cov_drug[i - 39] <- colnames(VASmerge)[i]
+  
+  formula_str_drug_cov_tdprop <- paste(das_col, "~ MeanFD + Drug + TDProp")
+  df_drug_cov_tdprop <- na.omit(VASmerge[, c(das_col, 'MeanFD', 'Drug', 'Subjects', 'TDProp')])
+  currModel_drug_cov_tdprop <- lme(as.formula(formula_str_drug_cov_tdprop), random = ~ 1 | Subjects, data = df_drug_cov_tdprop)
+  corvec_drug_cov_tdprop[i - 39] <- summary(currModel_drug_cov_tdprop)$tTable[rownames(summary(currModel_drug_cov_tdprop)$tTable) == "Drug1", "t-value"]
+  pvec_drug_cov_tdprop[i - 39] <- summary(currModel_drug_cov_tdprop)$tTable[rownames(summary(currModel_drug_cov_tdprop)$tTable) == "Drug1", "p-value"]
+  print(summary(currModel_tdprop_cov_drug)$tTable)
+  print(summary(currModel_drug_cov_tdprop)$tTable)
+}
+# merge into tdprop df
+df_tdprop2=df_tdprop
+df_tdprop2$Values=corvec_tdprop_cov_drug
+# Create a dataframe with the values and column names for TD, COV DRUG
+df_tdprop_cov_drug <- data.frame(Values = corvec_tdprop_cov_drug, ColumnNames = colNameVec_tdprop_cov_drug)
+df_tdprop_cov_drug$ColumnNames <- factor(df_tdprop_cov_drug$ColumnNames, levels = df_tdprop_cov_drug$ColumnNames[order(df_tdprop_cov_drug$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp_tdprop_cov_drug <- p.adjust(pvec_tdprop_cov_drug, method = 'fdr')
+colorvec_tdprop_cov_drug <- rep('NS', length(fdrp_tdprop_cov_drug))
+colorvec_tdprop_cov_drug[pvec_tdprop_cov_drug < .05] <- 'Uncr'
+colorvec_tdprop_cov_drug[fdrp_tdprop_cov_drug < .05] <- 'FDR'
+# merge into tdprop df
+df_tdprop2$Sig <- factor(colorvec_tdprop_cov_drug, levels = c('NS', 'Uncr', 'FDR'))
+df_tdpropBoth=rbind(df_tdprop,df_tdprop2)
+df_tdpropBoth$Covarying=ones(34,1)
+df_tdpropBoth$Covarying[1:17]=0
+df_tdpropBoth$Covarying=as.factor(df_tdpropBoth$Covarying)
+# merge into Drug df
+df_drug2=df_drug
+df_drug2$Values=corvec_drug_cov_tdprop
+# Create a dataframe with the values and column names for DRUG, COV TD
+df_drug_cov_tdprop <- data.frame(Values = corvec_drug_cov_tdprop, ColumnNames = colNameVec_tdprop_cov_drug)
+df_drug_cov_tdprop$ColumnNames <- factor(df_drug_cov_tdprop$ColumnNames, levels = df_drug_cov_tdprop$ColumnNames[order(df_drug_cov_tdprop$Values, decreasing = FALSE)])
+# make a color vector by significance
+fdrp_drug_cov_tdprop <- p.adjust(pvec_drug_cov_tdprop, method = 'fdr')
+colorvec_drug_cov_tdprop <- rep('NS', length(fdrp_drug_cov_tdprop))
+colorvec_drug_cov_tdprop[pvec_drug_cov_tdprop < .05] <- 'Uncr'
+colorvec_drug_cov_tdprop[fdrp_drug_cov_tdprop < .05] <- 'FDR'
+# merge into Drug df
+df_drug2$Sig <- factor(colorvec_drug_cov_tdprop, levels = c('NS', 'Uncr', 'FDR'))
+df_DrugBoth=rbind(df_drug,df_drug2)
+df_DrugBoth$Covarying=ones(34,1)
+df_DrugBoth$Covarying[1:17]=0
+df_DrugBoth$Covarying=as.factor(df_DrugBoth$Covarying)
+# Specify color scale manually
+colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
+
+# Create the plot using ggplot for TD PROP
+plot_tdprop <- ggplot(df_tdpropBoth, aes(x = Values, y = ColumnNames, color = Sig,shape=Covarying)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = ColumnNames), linetype = "solid") +
+  xlim(-15, 15) +
+  scale_color_manual(values = colors) +
+  labs(x = "t-Values", y = "DAS Questions", title = "Association with TD Props") +
+  theme_minimal(base_size = 26)
+
+# Create the plot using ggplot for DRUG
+plot_drug <- ggplot(df_DrugBoth, aes(x = Values, y = ColumnNames, color = Sig,shape=Covarying)) +
+  geom_point(size = 3) +
+  geom_line(aes(group = ColumnNames), linetype = "solid") +
+  xlim(-15, 15) +
+  scale_color_manual(values = colors) +
+  labs(x = "t-Values", y = "DAS Questions", title = "Association with Drug") +
+  theme_minimal(base_size = 26)
+
+# Combine the plots
+gridExtra::grid.arrange(plot_tdprop, plot_drug, ncol = 2)
+
+```
+
+```{r}
+# load in vas
+els=read.csv('~/Downloads/MDMA_Questionnaires_baseline.csv')
+# correct subject naming
+els$Subjects <- paste0("sub-MDMA", sprintf("%03d", els$Subjects))
+testV=merge(els,test,by=c("Subjects"))
+
+```
+
+
+
+
+```{r}
+# Amyg DMN Fc
+rs1=read.csv('~/Downloads/P50 MDMA/rs1_DMN_AmygFC_Merged.csv',header=F)
+rs2=read.csv('~/Downloads/P50 MDMA/rs2_DMN_AmygFC_Merged.csv',header=F)
+emo=read.csv('~/Downloads/P50 MDMA/emotion_DMN_AmygFC_Merged.csv',header=F)
+gambling=read.csv('~/Downloads/P50 MDMA/gambling_DMN_AmygFC_Merged.csv',header=F)
+wm=read.csv('~/Downloads/P50 MDMA/wm_DMN_AmygFC_Merged.csv',header=F)
+noncon=read.csv('~/Downloads/P50 MDMA/nonconscious_DMN_AmygFC_Merged.csv',header=F)
+con=read.csv('~/Downloads/P50 MDMA/conscious_DMN_AmygFC_Merged.csv',header=F)
+gng=read.csv('~/Downloads/P50 MDMA/gonogo_DMN_AmygFC_Merged.csv',header=F)
+# set colnames
+#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1$Task='rs'
+rs2$Task='rs2'
+emo$Task='emotion'
+gambling$Task='gambling'
+wm$Task='wm'
+noncon$Task='nonconscious'
+con$Task='conscious'
+gng$Task='gonogo'
+
+# remove subj 4
+rs1=rs1[-c(4),]
+rs2=rs2[-c(4),]
+emo=emo[-c(4),]
+gambling=gambling[-c(4),]
+wm=wm[-c(4),]
+noncon=noncon[-c(4),]
+con=con[-c(4),]
+gng=gng[-c(4),]
+
+# this is going to be ugly but simple
+# manually pair columns as sep. observations of baseline, placebo, 80, 120mg
+rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
+rs1p=data.frame(cbind(rs1$V2,rs1$V6))
+rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
+rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
+colnames(rs1bv)=c('TDProp','RemTRs')
+colnames(rs1p)=c('TDProp','RemTRs')
+colnames(rs1m1)=c('TDProp','RemTRs')
+colnames(rs1m2)=c('TDProp','RemTRs')
+
+rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
+rs2p=data.frame(cbind(rs2$V2,rs2$V6))
+rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
+rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
+colnames(rs2bv)=c('TDProp','RemTRs')
+colnames(rs2p)=c('TDProp','RemTRs')
+colnames(rs2m1)=c('TDProp','RemTRs')
+colnames(rs2m2)=c('TDProp','RemTRs')
+
+emobv=data.frame(cbind(emo$V1,emo$V5))
+emop=data.frame(cbind(emo$V2,emo$V6))
+emom1=data.frame(cbind(emo$V3,emo$V7))
+emom2=data.frame(cbind(emo$V4,emo$V8))
+colnames(emobv)=c('TDProp','RemTRs')
+colnames(emop)=c('TDProp','RemTRs')
+colnames(emom1)=c('TDProp','RemTRs')
+colnames(emom2)=c('TDProp','RemTRs')
+
+gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
+gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
+gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
+gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
+colnames(gamblingbv)=c('TDProp','RemTRs')
+colnames(gamblingp)=c('TDProp','RemTRs')
+colnames(gamblingm1)=c('TDProp','RemTRs')
+colnames(gamblingm2)=c('TDProp','RemTRs')
+
+wmbv=data.frame(cbind(wm$V1,wm$V5))
+wmp=data.frame(cbind(wm$V2,wm$V6))
+wmm1=data.frame(cbind(wm$V3,wm$V7))
+wmm2=data.frame(cbind(wm$V4,wm$V8))
+colnames(wmbv)=c('TDProp','RemTRs')
+colnames(wmp)=c('TDProp','RemTRs')
+colnames(wmm1)=c('TDProp','RemTRs')
+colnames(wmm2)=c('TDProp','RemTRs')
+
+nonconbv=data.frame(cbind(noncon$V1,noncon$V5))
+nonconp=data.frame(cbind(noncon$V2,noncon$V6))
+nonconm1=data.frame(cbind(noncon$V3,noncon$V7))
+nonconm2=data.frame(cbind(noncon$V4,noncon$V8))
+colnames(nonconbv)=c('TDProp','RemTRs')
+colnames(nonconp)=c('TDProp','RemTRs')
+colnames(nonconm1)=c('TDProp','RemTRs')
+colnames(nonconm2)=c('TDProp','RemTRs')
+
+conbv=data.frame(cbind(con$V1,con$V5))
+conp=data.frame(cbind(con$V2,con$V6))
+conm1=data.frame(cbind(con$V3,con$V7))
+conm2=data.frame(cbind(con$V4,con$V8))
+colnames(conbv)=c('TDProp','RemTRs')
+colnames(conp)=c('TDProp','RemTRs')
+colnames(conm1)=c('TDProp','RemTRs')
+colnames(conm2)=c('TDProp','RemTRs')
+
+gngbv=data.frame(cbind(gng$V1,gng$V5))
+gngp=data.frame(cbind(gng$V2,gng$V6))
+gngm1=data.frame(cbind(gng$V3,gng$V7))
+gngm2=data.frame(cbind(gng$V4,gng$V8))
+colnames(gngbv)=c('TDProp','RemTRs')
+colnames(gngp)=c('TDProp','RemTRs')
+colnames(gngm1)=c('TDProp','RemTRs')
+colnames(gngm2)=c('TDProp','RemTRs')
+
+# get subject IDs from this rds
+alff=readRDS('~/OutPlacDrug_alff.rds')
+rs1bv$Subjects=alff$SubjID
+rs1p$Subjects=alff$SubjID
+rs1m1$Subjects=alff$SubjID
+rs1m2$Subjects=alff$SubjID
+
+rs2bv$Subjects=alff$SubjID
+rs2p$Subjects=alff$SubjID
+rs2m1$Subjects=alff$SubjID
+rs2m2$Subjects=alff$SubjID
+
+emobv$Subjects=alff$SubjID
+emop$Subjects=alff$SubjID
+emom1$Subjects=alff$SubjID
+emom2$Subjects=alff$SubjID
+
+gamblingbv$Subjects=alff$SubjID
+gamblingp$Subjects=alff$SubjID
+gamblingm1$Subjects=alff$SubjID
+gamblingm2$Subjects=alff$SubjID
+
+wmbv$Subjects=alff$SubjID
+wmp$Subjects=alff$SubjID
+wmm1$Subjects=alff$SubjID
+wmm2$Subjects=alff$SubjID
+
+nonconbv$Subjects=alff$SubjID
+nonconp$Subjects=alff$SubjID
+nonconm1$Subjects=alff$SubjID
+nonconm2$Subjects=alff$SubjID
+
+conbv$Subjects=alff$SubjID
+conp$Subjects=alff$SubjID
+conm1$Subjects=alff$SubjID
+conm2$Subjects=alff$SubjID
+
+gngbv$Subjects=alff$SubjID
+gngp$Subjects=alff$SubjID
+gngm1$Subjects=alff$SubjID
+gngm2$Subjects=alff$SubjID
+
+# add in task (rs to be made equivalent after motion merge)
+rs1bv$Task='rs'
+rs1p$Task='rs'
+rs1m1$Task='rs'
+rs1m2$Task='rs'
+
+rs2bv$Task='rs2'
+rs2p$Task='rs2'
+rs2m1$Task='rs2'
+rs2m2$Task='rs2'
+
+emobv$Task='emotion'
+emop$Task='emotion'
+emom1$Task='emotion'
+emom2$Task='emotion'
+
+gamblingbv$Task='gambling'
+gamblingp$Task='gambling'
+gamblingm1$Task='gambling'
+gamblingm2$Task='gambling'
+
+wmbv$Task='wm'
+wmp$Task='wm'
+wmm1$Task='wm'
+wmm2$Task='wm'
+
+nonconbv$Task='nonconscious'
+nonconp$Task='nonconscious'
+nonconm1$Task='nonconscious'
+nonconm2$Task='nonconscious'
+
+conbv$Task='conscious'
+conp$Task='conscious'
+conm1$Task='conscious'
+conm2$Task='conscious'
+
+gngbv$Task='gonogo'
+gngp$Task='gonogo'
+gngm1$Task='gonogo'
+gngm2$Task='gonogo'
+
+# add in dosage
+rs1bv$Dosage='baseline'
+rs1p$Dosage='Placebo'
+rs1m1$Dosage='80mg'
+rs1m2$Dosage='120mg'
+
+rs2bv$Dosage='baseline'
+rs2p$Dosage='Placebo'
+rs2m1$Dosage='80mg'
+rs2m2$Dosage='120mg'
+
+emobv$Dosage='baseline'
+emop$Dosage='Placebo'
+emom1$Dosage='80mg'
+emom2$Dosage='120mg'
+
+gamblingbv$Dosage='baseline'
+gamblingp$Dosage='Placebo'
+gamblingm1$Dosage='80mg'
+gamblingm2$Dosage='120mg'
+
+wmbv$Dosage='baseline'
+wmp$Dosage='Placebo'
+wmm1$Dosage='80mg'
+wmm2$Dosage='120mg'
+
+nonconbv$Dosage='baseline'
+nonconp$Dosage='Placebo'
+nonconm1$Dosage='80mg'
+nonconm2$Dosage='120mg'
+
+conbv$Dosage='baseline'
+conp$Dosage='Placebo'
+conm1$Dosage='80mg'
+conm2$Dosage='120mg'
+
+gngbv$Dosage='baseline'
+gngp$Dosage='Placebo'
+gngm1$Dosage='80mg'
+gngm2$Dosage='120mg'
+
+# combine all
+allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,emobv,emop,emom1,emom2,gamblingbv,gamblingp,gamblingm1,gamblingm2,wmbv,wmp,wmm1,wmm2,nonconbv,nonconp,nonconm1,nonconm2,conbv,conp,conm1,conm2,gngbv,gngp,gngm1,gngm2)
+
+# read in motion
+mot=read.csv('~/Desktop/MDMA_spikes_summary.csv')
+
+# motion merge
+mergedDf=merge(mot,allScans,by=c('Subjects','Task','Dosage'))
+mergedDf$Drug=0
+mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
+mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
+mergedDf$Drug=as.factor(mergedDf$Drug)
+mergedDfFC=mergedDf
+
+# code rs as one task
+mergedDfFC$Task[mergedDfFC$Task=='rs1']='rs'
+mergedDfFC$Task[mergedDfFC$Task=='rs2']='rs'
+# set rs to reference
+mergedDfFC$Task<-as.factor(mergedDfFC$Task)
+mergedDfFC$Task <- relevel(mergedDfFC$Task, ref = "rs")
+# remove >.3 fd
+mergedDfFC=mergedDfFC[mergedDfFC$MeanFD<.3,]
+```
+
+```{r}
+# test if amyg DMN FC changes after dose
+# group by time interaction
+# group 1 is placebo second visit
+# group 2 is placebo after second visit
+# expecting FC to go down with time in second group
+# manually delineate groups
+mergedDfFC$Group=1
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA002']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA004']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA008']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA009']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA011']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA015']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA017']=3
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA005']=2
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA006']=2
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA007']=2
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA010']=2
+mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA014']=2
+mergedDfFC$Group=as.factor(mergedDfFC$Group)
+# PTs to eliminate for consistency (4 already excluded)
+mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA006',]
+mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA010',]
+# eliminate drug visits
+mergedDfFC_sob=mergedDfFC[mergedDfFC$Drug==0,]
+# get change 
+# make name accurate
+mergedDfFC_sob$AmyFC=mergedDfFC_sob$TDProp
+
+
+model <- lme(AmyFC ~ MeanFD +Task+ Group*Dosage,random = ~ 1 | Subjects,data = mergedDfFC_sob)
+
+sjPlot::plot_model(model, type = "eff",show.values = T)
+sjPlot::plot_model(model, type = "int")
+```
