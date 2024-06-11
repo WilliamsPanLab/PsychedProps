@@ -11,7 +11,7 @@ ftle=load(ftlefp).ftle;
 %lenOpFl=size(data.InterpData);
 %lenOpFl=lenOpFl(3)
 % for some timepoints
-for t=300:450
+for t=275:425
     filename=['/scratch/users/apines/' subj '_' num2str(sesh) '_t' num2str(t) '_']; 
     % save out png (imagesc of signal in inferno)
     figure;

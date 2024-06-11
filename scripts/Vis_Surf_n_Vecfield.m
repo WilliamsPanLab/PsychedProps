@@ -136,7 +136,7 @@ end
 hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
-	quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
+	quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
 	quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -165,7 +165,7 @@ colormap(custommap);
 caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
-	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_L,scalingfactor)
+	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -201,7 +201,7 @@ end
 hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
-        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_R,scalingfactor)
+        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -231,7 +231,7 @@ colormap(custommap);
 caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
-        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),RGBValues_R,scalingfactor)
+        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end

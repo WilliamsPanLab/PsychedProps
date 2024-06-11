@@ -122,9 +122,9 @@ for k=1
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%% temporary visualization code to triple check stuff
 	%%%%% DMN gradient + vectors
-	fig=figure;
-	imagesc(net);
-	colormap('jet');
+	%figure;
+	%imagesc(net);
+	%colormap('jet');
 	%hold on;
 	% Create a grid for the quiver plot
 	%[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
@@ -132,7 +132,7 @@ for k=1
 	%hold on;
 	%quiver(x, y, nGx, nGy);
 	%hold off;
-	saveas(fig, '~/DMUnder.png');
+	%print('~/DMUnder.png','-dpng','-r600');
 	%%%%% Ca2+ signal+vectors, DMN gradient vectors
        	%fig=figure;
 	%imagesc(signalGrid(:,:,1));
