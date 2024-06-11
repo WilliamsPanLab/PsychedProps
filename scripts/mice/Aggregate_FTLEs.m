@@ -1,19 +1,19 @@
 % load in inferno colormap through addpath
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts'));
+addpath('/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts');
 subjects={'m2000','m7502','m7507','m7520','m7589','m7594'};
 
 sessions = {1,2,3,4,5,6};
-% initialize mean ftle
-meanftle_f=zeros(67,70,6);
-meanftle_b=zeros(67,70,6);
-% obs counter
-obs=0;
-% for each subject
-for i=1:length(subjects)
-        subj = subjects{i}
-        % for each session
-        for j = 1:length(sessions)
-                sesh = sessions{j};
+% for each session
+for j = 1:length(sessions)
+	sesh = sessions{j};
+	% initialize mean ftle
+	meanftle_f=zeros(67,70,6);
+	meanftle_b=zeros(67,70,6);
+	% obs counter
+	obs=0;
+	% for each subject
+	for i=1:length(subjects)
+	        subj = subjects{i}
                 % set filepath that things would be saved to
                 outFP=['/scratch/users/apines/data/mouse'];
                 % if file exists, then continue
@@ -29,20 +29,24 @@ for i=1:length(subjects)
 		else
 		end
 	end
+	% average by number of observations
+	meanftle_f=mean(meanftle_f,3);
+	meanftle_b=mean(meanftle_b,3);
+	filename1=['/home/users/apines/meanFTLE_f_' num2str(sesh) '.png'];
+	filename2=['/home/users/apines/meanFTLE_b_' num2str(sesh) '.png'];
+	figure;
+	% something about this keeps crashing matlab... lets try rounding the numbers
+	%meanftle_f=round(meanftle_f);
+	% it's not round...
+	imagesc(meanftle_f);  % Adjust to your specific data structure
+	colormap(inferno);
+	colorbar
+	caxis([0.0; .003]);	
+	print(filename1,'-dpng','-r600')
+	figure;
+	imagesc(meanftle_b);  % Adjust to your specific data structure
+	colormap(inferno);
+	colorbar
+	caxis([0.0; .003]);	
+	print(filename2,'-dpng','-r600')
 end
-% average by number of observations
-meanftle_f=mean(meanftle_f,3);
-meanftle_b=mean(meanftle_b,3);
-filename1=['/home/users/apines/meanFTLE_f.png'];
-filename2=['/homes/users/apines/meanFTLE_b.png'];
-figure;
-% something about this keeps crashing matlab... lets try rounding the numbers
-meanftle_f=round(meanftle_f);
-% it's not round...
-imagesc(meanftle_f);  % Adjust to your specific data structure
-colormap(inferno);
-print(filename1,'-dpng','-r600')
-figure;
-imagesc(meanftle_b);  % Adjust to your specific data structure
-colormap(inferno);
-print(filename2,'-dpng','-r600')
