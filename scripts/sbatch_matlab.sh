@@ -14,4 +14,4 @@
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/
 # will need matlab
 module load matlab
-matlab -nodisplay -r "Loop_FTLE_mice"
+matlab -nodisplay -r "Aggregate_FTLEs"

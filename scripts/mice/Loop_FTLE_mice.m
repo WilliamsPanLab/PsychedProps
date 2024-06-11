@@ -3,7 +3,8 @@
 % done with first 7, 8 needs xcp re-run because scratch deleted it (temporary line of code if that isn't intuitive)
 %subjects = {'sub-MDMA009', 'sub-MDMA011', 'sub-MDMA012', 'sub-MDMA013', 'sub-MDMA014', 'sub-MDMA015', 'sub-MDMA016', 'sub-MDMA017'};
 % running 8 sep. because it just finished re-running (scratch mechanism deleted it)
-subjects={'m2000','m7507','m7520','m7589','m7594'};
+%subjects={'m2000','m7507','m7520','m7589','m7594'};
+subjects={'m7520'};
 sessions = {1,2,3,4,5,6};
 % for each subject
 for i=1:length(subjects)
