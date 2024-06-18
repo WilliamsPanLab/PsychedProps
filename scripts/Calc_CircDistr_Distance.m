@@ -1,19 +1,22 @@
-% add paths
-addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
-% get subjseshdose correspondence
 % read in subj-session-dose correspondence
 subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
+% add paths
+addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
+
 % get subj list
 subjPrefix=repmat('sub-MDMA0',17,1);
 subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17"];
 subjList=strcat(subjPrefix,subjSuffix')
+
+% set common filepath
+commonFP=['/scratch/users/apines/data/mdma/'];
+
 % for each subject
 for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% display s
 	disp(s)
 	% get session info
 	seshInfo=subSeshDose{s,2:5};
-	
 	% write each session out instead of for loop for sesh's
 		% load in disributions
 		bvfpl=[parentFP '/' subj '_' seshInfo{1} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
