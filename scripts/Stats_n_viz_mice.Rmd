@@ -7,7 +7,7 @@ date: "2024-05-15"
 ```{r}
 library(ggplot2)
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_Del_propsMerged_mice(1).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(2).csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -33,9 +33,10 @@ rownames(DMNAngs_long) <- NULL
 # plot it out
 ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
   geom_line() +
-  geom_point() +
-  labs(title = "Signal direction relative to Gradient of DMN", x = "Timepoint", y = "Value", color = "Variable") +
-  theme_minimal()
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "% Bottom-up", color = "Variable") +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
 
 # add drug value and test standalone
 DMNAngs_long$Drug=1
@@ -81,8 +82,9 @@ ggplot() +
   scale_color_viridis_d(option = "plasma") +
   # Theme and labels
   theme_minimal(base_size = 22) +
-  ylab('Degrees from Bottom-up') +
+  ylab('% Bottom-up') +
   xlab('LSD (mice)') +
+  labs(color='mice')+
   # Adjust the x-axis limits to accommodate the box plots
   scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
 

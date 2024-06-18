@@ -15,11 +15,11 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/rs1_propsMerged.csv',header=F)
-rs2=read.csv('~/rs2_propsMerged.csv',header=F)
-emo=read.csv('~/emotion_propsMerged.csv',header=F)
-gambling=read.csv('~/gambling_propsMerged.csv',header=F)
-wm=read.csv('~/wm_propsMerged.csv',header=F)
+rs1=read.csv('~/Downloads/rs1_propsMerged(1).csv',header=F)
+rs2=read.csv('~/Downloads/rs2_propsMerged(1).csv',header=F)
+emo=read.csv('~/Downloads/emotion_propsMerged(1).csv',header=F)
+gambling=read.csv('~/Downloads/gambling_propsMerged(1).csv',header=F)
+wm=read.csv('~/Downloads/wm_propsMerged(1).csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -198,7 +198,10 @@ mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
 
 # model
-model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+model <- lme(TDProp1 ~ MeanFD + Drug*Task + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
+
+
+mergedDf <- within(mergedDf, Drug2 <- relevel(Drug2, ref = 1))
 
 # get head-motion regressed values for plotting
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs, data = mergedDf)
@@ -253,7 +256,7 @@ ggplot() +
   scale_color_viridis_d(option = "plasma") +
   # Theme and labels
   theme_minimal(base_size = 22) +
-  ylab('Degrees from Bottom-up') +
+  ylab('% Bottom-up') +
   xlab('MDMA') +
   # Adjust the x-axis limits to accommodate the box plots
   scale_x_continuous(breaks = unique(as.numeric(df_plot1$Drug)), limits = c(min(as.numeric(df_plot1$Drug)) - 1, max(as.numeric(df_plot1$Drug)) + 1))
@@ -874,6 +877,11 @@ cx_task_model <- lme(Complexity ~ MeanFD + Task+RemTRs, random = ~ 1 | Subjects,
 ```
 
 ```{r}
+# briefly demonstrate lack of relationship between complexity and BUP
+ggplot(mergedDfPropsComplAutoC,aes(x=Complexity,y=TDProp1))+geom_point()+theme_minimal(base_size=25)+ylab('Bottom-up %')
+```
+
+```{r}
 # extract standout sessions/participants for COMPLEXITY this time
 # Calculate the difference in Complexity between Drug and Placebo conditions
 df_diff <- mergedDfPropsComplAutoC %>%
@@ -1045,8 +1053,8 @@ create_plot <- function(component_index) {
   p <- ggplot(loadings_df, aes(x = Question, y = Loading)) +
     geom_bar(stat = "identity", fill = "gray") +
     ggtitle(paste("Component", component_index)) +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8)) +
+    theme_minimal(base_size=14) +
+    theme(axis.text.x = element_text(angle = 70, hjust = 1)) +
     ylim(0, 0.35)+xlab('')
   
   print(p)
@@ -1131,7 +1139,7 @@ plot_df <- data.frame(
   Component = factor(1:8),
   Coef_Complexity = coef_complexity,
   Pval_Complexity = pval_complexity,
-  Coef_TDProp1 = coef_tdprop1,
+  Coef_TDProp1 = -coef_tdprop1,
   Pval_TDProp1 = pval_tdprop1,
   Pval_Complexity_MC = pval_complexity_mc,
   Pval_TDProp1_MC = pval_tdprop1_mc
@@ -1155,7 +1163,7 @@ circular_barplot <- function(df, coef_column, pval_column, pval_mc_column, title
 
 circular_barplot(plot_df, "Coef_Complexity", "Pval_Complexity", "Pval_Complexity_MC", "Coefficients of Complexity")
 
-circular_barplot(plot_df, "Coef_TDProp1", "Pval_TDProp1", "Pval_TDProp1_MC", "Coefficients of TDProp1")
+circular_barplot(plot_df, "Coef_TDProp1", "Pval_TDProp1", "Pval_TDProp1_MC", "Coefficients of DMN Prop. Directions")
 
 ```
 
@@ -1189,9 +1197,9 @@ for (i in 40:56){
 df <- data.frame(Values = corvec, ColumnNames = colNameVec)
 
 # Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = FALSE)])
+df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
 df$ColumnNamesFull<-dascNames
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
+df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
 # make a color vector by significance
 fdrp=p.adjust(pvec,method='fdr')
 colorvec=rep('NS',length(fdrp))
@@ -1200,8 +1208,8 @@ colorvec[fdrp<.05]='FDR'
 df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
 colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig)) +
+# Create the plot using ggplot: note negative Values for easy interp.
+ggplot(df, aes(x = -Values, y = ColumnNamesFull,color=Sig)) +
   geom_point(size=3) + xlim(-5,5)+
   scale_color_manual(values = colors) +
   labs(x = "t-Values", y = "DAS Questions",title="Association with Propagation Directions")+theme_minimal(base_size=18)

@@ -16,12 +16,12 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/rs1_Psil_propsMerged.csv',header=F)
-rs2=read.csv('~/rs2_Psil_propsMerged.csv',header=F)
-rs3=read.csv('~/rs3_Psil_propsMerged.csv',header=F)
-rs4=read.csv('~/rs4_Psil_propsMerged.csv',header=F)
-rs5=read.csv('~/rs5_Psil_propsMerged.csv',header=F)
-rs6=read.csv('~/rs6_Psil_propsMerged.csv',header=F)
+rs1=read.csv('~/Downloads/rs1_Psil_propsMerged(2).csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_propsMerged(2).csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_propsMerged(2).csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_propsMerged(2).csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_propsMerged(2).csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_propsMerged(2).csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -729,7 +729,7 @@ allScans=allScans[allScans$RemTRs>250,]
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of MDMA):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=FALSE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
 
 ```{r}
@@ -815,7 +815,7 @@ ggplot(allScans2, aes(x = Dosage, y = TDProp1, group = Subjects, color = Subject
   geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Dosage)+.25, y = TDProp1, group = Dosage), width = 0.2, color = "black") +
   scale_color_viridis_d(option = "plasma") +
   theme_minimal(base_size = 22) +
-  ylab('Degrees from Bottom-up') +
+  ylab('% Bottom-up') +
   xlab('Psilocybin')
 
 ```
@@ -1376,14 +1376,13 @@ df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
 df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
 
 # Plotting
-ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
+ggplot(df_plot1, aes(x = Drug, y = Complexity, fill = Drug, group = SubjectTask, color = Subjects)) +
   geom_point(size = 4, aes(alpha = 0.7)) +
   geom_line() +
   geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
   geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
   scale_color_viridis_d(option = "plasma") +
-  ggtitle('All Scans') +
-  theme_minimal(base_size = 22)
+  theme_minimal(base_size = 22)+xlab('MDMA')
 
 # by task
 ggplot(mergedDfPropsComplAutoC, aes(x = Task, y = Complexity)) +
@@ -2038,39 +2037,3 @@ mergedDfFC$Task <- relevel(mergedDfFC$Task, ref = "rs")
 mergedDfFC=mergedDfFC[mergedDfFC$MeanFD<.3,]
 ```
 
-```{r}
-# test if amyg DMN FC changes after dose
-# group by time interaction
-# group 1 is placebo second visit
-# group 2 is placebo after second visit
-# expecting FC to go down with time in second group
-# manually delineate groups
-mergedDfFC$Group=1
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA002']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA004']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA008']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA009']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA011']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA015']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA017']=3
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA005']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA006']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA007']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA010']=2
-mergedDfFC$Group[mergedDfFC$Subjects=='sub-MDMA014']=2
-mergedDfFC$Group=as.factor(mergedDfFC$Group)
-# PTs to eliminate for consistency (4 already excluded)
-mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA006',]
-mergedDfFC=mergedDfFC[mergedDfFC$Subjects!='sub-MDMA010',]
-# eliminate drug visits
-mergedDfFC_sob=mergedDfFC[mergedDfFC$Drug==0,]
-# get change 
-# make name accurate
-mergedDfFC_sob$AmyFC=mergedDfFC_sob$TDProp
-
-
-model <- lme(AmyFC ~ MeanFD +Task+ Group*Dosage,random = ~ 1 | Subjects,data = mergedDfFC_sob)
-
-sjPlot::plot_model(model, type = "eff",show.values = T)
-sjPlot::plot_model(model, type = "int")
-```

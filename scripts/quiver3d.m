@@ -32,7 +32,9 @@
 %
 % DBE 10/17/04
 % DBE 10/18/04 Fixed bug in arrow diameter scaling.  Fixed bug in arrow length.
+
 function p=quiver3d(X,Y,Z,U,V,W,arrow_color,scaling,N)
+
 % Check the input data size
 if nargin==0   % This just generates an example 
   [X,Y] = meshgrid(-2:.2:2,-1:.15:1);
@@ -48,6 +50,7 @@ if nargin==0   % This just generates an example
     axis off; 
     set(gcf,'Color',[0 0 0]);
     l=light; 
+
     surf(X,Y,Z);
 elseif nargin<6
   error('Minimum number of input arguments is 6. MUST include X,Y,Z,U,V, and W data.');
@@ -62,15 +65,19 @@ elseif nargin==7
 elseif nargin==8
   N=10;
 end
+
 % Linearize the input data...
   X=X(:); Y=Y(:); Z=Z(:);
   U=U(:); V=V(:); W=W(:);
+
 % Input color can be single color vector (1x3 or 3x1) *OR* indexed color
 % vector (1xN or Nx1, where N=length(X)) *OR* true color matrix (3xN or Nx3)
 % Regardless, the input color has to be repeated for each arrow
+
 single_color =isequal([3 1],size(arrow_color(:)));                                                                                         % Single  color therefore [3x1] or [1x3]...
 indexed_color=(size(arrow_color,1)==1 & size(arrow_color,2)==length(X(:))) | (size(arrow_color,1)==length(X(:)) & size(arrow_color,2)==1); % Indexed color therefore [1xN] or [Nx1]...
 true_color   =(size(arrow_color,1)==3 & size(arrow_color,2)==length(X(:))) | (size(arrow_color,1)==length(X(:)) & size(arrow_color,2)==3); % True    color therefore [3xN] or [Nx3]...
+
 if single_color
   arrow_color=repmat(arrow_color(:)',[size(X,1) 1]);
 elseif indexed_color
@@ -82,32 +89,42 @@ elseif true_color
 else 
   error('Color argument did not appear to be a SINGLE color, nor INDEXED color, nor TRUE color.');
 end
+
 [xat,yat,zat,faces0,vertices0]=gen_template_arrow(X,Y,Z,N);
+
 D=0.5*mean((U.^2+V.^2+W.^2).^0.5);   % Calculate an arrow body diameter base on the mean vector magnitude
+
 vertices=[]; faces=[]; fc=[];
+
 for k=1:size(X,1)
+
     % Scale the normalized arrow data by the vector's length...then autoscale the data
     xa=xat*sqrt(U(k,1).^2+V(k,1).^2+W(k,1).^2);
     ya=yat*D;
     za=zat*D;
+
     if scaling
       A=get_autoscale_value(X,Y,Z,U,V,W,scaling);
       xa=A*xa;
       ya=A*ya;
       za=A*za;
     end      
+
   % Generate orthogonal basis for the rotation
     Evct(:,1)=[U(k,1); V(k,1); W(k,1)]/norm([U(k,1); V(k,1); W(k,1)]);  % First unit vector along vector direction
     Evct(:,2)=cross(Evct(:,1),[1 0 0])/norm(cross(Evct(:,1),[1 0 0]));
     Evct(:,3)=cross(Evct(:,1),Evct(:,2));
+
   % Rotate the template arrow
     XYZ=Evct*[xa(:)'; ya(:)'; za(:)'];
     [xa,ya,za]=deal(reshape(XYZ(1,:),size(xa)),reshape(XYZ(2,:),size(ya)),reshape(XYZ(3,:),size(za)));
   
   % Translate the template arrow
     xa=xa+X(k);  ya=ya+Y(k);  za=za+Z(k);  % x,y,z are the tesselated surface points...
+
   % Triangulate the surface points
   vertices0=[xa(:),ya(:),za(:)];   
+
   fc0=repmat(arrow_color(k,:),[size(faces0,1) 1]);  
   
   % Concatenate the patch surfaces for each glyph
@@ -116,6 +133,7 @@ for k=1:size(X,1)
   fc      =[fc;       fc0                           ];
   
 end
+
 % Draw all the glyphs
   p=patch('Vertices',vertices,'Faces',faces,'FaceVertexCData',fc,'FaceColor','Flat');
     set(p,'EdgeColor','None');
@@ -123,17 +141,21 @@ end
     set(p,'SpecularColorReflectance',0.1,'SpecularExponent',1);
     set(p,'DiffuseStrength',0.75);
 return
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % SUBROUTINE FUNCTIONS........ %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [xa,ya,za,faces,vertices]=gen_template_arrow(X,Y,Z,N);
 % Generate a normalized arrow geometry
 % L=1;             % Arrow length...
 % R=1/10;          % Arrow radius
 % S=3/10;          % Arrow slope
+
 L=3/4;             % Arrow length...
 R=3/40;            % Arrow radius...
 S=1/4;             % Arrow slope...
+
 % Generate the FAUX surface data for tesselation.
 % ...can't easily tesselate the true surface data because of the
 % ...sudden change in radius at the Tip-Body interface
@@ -141,21 +163,28 @@ S=1/4;             % Arrow slope...
 [xb,yb,zb]=cylinder([R 2*R],max(N));          % Arrow Body
 zb=zb*L;                                      % Scale the body
 zt=S*zt+2*L;                                  % Scale and displace the arrow Tip
+
 xx=[zt zb];                                    % Combine the body and top coordinates
 yy=[yt yb];                                    % Combine the body and top coordinates
 zz=[xt xb];                                    % Combine the body and top coordinates
+
 vertices=[xx(:),yy(:),zz(:)];
 faces=convhulln(vertices);
+
 % Generate the REAL surface data for rendering
 [xt,yt,zt]=cylinder(linspace(0.7*S,0,2),max(N));  % Arrow tip
 [xb,yb,zb]=cylinder(R,max(N));                    % Arrow body
+
 % Scale the data and shift the tip to the end of the arrow body...
 zb=zb*L;
 zt=S*zt+L;
+
 xa=[zt zb];  % Final arrow coordinates (tip+body)
 ya=[yt yb];
 za=[xt xb];
+
 return
+
 % The get_auto_scale function uses code that was borrowed from The
 % Mathwork's QUIVER3 function.
 function autoscale=get_autoscale_value(x,y,z,u,v,w,autoscale)
