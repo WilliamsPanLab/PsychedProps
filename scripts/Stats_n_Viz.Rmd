@@ -188,6 +188,51 @@ saveRDS(mergedDf,'~/P50_cleaned_df.rds')
 ```
 
 ```{r}
+# Read the data
+scanAnx <- read.csv('~/Downloads/P50MDMA-ScanNotes_DATA_2024-06-13_1309.csv')
+
+# Create a data frame with the relevant columns
+scanAnx <- data.frame(Subjects = scanAnx$study_id, 
+                      AnxBL = scanAnx$anxietyscan_bl, 
+                      AnxS1 = scanAnx$anxietyscan_s1, 
+                      AnxS2 = scanAnx$anxietyscan_s2, 
+                      AnxS3 = scanAnx$anxietyscan_s3)
+
+# Initialize an empty data frame for the longer format
+scanAnx_long <- data.frame(Subjects = integer(0), 
+                           Session = character(0), 
+                           Anx = numeric(0))
+
+# Fill the new data frame
+for (i in 1:nrow(scanAnx)) {
+  scanAnx_long <- rbind(scanAnx_long, 
+                        data.frame(Subjects = scanAnx$Subjects[i], 
+                                   Session = 0, 
+                                   Anx = scanAnx$AnxBL[i]))
+  scanAnx_long <- rbind(scanAnx_long, 
+                        data.frame(Subjects = scanAnx$Subjects[i], 
+                                   Session = 1, 
+                                   Anx = scanAnx$AnxS1[i]))
+  scanAnx_long <- rbind(scanAnx_long, 
+                        data.frame(Subjects = scanAnx$Subjects[i], 
+                                   Session = 2, 
+                                   Anx = scanAnx$AnxS2[i]))
+  scanAnx_long <- rbind(scanAnx_long, 
+                        data.frame(Subjects = scanAnx$Subjects[i], 
+                                   Session = 3, 
+                                   Anx = scanAnx$AnxS3[i]))
+}
+
+scanAnx_long$Subjects <- paste0("sub-MDMA", gsub(" \\(c\\)", "", scanAnx_long$Subjects))
+scanAnx_long$Session=as.integer(scanAnx_long$Session)
+
+# merge in
+mergedDf=merge(mergedDf,scanAnx_long,by=c('Subjects','Session'))
+
+```
+
+
+```{r}
 # remove data that needs to be removed (subs 6 and 10, <250 TRs)
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
@@ -198,10 +243,7 @@ mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
 
 # model
-model <- lme(TDProp1 ~ MeanFD + Drug*Task + RemTRs, random = ~ 1 | Subjects, data = mergedDf)
-
-
-mergedDf <- within(mergedDf, Drug2 <- relevel(Drug2, ref = 1))
+model <- lme(TDProp1 ~ MeanFD + Drug+Task + RemTRs+Anx, random = ~ 1 | Subjects, data = mergedDf)
 
 # get head-motion regressed values for plotting
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs, data = mergedDf)
