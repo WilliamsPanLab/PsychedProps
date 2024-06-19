@@ -11,7 +11,7 @@
 # ------------------------------------------
 
 # dumb cd
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/
+#cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/
 # will need matlab
 module load matlab
-matlab -nodisplay -r "Aggregate_FTLEs"
+matlab -nodisplay -r "Calc_CircDistr_Distance"
