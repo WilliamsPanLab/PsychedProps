@@ -58,45 +58,45 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% load in disributions
 	bvfpl=[commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	bvfpr=[commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	bvopFl_L1=load(strjoin(bvfpl),'');
-	bvopFl_R1=load(strjoin(bvfpr),'');
+	bvopFl_L1=load(strjoin(bvfpl,''));
+	bvopFl_R1=load(strjoin(bvfpr,''));
 	% placebo
 	pfpl=[commonFP '/' subj '/' seshInfo{2} '/' subj '_' seshInfo{2} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	pfpr=[commonFP '/' subj '/' seshInfo{2} '/' subj '_' seshInfo{2} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	popFl_L1=load(strjoin(pfpl),'');
-	popFl_R1=load(strjoin(pfpr),'');
+	popFl_L1=load(strjoin(pfpl,''));
+	popFl_R1=load(strjoin(pfpr,''));
 	% 80 mg
 	m1fpl=[commonFP '/' subj '/' seshInfo{3} '/' subj '_' seshInfo{3} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	m1fpr=[commonFP '/' subj '/' seshInfo{3} '/' subj '_' seshInfo{3} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	m1pFl_L1=load(strjoin(m1fpl),'');
-	m1pFl_R1=load(strjoin(m1fpr),'');
+	m1pFl_L1=load(strjoin(m1fpl,''));
+	m1pFl_R1=load(strjoin(m1fpr,''));
         % 120 mg
 	m2fpl=[commonFP '/' subj '/' seshInfo{4} '/' subj '_' seshInfo{4} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	m2fpr=[commonFP '/' subj '/' seshInfo{4} '/' subj '_' seshInfo{4} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	m2pFl_L1=load(strjoin(m2fpl),'');
-	m2pFl_R1=load(strjoin(m2fpr),'');
+	m2pFl_L1=load(strjoin(m2fpl,''));
+	m2pFl_R1=load(strjoin(m2fpr,''));
 	% repeat for rs2
 	task='rs2';
 	% load in disributions
 	bvfpl=[commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	bvfpr=[commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	bvopFl_L2=load(strjoin(bvfpl),'');
-	bvopFl_R2=load(strjoin(bvfpr),'');
+	bvopFl_L2=load(strjoin(bvfpl,''));
+	bvopFl_R2=load(strjoin(bvfpr,''));
 	% placebo
 	pfpl=[commonFP '/' subj '/' seshInfo{2} '/' subj '_' seshInfo{2} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	pfpr=[commonFP '/' subj '/' seshInfo{2} '/' subj '_' seshInfo{2} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	popFl_L2=load(strjoin(pfpl),'');
-	popFl_R2=load(strjoin(pfpr),'');
+	popFl_L2=load(strjoin(pfpl,''));
+	popFl_R2=load(strjoin(pfpr,''));
 	% 80 mg
 	m1fpl=[commonFP '/' subj '/' seshInfo{3} '/' subj '_' seshInfo{3} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	m1fpr=[commonFP '/' subj '/' seshInfo{3} '/' subj '_' seshInfo{3} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	m1pFl_L2=load(strjoin(m1fpl),'');
-	m1pFl_R2=load(strjoin(m1fpr),'');
+	m1pFl_L2=load(strjoin(m1fpl,''));
+	m1pFl_R2=load(strjoin(m1fpr,''));
 	% 120 mg
 	m2fpl=[commonFP '/' subj '/' seshInfo{4} '/' subj '_' seshInfo{4} '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
 	m2fpr=[commonFP '/' subj '/' seshInfo{4} '/' subj '_' seshInfo{4} '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
-	m2pFl_L2=load(strjoin(m2fpl),'');
-	m2pFl_R2=load(strjoin(m2fpr),'');
+	m2pFl_L2=load(strjoin(m2fpl,''));
+	m2pFl_R2=load(strjoin(m2fpr,''));
 	% combine distributions across resting states
 	bvopFl_L=cat(2,bvopFl_L1.vertWise_Vecs_l,bvopFl_L2.vertWise_Vecs_l);
 	bvopFl_R=cat(2,bvopFl_R1.vertWise_Vecs_r,bvopFl_R2.vertWise_Vecs_r);
@@ -196,15 +196,35 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	bvdrug_Rk=zeros(2562,1);
 	bvplac_Lk=zeros(2562,1);
 	bvplac_Rk=zeros(2562,1);
+	% make "drug" distributions which are 80 and concatenated
+	drug_Lthetas=cat(2,m1pFl_Lthetas,m2pFl_Lthetas);
+	drug_Rthetas=cat(2,m1pFl_Rthetas,m2pFl_Rthetas);
 	% loop over each vertex and kuiper test dat baby
 	for v=1:2562
-
-	% pl vs. 80 
-	% pl vs 120
-	% pl. vs drug
-	% bv vs. drug
-	% bv vs. plac
-	% vert surface print .pngs
+		[pval plv80_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m1pFl_Lthetas(v,:));
+		[pval plv80_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m1pFl_Rthetas(v,:));
+		[pval plv120_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m2pFl_Lthetas(v,:));
+		[pval plv120_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m2pFl_Rthetas(v,:));
+		[pval plvdrug_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),drug_Lthetas(v,:));
+		[pval plvdrug_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),drug_Rthetas(v,:));
+		[pval bvdrug_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),drug_Lthetas(v,:));
+                [pval bvdrug_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),drug_Rthetas(v,:));
+                [pval bvplac_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),pOpFl_Lthetas(v,:));
+                [pval bvplac_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),pOpFl_Rthetas(v,:));
+	end
+	% placebo vs 80
+	Vis_Vertvec(plv80_Lk,plv80_Rk,'~/Pl_v_80_k.png')
+`	% placebo vs 120
+	Vis_Vertvec(plv120_Lk,plv120_Rk,'~/Pl_v_120_k.png')
+	% placebo vs drug
+	Vis_Vertvec(plvdrug_Lk,plvdrug_Rk,'~/Pl_v_drug_k.png')	
+	% baseline vs drug
+	Vis_Vertvec(bvdrug_Lk,bvdrug_Rk,'~/Pl_v_drug_k.png')
+	% baseline vs placebo
+        Vis_Vertvec(bvplac_Lk,bvplac_Rk,'~/BV_v_d_k.png')
+% STILL NEED TO AGGREGATE OVER ALL SUBJECTS
+end
+% vert surface print .pngs
 % end for each subject
 % average k stat over each vertex
 % print comparisons

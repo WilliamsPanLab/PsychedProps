@@ -21,9 +21,20 @@ F_R=faces_r;
 % vertices V
 V_R=vx_r;
 
+% use native freesurfer command for mw mask indices
+surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+mwIndVec_l = read_medial_wall_label(surfML);
+surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+mwIndVec_r = read_medial_wall_label(surfMR);
+% make binary "is medial wall" vector for vertices
+mw_L=zeros(1,2562);
+mw_L(mwIndVec_l)=1;
+mw_R=zeros(1,2562);
+mw_R(mwIndVec_r)=1;
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=VertVecL;
-
+data(mwIndVec_l)=0;
 %%%%%%% fixed colorscale varities
 
 %%% circular
@@ -139,6 +150,7 @@ set(gca,'CLim',[mincol,maxcol]);
 
 %%% right hemisphere
 data=VertVecR;
+data(mwIndVec_r)=0;
 mincol=min(data);
 maxcol=max(data);
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
@@ -184,9 +196,9 @@ set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-%colorbar
-%c=colorbar
-%c.Location='southoutside'
+colorbar
+c=colorbar
+c.Location='southoutside'
 
 colormap(custommap)
 
