@@ -40,7 +40,9 @@ data(mwIndVec_l)=0;
 %%% circular
 mincol=min(VertVecL);
 maxcol=max(VertVecL);
-
+% kuiper stat mapping
+mincol=.07;
+maxcol=.225;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
@@ -151,8 +153,8 @@ set(gca,'CLim',[mincol,maxcol]);
 %%% right hemisphere
 data=VertVecR;
 data(mwIndVec_r)=0;
-mincol=min(data);
-maxcol=max(data);
+%mincol=min(data);
+%maxcol=max(data);
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);

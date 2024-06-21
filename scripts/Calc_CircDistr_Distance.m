@@ -134,7 +134,7 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% need to add # or surviving TRs check to EVERY load
         survivingTrsFP=strjoin([commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        if sum(survivingTrs(:,2))>250;
+	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
 		bvopFl_L2=load(strjoin(bvfpl,''));
 		bvopFl_R2=load(strjoin(bvfpr,''));
 	else
@@ -147,7 +147,7 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% need to add # or surviving TRs check to EVERY load
         survivingTrsFP=strjoin([commonFP '/' subj '/' seshInfo{1} '/' subj '_' seshInfo{1} '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        if sum(survivingTrs(:,2))>250;
+	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
 		popFl_L2=load(strjoin(pfpl,''));
 		popFl_R2=load(strjoin(pfpr,''));
 	else
@@ -160,7 +160,7 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% need to add # or surviving TRs check to EVERY load
         survivingTrsFP=strjoin([commonFP '/' subj '/' seshInfo{3} '/' subj '_' seshInfo{3} '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        if sum(survivingTrs(:,2))>250;
+	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
 		m1pFl_L2=load(strjoin(m1fpl,''));
 		m1pFl_R2=load(strjoin(m1fpr,''));
 	else
@@ -173,7 +173,7 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	% need to add # or surviving TRs check to EVERY load
         survivingTrsFP=strjoin([commonFP '/' subj '/' seshInfo{4} '/' subj '_' seshInfo{4} '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        if sum(survivingTrs(:,2))>250;
+	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
 		m2pFl_L2=load(strjoin(m2fpl,''));
 		m2pFl_R2=load(strjoin(m2fpr,''));
 	else
@@ -366,28 +366,151 @@ for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17];
 	for v=1:2562
 		% more conditionals for missing data
 		if sizePl(2) > 1 && sizem1(2) > 1
-			[pval plv80_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m1pFl_Lthetas(v,:));
-			[pval plv80_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m1pFl_Rthetas(v,:));
+			% get resultant vector 1
+			resvec1_Length=circ_r(pOpFl_Lthetas(v,:)');
+			resvec1_angle=circ_mean(pOpFl_Lthetas(v,:)');
+			resvec1_x=cos(resvec1_angle)*resvec1_Length;	
+			resvec1_y=sin(resvec1_angle)*resvec1_Length;
+			% second angle
+			resvec2_Length=circ_r(m1pFl_Lthetas(v,:)');
+                        resvec2_angle=circ_mean(m1pFl_Lthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;     
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+			plv80_Lk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+			% right
+			% get resultant vector 1
+                        resvec1_Length=circ_r(pOpFl_Rthetas(v,:)');
+                        resvec1_angle=circ_mean(pOpFl_Rthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;     
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;                            
+                        % second angle
+                        resvec2_Length=circ_r(m1pFl_Rthetas(v,:)');
+                        resvec2_angle=circ_mean(m1pFl_Rthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        plv80_Rk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+			%[pval plv80_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m1pFl_Lthetas(v,:));
+			%[pval plv80_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m1pFl_Rthetas(v,:));
 		else
 		end
 		if sizePl(2) > 1 && sizem2(2) > 1
-			[pval plv120_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m2pFl_Lthetas(v,:));
-			[pval plv120_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m2pFl_Rthetas(v,:));
+			% get resultant vector 1
+                        resvec1_Length=circ_r(pOpFl_Lthetas(v,:)');
+                        resvec1_angle=circ_mean(pOpFl_Lthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;     
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;                            
+                        % second angle
+                        resvec2_Length=circ_r(m2pFl_Lthetas(v,:)');
+                        resvec2_angle=circ_mean(m2pFl_Lthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        plv120_Lk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+                        % right
+                        % get resultant vector 1
+                        resvec1_Length=circ_r(pOpFl_Rthetas(v,:)');
+                        resvec1_angle=circ_mean(pOpFl_Rthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;
+                        % second angle
+                        resvec2_Length=circ_r(m2pFl_Rthetas(v,:)');
+                        resvec2_angle=circ_mean(m2pFl_Rthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        plv120_Rk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+
+
+			%[pval plv120_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),m2pFl_Lthetas(v,:));
+			%[pval plv120_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),m2pFl_Rthetas(v,:));
 		else
 		end
 		if sizePl(2) > 1 && sizeD(2) > 1
-			[pval plvdrug_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),drug_Lthetas(v,:));
-			[pval plvdrug_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),drug_Rthetas(v,:));
+			% get resultant vector 1
+                        resvec1_Length=circ_r(pOpFl_Lthetas(v,:)');
+                        resvec1_angle=circ_mean(pOpFl_Lthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;     
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;                            
+                        % second angle
+                        resvec2_Length=circ_r(drug_Lthetas(v,:)');
+                        resvec2_angle=circ_mean(drug_Lthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        plvdrug_Lk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+                        % right
+                        % get resultant vector 1
+                        resvec1_Length=circ_r(pOpFl_Rthetas(v,:)');
+                        resvec1_angle=circ_mean(pOpFl_Rthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;
+                        % second angle
+                        resvec2_Length=circ_r(drug_Rthetas(v,:)');
+                        resvec2_angle=circ_mean(drug_Rthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        plvdrug_Rk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+
+
+			%[pval plvdrug_Lk(v) K] = circ_kuipertest(pOpFl_Lthetas(v,:),drug_Lthetas(v,:));
+			%[pval plvdrug_Rk(v) K] = circ_kuipertest(pOpFl_Rthetas(v,:),drug_Rthetas(v,:));
 		else
 		end
 		if sizeBV(2) > 1 && sizeD(2) > 1
-			[pval bvdrug_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),drug_Lthetas(v,:));
-        	        [pval bvdrug_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),drug_Rthetas(v,:));
+			% get resultant vector 1
+                        resvec1_Length=circ_r(bvOpFl_Lthetas(v,:)');
+                        resvec1_angle=circ_mean(bvOpFl_Lthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;     
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;                            
+                        % second angle
+                        resvec2_Length=circ_r(drug_Lthetas(v,:)');
+                        resvec2_angle=circ_mean(drug_Lthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        bvdrug_Lk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+                        % right
+                        % get resultant vector 1
+                        resvec1_Length=circ_r(bvOpFl_Rthetas(v,:)');
+                        resvec1_angle=circ_mean(bvOpFl_Rthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;
+                        % second angle
+                        resvec2_Length=circ_r(drug_Rthetas(v,:)');
+                        resvec2_angle=circ_mean(drug_Rthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        bvdrug_Rk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+
+
+			%[pval bvdrug_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),drug_Lthetas(v,:));
+        	        %[pval bvdrug_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),drug_Rthetas(v,:));
 		else
 		end
 		if sizeBV(2) > 1 && sizePl(2) > 1
-        	        [pval bvplac_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),pOpFl_Lthetas(v,:));
-        	        [pval bvplac_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),pOpFl_Rthetas(v,:));
+			% get resultant vector 1
+                        resvec1_Length=circ_r(bvOpFl_Lthetas(v,:)');
+                        resvec1_angle=circ_mean(bvOpFl_Lthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;     
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;                            
+                        % second angle
+                        resvec2_Length=circ_r(pOpFl_Lthetas(v,:)');
+                        resvec2_angle=circ_mean(pOpFl_Lthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        bvplac_Lk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+                        % right
+                        % get resultant vector 1
+                        resvec1_Length=circ_r(bvOpFl_Rthetas(v,:)');
+                        resvec1_angle=circ_mean(bvOpFl_Rthetas(v,:)');
+                        resvec1_x=cos(resvec1_angle)*resvec1_Length;
+                        resvec1_y=sin(resvec1_angle)*resvec1_Length;
+                        % second angle
+                        resvec2_Length=circ_r(pOpFl_Rthetas(v,:)');
+                        resvec2_angle=circ_mean(pOpFl_Rthetas(v,:)');
+                        resvec2_x=cos(resvec2_angle)*resvec2_Length;
+                        resvec2_y=sin(resvec2_angle)*resvec2_Length;
+                        bvplac_Rk(v)=sqrt((resvec2_x - resvec1_x)^2 + (resvec2_y - resvec1_y)^2);
+
+
+        	        %[pval bvplac_Lk(v) K] = circ_kuipertest(bvOpFl_Lthetas(v,:),pOpFl_Lthetas(v,:));
+        	        %[pval bvplac_Rk(v) K] = circ_kuipertest(bvOpFl_Rthetas(v,:),pOpFl_Rthetas(v,:));
 		else
 		end
 	end
@@ -445,6 +568,19 @@ save('/scratch/users/apines/gbvdrug_Lk.mat', 'gbvdrug_Lk')
 save('/scratch/users/apines/gbvdrug_Rk.mat', 'gbvdrug_Rk')
 save('/scratch/users/apines/gbvplac_Lk.mat', 'gbvplac_Lk')
 save('/scratch/users/apines/gbvplac_Rk.mat', 'gbvplac_Rk')
+
+%%%% LOAD BACK IN HERE: script takes a long time to run, so sometimes you might just want to run viz from the saved files
+gplv80_Lk = load('/scratch/users/apines/gplv80_Lk.mat').gplv80_Lk;
+gplv80_Rk = load('/scratch/users/apines/gplv80_Rk.mat').gplv80_Rk;
+gplv120_Lk = load('/scratch/users/apines/gplv120_Lk.mat').gplv120_Lk;
+gplv120_Rk = load('/scratch/users/apines/gplv120_Rk.mat').gplv120_Rk;
+gplvdrug_Lk = load('/scratch/users/apines/gplvdrug_Lk.mat').gplvdrug_Lk;
+gplvdrug_Rk = load('/scratch/users/apines/gplvdrug_Rk.mat').gplvdrug_Rk;
+gbvdrug_Lk = load('/scratch/users/apines/gbvdrug_Lk.mat').gbvdrug_Lk;
+gbvdrug_Rk = load('/scratch/users/apines/gbvdrug_Rk.mat').gbvdrug_Rk;
+gbvplac_Lk = load('/scratch/users/apines/gbvplac_Lk.mat').gbvplac_Lk;
+gbvplac_Rk = load('/scratch/users/apines/gbvplac_Rk.mat').gbvplac_Rk;
+
 % Check and remove columns with all zero values
 gplv80_Lk(:, all(gplv80_Lk == 0, 1)) = [];
 gplv80_Rk(:, all(gplv80_Rk == 0, 1)) = [];
@@ -477,8 +613,8 @@ gbvplac_Lk=mean(gbvplac_Lk,2);
 gbvplac_Rk=mean(gbvplac_Rk,2);
 
 % vert surface print .pngs
-Vis_Vertvec(gplv80_Lk,plv80_Rk,'~/g_Pl_v_80_k.png')
-Vis_Vertvec(gplv120_Lk,plv120_Rk,'~/g_Pl_v_120_k.png')
-Vis_Vertvec(gplvdrug_Lk,plvdrug_Rk,'~/g_Pl_v_drug_k.png')
-Vis_Vertvec(gbvdrug_Lk,bvdrug_Rk,'~/g_Bv_v_drug_k.png')
-Vis_Vertvec(gbvplac_Lk,bvplac_Rk,'~/g_BV_v_pl_k.png')
+Vis_Vertvec(gplv80_Lk,gplv80_Rk,'~/g_Pl_v_80_k.png')
+Vis_Vertvec(gplv120_Lk,gplv120_Rk,'~/g_Pl_v_120_k.png')
+Vis_Vertvec(gplvdrug_Lk,gplvdrug_Rk,'~/g_Pl_v_drug_k.png')
+Vis_Vertvec(gbvdrug_Lk,gbvdrug_Rk,'~/g_Bv_v_drug_k.png')
+Vis_Vertvec(gbvplac_Lk,gbvplac_Rk,'~/g_BV_v_pl_k.png')
