@@ -155,33 +155,15 @@ el_L=el_L(g_noMW_combined_L);
 az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
-% load in Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
-%% k = 1 to select DMN. k = 2 if smooth used
-Dnet_LH=networks.nets.Lnets(:,1);
-Dnet_RH=networks.nets.Rnets(:,1);
-for k=1:4
-	nets_LH=networks.nets.Lnets(:,k);
-	nets_RH=networks.nets.Rnets(:,k);
-	% create face-wise network mask: note these are NOT DMN for this script specifically, it is network k
-	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
-	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
-	DMN_bool_L(DMN_bool_L>.1)=1;
-	DMN_bool_R(DMN_bool_R>.1)=1;
-	DMN_bool_L(DMN_bool_L<.1)=0;
-	DMN_bool_R(DMN_bool_R<.1)=0;
-	DMN_bool_L=logical(DMN_bool_L);
-	DMN_bool_R=logical(DMN_bool_R);
-	% combine with medial wall mask: CHIGGITY CHECK YOURSELF BEFORE YOU WRECK YOURSELF
-	MasterMask_L=DMN_bool_L;
-	MasterMask_R=DMN_bool_R;
-	MasterMask_L(fmwIndVec_l)=0;
-	MasterMask_R(fmwIndVec_r)=0;
-	% save out for de-masking later
-	writematrix(MasterMask_L,['~/MasterMask_L_' num2str(k) '_task.csv'])
-	writematrix(MasterMask_R,['~/MasterMask_R_' num2str(k) '_task.csv'])
-	% initialize matrix for each face over each of k=4 networks to saveout to scratch
-	faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
+% load in Network
+network=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/Smooth_Nets_fs4.mat']);
+Dnet_LH=network.nets.Lnets;
+Dnet_RH=network.nets.Rnets;
+for k=1
+	nets_LH=network.nets.Lnets(:,k);
+	nets_RH=network.nets.Rnets(:,k);
+	% initialize matrix for each face 1 network to saveout to scratch
+	faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),1);
         % network of interest
         n_LH=nets_LH;
         n_RH=nets_RH;
@@ -198,28 +180,11 @@ for k=1:4
 		vertwise_grad_L(v,:)=mean(ng_L(InvolvedFaces_l,:),1);
 		vertwise_grad_R(v,:)=mean(ng_R(InvolvedFaces_r,:),1);
 	end
-        % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        %ng_L=ng_L(MasterMask_L,:);
-        %ng_R=ng_R(MasterMask_R,:);
-        % get NA vertices
-        sumLeft=sum(vertwise_grad_L,2);
-        sumRight=sum(vertwise_grad_R,2);
-        % finds 0s in left and right network gradients - this is redundant/a backup but functionally inert at the moment
-        emptyLeft=find(~sumLeft);
-        emptyRight=find(~sumRight);
-        InclLeft=find(sumLeft);
-        InclRight=find(sumRight);
         % adaptation for vertex-wise: medial wall masking to occur later
 	InclLeft=1:2562;
 	InclRight=1:2562;
-	% note InclLeft and Right presume mw mask already applied!	
-	% save InclLeft and Right to a reference .mat
-	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors_task.mat'], 'InclLeft', 'InclRight');
-
-        % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
-        %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
-        %n_and_g_noMW_combined_R=setdiff(g_noMW_combined_R,emptyRight);
-        % extract face-wise vector cartesian vector components
+        
+	% extract face-wise vector cartesian vector components
 
         nx_L=ng_L(InclLeft,1);
         ny_L=ng_L(InclLeft,2);
@@ -229,8 +194,6 @@ for k=1:4
         nz_R=ng_R(InclRight,3);
 
         % translate xyz spherical coordinates to az/el/r
-        %[az_L,el_L,r_L]=cart2sph(P_L(n_and_g_noMW_combined_L,1),P_L(n_and_g_noMW_combined_L,2),P_L(n_and_g_noMW_combined_L,3));
-        %[az_R,el_R,r_R]=cart2sph(P_R(n_and_g_noMW_combined_R,1),P_R(n_and_g_noMW_combined_R,2),P_R(n_and_g_noMW_combined_R,3));
         % get spherical coordinates (az/el/r, r equal in sphere) relevant to this network
         az_L_n=az_L(InclLeft);
         el_L_n=el_L(InclLeft);
@@ -325,26 +288,4 @@ for k=1:4
 	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 	AngDistFP=[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_AngDistMat_task.mat'];
 	save(AngDistFP,'AngDist')
-	% average left-hemisphere values over time and plop into facematrix for this participant
-        faceMatrix(InclLeft,k)=mean(NangDs_L,2);
-        faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
-        % and time series population
-	OutTs_L=NangDs_L;
-	OutTs_R=NangDs_R;
-	% average angular distances across hemispheres
-        avgD=mean(AllAngs);
-        % 6/8/24: replacing with percentage for attempt at clearer presentation of results
-	percBUP=length(AllAngs(AllAngs<90))/(length(AllAngs));
-	Propvec=[Propvec percBUP];
-        % add label
-        stringVec=[stringVec ['AngD' num2str(k)]];
-	% save out as csv
-	T=table(Propvec','RowNames',stringVec);
-	% write out
-	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro_task.csv'],'WriteRowNames',true)
-	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_k' num2str(k) '_faceMatrix_gro_task.csv'])
-	% save out time series
-	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L_task.csv'])
-	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R_task.csv'])
 end
