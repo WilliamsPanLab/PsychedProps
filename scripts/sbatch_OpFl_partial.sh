@@ -85,12 +85,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-# group
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+# task
+matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','wm')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"

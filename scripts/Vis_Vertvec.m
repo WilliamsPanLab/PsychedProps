@@ -40,9 +40,12 @@ data(mwIndVec_l)=0;
 %%% circular
 mincol=min(VertVecL);
 maxcol=max(VertVecL);
-% kuiper stat mapping
+% for resultant vector distance mapping (Calc_cirdist)
 mincol=.07;
 maxcol=.225;
+% for nmf networks
+mincol=0;
+maxcol=1;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;

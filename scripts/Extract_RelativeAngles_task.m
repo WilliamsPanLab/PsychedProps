@@ -1,14 +1,17 @@
-function Extract_RelativeAngles(subj,sesh,task)
+function Extract_RelativeAngles_task(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to Network.
+% Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to networks.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% not task is in vertex space
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
 % Load in fsav4 opflow calc
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
-datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
-data=load(datafp)
+datafpL=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_Vert_Angles_L.mat'];
+datafpR=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_Vert_Angles_R.mat'];
+dataL=load(datafpL);
+dataR=load(datafpR);
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
@@ -23,18 +26,18 @@ F_L=faces_l;
 % vertices V
 V_L=vx_l;
 % vector fields
-vfl=data.us.vf_left;
+vfl=dataL.vertWise_Vecs_l;
 % faces_R
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
 % vector fields
-vfr=data.us.vf_right;
-% get incenters of triangles
+vfr=dataR.vertWise_Vecs_r;
+% get position of vertices
 TR_L = TriRep(F_L,V_L);
-P_L = TR_L.incenters;
+P_L = TR_L.X;
 TR_R = TriRep(F_R,V_R);
-P_R = TR_R.incenters;
+P_R = TR_R.X;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add TSNR mask, includes medial wall
@@ -46,6 +49,8 @@ mw_L=zeros(1,2562);
 mw_L(mwAndTSNR_L==1)=1;
 mw_R=zeros(1,2562);
 mw_R(mwAndTSNR_R==1)=1;
+vmwIndVec_l=find(mw_L);
+vmwIndVec_r=find(mw_R);
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
@@ -53,18 +58,21 @@ F_MW_R=sum(mw_R(faces_r),2)./3;
 F_MW_L=ceil(F_MW_L);
 F_MW_R=ceil(F_MW_R);
 % face mask indices
+% vertex version!
+%F_MW_L=mw_L;
+%F_MW_R=mw_R;
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
-% make medial wall vector
-g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
-
+% make medial wall vector: vertices
+g_noMW_combined_L=setdiff([1:2562],vmwIndVec_l);
+g_noMW_combined_R=setdiff([1:2562],vmwIndVec_r);
+% adaptation to task: medial wall masking to occur later
+g_noMW_combined_L=1:2562;
+g_noMW_combined_R=1:2562;
 % save out mask for reference in python visualization script of ATS (not fs5)
 save('/oak/stanford/groups/leanew1/users/apines/fs4surf/medial_wall_vectors.mat', 'g_noMW_combined_L', 'g_noMW_combined_R');
 
 % extract size of time series
-vfl=data.us.vf_left;
-vfr=data.us.vf_right;
 NumTRs=size(vfl);
 NumTRs=NumTRs(2);
 lenOpFl=NumTRs;
@@ -95,7 +103,7 @@ for F=g_noMW_combined_L
 	% for each timepoint
 	for fr=1:lenOpFl
 		% current vector field
-		relVf_L=vfl{fr};
+		relVf_L=vfl(:,fr,:);
 		% xyz components
         	xComp_L=relVf_L(F,1);
         	yComp_L=relVf_L(F,2);
@@ -119,7 +127,7 @@ for F=g_noMW_combined_R
 	% for each timepoint
 	for fr=1:lenOpFl
 		% current vector field
-		relVf_R=vfr{fr};
+		relVf_R=vfr(:,fr,:);
 		% xyz components
 		xComp_R=relVf_R(F,1);
 		yComp_R=relVf_R(F,2);
@@ -155,45 +163,58 @@ Dnet_RH=networks.nets.Rnets(:,1);
 for k=1:4
 	nets_LH=networks.nets.Lnets(:,k);
 	nets_RH=networks.nets.Rnets(:,k);
-	% create face-wise network mask
+	% create face-wise network mask: note these are NOT DMN for this script specifically, it is network k
 	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
 	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
-	DMN_bool_L(DMN_bool_L>.3)=1;
-	DMN_bool_R(DMN_bool_R>.3)=1;
-	DMN_bool_L(DMN_bool_L<.3)=0;
-	DMN_bool_R(DMN_bool_R<.3)=0;
+	DMN_bool_L(DMN_bool_L>.1)=1;
+	DMN_bool_R(DMN_bool_R>.1)=1;
+	DMN_bool_L(DMN_bool_L<.1)=0;
+	DMN_bool_R(DMN_bool_R<.1)=0;
 	DMN_bool_L=logical(DMN_bool_L);
 	DMN_bool_R=logical(DMN_bool_R);
-	% combine with medial wall mask
+	% combine with medial wall mask: CHIGGITY CHECK YOURSELF BEFORE YOU WRECK YOURSELF
 	MasterMask_L=DMN_bool_L;
 	MasterMask_R=DMN_bool_R;
 	MasterMask_L(fmwIndVec_l)=0;
 	MasterMask_R(fmwIndVec_r)=0;
 	% save out for de-masking later
-	writematrix(MasterMask_L,['~/MasterMask_L_' num2str(k) '.csv'])
-	writematrix(MasterMask_R,['~/MasterMask_R_' num2str(k) '.csv'])
+	writematrix(MasterMask_L,['~/MasterMask_L_' num2str(k) '_task.csv'])
+	writematrix(MasterMask_R,['~/MasterMask_R_' num2str(k) '_task.csv'])
 	% initialize matrix for each face over each of k=4 networks to saveout to scratch
 	faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
         % network of interest
-        n_LH=Dnet_LH;
-        n_RH=Dnet_RH;
+        n_LH=nets_LH;
+        n_RH=nets_RH;
         % calculate network gradients on sphere
         ng_L = grad(F_L, V_L, n_LH);
         ng_R = grad(F_R, V_R, n_RH);
+	% convert both back to vertices for angular comparisons
+	vertwise_grad_L=zeros(2562,3);
+	vertwise_grad_R=zeros(2562,3);
+	% for each vertex, grab adjacent face values and merge em
+	for v=1:2562
+		[InvolvedFaces_l,~]=find(faces_l==v);
+		[InvolvedFaces_r,~]=find(faces_r==v);
+		vertwise_grad_L(v,:)=mean(ng_L(InvolvedFaces_l,:),1);
+		vertwise_grad_R(v,:)=mean(ng_R(InvolvedFaces_r,:),1);
+	end
         % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        ng_L=ng_L(MasterMask_L,:);
-        ng_R=ng_R(MasterMask_R,:);
+        %ng_L=ng_L(MasterMask_L,:);
+        %ng_R=ng_R(MasterMask_R,:);
         % get NA vertices
-        sumLeft=sum(ng_L,2);
-        sumRight=sum(ng_R,2);
+        sumLeft=sum(vertwise_grad_L,2);
+        sumRight=sum(vertwise_grad_R,2);
         % finds 0s in left and right network gradients - this is redundant/a backup but functionally inert at the moment
         emptyLeft=find(~sumLeft);
         emptyRight=find(~sumRight);
         InclLeft=find(sumLeft);
         InclRight=find(sumRight);
-        % note InclLeft and Right presume mw mask already applied!	
+        % adaptation for vertex-wise: medial wall masking to occur later
+	InclLeft=1:2562;
+	InclRight=1:2562;
+	% note InclLeft and Right presume mw mask already applied!	
 	% save InclLeft and Right to a reference .mat
-	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors.mat'], 'InclLeft', 'InclRight');
+	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors_task.mat'], 'InclLeft', 'InclRight');
 
         % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
         %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
@@ -302,7 +323,7 @@ for k=1:4
 	AngDist.Right=NangDs_R;
 	% calc outFP
 	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-	AngDistFP=[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_AngDistMat.mat'];
+	AngDistFP=[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_AngDistMat_task.mat'];
 	save(AngDistFP,'AngDist')
 	% average left-hemisphere values over time and plop into facematrix for this participant
         faceMatrix(InclLeft,k)=mean(NangDs_L,2);
@@ -320,10 +341,10 @@ for k=1:4
 	% save out as csv
 	T=table(Propvec','RowNames',stringVec);
 	% write out
-	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
+	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro_task.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_k' num2str(k) '_faceMatrix_gro.csv'])
+	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_k' num2str(k) '_faceMatrix_gro_task.csv'])
 	% save out time series
-	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L.csv'])
-	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R.csv'])
+	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L_task.csv'])
+	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R_task.csv'])
 end
