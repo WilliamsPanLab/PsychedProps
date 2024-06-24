@@ -7,7 +7,7 @@ destination_folder="/scratch/users/apines/p50_mice/forTransfer"
 declare -A pre_counts
 
 # Iterate over the source directories and find the .h5 files
-for filepath in /scratch/users/apines/p50_mice/proc/*/*pre*_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5; do
+for filepath in /scratch/users/apines/p50_mice/proc/20200228/*postLSD*/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5; do
     # Extract the mouse ID from the filepath
     mouse_id=$(echo $filepath | grep -oP 'm[0-9]+')
     echo $mouse_id
@@ -19,7 +19,7 @@ for filepath in /scratch/users/apines/p50_mice/proc/*/*pre*_1/masked_dff_Gro_Mas
     fi
 
     # Determine the new filename
-    new_filename="${mouse_id}_pre${pre_counts[$mouse_id]}.h5"
+    new_filename="${mouse_id}_post${pre_counts[$mouse_id]}.h5"
 
     # Move the file to the destination folder with the new name
     cp "$filepath" "$destination_folder/$new_filename"

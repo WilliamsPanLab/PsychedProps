@@ -184,14 +184,13 @@ for k=1
 	InclLeft=1:2562;
 	InclRight=1:2562;
         
-	% extract face-wise vector cartesian vector components
-
-        nx_L=ng_L(InclLeft,1);
-        ny_L=ng_L(InclLeft,2);
-        nz_L=ng_L(InclLeft,3);
-        nx_R=ng_R(InclRight,1);
-        ny_R=ng_R(InclRight,2);
-        nz_R=ng_R(InclRight,3);
+	% extract vertex-wise vector cartesian vector components
+        nx_L=vertwise_grad_L(InclLeft,1);
+        ny_L=vertwise_grad_L(InclLeft,2);
+        nz_L=vertwise_grad_L(InclLeft,3);
+        nx_R=vertwise_grad_R(InclRight,1);
+        ny_R=vertwise_grad_R(InclRight,2);
+        nz_R=vertwise_grad_R(InclRight,3);
 
         % translate xyz spherical coordinates to az/el/r
         % get spherical coordinates (az/el/r, r equal in sphere) relevant to this network
