@@ -43,6 +43,8 @@ for v=1:2562
 	% initialize vertex output, Left and Right
 	vertValsL=[];
 	vertValsR=[];
+
+	%%%% WILL NEED TO RESTRUCTURE THIS LOOP TO WORK WITH HETEROGENEITY OF SESSION AND SCAN # IN PSIL
 	% for each task
 	for tasks=["rs1" "rs2" "wm"]
 		task=char(tasks);
@@ -96,7 +98,7 @@ for v=1:2562
 	if mw_L(v)==0;
 		% saveout long df for this vertex, left
 		vertTableL = cell2table(vertTableL, 'VariableNames', {'Subject', 'Session', 'Task', 'Value'});
-		filename=['/scratch/users/apines/taskVerts/v' num2str(v) '_L.csv'];
+		filename=['/scratch/users/apines/taskVerts/v' num2str(v) '_psil_L.csv'];
 		writetable(vertTableL,filename);
 	else
 	end
@@ -104,7 +106,7 @@ for v=1:2562
 	if mw_R(v)==0;
 		% saveout long df for this vertex, left
                 vertTableR = cell2table(vertTableR, 'VariableNames', {'Subject', 'Session', 'Task', 'Value'});
-		filename=['/scratch/users/apines/taskVerts/v' num2str(v) '_R.csv'];
+		filename=['/scratch/users/apines/taskVerts/v' num2str(v) '_psil_R.csv'];
                 writetable(vertTableR,filename);
         else
         end

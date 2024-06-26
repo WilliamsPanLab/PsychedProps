@@ -10,22 +10,32 @@ surfR = [SubjectsFolder '/rh.sphere'];
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
 % +1 the faces: begins indexing at 0
-faces_l = faces_l + 1;
-faces_r = faces_r + 1;
+%faces_l = faces_l + 1;
+%faces_r = faces_r + 1;
 % faces_L
-F_L=faces_l;
+%F_L=faces_l;
 % vertices V
-V_L=vx_l;
+%V_L=vx_l;
 % faces_R
-F_R=faces_r;
+%F_R=faces_r;
 % vertices V
-V_R=vx_r;
+%V_R=vx_r;
 
 % use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
+%surfML = [SubjectsFolder '/lh.Medial_wall.label'];
+%mwIndVec_l = read_medial_wall_label(surfML);
+%surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
+%mwIndVec_r = read_medial_wall_label(surfMR);
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
+mw_L=zeros(1,2562);
+mw_L(mwAndTSNR_L>0)=1;
+mw_R=zeros(1,2562);
+mw_R(mwAndTSNR_R>0)=1;
+mwIndVec_l=find(mw_L);
+mwIndVec_r=find(mw_R);
 % make binary "is medial wall" vector for vertices
 mw_L=zeros(1,2562);
 mw_L(mwIndVec_l)=1;
@@ -35,6 +45,7 @@ mw_R(mwIndVec_r)=1;
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=VertVecL;
 data(mwIndVec_l)=0;
+
 %%%%%%% fixed colorscale varities
 
 %%% circular
@@ -47,13 +58,16 @@ maxcol=.225;
 mincol=0;
 maxcol=1;
 % for t-stats
-mincol=-8;
-maxcol=8;
+mincol=-9;
+maxcol=9;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
 custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
+grayColor = [0.7, 0.7, 0.7];  % Define gray color
+% Add gray color to the colormap
+custommap = [custommap; grayColor];
 %custommap(126,:)=[.5 .5 .5];
 %custommap=colormap(jet);
 
@@ -116,8 +130,53 @@ custommap=colormap(b2r(mincol,maxcol));
 % mw to black
 %custommap(1,:)=[0 0 0];
 
-figure
+%%%%%%% THIS TRICK IS TO ADD IN THE GRADIENT OF THE SMOOTH DMN ONTO THE INFLATED SURFACE
+% load in left cortical surface
+% add lukas lang functions
+addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/lukaslang-ofd-614a2ffc50d6'))
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
+F_L=faces;
+V_L=vertices;
+% LOAD IN DMN STUFF
+network=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/Smooth_Nets_fs4.mat']);
+n_LH=network.nets.Lnets(:,1);
+n_RH=network.nets.Rnets(:,1);
+% calculate network gradients on sphere
+ng_L = grad(F_L, V_L, n_LH);
+% convert both back to vertices for angular comparisons
+vertwise_grad_L=zeros(2562,3);
+% for each vertex, grab adjacent face values and merge em
+for v=1:2562
+	[InvolvedFaces_l,~]=find(F_L==v);
+	vertwise_grad_L(v,:)=mean(ng_L(InvolvedFaces_l,:),1);
+end
+% ORTHOGONALIZE TO SURFACE OF INFLATED
+ret=vertwise_grad_L;
+% for each vector, subtract weighted surface-orthogonal component from original vector
+for v=1:length(vertices)
+        % retrieve original vector
+        OGvec=ret(v,:);
+        % find the three faces involved in this vertex 
+        [InvolvedFaces,~]=find(faces==v);
+        % get normal vectors of each involved face
+        normalVectors = cross(vertices(faces(InvolvedFaces, 2), :) - vertices(faces(InvolvedFaces, 1), :), vertices(faces(InvolvedFaces, 3), :) - vertices(faces(InvolvedFaces, 1), :));
+        % find vector as close as possible to orthogonal from these three faces
+        meanNormalVector = mean(normalVectors, 1);
+        % normalize normal vector
+        meanNormalVector=VecNormalize(meanNormalVector);
+        % get dot product of orthogonal vector and original vector
+        OGvecOrthogonal = dot(OGvec, meanNormalVector) * meanNormalVector;
+        % subtract orthogonal component of original vector from original vector
+        modVec = OGvec - OGvecOrthogonal;;
+        % add modified vector to initialized matrix
+        ret(v,:)=modVec;
+end
+% normalize vectors for equal length
+ret=VecNormalize(ret);
+ret(mwIndVec_l,:)=0;
+%%% END ORTHOGONALIZATION OF LEFT DMN GRAD TO INFLATED SURFACE
+
+figure
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
@@ -132,12 +191,15 @@ camlight;
 	alpha(1)
 
 set(gca,'CLim',[mincol,maxcol]);
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -157,16 +219,55 @@ set(gca,'CLim',[mincol,maxcol]);
 
 
 %%% right hemisphere
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
+V_R=vertices;
+F_R=faces;
+
 data=VertVecR;
 data(mwIndVec_r)=0;
+% calculate network gradients on sphere
+ng_R = grad(F_R, V_R, n_RH);
+% convert both back to vertices for angular comparisons
+vertwise_grad_R=zeros(2562,3);
+% for each vertex, grab adjacent face values and merge em
+for v=1:2562
+        [InvolvedFaces_r,~]=find(F_R==v);
+        vertwise_grad_R(v,:)=mean(ng_R(InvolvedFaces_r,:),1);
+end
+% ORTHOGONALIZE TO SURFACE OF INFLATED
+ret=vertwise_grad_R;
+% for each vector, subtract weighted surface-orthogonal component from original vector
+for v=1:length(vertices)
+        % retrieve original vector
+        OGvec=ret(v,:);
+        % find the three faces involved in this vertex 
+        [InvolvedFaces,~]=find(faces==v);
+        % get normal vectors of each involved face
+        normalVectors = cross(vertices(faces(InvolvedFaces, 2), :) - vertices(faces(InvolvedFaces, 1), :), vertices(faces(InvolvedFaces, 3), :) - vertices(faces(InvolvedFaces, 1), :));
+        % find vector as close as possible to orthogonal from these three faces
+        meanNormalVector = mean(normalVectors, 1);
+        % normalize normal vector
+        meanNormalVector=VecNormalize(meanNormalVector);
+        % get dot product of orthogonal vector and original vector
+        OGvecOrthogonal = dot(OGvec, meanNormalVector) * meanNormalVector;
+        % subtract orthogonal component of original vector from original vector
+        modVec = OGvec - OGvecOrthogonal;;
+        % add modified vector to initialized matrix
+        ret(v,:)=modVec;
+end
+% normalize vectors for equal length
+ret=VecNormalize(ret);
+ret(mwIndVec_r,:)=0;
+
 %mincol=min(data);
 %maxcol=max(data);
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+bplot = quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -186,6 +287,7 @@ set(gca,'CLim',[mincol,maxcol]);
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 colormap(custommap)
 caxis([mincol; maxcol]);
@@ -204,10 +306,10 @@ set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
-colorbar
-c=colorbar
-c.Location='southoutside'
+%colorbar
+%c=colorbar
+%c.Location='southoutside'
 
 colormap(custommap)
 
-print(Fn,'-dpng')
+print(Fn,'-dpng','-r800')

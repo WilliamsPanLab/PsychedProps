@@ -33,7 +33,7 @@ for (v in 1:2562){
 		# load in data for this vertex
 		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
-		dataV <- dataV[seq(1, nrow(dataV), by = 2), ]
+		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
 		# convert task
 		dataV$Task[dataV$Task=='rs1']='rs'
 		# combine with subjinfo
@@ -47,6 +47,7 @@ for (v in 1:2562){
 		#mismatchedRows <- combinedData[combinedData$key %in% mismatchedKeys, ]
 		# set rs1 and rs2 to equivalent
 		combinedData$Task[combinedData$Task=='rs2']='rs'
+		combinedData$Task<-as.factor(combinedData$Task)
 		# fit model
 		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
 		modeltable=summary(model)$tTable
@@ -63,12 +64,13 @@ for (v in 1:2562){
                 # load in data for this vertex
                 dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
-		dataV <- dataV[seq(1, nrow(dataV), by = 2), ]
+		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
                 # convert task
                 dataV$Task[dataV$Task=='rs1']='rs'
                 # combine with subjinfo
                 combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
                 combinedData$Task[combinedData$Task=='rs2']='rs'
+		combinedData$Task<-as.factor(combinedData$Task)
                 # fit model
                 model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
                 modeltable=summary(model)$tTable

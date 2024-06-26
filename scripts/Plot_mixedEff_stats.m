@@ -16,9 +16,9 @@ mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
-mw_L(mwAndTSNR_L==1)=1;
+mw_L(mwAndTSNR_L>0)=1;
 mw_R=zeros(1,2562);
-mw_R(mwAndTSNR_R==1)=1;
+mw_R(mwAndTSNR_R>0)=1;
 vmwIndVec_l=find(mw_L);
 vmwIndVec_r=find(mw_R);
 % make medial wall vector: vertices
