@@ -14,4 +14,4 @@
 #cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/
 # will need matlab
 module load matlab
-matlab -nodisplay -r "Task_mats_to_csv_DES"
+matlab -nodisplay -r "Task_mats_to_csv_psil"

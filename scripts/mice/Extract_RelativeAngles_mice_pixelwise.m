@@ -45,14 +45,14 @@ Mask=Mask';
 % get size of mask and indices to include
 MaskSize=sum(sum(Mask));
 MaskInds=find(Mask);
-
 % extract size of time series
 NumTRs=size(vf);
 NumTRs=NumTRs(3);
 lenOpFl=NumTRs;
 
 % and an "over time" version of the mask to apply to the time series
-fullMask = repmat(Mask, [1, 1, lenOpFl]);
+% fullMask = repmat(Mask, [1, 1, lenOpFl]);
+% NOT FOR PIXELWISE
 
 % initialize out dataframes
 Propvec=[];
@@ -70,10 +70,6 @@ end
 % convert from radians to degrees
 %azd_L=rad2deg(az_L);
 %eld_L=rad2deg(el_L);
-
-% mask out angles
-OpF_x(~fullMask)=0;
-OpF_y(~fullMask)=0;
 
 %%%%%%%%%%%%%%%%%%%% Code to plot stuff currently loaded in to make sure it is lined up
 % print out OpFl Vectors from tp 1, mask, masked vectors to confirm alignment
@@ -171,116 +167,58 @@ for k=1
 	% looks good, commenting out for now
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	% calculate network gradients on sphere
-        %ng_L = grad(F_L, V_L, n_LH);
-        % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        % use DMN < .3 as mask
-	nGx=nGx(DMN_bool);
-	nGy=nGy(DMN_bool);
-        
-	%nx_L=ng_L(InclLeft,1);
-        %ny_L=ng_L(InclLeft,2);
-
-        % translate xyz vector components at coordinates to az/el/r
-        %nazes_L=zeros(length(az_L_n),1);
-        %nels_L=zeros(length(el_L_n),1);
-        %for i=1:length(az_L_n)
-        %    nvs_L=cart2sphvec(double([nx_L(i);ny_L(i);nz_L(i)]),az_L_n(i),el_L_n(i));
-        %    nazes_L(i)=nvs_L(1);
-        %    nels_L(i)=nvs_L(2);
-        %end
-
         % initialize angular distance vector for each network (l and r) above
-        NangDs=zeros(sum(sum(DMN_bool)),lenOpFl);
-	% initialize circ SD vectors
-	SDs=zeros(1,sum(sum(DMN_bool)));
-	Thetas=zeros(1,lenOpFl);
-	Mags=zeros(1,lenOpFl);
+        NangDs=zeros(size(net,1),size(net,2),lenOpFl);
 	% get angular distance for each face for each timepoint
-        for F=1:length(nGx);
-                % get vector for each face (network vector)
-                nVec=[nGx(F) nGy(F)];
-                % loop over each tp
-                for fr=1:lenOpFl
-			% pull out optical flow vectors for this pixel (denoted by F, because it represents faces in human workflow)
-			curOpF_x=OpF_x(:,:,fr);
-			curOpF_y=OpF_y(:,:,fr);
-			curOpF_x_DMN=curOpF_x(DMN_bool);
-			curOpF_y_DMN=curOpF_y(DMN_bool);
-                        % get optical flow vector
-                        OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
-			% store in output vector (r is redundant across all vecs, only using az and el)
-			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
-			
-			% get angular distance at that timepoint (degrees)
-                        a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
+	% for each x and y (will be redundant because of symmetry of x y iterations)
+        for X=1:size(net,1);
+		for Y=1:size(net,2);
+                	% get vector for each face (network vector)
+                	nVec=[nGx(X,Y) nGy(X,Y)];
+                	% loop over each tp
+                	for fr=1:lenOpFl
+				% pull out optical flow vectors for this pixel (denoted by F, because it represents faces in human workflow)
+				curOpF_x=OpF_x(X,Y,fr);
+				curOpF_y=OpF_y(X,Y,fr);
+                	        % get optical flow vector
+                	        OpFlVec=[curOpF_x curOpF_y];
+				% if in valid pixel
+				if sum(OpFlVec)~=0;
+					% get angular distance at that timepoint (degrees)
+                	        	a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         
-			% Calculate angles from the origin to each vector using atan2
-        		%theta_nVec = atan2(nVec(2), nVec(1));
-        		%theta_OpFlVec = atan2(OpFlVec(2), OpFlVec(1));
-			% angular distance in radians
-			%angular_distance_rad = abs(theta_OpFlVec - theta_nVec);
-			% convert the angular distance from radians to degrees and normalize to [0, 180]
-        		%a = rad2deg(angular_distance_rad);
-        		%a = min(a, 360 - a);
-		
-			%https://www.mathworks.com/matlabcentral/answers/101590-how-can-i-determine-the-angle-between-two-vectors-in-matlab	
-			%a=atan2(norm(cross(OpFlVec,nVec)),dot(OpFlVec,nVec));
-			
-			% These two lines are working!
-			%CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
-			%a = real(acosd(CosTheta));
-	
-			% populate vector
-                        NangDs(F,fr)=a;
-			%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
-			%fig=figure('Visible','off');
-			% Plot the reference vector (assuming nVec is already defined in your workspace)
-			%quiver(0, 0, nVec(1), nVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'k', 'DisplayName', 'Reference Vector');
-			%hold on;
-			% optical flow vectors
-			%quiver(0, 0, OpFlVec(1), OpFlVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'r', 'DisplayName', 'Optical Flow Vector');
-			%legend show;
-			%title(sprintf('Angular Distance: %.2f degrees', a));
-			%axis equal;
-			%xlim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
-			%ylim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
-			% Plot the optical flow vector
-			%saveas(fig, ['~/vector_plot' num2str(fr) '.png']);
-			%%%% Seems to work, commenting out
+					% populate vector
+                        		NangDs(X,Y,fr)=a;
+					%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
+					%fig=figure('Visible','off');
+					% Plot the reference vector (assuming nVec is already defined in your workspace)
+					%quiver(0, 0, nVec(1), nVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'k', 'DisplayName', 'Reference Vector');
+					%hold on;
+					% optical flow vectors
+					%quiver(0, 0, OpFlVec(1), OpFlVec(2), 'LineWidth', 2, 'MaxHeadSize', 0.5, 'Color', 'r', 'DisplayName', 'Optical Flow Vector');
+					%legend show;
+					%title(sprintf('Angular Distance: %.2f degrees', a));
+					%axis equal;
+					%xlim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+					%ylim([-max(abs([nVec, OpFlVec]))*1.5, max(abs([nVec, OpFlVec]))*1.5]);
+					% Plot the optical flow vector
+					%saveas(fig, ['~/vector_plot' num2str(fr) '.png']);
+					%%%% Seems to work, commenting out
+				else
+				end
 
-                % end tp loop
-                end
-		% get circ SD
-		%CSD=circ_std(Thetas');
-        	% plop into outut vector for left hemi
-		%SD(F)=CSD;
-	% end each face loop
-        end
+                	% end tp loop
+                	end
+		% end each y
+		end
+	% end each x
+	end
         % average values over time and plop into facematrix for this participant
-        faceMatrix(DMN_bool)=mean(NangDs,2);
-        % and time series population
-	OutTs=NangDs;
-	% average angular distances across hemispheres
-        avgD=mean(mean(NangDs));
-	% 6/8/24: replacing with percentage for attempt at clearer presentation of results
-	% num points
-	sizeOutput=size(NangDs);
-	numPoints=sizeOutput(1)*sizeOutput(2);
-        percBUP=length(NangDs(NangDs<90))/(numPoints);
-        Propvec=[Propvec percBUP];
-        % add label
-        stringVec=[stringVec ['AngD_1']];
-	% save out as csv
-	T=table(Propvec,'RowNames',stringVec);
+        faceMatrix=NangDs;
 	% calc outFP
 	outFP=['/scratch/users/apines/data/mouse/'];
-	% write out
-	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro.csv'])
-	% save out time series
-	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
+	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro_pixelwise.csv'])
 end
 else
 	disp('file not found')

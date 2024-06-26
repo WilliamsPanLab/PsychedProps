@@ -9,8 +9,9 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % get subj list
-subjPrefix=repmat('sub-MDMA0',17,1);
-subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17"];
+% get subj list
+subjPrefix=repmat('PS',11,1);
+subjSuffix=["02","03","16","18","19","21","24","93","96","98","99"];
 subjList=strcat(subjPrefix,subjSuffix')
 
 % load in FD,remTRs from an R export?
@@ -44,52 +45,78 @@ for v=1:2562
 	vertValsL=[];
 	vertValsR=[];
 
-	%%%% WILL NEED TO RESTRUCTURE THIS LOOP TO WORK WITH HETEROGENEITY OF SESSION AND SCAN # IN PSIL
-	% for each task
-	for tasks=["rs1" "rs2" "wm"]
+	% for each "task"
+	for tasks=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		task=char(tasks);
-		% for each subject (not 4, 6, or 10)
-		for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
-			subj=subjList{s};
-			inFP=['/scratch/users/apines/data/mdma/' subj '/'];
-		 	ses01fp=[inFP '/ses-01/' subj '_ses-01_' task '_k1_AngDistMat_task.mat'];
-		 	if exist(ses01fp,'file')
-				subjVals01=load(ses01fp);
-				% extract this vertex for each timepoint - left
-				valuesL01=subjVals01.AngDist.Left(v,:);
-				% extract this vertex for each timepoint - right
-				valuesR01=subjVals01.AngDist.Right(v,:);
-				% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns	
-				vertTableL = [vertTableL; repmat({subj, 'ses-01', task}, size(valuesL01, 2), 1), num2cell(valuesL01)'];
-				vertTableR = [vertTableR; repmat({subj, 'ses-01', task}, size(valuesR01, 2), 1), num2cell(valuesR01)'];
-			else
+		% for each subj except 2
+        	for s=[2 3 4 5 6 7 8 9 10 11];
+                	disp(s)
+			subj=cellstr(subjList(s));	
+			inFP=['/scratch/users/apines/data/psil/' subj '/'];
+			% for up to 8 iterations
+			for i=1:8
+				subj=subjList(s);	
+		 		% baseline
+				bvFP=[inFP '/Baseline' num2str(i) '/' subj '_Baseline' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+				bvFP=strjoin(bvFP,'');
+				if exist(bvFP,'file')
+					subjValsBV=load(bvFP);
+                                	% extract this vertex for each timepoint - left
+                                	valuesLBV=subjValsBV.AngDist.Left(v,:);
+                                	% extract this vertex for each timepoint - right
+                                	valuesRBV=subjValsBV.AngDist.Right(v,:);
+                                	% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
+                                	vertTableL = [vertTableL; repmat({subj, 'Baseline', task}, size(valuesLBV, 2), 1), num2cell(valuesLBV)'];
+                                	vertTableR = [vertTableR; repmat({subj, 'Baseline', task}, size(valuesRBV, 2), 1), num2cell(valuesRBV)'];
+				else
+				end
+				% between
+                                bwFP=[inFP '/Between' num2str(i) '/' subj '_Between' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+                                bwFP=strjoin(bvFP,'');
+                                if exist(bwFP,'file')
+                                        subjValsBW=load(bwFP);
+                                        % extract this vertex for each timepoint - left
+                                        valuesLBW=subjValsBW.AngDist.Left(v,:);
+                                        % extract this vertex for each timepoint - right
+                                        valuesRBW=subjValsBW.AngDist.Right(v,:);
+                                        % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
+                                        vertTableL = [vertTableL; repmat({subj, 'Between', task}, size(valuesLBW, 2), 1), num2cell(valuesLBW)'];
+                                        vertTableR = [vertTableR; repmat({subj, 'Between', task}, size(valuesRBW, 2), 1), num2cell(valuesRBW)'];
+                                else
+                                end
+				% after
+                                aFP=[inFP '/After' num2str(i) '/' subj '_After' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+                                aFP=strjoin(aFP,'');
+                                if exist(aFP,'file')
+                                        subjValsa=load(aFP);
+                                        % extract this vertex for each timepoint - left
+                                        valuesLa=subjValsa.AngDist.Left(v,:);
+                                        % extract this vertex for each timepoint - right
+                                        valuesRa=subjValsa.AngDist.Right(v,:);
+                                        % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
+                                        vertTableL = [vertTableL; repmat({subj, 'After', task}, size(valuesLa, 2), 1), num2cell(valuesLa)'];
+                                        vertTableR = [vertTableR; repmat({subj, 'After', task}, size(valuesRa, 2), 1), num2cell(valuesRa)'];
+                                else
+                                end
+				% drug
+                                dFP=[inFP '/Drug' num2str(i) '/' subj '_Drug' task '_k1_AngDistMat_task.mat'];
+                                dFP=strjoin(dFP,'');
+                                if exist(dFP,'file')
+                                        subjValsd=load(dFP);
+                                        % extract this vertex for each timepoint - left
+                                        valuesLd=subjValsd.AngDist.Left(v,:);
+                                        % extract this vertex for each timepoint - right
+                                        valuesRd=subjValsd.AngDist.Right(v,:);
+					% NEED TO RECORD DRUG 1 OR 2 FOR DECODING LATER WITH R OUTPUT
+					seshstring=['Drug' num2str(i)];
+					seshstring=strjoin(seshstring,'');
+                                        % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
+                                        vertTableL = [vertTableL; repmat({subj, seshstring, task}, size(valuesLd, 2), 1), num2cell(valuesLd)'];
+                                        vertTableR = [vertTableR; repmat({subj, seshstring, task}, size(valuesRd, 2), 1), num2cell(valuesRd)'];
+                                else
+                                end
+			% end for each iteration
 			end
-			% session 2
-			ses02fp=[inFP '/ses-02/' subj '_ses-02_' task '_k1_AngDistMat_task.mat'];
-			if exist(ses02fp,'file')
-				subjVals02=load(ses02fp);
-		 		% extract this vertex for each timepoint - left
-                                valuesL02=subjVals02.AngDist.Left(v,:);
-                                % extract this vertex for each timepoint - right
-                                valuesR02=subjVals02.AngDist.Right(v,:);
-                                % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
-                                vertTableL = [vertTableL; repmat({subj, 'ses-02', task}, size(valuesL02, 2), 1), num2cell(valuesL02)'];
-                                vertTableR = [vertTableR; repmat({subj, 'ses-02', task}, size(valuesR02, 2), 1), num2cell(valuesR02)'];	
-			else
-			end
-			% session 3
-			ses03fp=[inFP '/ses-03/' subj '_ses-03_' task '_k1_AngDistMat_task.mat'];
-			if exist(ses03fp,'file')
-				subjVals03=load(ses03fp);
-				% extract this vertex for each timepoint - left
-                                valuesL03=subjVals03.AngDist.Left(v,:);
-                                % extract this vertex for each timepoint - right
-                                valuesR03=subjVals03.AngDist.Right(v,:);
-                                % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
-                                vertTableL = [vertTableL; repmat({subj, 'ses-03', task}, size(valuesL03, 2), 1), num2cell(valuesL03)'];
-                                vertTableR = [vertTableR; repmat({subj, 'ses-03', task}, size(valuesR03, 2), 1), num2cell(valuesR03)'];
-                        else
-                        end
 		% end for each subject
 		end
 	% end for each task

@@ -33,16 +33,16 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			% populate subject name column
 			SubjNameCol((s+(i*11))-11)=cellstr(subjList(s));
 	        	% grab baseline
-			bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_k4_Prop_Feats_gro.csv'];
+			bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	bvFP=strjoin(bvFP,'');
 			% p = between
-			pFP=[commonFP subjList(s) '/Between' num2str(i)  '/' subjList(s) '_Between' num2str(i) '_' task '_k4_Prop_Feats_gro.csv'];
+			pFP=[commonFP subjList(s) '/Between' num2str(i)  '/' subjList(s) '_Between' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	pFP=strjoin(pFP,'');
 			% m1 = after
-	        	m1FP=[commonFP subjList(s) '/After' num2str(i) '/' subjList(s) '_After' num2str(i) '_' task '_k4_Prop_Feats_gro.csv'];
+	        	m1FP=[commonFP subjList(s) '/After' num2str(i) '/' subjList(s) '_After' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	m1FP=strjoin(m1FP,'');
 			% m2 = drug (to be decoded post-hoc in r)
-	        	m2FP=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_' task '_k4_Prop_Feats_gro.csv'];
+	        	m2FP=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	m2FP=strjoin(m2FP,'');
 			% load in baseline csvs
 			if exist(bvFP,'file')

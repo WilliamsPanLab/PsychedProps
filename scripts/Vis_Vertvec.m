@@ -58,16 +58,16 @@ maxcol=.225;
 mincol=0;
 maxcol=1;
 % for t-stats
-mincol=-9;
-maxcol=9;
+  %mincol=-9;
+  %maxcol=9;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
 custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-grayColor = [0.7, 0.7, 0.7];  % Define gray color
+  %grayColor = [0.7, 0.7, 0.7];  % Define gray color
 % Add gray color to the colormap
-custommap = [custommap; grayColor];
+   %custommap = [custommap; grayColor];
 %custommap(126,:)=[.5 .5 .5];
 %custommap=colormap(jet);
 
@@ -312,4 +312,4 @@ set(gca,'CLim',[mincol,maxcol]);
 
 colormap(custommap)
 
-print(Fn,'-dpng','-r800')
+print(Fn,'-dpng','-r300')

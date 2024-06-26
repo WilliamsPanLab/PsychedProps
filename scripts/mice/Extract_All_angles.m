@@ -9,7 +9,7 @@ for i=1:length(mList)
 	m=mList{i}
 	% for each run
 	for r=1:6
-		Extract_RelativeAngles_mice(m,r)
+		Extract_RelativeAngles_mice_pixelwise(m,r)
 	end
 end
 disp('donezo')

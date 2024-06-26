@@ -18,7 +18,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	% for each subj except 4 6 10
 	for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 		disp(s)
-	        % get session info
+	        % get session info NOTE K4 HAS ALL 4 VALUES, K1 has INTENDED VALUE AS WELL
 	        seshInfo=subSeshDose{s,2:5};
 	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_k4_Prop_Feats_gro.csv'];
 	        bvFP=strjoin(bvFP,'');
