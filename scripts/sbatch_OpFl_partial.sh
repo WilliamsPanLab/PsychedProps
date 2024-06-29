@@ -89,7 +89,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs1')"
 matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs2')"
 matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','wm')"
-
+matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','gambling')"
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs2')"

@@ -1,9 +1,9 @@
 # needed libraries
 library(nlme)
 # load in info from R
-subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_MDMA.rds')
+subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_psil.rds')
 # convert subjinfo to format of vertexwise csvs
-subjInfo=subjInfo[,c('Subjects','Task','Session','Drug','MeanFD','RemTRs')]
+subjInfo=subjInfo[,c('Subjects','Task','Session','Drug','FD','RemTRs')]
 colnames(subjInfo)[1]='Subject'
 subjInfo$Task=as.factor(subjInfo$Task)
 subjInfo$Subject=as.factor(subjInfo$Subject)
@@ -29,14 +29,12 @@ DrugTaskp_R=rep(0,2562)
 for (v in 1:2562){
 	print(v)
 	# if file exists: left
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))){
+	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_L.csv'))){
 		# load in data for this vertex
-		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))
+		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_L.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
 		# not applicable for single-value-per-scan measures
 		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
-		# convert task
-		dataV$Task[dataV$Task=='rs1']='rs'
 		# combine with subjinfo
 		combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
 		# temp: test if there are any rows in combined data not represented in subjInfo (those that passed QC)
@@ -46,26 +44,19 @@ for (v in 1:2562){
 		#mismatchedKeys <- setdiff(combinedData$key, subjInfo$key)
 		# Subset the mismatched rows
 		#mismatchedRows <- combinedData[combinedData$key %in% mismatchedKeys, ]
-		# set rs1 and rs2 to equivalent
-		combinedData$Task[combinedData$Task=='rs2']='rs'
-		combinedData$Task<-as.factor(combinedData$Task)
 		# fit model
 		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
 		modeltable=summary(model)$tTable
 		# print out stats
 		DrugT_L[v]=modeltable['Drug1','t-value']
 		Drugp_L[v]=modeltable['Drug1','p-value']
-		TaskT_L[v]=modeltable['Taskwm','t-value']
-		Taskp_L[v]=modeltable['Taskwm','p-value']
-		DrugTaskT_L[v]=modeltable['Drug1:Taskwm','t-value']
-		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','p-value']
 	}
 	# if right file exists
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))){
+	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_R.csv'))){
                 # load in data for this vertex
-                dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))
+                dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_R.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
-		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
+		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
                 # convert task
                 dataV$Task[dataV$Task=='rs1']='rs'
                 # combine with subjinfo
@@ -78,10 +69,6 @@ for (v in 1:2562){
                 # print out stats
                 DrugT_R[v]=modeltable['Drug1','t-value']
                 Drugp_R[v]=modeltable['Drug1','p-value']
-                TaskT_R[v]=modeltable['Taskwm','t-value']
-                Taskp_R[v]=modeltable['Taskwm','p-value']
-                DrugTaskT_R[v]=modeltable['Drug1:Taskwm','t-value']
-                DrugTaskp_R[v]=modeltable['Drug1:Taskwm','p-value']
 	}
 # end for each vertex
 }

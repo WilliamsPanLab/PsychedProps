@@ -48,9 +48,10 @@ for v=1:2562
 		 	if exist(ses01fp,'file')
 				subjVals01=load(ses01fp);
 				% extract this vertex for each timepoint - left
-				valuesL01=subjVals01.AngDist.Left(v,:);
+				% updated 6/28/24 to be mean
+				valuesL01=mean(subjVals01.AngDist.Left(v,:));
 				% extract this vertex for each timepoint - right
-				valuesR01=subjVals01.AngDist.Right(v,:);
+				valuesR01=mean(subjVals01.AngDist.Right(v,:));
 				% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns	
 				vertTableL = [vertTableL; repmat({subj, 'ses-BL', task}, size(valuesL01, 2), 1), num2cell(valuesL01)'];
 				vertTableR = [vertTableR; repmat({subj, 'ses-BL', task}, size(valuesR01, 2), 1), num2cell(valuesR01)'];

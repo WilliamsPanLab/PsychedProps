@@ -1,44 +1,44 @@
 # needed libraries
 library(nlme)
 # load in info from R
-subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_MDMA.rds')
+# will need mean FD for DES
+
+subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_DES.rds')
 # convert subjinfo to format of vertexwise csvs
-subjInfo=subjInfo[,c('Subjects','Task','Session','Drug','MeanFD','RemTRs')]
+subjInfo=subjInfo[,c('Subjects','Task','FD','RemTRs')]
 colnames(subjInfo)[1]='Subject'
+colnames(subjInfo)[3]='MeanFD'
 subjInfo$Task=as.factor(subjInfo$Task)
 subjInfo$Subject=as.factor(subjInfo$Subject)
-# convert session to equivalent variables
-subjInfo$Session <- factor(subjInfo$Session, 
-                           levels = c(1, 2, 3), 
-                           labels = c("ses-01", "ses-02", "ses-03"))
 
 # initialize vertex-level vectors
-DrugT_L=rep(0,2562)
-DrugT_R=rep(0,2562)
-Drugp_L=rep(0,2562)
-Drugp_R=rep(0,2562)
 TaskT_L=rep(0,2562)
 TaskT_R=rep(0,2562)
 Taskp_L=rep(0,2562)
 Taskp_R=rep(0,2562)
-DrugTaskT_L=rep(0,2562)
-DrugTaskp_L=rep(0,2562)
-DrugTaskT_R=rep(0,2562)
-DrugTaskp_R=rep(0,2562)
+
 # for each vertex
 for (v in 1:2562){
 	print(v)
 	# if file exists: left
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))){
+	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_DES_L.csv'))){
 		# load in data for this vertex
-		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))
+		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_DES_L.csv'))
+	
+		# one value per scan
+		for (s in 1:length(unique(dataV$Subject)){
+		     curSubj=unique(dataV$Subject)[s]
+		     # get mean value per 
+		}
 		# remove every other opfl measurement so no single TR is used twice in observations
-		# not applicable for single-value-per-scan measures
-		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
+		
+		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
 		# convert task
 		dataV$Task[dataV$Task=='rs1']='rs'
 		# combine with subjinfo
-		combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
+		combinedData=merge(dataV,subjInfo,by=c('Subject','Task'))
+		# try averaging every value for each task for each subject:
+
 		# temp: test if there are any rows in combined data not represented in subjInfo (those that passed QC)
 		#combinedData$key <- paste(combinedData$Subject, combinedData$Task, combinedData$Session, sep = "_")
 		#subjInfo$key <- paste(subjInfo$Subject, subjInfo$Task, subjInfo$Session, sep = "_")
@@ -50,22 +50,18 @@ for (v in 1:2562){
 		combinedData$Task[combinedData$Task=='rs2']='rs'
 		combinedData$Task<-as.factor(combinedData$Task)
 		# fit model
-		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
+		model <- lme(Value ~ MeanFD + Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
 		modeltable=summary(model)$tTable
 		# print out stats
-		DrugT_L[v]=modeltable['Drug1','t-value']
-		Drugp_L[v]=modeltable['Drug1','p-value']
 		TaskT_L[v]=modeltable['Taskwm','t-value']
 		Taskp_L[v]=modeltable['Taskwm','p-value']
-		DrugTaskT_L[v]=modeltable['Drug1:Taskwm','t-value']
-		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','p-value']
 	}
 	# if right file exists
 	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))){
                 # load in data for this vertex
                 dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
-		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
+		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
                 # convert task
                 dataV$Task[dataV$Task=='rs1']='rs'
                 # combine with subjinfo

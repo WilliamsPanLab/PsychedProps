@@ -1,4 +1,4 @@
-function Task_mats_to_csv(subj,sesh,task)
+function Task_mats_to_csv_psil
 %restoredefaultpath
 
 % read in subj-session-dose correspondence
@@ -57,59 +57,59 @@ for v=1:2562
 			for i=1:8
 				subj=subjList(s);	
 		 		% baseline
-				bvFP=[inFP '/Baseline' num2str(i) '/' subj '_Baseline' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+				bvFP=[inFP 'Baseline' num2str(i) '/' subj '_Baseline' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
 				bvFP=strjoin(bvFP,'');
 				if exist(bvFP,'file')
 					subjValsBV=load(bvFP);
-                                	% extract this vertex for each timepoint - left
-                                	valuesLBV=subjValsBV.AngDist.Left(v,:);
+					% CHANGED ALL TO MEAN 6/28/24
+					% extract this vertex for each timepoint - left
+                                	valuesLBV=mean(subjValsBV.AngDist.Left(v,:));
                                 	% extract this vertex for each timepoint - right
-                                	valuesRBV=subjValsBV.AngDist.Right(v,:);
+                                	valuesRBV=mean(subjValsBV.AngDist.Right(v,:));
                                 	% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
-                                	vertTableL = [vertTableL; repmat({subj, 'Baseline', task}, size(valuesLBV, 2), 1), num2cell(valuesLBV)'];
-                                	vertTableR = [vertTableR; repmat({subj, 'Baseline', task}, size(valuesRBV, 2), 1), num2cell(valuesRBV)'];
+                                	vertTableL = [vertTableL; repmat({subj, ['Baseline' num2str(i)], task}, size(valuesLBV, 2), 1), num2cell(valuesLBV)'];
+                                	vertTableR = [vertTableR; repmat({subj, ['Baseline' num2str(i)], task}, size(valuesRBV, 2), 1), num2cell(valuesRBV)'];
 				else
 				end
 				% between
-                                bwFP=[inFP '/Between' num2str(i) '/' subj '_Between' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+                                bwFP=[inFP 'Between' num2str(i) '/' subj '_Between' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
                                 bwFP=strjoin(bvFP,'');
                                 if exist(bwFP,'file')
                                         subjValsBW=load(bwFP);
                                         % extract this vertex for each timepoint - left
-                                        valuesLBW=subjValsBW.AngDist.Left(v,:);
+                                        valuesLBW=mean(subjValsBW.AngDist.Left(v,:));
                                         % extract this vertex for each timepoint - right
-                                        valuesRBW=subjValsBW.AngDist.Right(v,:);
+                                        valuesRBW=mean(subjValsBW.AngDist.Right(v,:));
                                         % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
-                                        vertTableL = [vertTableL; repmat({subj, 'Between', task}, size(valuesLBW, 2), 1), num2cell(valuesLBW)'];
-                                        vertTableR = [vertTableR; repmat({subj, 'Between', task}, size(valuesRBW, 2), 1), num2cell(valuesRBW)'];
+                                        vertTableL = [vertTableL; repmat({subj, ['Between' num2str(i)], task}, size(valuesLBW, 2), 1), num2cell(valuesLBW)'];
+                                        vertTableR = [vertTableR; repmat({subj, ['Between' num2str(i)], task}, size(valuesRBW, 2), 1), num2cell(valuesRBW)'];
                                 else
                                 end
 				% after
-                                aFP=[inFP '/After' num2str(i) '/' subj '_After' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
+                                aFP=[inFP 'After' num2str(i) '/' subj '_After' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
                                 aFP=strjoin(aFP,'');
                                 if exist(aFP,'file')
                                         subjValsa=load(aFP);
                                         % extract this vertex for each timepoint - left
-                                        valuesLa=subjValsa.AngDist.Left(v,:);
+                                        valuesLa=mean(subjValsa.AngDist.Left(v,:));
                                         % extract this vertex for each timepoint - right
-                                        valuesRa=subjValsa.AngDist.Right(v,:);
+                                        valuesRa=mean(subjValsa.AngDist.Right(v,:));
                                         % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
-                                        vertTableL = [vertTableL; repmat({subj, 'After', task}, size(valuesLa, 2), 1), num2cell(valuesLa)'];
-                                        vertTableR = [vertTableR; repmat({subj, 'After', task}, size(valuesRa, 2), 1), num2cell(valuesRa)'];
+                                        vertTableL = [vertTableL; repmat({subj, ['After' num2str(i)], task}, size(valuesLa, 2), 1), num2cell(valuesLa)'];
+                                        vertTableR = [vertTableR; repmat({subj, ['After' num2str(i)], task}, size(valuesRa, 2), 1), num2cell(valuesRa)'];
                                 else
                                 end
 				% drug
-                                dFP=[inFP '/Drug' num2str(i) '/' subj '_Drug' task '_k1_AngDistMat_task.mat'];
+                                dFP=[inFP 'Drug' num2str(i) '/' subj '_Drug' num2str(i) '_' task '_k1_AngDistMat_task.mat'];
                                 dFP=strjoin(dFP,'');
                                 if exist(dFP,'file')
                                         subjValsd=load(dFP);
                                         % extract this vertex for each timepoint - left
-                                        valuesLd=subjValsd.AngDist.Left(v,:);
+                                        valuesLd=mean(subjValsd.AngDist.Left(v,:));
                                         % extract this vertex for each timepoint - right
-                                        valuesRd=subjValsd.AngDist.Right(v,:);
+                                        valuesRd=mean(subjValsd.AngDist.Right(v,:));
 					% NEED TO RECORD DRUG 1 OR 2 FOR DECODING LATER WITH R OUTPUT
 					seshstring=['Drug' num2str(i)];
-					seshstring=strjoin(seshstring,'');
                                         % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
                                         vertTableL = [vertTableL; repmat({subj, seshstring, task}, size(valuesLd, 2), 1), num2cell(valuesLd)'];
                                         vertTableR = [vertTableR; repmat({subj, seshstring, task}, size(valuesRd, 2), 1), num2cell(valuesRd)'];

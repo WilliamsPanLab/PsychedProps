@@ -26,6 +26,7 @@ mw_L=zeros(1,2562);
 mw_L(mwAndTSNR_L>0)=1;
 mw_R=zeros(1,2562);
 mw_R(mwAndTSNR_R>0)=1;
+% add DMN mask
 
 % for each vertex (MAINTAIN OG VERTEX NUMBER 1:2562 FOR CLARITY)
 for v=1:2562
@@ -47,6 +48,7 @@ for v=1:2562
 	for tasks=["rs1" "rs2" "wm"]
 		task=char(tasks);
 		% for each subject (not 4, 6, or 10)
+		% CHANGING TO MEAN 6/28/24
 		for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 			subj=subjList{s};
 			inFP=['/scratch/users/apines/data/mdma/' subj '/'];
@@ -54,9 +56,9 @@ for v=1:2562
 		 	if exist(ses01fp,'file')
 				subjVals01=load(ses01fp);
 				% extract this vertex for each timepoint - left
-				valuesL01=subjVals01.AngDist.Left(v,:);
+				valuesL01=mean(subjVals01.AngDist.Left(v,:));
 				% extract this vertex for each timepoint - right
-				valuesR01=subjVals01.AngDist.Right(v,:);
+				valuesR01=mean(subjVals01.AngDist.Right(v,:));
 				% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns	
 				vertTableL = [vertTableL; repmat({subj, 'ses-01', task}, size(valuesL01, 2), 1), num2cell(valuesL01)'];
 				vertTableR = [vertTableR; repmat({subj, 'ses-01', task}, size(valuesR01, 2), 1), num2cell(valuesR01)'];
@@ -67,9 +69,9 @@ for v=1:2562
 			if exist(ses02fp,'file')
 				subjVals02=load(ses02fp);
 		 		% extract this vertex for each timepoint - left
-                                valuesL02=subjVals02.AngDist.Left(v,:);
+                                valuesL02=mean(subjVals02.AngDist.Left(v,:));
                                 % extract this vertex for each timepoint - right
-                                valuesR02=subjVals02.AngDist.Right(v,:);
+                                valuesR02=mean(subjVals02.AngDist.Right(v,:));
                                 % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
                                 vertTableL = [vertTableL; repmat({subj, 'ses-02', task}, size(valuesL02, 2), 1), num2cell(valuesL02)'];
                                 vertTableR = [vertTableR; repmat({subj, 'ses-02', task}, size(valuesR02, 2), 1), num2cell(valuesR02)'];	
@@ -80,9 +82,9 @@ for v=1:2562
 			if exist(ses03fp,'file')
 				subjVals03=load(ses03fp);
 				% extract this vertex for each timepoint - left
-                                valuesL03=subjVals03.AngDist.Left(v,:);
+                                valuesL03=mean(subjVals03.AngDist.Left(v,:));
                                 % extract this vertex for each timepoint - right
-                                valuesR03=subjVals03.AngDist.Right(v,:);
+                                valuesR03=mean(subjVals03.AngDist.Right(v,:));
                                 % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
                                 vertTableL = [vertTableL; repmat({subj, 'ses-03', task}, size(valuesL03, 2), 1), num2cell(valuesL03)'];
                                 vertTableR = [vertTableR; repmat({subj, 'ses-03', task}, size(valuesR03, 2), 1), num2cell(valuesR03)'];
