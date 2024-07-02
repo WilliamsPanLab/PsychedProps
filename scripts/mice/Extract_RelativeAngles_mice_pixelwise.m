@@ -215,8 +215,18 @@ for k=1
 	end
         % average values over time and plop into facematrix for this participant
         faceMatrix=NangDs;
-	% calc outFP
-	outFP=['/scratch/users/apines/data/mouse/'];
+	% need to reshape facematrix to 2d for reading in from R
+        [n1, n2, n3] = size(faceMatrix);
+        faceMatrix=reshape(faceMatrix,n1,n2*n3);
+        % double-check reshaping by saving out dummy matrix and reconstructing in R
+        % Create a dummy 3D matrix
+        dummyMatrix=zeros(67,70);
+	dummyMatrix(3,12)=1;
+	dummyMatrix = repmat(dummyMatrix, [1, 1, lenOpFl]);
+	% Reshape the 3D matrix to a 2D matrix
+        dummyMatrix_reshaped = reshape(dummyMatrix, n1,n2*n3);
+        % Save reshaped matrix to CSV
+        writematrix(dummyMatrix_reshaped, '/scratch/users/apines/gp/PropFeats/dummyMatrix.csv');
 	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
 	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro_pixelwise.csv'])
 end

@@ -1,138 +1,117 @@
 # needed libraries
 library(nlme)
 library(bigmemory)
-# load in info from R
-
-
-# convert subjinfo to format of vertexwise csvs
-subjInfo=subjInfo[,c('Subjects','Task','Session','Drug','MeanFD','RemTRs')]
-colnames(subjInfo)[1]='Subject'
-subjInfo$Task=as.factor(subjInfo$Task)
-subjInfo$Subject=as.factor(subjInfo$Subject)
-# convert session to equivalent variables
-subjInfo$Session <- factor(subjInfo$Session, 
-                           levels = c(1, 2, 3), 
-                           labels = c("ses-01", "ses-02", "ses-03"))
 
 # initialize vertex-level vectors
 DrugTs=rep(0,67,70)
 Drugps=rep(0,67,70)
-TaskTs=rep(0,67,70)
-Taskps=rep(0,67,70)
-DrugTaskTs=rep(0,67,70)
-DrugTaskps=rep(0,67,70)
 
-# load in each pixelwise... see if r can store that
+# loop over each mouse, load in pixelwise
+mList <- c('m2000', 'm7507', 'm7520', 'm7522', 'm7589', 'm7594')
+# set dimensions
+n1 <- 67
+n2 <- 70
+n3 <- 892
+n4 <- length(mList)
+n5 <- 6  # Number of timepoints
+faceMatrix5D <- array(0, dim = c(n1, n2, n3, n4, n5))
+# populate a 5D array: 67 x 70 x 892 x 6 (6 mice), 6 timepoints
+# Loop over each mouse and each timepoint to load the data
+for (i in 1:length(mList)) {
+  subj <- mList[i]
+  for (sesh in 1:n5) {
+    # account for rogue missing session mouse
+    if (subj=='m7507' && sesh==6){
+	faceMatrix5D[,,,i,sesh] = array(NA,dim=c(n1,n2,n3))
+	} else {
+    # Construct the file path
+    file_path <- paste0('/scratch/users/apines/gp/PropFeats/', subj, '_', sesh, '_faceMatrix_gro_pixelwise.csv')
+    
+    # Read the CSV file
+    faceMatrix_reshaped <- read.big.matrix(file_path,type='double')
+    
+    # Convert data frame to matrix
+    faceMatrix_reshaped_matrix <- as.matrix(faceMatrix_reshaped)
+    
+    # Reshape the matrix back to the original dimensions
+    faceMatrix <- array(as.numeric(faceMatrix_reshaped_matrix), dim = c(n1, n2, n3))
+    
+    # Populate the 5D array
+    faceMatrix5D[,,,i,sesh] <- faceMatrix
+      }
+   }
+}
 
-# glob?
+# test dummy matrix
+#dummyMatrixfp='/scratch/users/apines/gp/PropFeats/dummyMatrix.csv'
+#dummMat=read.big.matrix(dummyMatrixfp,type='double')
+# reshape
+#n1 <- 67
+#n2 <- 70
+#n3 <- 892
+#dummMat<-as.matrix(dummMat)
+#dummyMatrix <- array(as.numeric(dummMat), dim = c(n1, n2, n3))
+# reconstruction works on dummy matrix!
 
 # for each pixel x
 for (x in 1:67){
 	print(x)
 	for (y in 1:70){
-	# if file exists: left
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))){
-		# load in data for this vertex
-		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))
-		# remove every other opfl measurement so no single TR is used twice in observations
-		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
-		# convert task
-		dataV$Task[dataV$Task=='rs1']='rs'
-		# combine with subjinfo
-		combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
-		# temp: test if there are any rows in combined data not represented in subjInfo (those that passed QC)
-		#combinedData$key <- paste(combinedData$Subject, combinedData$Task, combinedData$Session, sep = "_")
-		#subjInfo$key <- paste(subjInfo$Subject, subjInfo$Task, subjInfo$Session, sep = "_")
-		# Find keys in combinedData that are not in subjInfo
-		#mismatchedKeys <- setdiff(combinedData$key, subjInfo$key)
-		# Subset the mismatched rows
-		#mismatchedRows <- combinedData[combinedData$key %in% mismatchedKeys, ]
-		# set rs1 and rs2 to equivalent
-		combinedData$Task[combinedData$Task=='rs2']='rs'
-		combinedData$Task<-as.factor(combinedData$Task)
+		# get all sober values from mouse 1
+		m1SobVals=faceMatrix5D[x,y,,1,1]
+		m1SobData=data.frame(Value=m1SobVals, MouseID = rep(mList[i],length(m1SobVals)), Drug = rep(0,length(m1SobVals)))
+		m2SobVals=faceMatrix5D[x,y,,2,1]
+		m2SobData=data.frame(Value=m2SobVals, MouseID = rep(mList[i],length(m2SobVals)), Drug = rep(0,length(m2SobVals)))
+		m3SobVals=faceMatrix5D[x,y,,3,1]
+		m3SobData=data.frame(Value=m3SobVals, MouseID = rep(mList[i],length(m3SobVals)), Drug = rep(0,length(m3SobVals)))
+		m4SobVals=faceMatrix5D[x,y,,4,1]
+		m4SobData=data.frame(Value=m4SobVals, MouseID = rep(mList[i],length(m4SobVals)), Drug = rep(0,length(m4SobVals)))
+		m5SobVals=faceMatrix5D[x,y,,5,1]
+		m5SobData=data.frame(Value=m5SobVals, MouseID = rep(mList[i],length(m5SobVals)), Drug = rep(0,length(m5SobVals)))
+		m6SobVals=faceMatrix5D[x,y,,6,1] 	 
+		m6SobData=data.frame(Value=m6SobVals, MouseID = rep(mList[i],length(m6SobVals)), Drug = rep(0,length(m6SobVals)))
+		# pull out all drug values
+		m1DrugVals=array(faceMatrix5D[x,y,,1,2:6])
+                m1DrugData=data.frame(Value=m1DrugVals, MouseID = rep(mList[i],length(m1DrugVals)), Drug = rep(1,length(m1DrugVals)))
+                m2DrugVals=array(faceMatrix5D[x,y,,2,2:6])
+                m2DrugData=data.frame(Value=m2DrugVals, MouseID = rep(mList[i],length(m2DrugVals)), Drug = rep(1,length(m2DrugVals)))
+                m3DrugVals=array(faceMatrix5D[x,y,,3,2:6])
+                m3DrugData=data.frame(Value=m3DrugVals, MouseID = rep(mList[i],length(m3DrugVals)), Drug = rep(1,length(m3DrugVals)))
+                m4DrugVals=array(faceMatrix5D[x,y,,4,2:6])
+                m4DrugData=data.frame(Value=m4DrugVals, MouseID = rep(mList[i],length(m4DrugVals)), Drug = rep(1,length(m4DrugVals)))
+                m5DrugVals=array(faceMatrix5D[x,y,,5,2:6])
+                m5DrugData=data.frame(Value=m5DrugVals, MouseID = rep(mList[i],length(m5DrugVals)), Drug = rep(1,length(m5DrugVals)))
+                m6DrugVals=array(faceMatrix5D[x,y,,6,2:6])
+                m6DrugData=data.frame(Value=m6DrugVals, MouseID = rep(mList[i],length(m6DrugVals)), Drug = rep(1,length(m6DrugVals)))
+		# combine data
+		DataCombined=rbind(m1SobData,m2SobData,m3SobData,m4SobData,m5SobData,m6SobData,m1DrugData,m2DrugData,m3DrugData,m4DrugData,m5DrugData,m6DrugData)
+		# omit NAs (scan 6 mouse 7507)
+		DataCombined=na.omit(DataCombined)
 		# fit model
-		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
+		model <- lme(Value ~ Drug, random = ~ 1 | MouseID, data = DataCombined)
 		modeltable=summary(model)$tTable
 		# print out stats
-		DrugT_L[v]=modeltable['Drug1','t-value']
-		Drugp_L[v]=modeltable['Drug1','p-value']
-		TaskT_L[v]=modeltable['Taskwm','t-value']
-		Taskp_L[v]=modeltable['Taskwm','p-value']
-		DrugTaskT_L[v]=modeltable['Drug1:Taskwm','t-value']
-		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','p-value']
-	}
-	# if right file exists
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))){
-                # load in data for this vertex
-                dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))
-		# remove every other opfl measurement so no single TR is used twice in observations
-		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
-                # convert task
-                dataV$Task[dataV$Task=='rs1']='rs'
-                # combine with subjinfo
-                combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
-                combinedData$Task[combinedData$Task=='rs2']='rs'
-		combinedData$Task<-as.factor(combinedData$Task)
-                # fit model
-                model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
-                modeltable=summary(model)$tTable
-                # print out stats
-                DrugT_R[v]=modeltable['Drug1','t-value']
-                Drugp_R[v]=modeltable['Drug1','p-value']
-                TaskT_R[v]=modeltable['Taskwm','t-value']
-                Taskp_R[v]=modeltable['Taskwm','p-value']
-                DrugTaskT_R[v]=modeltable['Drug1:Taskwm','t-value']
-                DrugTaskp_R[v]=modeltable['Drug1:Taskwm','p-value']
+		DrugT[x,y]=modeltable['Drug','t-value']
+		Drugp[x,y]=modeltable['Drug','p-value']
+		# end for each y pixel
 	}
 	# end for each x pixel
 }
+
+# Apply mask to return valid pixels	
+Mask=read.csv('~/MouseMaskBool_67x70.csv',header=F)	
 # pull out p's where T!=0 : left 
-validVerts_L = which(DrugT_L != 0)
-valid_Drug_Ps_L=Drugp_L[validVerts_L]
-valid_Task_Ps_L=Taskp_L[validVerts_L]
-valid_DrugTask_Ps_L=DrugTaskp_L[validVerts_L]
+validPixels = which(Mask != 0)
+valid_Drug_Ps=Drugp[validPixels]
+valid_Drug_Ts=DrugT[validPixels]
 
 # PULL OUT JUST ONE SIDE OF THE ADJACENCY TO MAKE SURE STATS MC CORRECTION DONT GET WONKY
+# it's not an adjacency you are just scarred
 
-# pull out p's where T!=0 : right
-validVerts_R = which(DrugT_R != 0)
-valid_Drug_Ps_R=Drugp_R[validVerts_R]
-valid_Task_Ps_R=Taskp_R[validVerts_R]
-valid_DrugTask_Ps_R=DrugTaskp_R[validVerts_R]
 # mc correct
-valid_Drug_Ps=c(valid_Drug_Ps_L,valid_Drug_Ps_R)
-valid_Task_Ps=c(valid_Task_Ps_L,valid_Task_Ps_R)
-valid_DrugTask_Ps=c(valid_DrugTask_Ps_L,valid_DrugTask_Ps_R)
 mc_Drug_Ps=p.adjust(valid_Drug_Ps,method='fdr')
-mc_Task_Ps=p.adjust(valid_Task_Ps,method='fdr')
-mc_DrugTask_Ps=p.adjust(valid_DrugTask_Ps,method='fdr')
-# parse back to left and right
-mc_Drug_Ps_L=mc_Drug_Ps[1:length(validVerts_L)]
-mc_Drug_Ps_R=mc_Drug_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
-mc_Task_Ps_L=mc_Task_Ps[1:length(validVerts_L)]
-mc_Task_Ps_R=mc_Task_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
-mc_DrugTask_Ps_L=mc_DrugTask_Ps[1:length(validVerts_L)]
-mc_DrugTask_Ps_R=mc_DrugTask_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
-# apply to t's
-valid_Drug_Ts_L=DrugT_L[validVerts_L]
-valid_Task_Ts_L=TaskT_L[validVerts_L]
-valid_DrugTask_Ts_L=DrugTaskT_L[validVerts_L]
-# pull out p's where T!=0 : right
-valid_Drug_Ts_R=DrugT_R[validVerts_R]
-valid_Task_Ts_R=TaskT_R[validVerts_R]
-valid_DrugTask_Ts_R=DrugTaskT_R[validVerts_R]
 # use FDR < .05 to thresh: inputting 999 for now to track through vis
-valid_Drug_Ts_L[mc_Drug_Ps_L>.05]=999
-valid_Drug_Ts_R[mc_Drug_Ps_R>.05]=999
-valid_Task_Ts_L[mc_Task_Ps_L>.05]=999
-valid_Task_Ts_R[mc_Task_Ps_R>.05]=999
-valid_DrugTask_Ts_L[mc_DrugTask_Ps_L>.05]=999
-valid_DrugTask_Ts_R[mc_DrugTask_Ps_R>.05]=999
+valid_Drug_Ts[mc_Drug_Ps>.05]=999
 # saveout corrected t's for vis
 write.csv(data.frame(valid_Drug_Ts_L), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_Drug_Ts_R), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_R.csv",row.names = FALSE)
-write.csv(data.frame(valid_Task_Ts_L), file = "/scratch/users/apines/taskVerts/valid_Task_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_Task_Ts_R), file = "/scratch/users/apines/taskVerts/valid_Task_Ts_R.csv",row.names = FALSE)
-write.csv(data.frame(valid_DrugTask_Ts_L), file = "/scratch/users/apines/taskVerts/valid_DrugTask_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_DrugTask_Ts_R), file = "/scratch/users/apines/taskVerts/valid_DrugTask_Ts_R.csv",row.names = FALSE)
 

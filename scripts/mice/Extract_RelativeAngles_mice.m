@@ -45,6 +45,8 @@ Mask=Mask';
 % get size of mask and indices to include
 MaskSize=sum(sum(Mask));
 MaskInds=find(Mask);
+% save out mask as csv
+svwrite('~/MouseMaskBool_67x70.csv',Mask)  
 
 % extract size of time series
 NumTRs=size(vf);
@@ -112,7 +114,10 @@ for k=1
 	DMN_bool=Dnet;
 	DMN_bool(DMN_bool>.6)=1;
 	DMN_bool(DMN_bool<.6)=0;
+	% adding mask into this step 7/1/24
+	DMN_bool(Mask==0)=0;
 	DMN_bool=logical(DMN_bool);
+	
 	% initialize matrix for each pixel to saveout to scratch
 	faceMatrix=zeros(sum(sum(DMN_bool)));
         % network of interest
@@ -277,8 +282,6 @@ for k=1
 	outFP=['/scratch/users/apines/data/mouse/'];
 	% write out
 	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
-	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' num2str(sesh) '_faceMatrix_gro.csv'])
 	% save out time series
 	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
 end
