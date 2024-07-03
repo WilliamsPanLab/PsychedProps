@@ -173,7 +173,6 @@ mot=read.csv('~/Desktop/MDMA_spikes_summary.csv')
 
 # motion merge
 mergedDf=merge(mot,allScans,by=c('Subjects','Task','Dosage'))
-mergedDf=mergedDf[mergedDf$Dosage!='baseline',]
 mergedDf$Drug=0
 mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
 mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
@@ -188,47 +187,47 @@ saveRDS(mergedDf,'~/P50_cleaned_df.rds')
 ```
 
 ```{r}
-# Read the data
-scanAnx <- read.csv('~/Downloads/P50MDMA-ScanNotes_DATA_2024-06-13_1309.csv')
-
-# Create a data frame with the relevant columns
-scanAnx <- data.frame(Subjects = scanAnx$study_id, 
-                      AnxBL = scanAnx$anxietyscan_bl, 
-                      AnxS1 = scanAnx$anxietyscan_s1, 
-                      AnxS2 = scanAnx$anxietyscan_s2, 
-                      AnxS3 = scanAnx$anxietyscan_s3)
-
-# Initialize an empty data frame for the longer format
-scanAnx_long <- data.frame(Subjects = integer(0), 
-                           Session = character(0), 
-                           Anx = numeric(0))
-
-# Fill the new data frame
-for (i in 1:nrow(scanAnx)) {
-  scanAnx_long <- rbind(scanAnx_long, 
-                        data.frame(Subjects = scanAnx$Subjects[i], 
-                                   Session = 0, 
-                                   Anx = scanAnx$AnxBL[i]))
-  scanAnx_long <- rbind(scanAnx_long, 
-                        data.frame(Subjects = scanAnx$Subjects[i], 
-                                   Session = 1, 
-                                   Anx = scanAnx$AnxS1[i]))
-  scanAnx_long <- rbind(scanAnx_long, 
-                        data.frame(Subjects = scanAnx$Subjects[i], 
-                                   Session = 2, 
-                                   Anx = scanAnx$AnxS2[i]))
-  scanAnx_long <- rbind(scanAnx_long, 
-                        data.frame(Subjects = scanAnx$Subjects[i], 
-                                   Session = 3, 
-                                   Anx = scanAnx$AnxS3[i]))
-}
-
-scanAnx_long$Subjects <- paste0("sub-MDMA", gsub(" \\(c\\)", "", scanAnx_long$Subjects))
-scanAnx_long$Session=as.integer(scanAnx_long$Session)
-
-# merge in
-mergedDf=merge(mergedDf,scanAnx_long,by=c('Subjects','Session'))
-
+## Read the data
+#scanAnx <- read.csv('~/Downloads/P50MDMA-ScanNotes_DATA_2024-06-13_1309.csv')
+#
+## Create a data frame with the relevant columns
+#scanAnx <- data.frame(Subjects = scanAnx$study_id, 
+#                      AnxBL = scanAnx$anxietyscan_bl, 
+#                      AnxS1 = scanAnx$anxietyscan_s1, 
+#                      AnxS2 = scanAnx$anxietyscan_s2, 
+#                      AnxS3 = scanAnx$anxietyscan_s3)
+#
+## Initialize an empty data frame for the longer format
+#scanAnx_long <- data.frame(Subjects = integer(0), 
+#                           Session = character(0), 
+#                           Anx = numeric(0))
+#
+## Fill the new data frame
+#for (i in 1:nrow(scanAnx)) {
+#  scanAnx_long <- rbind(scanAnx_long, 
+#                        data.frame(Subjects = scanAnx$Subjects[i], 
+#                                   Session = 0, 
+#                                   Anx = scanAnx$AnxBL[i]))
+#  scanAnx_long <- rbind(scanAnx_long, 
+#                        data.frame(Subjects = scanAnx$Subjects[i], 
+#                                   Session = 1, 
+#                                   Anx = scanAnx$AnxS1[i]))
+#  scanAnx_long <- rbind(scanAnx_long, 
+#                        data.frame(Subjects = scanAnx$Subjects[i], 
+#                                   Session = 2, 
+#                                   Anx = scanAnx$AnxS2[i]))
+#  scanAnx_long <- rbind(scanAnx_long, 
+#                        data.frame(Subjects = scanAnx$Subjects[i], 
+#                                   Session = 3, 
+#                                   Anx = scanAnx$AnxS3[i]))
+#}
+#
+#scanAnx_long$Subjects <- paste0("sub-MDMA", gsub(" \\(c\\)", "", scanAnx_long$Subjects))
+#scanAnx_long$Session=as.integer(scanAnx_long$Session)
+#
+## merge in
+#mergedDf=merge(mergedDf,scanAnx_long,by=c('Subjects','Session'))
+#
 ```
 
 
@@ -238,163 +237,51 @@ mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
 mergedDf=mergedDf[mergedDf$RemTRs>250,]
 
+# save out version for implementing in vertex-wise analyses
+saveRDS(mergedDf,'~/forVertexwise_MDMA.rds')
+```
+
+```{r}
 # change rs2 to rs for accurate task-modeling
 mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
-
-# model
-model <- lme(TDProp1 ~ MeanFD + Drug+Task + RemTRs+Anx, random = ~ 1 | Subjects, data = mergedDf)
+mergedDf_clean=mergedDf[mergedDf$Dosage!='baseline',]
 
 # get head-motion regressed values for plotting
-model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs, data = mergedDf)
-mergedDf$Residuals<-model_to_reg$residuals
+model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf_clean)
+mergedDf_clean$Residuals<-resid(model_to_reg)+mean(mergedDf_clean$TDProp1)
 
+# figure 2a
+ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "MDMA vs. Placebo \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('Placebo','MDMA'))+
+  theme_minimal(base_size=25)
 
-# subset for p-80
-df_plot1=mergedDf[mergedDf$Dosage!="120mg",]
-# for p-120
-df_plot2=mergedDf[mergedDf$Dosage!="80mg",]
+# full model for stats
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
+summaryLME<-summary(fit_lme)
+#####
+#### with all non-drug scans: Figure 2b
+#####
+# get head-motion regressed values for plotting
+model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf)
+mergedDf$Residuals<-resid(model_to_reg)+mean(mergedDf$TDProp1)
 
-df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
-df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
+# figure 2a
+ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "MDMA vs. No-drug scans \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','MDMA'))+
+  theme_minimal(base_size=25)
 
-# Plotting
-ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = 0.7)) +
-  geom_line() +
-  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
-  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
-  scale_color_viridis_d(option = "plasma") +
-  ggtitle('') +
-  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('MDMA')
-
-# with boxplots
-# Creating separate datasets for box plots
-boxplot_data_left <- df_plot1 %>%
-  filter(Dosage == 'Placebo')
-
-boxplot_data_right <- df_plot1 %>%
-  filter(Dosage == '80mg')
-
-boxplot_data_right2 <- df_plot2 %>%
-  filter(Dosage == '120mg')
-
-# combine drug data for box and whiskers
-boxplot_data_right=rbind(boxplot_data_right,boxplot_data_right2)
-
-# Plotting
-ggplot() +
-  # Scatter plot and lines for df_plot1
-  geom_point(data = df_plot1, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects, alpha = 0.7), size = 4) +
-  geom_line(data = df_plot1, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects)) +
-  # Scatter plot and lines for df_plot2
-  geom_point(data = df_plot2, aes(x = as.numeric(Drug), y = TDProp1, color = Subjects, alpha = 0.7), size = 4) +
-  geom_line(data = df_plot2, aes(x = as.numeric(Drug), y = TDProp1, group = SubjectTask, color = Subjects)) +
-  # Box plot on the left side
-  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Drug) - 0.25, y = TDProp1, group = Drug), width = 0.2, outlier.shape = NA, color = "black") +
-  # Box plot on the right side
-  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Drug) + 0.25, y = TDProp1, group = Drug), width = 0.2, outlier.shape = NA, color = "black") +
-  # Custom color scale
-  scale_color_viridis_d(option = "plasma") +
-  # Theme and labels
-  theme_minimal(base_size = 22) +
-  ylab('% Bottom-up') +
-  xlab('MDMA') +
-  # Adjust the x-axis limits to accommodate the box plots
-  scale_x_continuous(breaks = unique(as.numeric(df_plot1$Drug)), limits = c(min(as.numeric(df_plot1$Drug)) - 1, max(as.numeric(df_plot1$Drug)) + 1))
-
-# regress out head motion for comparison plot
-ggplot(df_plot1, aes(x = Drug, y = Residuals, fill = Drug, group = SubjectTask, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = 0.7)) +
-  geom_line() +
-  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
-  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
-  scale_color_viridis_d(option = "plasma") +
-  ggtitle('FD regressed') +
-  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('MDMA')
-
-
-summary(model)
-
-# and plot each task separately to gauge samples needed for robust effect
-# RS
-mergedDfT=mergedDf[mergedDf$Task=='rs',]
-mergedDfT2=mergedDf[mergedDf$Task=='rs2',]
-mergedDfT=rbind(mergedDfT,mergedDfT2)
-# model
-model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
-# subset for p-80
-df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
-# for p-120
-df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
-
-df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
-df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
-
-# plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = 0.7)) +
-  geom_line() +
-  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
-  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
-  scale_color_viridis_d(option = "plasma") +
-  ggtitle('Resting-state') +
-  theme_minimal(base_size = 22)
-
-# model output
-summary(model)
-
-# WM
-mergedDfT=mergedDf[mergedDf$Task=='wm',]
-# model
-model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
-# subset for p-80
-df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
-# for p-120
-df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
-
-df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
-df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
-
-
-# plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = 0.7)) +
-  geom_line() +
-  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
-  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
-  scale_color_viridis_d(option = "plasma") +
-  ggtitle('Working Memory') +
-  theme_minimal(base_size = 22)
-
-# model output
-summary(model)
-
-# gambling
-mergedDfT=mergedDf[mergedDf$Task=='gambling',]
-# model
-model <- lme(TDProp1 ~ MeanFD + Drug + RemTRs, random = ~ 1 | Subjects, data = mergedDfT)
-# subset for p-80
-df_plot1=mergedDfT[mergedDfT$Dosage!="120mg",]
-# for p-120
-df_plot2=mergedDfT[mergedDfT$Dosage!="80mg",]
-
-df_plot1$SubjectTask <- interaction(df_plot1$Subjects, df_plot1$Task)
-df_plot2$SubjectTask <- interaction(df_plot2$Subjects, df_plot2$Task)
-
-
-# plot
-ggplot(df_plot1, aes(x = Drug, y = TDProp1, fill = Drug, group = SubjectTask, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = 0.7)) +
-  geom_line() +
-  geom_point(data = df_plot2, aes(color = Subjects,alpha=.7), size = 4) +
-  geom_line(data = df_plot2, aes(group = SubjectTask, color = Subjects)) +
-  scale_color_viridis_d(option = "plasma") +
-  ggtitle('Gambling') +
-  theme_minimal(base_size = 22)
-# model output
-summary(model)
-
+# full model for stats
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf)
+summaryLME<-summary(fit_lme)
 ```
 
 ```{r}

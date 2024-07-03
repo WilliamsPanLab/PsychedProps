@@ -590,8 +590,8 @@ allScans$Drug[allScans$Dosage=='none']='none'
 
 
 ```{r}
-# saveout merged DF for facewise analyses on HPC
-saveRDS(allScans,'~/P50_psil_cleaned_df.rds')
+# saveout merged DF for vertexwise analyses on HPC
+saveRDS(allScans,'~/forVertexwise_psil.rds')
 ```
 
 ```{r}
@@ -612,9 +612,11 @@ for (s in 1:length(unique(allScans$Subjects))){
   # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
   allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
   allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
+  # sorted values for indexing
+  allScansSubj_TemporalOrderSorted=sort(unique(allScansSubj$TemporalOrder))
   # convert to by-1 sequence
   for (i in 1:length(unique(allScansSubj$TemporalOrder))){
-      numberOfInterest=sort(unique(allScansSubj$TemporalOrder))[i]
+      numberOfInterest=allScansSubj_TemporalOrderSorted[i]
       allScansSubj_TemporalOrder[allScansSubj_TemporalOrder==numberOfInterest]=i
   }
   allScansSubj$TemporalOrder<-allScansSubj_TemporalOrder
@@ -635,21 +637,281 @@ for (s in 1:length(unique(allScans$Subject))) {
   allScansSubj <- allScans[allScans$Subject == subject, ]
   # get which dose is psil/methyl
   DoseCorresp=subjDoseCorresp$X2[subjDoseCorresp$X1==subject]
-  # if methyl is drug 1
+  # if psilo is drug 1
   if (DoseCorresp==1){
-        # all drug 2 gets + # of between scans added to temporal order
-    allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=(allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl'])+length(unique(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']))
-    # all between scans gets + # of drug2 scans subtracted from temporal order
-     allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])-length(unique(allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']))
+        # recoded 6/29/24 to use same extraction as above
+        # first logical temporal determination is in Dosage column: before < drug 1 < between < drug 2 < after
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='before']=1000
+        allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=2000
+        # note drug1 vs drug 2 to be demarcated later, after this loop, using Drug column 
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
+        allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=4000
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
+        # second logical temporal determination is OgRow column: lower og row number = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
+        allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
+        allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
+        # sorted values for indexing
+        allScansSubj_TemporalOrderSorted=sort(unique(allScansSubj$TemporalOrder))
+        # convert to by-1 sequence
+        for (i in 1:length(unique(allScansSubj$TemporalOrder))){
+            numberOfInterest=allScansSubj_TemporalOrderSorted[i]
+            allScansSubj_TemporalOrder[allScansSubj_TemporalOrder==numberOfInterest]=i
+        }
+        allScansSubj$TemporalOrder<-allScansSubj_TemporalOrder
+        allScans[allScans$Subject == subject, ]$TemporalOrder <- allScansSubj$TemporalOrder
+     # if psilo is drug 2
   } else if (DoseCorresp==2) {
-    # all drug 2 gets + # of between scans added to temporal order
-    allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])+length(unique(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']))
-    # all between scans gets + # of drug2 scans subtracted from temporal order
-     allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])-length(unique(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']))
+    # recoded 6/29/24 to use same extraction as above
+        # first logical temporal determination is in Dosage column: before < drug 1 < between < drug 2 < after
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='before']=1000
+        allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=2000
+        # note drug1 vs drug 2 to be demarcated later, after this loop, using Drug column 
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
+        allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=4000
+        allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
+        # second logical temporal determination is OgRow column: lower og row number = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
+        allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
+        allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
+        # sorted values for indexing
+        allScansSubj_TemporalOrderSorted=sort(unique(allScansSubj$TemporalOrder))
+        # convert to by-1 sequence
+        for (i in 1:length(unique(allScansSubj$TemporalOrder))){
+            numberOfInterest=allScansSubj_TemporalOrderSorted[i]
+            allScansSubj_TemporalOrder[allScansSubj_TemporalOrder==numberOfInterest]=i
+        }
+        allScansSubj$TemporalOrder<-allScansSubj_TemporalOrder
+        allScans[allScans$Subject == subject, ]$TemporalOrder <- allScansSubj$TemporalOrder
   }
-  allScans[allScans$Subject == subject, ]$TemporalOrder <- allScansSubj$TemporalOrder
 # end loop
 }
+
+```
+
+```{r}
+### match 99's to <9x ID's
+
+# temporal order of 99's has to be after 03 16 18 19!
+allScans$TemporalOrder[allScans$Subjects=='PS93']=allScans$TemporalOrder[allScans$Subjects=='PS93']+max(allScans$TemporalOrder[allScans$Subjects=='PS03'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS96']=allScans$TemporalOrder[allScans$Subjects=='PS96']+max(allScans$TemporalOrder[allScans$Subjects=='PS16'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS98']=allScans$TemporalOrder[allScans$Subjects=='PS98']+max(allScans$TemporalOrder[allScans$Subjects=='PS18'])
+
+allScans$TemporalOrder[allScans$Subjects=='PS99']=allScans$TemporalOrder[allScans$Subjects=='PS99']+max(allScans$TemporalOrder[allScans$Subjects=='PS19'])
+
+# this technically makes all non drug scans "after" for these PTs
+allScans$Dosage[allScans$Subjects=='PS93']='after'
+allScans$Dosage[allScans$Subjects=='PS96']='after'
+allScans$Dosage[allScans$Subjects=='PS98']='after'
+allScans$Dosage[allScans$Subjects=='PS99']='after'
+
+# rename to formally fold into same subject ID
+allScans$Subjects[allScans$Subjects=='PS93']='PS03'
+allScans$Subjects[allScans$Subjects=='PS96']='PS16'
+allScans$Subjects[allScans$Subjects=='PS98']='PS18'
+allScans$Subjects[allScans$Subjects=='PS99']='PS19'
+allScans$Subjects=as.factor(allScans$Subjects)
+```
+
+```{r}
+# remove data that needs to be removed (<250 TRs)
+allScans=allScans[allScans$RemTRs>250,]
+
+# model
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+
+# methylphenidate vs. psilocybin
+drugScans=allScans[allScans$Drug!='none',]
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+```
+
+```{r}
+# plot timecourse for each subject. X-axis is temporal order. y axis is tdprop1. Demarcate psilocybin x-axis interger with geom_vline.
+
+# Adjust the data accordingly if needed
+ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
+  geom_point(aes(color=Drug)) +
+  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
+  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
+  theme_minimal()+geom_smooth()+
+  facet_wrap(~Subjects, scales = "free_y")
+```
+
+```{r}
+# alternative coding to above
+allScans$Condition=allScans$Dosage
+# correct betweens to after where psilo has already occurred
+for (s in 1:length(unique(allScans$Subject))) {
+  # get subject ID
+  subject <- (unique(allScans$Subject))[s]
+  allScansSubj <- allScans[allScans$Subject == subject, ]
+  if (min(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])<min(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])){
+    allScansSubj$Dosage[allScansSubj$Dosage=='between']='after'
+    # alter between visits to after if this condition is met
+    allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Dosage
+  }
+}
+
+# correct betweens to before where psilo has not occurred
+allScans$Condition [allScans$Condition == 'between']<- 'before'
+
+# construe after scans in terms of how many scans after
+levels(allScans$Condition)<-c(levels(allScans$Condition),'immed_afterPsil','immed_afterMethyl')
+# for each subj
+for (s in 1:length(unique(allScans$Subject))) {
+  # get subject ID
+  subject <- (unique(allScans$Subject))[s]
+  allScansSubj <- allScans[allScans$Subject == subject, ]
+  TempOrdersubj=allScansSubj$TemporalOrder
+  # find psil scan
+  psilScanInds=TempOrdersubj[allScansSubj$Drug=='Psilo']
+  unqPsilScans=unique(psilScanInds)
+  for (unqPsilScans in 1:length(unqPsilScans)){
+      # psil scan temporal index
+      p_s_t_i=psilScanInds[unqPsilScans]
+      # mark after scan as immedafter in cond
+      allScansSubj$Condition[allScansSubj$TemporalOrder==(p_s_t_i+1)]='immed_afterPsil'
+      allScansSubj$Condition[allScansSubj$TemporalOrder==(p_s_t_i+2)]='immed_afterPsil'
+  }
+  # find methyl scan
+  methScanInds=TempOrdersubj[allScansSubj$Drug=='Methyl']
+  unqmethScans=unique(methScanInds)
+  for (unqmethScans in 1:length(unqmethScans)){
+      # meth scan temporal index
+      m_s_t_i=methScanInds[unqmethScans]
+      # mark after scan as immedafter in cond
+      allScansSubj$Condition[allScansSubj$TemporalOrder==(m_s_t_i+1)]='immed_afterMethyl'
+      allScansSubj$Condition[allScansSubj$TemporalOrder==(m_s_t_i+2)]='immed_afterMethyl'
+  }
+  # insert back into master dataframe
+  allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Condition
+}
+  
+
+# after condition no longer meaningfully distinct from before
+allScans$Condition2<-as.factor(allScans$Condition)
+allScans$Condition2[allScans$Condition2=='after']='before'
+levels(allScans$Condition2)=c(levels(allScans$Condition2),'Non-Drug','Psilo','Methyl')
+allScans$Condition2[allScans$Condition2=='before']='Non-Drug'
+allScans$Condition2[allScans$Drug=='Methyl']='Methyl'
+allScans$Condition2[allScans$Drug=='Psilo']='Psilo'
+
+# plot invididual scans to qc category assignment
+ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
+  geom_point(aes(color=Condition2,size=1)) +
+  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
+  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
+  theme_minimal()+geom_smooth()+
+  facet_wrap(~Subjects, scales = "free_y")
+```
+
+```{r}
+# model it with non-drug as reference scans
+allScans <- within(allScans, Condition2 <- relevel(Condition2, ref = 6))
+```
+
+
+```{r}
+# Create a ggplot with individual plots for each subject
+ggplot(allScans, aes(x = Dosage, y = TDProp1, color = Subjects)) +
+  geom_point() +
+  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black") +
+  stat_summary(fun = mean, geom = "line", aes(group = 1), size = 1, linetype = "dashed", color = "black") +
+  labs(title = "Individual Subject Plots with Mixed Effects",
+       x = "Dosage",
+       y = "TDProp1") +
+  theme_minimal() +
+  facet_wrap(~Subjects, scales = "free_y", ncol = 2)  # Adjust ncol as needed
+```
+
+```{r}
+# figure 2 plots: methylphenidate vs. psilocybin
+# subset out sessions where participant received pill
+drugScans=allScans[allScans$Drug!='none',]
+
+# plot residuals from reduced model: lme(TDProp1 ~ Drug + RemTRs + FD)
+reducedModel=lme(TDProp1 ~  RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
+drugScans$ResidualsReduced=resid(reducedModel)+mean(drugScans$TDProp1)
+
+ggplot(drugScans, aes(x = Drug, y = ResidualsReduced)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "Psilocybin vs. Active Placebo \n \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('Methylphenidate','Psilocybin'))+
+  theme_minimal(base_size=25)
+
+# full model for stats
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+```
+
+```{r}
+# figure 2 plots: drug vs. nondrug
+allScans$Psilo=0
+allScans$Psilo[allScans$Drug=='Psilo']=1
+allScans$Psilo<-as.factor(allScans$Psilo)
+# just non-drug for easier interpretability for this plot
+allScansNoMeth=allScans[allScans$Drug!='Methyl',]
+# plot residuals from reduced model: lme(TDProp1 ~ Drug + RemTRs + FD)
+reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
+allScansNoMeth$ResidualsReduced=resid(reducedModel)+mean(allScansNoMeth$TDProp1)
+
+ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.6,size=3) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "Psilocybin vs. No-drug scans \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
+  theme_minimal(base_size=25)
+
+# full model for stats
+fit_lme <- lme(TDProp1 ~ Psilo + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+
+```
+
+```{r}
+# figure 2 plots: follow-up scans
+# get residuals
+reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+allScans$ResidualsReduced=resid(reducedModel)+mean(allScans$TDProp1)
+# plot one version without methyl conditions for main text
+allScansNoMeth=allScans[allScans$Condition2!='Methyl',]
+allScansNoMeth=allScansNoMeth[allScansNoMeth$Condition2!='immed_afterMethyl',]
+
+ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.6,size=3) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "Psilocybin: Lasting effects \n \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
+  theme_minimal(base_size=25)
+
+# full model for stats
+fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
+summaryLME<-summary(fit_lme)
+# match to one-tailed
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
+paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+```
+
+```{r}
+# below this is old
 
 ```
 
@@ -695,150 +957,6 @@ for (s in 1:length(unique(allScans$Subject))) {
 ## merge w/ MEQ
 #MEQMerged=merge(IDsTempOrd,MEQ,by='Subjects')
 ```
-
-```{r}
-### match 99's to <9x ID's
-
-# temporal order of 99's has to be after 03 16 18 19!
-allScans$TemporalOrder[allScans$Subjects=='PS93']=allScans$TemporalOrder[allScans$Subjects=='PS93']+max(allScans$TemporalOrder[allScans$Subjects=='PS03'])
-
-allScans$TemporalOrder[allScans$Subjects=='PS96']=allScans$TemporalOrder[allScans$Subjects=='PS96']+max(allScans$TemporalOrder[allScans$Subjects=='PS16'])
-
-allScans$TemporalOrder[allScans$Subjects=='PS98']=allScans$TemporalOrder[allScans$Subjects=='PS98']+max(allScans$TemporalOrder[allScans$Subjects=='PS18'])
-
-allScans$TemporalOrder[allScans$Subjects=='PS99']=allScans$TemporalOrder[allScans$Subjects=='PS99']+max(allScans$TemporalOrder[allScans$Subjects=='PS19'])
-
-# this technically makes all non drug scans "after" for these PTs
-allScans$Dosage[allScans$Subjects=='PS93']='after'
-allScans$Dosage[allScans$Subjects=='PS96']='after'
-allScans$Dosage[allScans$Subjects=='PS98']='after'
-allScans$Dosage[allScans$Subjects=='PS99']='after'
-
-# rename to formally fold into same subject ID
-allScans$Subjects[allScans$Subjects=='PS93']='PS03'
-allScans$Subjects[allScans$Subjects=='PS96']='PS16'
-allScans$Subjects[allScans$Subjects=='PS98']='PS18'
-allScans$Subjects[allScans$Subjects=='PS99']='PS19'
-allScans$Subjects=as.factor(allScans$Subjects)
-```
-
-```{r}
-# remove data that needs to be removed (<250 TRs)
-allScans=allScans[allScans$RemTRs>250,]
-# model
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
-summaryLME<-summary(fit_lme)
-# match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
-```
-
-```{r}
-# plot timecourse for each subject. X-axis is temporal order. y axis is tdprop1. Demarcate psilocybin x-axis interger with geom_vline.
-
-# Adjust the data accordingly if needed
-ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
-  geom_point(aes(color=Dosage)) +
-  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
-  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
-  theme_minimal()+geom_smooth()+
-  facet_wrap(~Subjects, scales = "free_y")
-```
-
-```{r}
-# model for before vs. after psilo
-allScans$Dosage[allScans$Drug=='Methyl']='Methyl'
-allScans$Dosage<-as.factor(allScans$Dosage)
-allScans <- within(allScans, Dosage <- relevel(Dosage, ref = 2))
-fit_lme <- lme(TDProp1 ~ Dosage + RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
-```
-
-```{r}
-# alternative coding to above
-allScans$Condition=allScans$Dosage
-# correct betweens to after where psilo has already occurred
-for (s in 1:length(unique(allScans$Subject))) {
-  # get subject ID
-  subject <- (unique(allScans$Subject))[s]
-  allScansSubj <- allScans[allScans$Subject == subject, ]
-  if (min(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])<min(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])){
-    allScansSubj$Dosage[allScansSubj$Dosage=='between']='after'
-    # alter between visits to after if this condition is met
-    allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Dosage
-  }
-}
-
-ggplot(allScans, aes(x = TemporalOrder, y = TDProp1)) +
-  geom_point(aes(color=Condition)) +
-  geom_vline(data = subset(allScans, Drug == 'Psilo'), aes(xintercept = TemporalOrder), linetype = 'solid') + geom_vline(data = subset(allScans, Drug == 'Methyl'), aes(xintercept = TemporalOrder), linetype = 'dashed')+
-  labs(x = "Temporal Order", y = "TDProp1", title = "Timecourse for Each Subject") +
-  theme_minimal()+geom_smooth()+
-  facet_wrap(~Subjects, scales = "free_y")
-
-
-# model
-allScans$Condition<-as.factor(allScans$Condition)
-#allScans <- within(allScans, Condition <- relevel(Condition, ref = 2))
-fit_lme <- lme(TDProp1 ~ Condition + RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
-
-```
-
-```{r}
-allScans$Dosage <- factor(allScans$Dosage, levels = c("before", "Drug", "between","after", "Methyl"))
-
-ggplot(allScans, aes(x = Dosage, y = TDProp1, color = Subjects)) +
-  geom_point(size=2) +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black") +
-  stat_summary(fun = mean, geom = "line", aes(group = 1), size = 1, linetype = "dashed", color = "black") +
-  labs(x = "Dosage",
-       y = "TDProp1") +
-  theme_minimal()
-
-### and make a matching version: before and drug
-allScans2=allScans[allScans$Dosage!='between',]
-allScans2=allScans2[allScans2$Dosage!='Methyl',]
-allScans2=allScans2[allScans2$Dosage!='after',]
-
-boxplot_data_left <- allScans2 %>%
-  filter(Dosage == 'before')
-
-boxplot_data_right <- allScans2 %>%
-  filter(Dosage == 'Drug')
-
-
-# equivalent plot
-ggplot(allScans2, aes(x = Dosage, y = TDProp1, group = Subjects, color = Subjects)) +
-  geom_point(size = 4, aes(alpha = .7)) +
-  geom_line() +
-  # Box plot on the left side
-  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Dosage)- 0.25, y = TDProp1, group = Dosage), width = 0.2, color = "black") +
-  # Box plot on the right side
-  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Dosage)+.25, y = TDProp1, group = Dosage), width = 0.2, color = "black") +
-  scale_color_viridis_d(option = "plasma") +
-  theme_minimal(base_size = 22) +
-  ylab('% Bottom-up') +
-  xlab('Psilocybin')
-
-```
-
-```{r}
-# Create a ggplot with individual plots for each subject
-
-ggplot(allScans, aes(x = Dosage, y = TDProp1, color = Subjects)) +
-  geom_point() +
-  stat_summary(fun = mean, geom = "point", shape = 18, size = 3, color = "black") +
-  stat_summary(fun = mean, geom = "line", aes(group = 1), size = 1, linetype = "dashed", color = "black") +
-  labs(title = "Individual Subject Plots with Mixed Effects",
-       x = "Dosage",
-       y = "TDProp1") +
-  theme_minimal() +
-  facet_wrap(~Subjects, scales = "free_y", ncol = 2)  # Adjust ncol as needed
-```
-
-```{r}
-# below this is old
-
-````
-
 
 ```{r}
 # subset for p-80
