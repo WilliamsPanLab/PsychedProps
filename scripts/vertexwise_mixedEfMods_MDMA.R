@@ -29,11 +29,11 @@ DrugTaskp_R=rep(0,2562)
 for (v in 1:2562){
 	print(v)
 	# if file exists: left
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_L_DMN.csv'))){
+	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))){
 		# load in data for this vertex
-		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L_DMN.csv'))
+		dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_L.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
-		# not applicable for single-value-per-scan measures
+		# this is done in matlab prior to this script now
 		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
 		# convert task
 		dataV$Task[dataV$Task=='rs1']='rs'
@@ -49,6 +49,7 @@ for (v in 1:2562){
 		# set rs1 and rs2 to equivalent
 		combinedData$Task[combinedData$Task=='rs2']='rs'
 		combinedData$Task<-as.factor(combinedData$Task)
+		combinedData <- within(combinedData, Task <- relevel(Task, ref = 2))
 		# fit model
 		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
 		modeltable=summary(model)$tTable
@@ -61,9 +62,9 @@ for (v in 1:2562){
 		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','p-value']
 	}
 	# if right file exists
-	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R_DMN.csv'))){
+	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))){
                 # load in data for this vertex
-                dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R_DMN.csv'))
+                dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))
 		# remove every other opfl measurement so no single TR is used twice in observations
 		#dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
                 # convert task
@@ -72,6 +73,7 @@ for (v in 1:2562){
                 combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
                 combinedData$Task[combinedData$Task=='rs2']='rs'
 		combinedData$Task<-as.factor(combinedData$Task)
+		combinedData <- within(combinedData, Task <- relevel(Task, ref = 2))
                 # fit model
                 model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
                 modeltable=summary(model)$tTable
