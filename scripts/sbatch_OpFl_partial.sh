@@ -86,10 +86,18 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
 # task
-matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','gambling')"
+
+# get frequency and duration of BUP and TD epsiodes
+matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"
+matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs2')"
+matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','wm')"
+matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling)"
+
+
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs2')"

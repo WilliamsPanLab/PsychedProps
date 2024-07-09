@@ -1,5 +1,6 @@
 # needed libraries
-library(nlme)
+library(lme4)
+library(lmerTest)
 # load in info from R
 subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_psil.rds')
 # convert subjinfo to format of vertexwise csvs
@@ -7,10 +8,6 @@ subjInfo=subjInfo[,c('Subjects','Task','Session','Drug','FD','RemTRs')]
 colnames(subjInfo)[1]='Subject'
 subjInfo$Task=as.factor(subjInfo$Task)
 subjInfo$Subject=as.factor(subjInfo$Subject)
-# convert session to equivalent variables
-subjInfo$Session <- factor(subjInfo$Session, 
-                           levels = c(1, 2, 3), 
-                           labels = c("ses-01", "ses-02", "ses-03"))
 
 # initialize vertex-level vectors
 DrugT_L=rep(0,2562)
@@ -44,78 +41,50 @@ for (v in 1:2562){
 		#mismatchedKeys <- setdiff(combinedData$key, subjInfo$key)
 		# Subset the mismatched rows
 		#mismatchedRows <- combinedData[combinedData$key %in% mismatchedKeys, ]
+		combinedData <- within(combinedData, Drug <- relevel(Drug, ref = 2))
 		# fit model
-		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
-		modeltable=summary(model)$tTable
+		model <- lmer(Value ~ FD + Drug + RemTRs + (1 | Subject), data = combinedData)
+		modeltable=summary(model)$coefficients
 		# print out stats
-		DrugT_L[v]=modeltable['Drug1','t-value']
-		Drugp_L[v]=modeltable['Drug1','p-value']
+		DrugT_L[v]=modeltable['DrugPsilo','t value']
+		Drugp_L[v]=modeltable['DrugPsilo','Pr(>|t|)']
 	}
 	# if right file exists
 	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_R.csv'))){
                 # load in data for this vertex
                 dataV=read.csv(paste0('/scratch/users/apines/taskVerts/v',v,'_psil_R.csv'))
-		# remove every other opfl measurement so no single TR is used twice in observations
-		dataV <- dataV[seq(2, nrow(dataV), by = 2), ]
-                # convert task
-                dataV$Task[dataV$Task=='rs1']='rs'
                 # combine with subjinfo
                 combinedData=merge(dataV,subjInfo,by=c('Subject','Task','Session'))
-                combinedData$Task[combinedData$Task=='rs2']='rs'
-		combinedData$Task<-as.factor(combinedData$Task)
+		combinedData <- within(combinedData, Drug <- relevel(Drug, ref = 2))
                 # fit model
-                model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
-                modeltable=summary(model)$tTable
+                model <- lmer(Value ~ FD + Drug + RemTRs + (1| Subject), data = combinedData)
+                modeltable=summary(model)$coefficients
                 # print out stats
-                DrugT_R[v]=modeltable['Drug1','t-value']
-                Drugp_R[v]=modeltable['Drug1','p-value']
+                DrugT_R[v]=modeltable['DrugPsilo','t value']
+                Drugp_R[v]=modeltable['DrugPsilo','Pr(>|t|)']
 	}
 # end for each vertex
 }
 # pull out p's where T!=0 : left 
 validVerts_L = which(DrugT_L != 0)
 valid_Drug_Ps_L=Drugp_L[validVerts_L]
-valid_Task_Ps_L=Taskp_L[validVerts_L]
-valid_DrugTask_Ps_L=DrugTaskp_L[validVerts_L]
 # pull out p's where T!=0 : right
 validVerts_R = which(DrugT_R != 0)
 valid_Drug_Ps_R=Drugp_R[validVerts_R]
-valid_Task_Ps_R=Taskp_R[validVerts_R]
-valid_DrugTask_Ps_R=DrugTaskp_R[validVerts_R]
 # mc correct
 valid_Drug_Ps=c(valid_Drug_Ps_L,valid_Drug_Ps_R)
-valid_Task_Ps=c(valid_Task_Ps_L,valid_Task_Ps_R)
-valid_DrugTask_Ps=c(valid_DrugTask_Ps_L,valid_DrugTask_Ps_R)
 mc_Drug_Ps=p.adjust(valid_Drug_Ps,method='fdr')
-mc_Task_Ps=p.adjust(valid_Task_Ps,method='fdr')
-mc_DrugTask_Ps=p.adjust(valid_DrugTask_Ps,method='fdr')
 # parse back to left and right
 mc_Drug_Ps_L=mc_Drug_Ps[1:length(validVerts_L)]
 mc_Drug_Ps_R=mc_Drug_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
-mc_Task_Ps_L=mc_Task_Ps[1:length(validVerts_L)]
-mc_Task_Ps_R=mc_Task_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
-mc_DrugTask_Ps_L=mc_DrugTask_Ps[1:length(validVerts_L)]
-mc_DrugTask_Ps_R=mc_DrugTask_Ps[(length(validVerts_L)+1):(length(validVerts_L)+length(validVerts_R))]
 # apply to t's
 valid_Drug_Ts_L=DrugT_L[validVerts_L]
-valid_Task_Ts_L=TaskT_L[validVerts_L]
-valid_DrugTask_Ts_L=DrugTaskT_L[validVerts_L]
 # pull out p's where T!=0 : right
 valid_Drug_Ts_R=DrugT_R[validVerts_R]
-valid_Task_Ts_R=TaskT_R[validVerts_R]
-valid_DrugTask_Ts_R=DrugTaskT_R[validVerts_R]
 # use FDR < .05 to thresh: inputting 999 for now to track through vis
-valid_Drug_Ts_L[mc_Drug_Ps_L>.05]=999
-valid_Drug_Ts_R[mc_Drug_Ps_R>.05]=999
-valid_Task_Ts_L[mc_Task_Ps_L>.05]=999
-valid_Task_Ts_R[mc_Task_Ps_R>.05]=999
-valid_DrugTask_Ts_L[mc_DrugTask_Ps_L>.05]=999
-valid_DrugTask_Ts_R[mc_DrugTask_Ps_R>.05]=999
+valid_Drug_Ts_L[mc_Drug_Ps_L>.5]=999
+valid_Drug_Ts_R[mc_Drug_Ps_R>.5]=999
 # saveout corrected t's for vis
-write.csv(data.frame(valid_Drug_Ts_L), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_Drug_Ts_R), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_R.csv",row.names = FALSE)
-write.csv(data.frame(valid_Task_Ts_L), file = "/scratch/users/apines/taskVerts/valid_Task_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_Task_Ts_R), file = "/scratch/users/apines/taskVerts/valid_Task_Ts_R.csv",row.names = FALSE)
-write.csv(data.frame(valid_DrugTask_Ts_L), file = "/scratch/users/apines/taskVerts/valid_DrugTask_Ts_L.csv",row.names = FALSE)
-write.csv(data.frame(valid_DrugTask_Ts_R), file = "/scratch/users/apines/taskVerts/valid_DrugTask_Ts_R.csv",row.names = FALSE)
+write.csv(data.frame(valid_Drug_Ts_L), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_L_psil.csv",row.names = FALSE)
+write.csv(data.frame(valid_Drug_Ts_R), file = "/scratch/users/apines/taskVerts/valid_Drug_Ts_R_psil.csv",row.names = FALSE)
 

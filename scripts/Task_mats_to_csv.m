@@ -55,9 +55,9 @@ for v=1:2562
 				subjVals01=load(ses01fp);
 				% extract this vertex for each timepoint - left
 				% every two timepoints to avoid same TR contributing twice to measures
-				valuesL01=subjVals01.AngDist.Left(v,1:2:end);
+				valuesL01=subjVals01.AngDist.Left(v,:);
 				% extract this vertex for each timepoint - right
-				valuesR01=subjVals01.AngDist.Right(v,1:2:end);
+				valuesR01=subjVals01.AngDist.Right(v,:);
 				% append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns	
 				vertTableL = [vertTableL; repmat({subj, 'ses-01', task}, size(valuesL01, 2), 1), num2cell(valuesL01)'];
 				vertTableR = [vertTableR; repmat({subj, 'ses-01', task}, size(valuesR01, 2), 1), num2cell(valuesR01)'];
@@ -68,9 +68,9 @@ for v=1:2562
 			if exist(ses02fp,'file')
 				subjVals02=load(ses02fp);
 		 		% extract this vertex for each timepoint - left
-				valuesL02=subjVals02.AngDist.Left(v,1:2:end);
+				valuesL02=subjVals02.AngDist.Left(v,:);
                                 % extract this vertex for each timepoint - right
-				valuesR02=subjVals02.AngDist.Right(v,1:2:end);
+				valuesR02=subjVals02.AngDist.Right(v,:);
                                 % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
                                 vertTableL = [vertTableL; repmat({subj, 'ses-02', task}, size(valuesL02, 2), 1), num2cell(valuesL02)'];
                                 vertTableR = [vertTableR; repmat({subj, 'ses-02', task}, size(valuesR02, 2), 1), num2cell(valuesR02)'];	
@@ -81,9 +81,9 @@ for v=1:2562
 			if exist(ses03fp,'file')
 				subjVals03=load(ses03fp);
 				% extract this vertex for each timepoint - left
-				valuesL03=subjVals03.AngDist.Left(v,1:2:end);
+				valuesL03=subjVals03.AngDist.Left(v,:);
                                 % extract this vertex for each timepoint - right
-				valuesR03=subjVals03.AngDist.Right(v,1:2:end);
+				valuesR03=subjVals03.AngDist.Right(v,:);
                                 % append vertex table with every timepoint value for scan1, with repmat of subj sesh and task as 1st 3 columns
                                 vertTableL = [vertTableL; repmat({subj, 'ses-03', task}, size(valuesL03, 2), 1), num2cell(valuesL03)'];
                                 vertTableR = [vertTableR; repmat({subj, 'ses-03', task}, size(valuesR03, 2), 1), num2cell(valuesR03)'];

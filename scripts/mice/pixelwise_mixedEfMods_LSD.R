@@ -1,7 +1,8 @@
 # needed libraries
-library(nlme)
+library(lme4)
 library(bigmemory)
 library(grDevices)
+library(lmerTest)
 
 # initialize vertex-level vectors
 DrugTs=array(0,dim=c(67,70))
@@ -62,40 +63,41 @@ for (x in 1:67){
 		# get all sober values from mouse 1
 		# every other value to not utilize observations derived in part from a single frame twice
 		m1SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),1,1]
-		m1SobData=data.frame(Value=m1SobVals, MouseID = rep(mList[i],length(m1SobVals)), Drug = rep(0,length(m1SobVals)))
+		m1SobData=data.frame(Value=m1SobVals, MouseID = rep(mList[1],length(m1SobVals)), Drug = rep(0,length(m1SobVals)))
 		m2SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),2,1]
-		m2SobData=data.frame(Value=m2SobVals, MouseID = rep(mList[i],length(m2SobVals)), Drug = rep(0,length(m2SobVals)))
+		m2SobData=data.frame(Value=m2SobVals, MouseID = rep(mList[2],length(m2SobVals)), Drug = rep(0,length(m2SobVals)))
 		m3SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),3,1]
-		m3SobData=data.frame(Value=m3SobVals, MouseID = rep(mList[i],length(m3SobVals)), Drug = rep(0,length(m3SobVals)))
+		m3SobData=data.frame(Value=m3SobVals, MouseID = rep(mList[3],length(m3SobVals)), Drug = rep(0,length(m3SobVals)))
 		m4SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),4,1]
-		m4SobData=data.frame(Value=m4SobVals, MouseID = rep(mList[i],length(m4SobVals)), Drug = rep(0,length(m4SobVals)))
+		m4SobData=data.frame(Value=m4SobVals, MouseID = rep(mList[4],length(m4SobVals)), Drug = rep(0,length(m4SobVals)))
 		m5SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),5,1]
-		m5SobData=data.frame(Value=m5SobVals, MouseID = rep(mList[i],length(m5SobVals)), Drug = rep(0,length(m5SobVals)))
+		m5SobData=data.frame(Value=m5SobVals, MouseID = rep(mList[5],length(m5SobVals)), Drug = rep(0,length(m5SobVals)))
 		m6SobVals=faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),6,1] 	 
-		m6SobData=data.frame(Value=m6SobVals, MouseID = rep(mList[i],length(m6SobVals)), Drug = rep(0,length(m6SobVals)))
+		m6SobData=data.frame(Value=m6SobVals, MouseID = rep(mList[6],length(m6SobVals)), Drug = rep(0,length(m6SobVals)))
 		# pull out all drug values
 		m1DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),1,2:6])
-                m1DrugData=data.frame(Value=m1DrugVals, MouseID = rep(mList[i],length(m1DrugVals)), Drug = rep(1,length(m1DrugVals)))
+                m1DrugData=data.frame(Value=m1DrugVals, MouseID = rep(mList[1],length(m1DrugVals)), Drug = rep(1,length(m1DrugVals)))
                 m2DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),2,2:6])
-                m2DrugData=data.frame(Value=m2DrugVals, MouseID = rep(mList[i],length(m2DrugVals)), Drug = rep(1,length(m2DrugVals)))
+                m2DrugData=data.frame(Value=m2DrugVals, MouseID = rep(mList[2],length(m2DrugVals)), Drug = rep(1,length(m2DrugVals)))
                 m3DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),3,2:6])
-                m3DrugData=data.frame(Value=m3DrugVals, MouseID = rep(mList[i],length(m3DrugVals)), Drug = rep(1,length(m3DrugVals)))
+                m3DrugData=data.frame(Value=m3DrugVals, MouseID = rep(mList[3],length(m3DrugVals)), Drug = rep(1,length(m3DrugVals)))
                 m4DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),4,2:6])
-                m4DrugData=data.frame(Value=m4DrugVals, MouseID = rep(mList[i],length(m4DrugVals)), Drug = rep(1,length(m4DrugVals)))
+                m4DrugData=data.frame(Value=m4DrugVals, MouseID = rep(mList[5],length(m4DrugVals)), Drug = rep(1,length(m4DrugVals)))
                 m5DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),5,2:6])
-                m5DrugData=data.frame(Value=m5DrugVals, MouseID = rep(mList[i],length(m5DrugVals)), Drug = rep(1,length(m5DrugVals)))
+                m5DrugData=data.frame(Value=m5DrugVals, MouseID = rep(mList[6],length(m5DrugVals)), Drug = rep(1,length(m5DrugVals)))
                 m6DrugVals=array(faceMatrix5D[x,y,seq(1, dim(faceMatrix5D)[3], by = 2),6,2:6])
-                m6DrugData=data.frame(Value=m6DrugVals, MouseID = rep(mList[i],length(m6DrugVals)), Drug = rep(1,length(m6DrugVals)))
+                m6DrugData=data.frame(Value=m6DrugVals, MouseID = rep(mList[6],length(m6DrugVals)), Drug = rep(1,length(m6DrugVals)))
 		# combine data
 		DataCombined=rbind(m1SobData,m2SobData,m3SobData,m4SobData,m5SobData,m6SobData,m1DrugData,m2DrugData,m3DrugData,m4DrugData,m5DrugData,m6DrugData)
 		# omit NAs (scan 6 mouse 7507)
 		DataCombined=na.omit(DataCombined)
+		DataCombined$MouseID<-as.factor(DataCombined$MouseID)
 		# fit model
-		model <- lme(Value ~ Drug, random = ~ 1 | MouseID, data = DataCombined)
-		modeltable=summary(model)$tTable
+		model <- lmer(Value ~ Drug + (1 | MouseID), data = DataCombined)
+		modeltable=summary(model)$coefficients
 		# print out stats
-		DrugTs[x,y]=modeltable['Drug','t-value']
-		Drugps[x,y]=modeltable['Drug','p-value']
+		DrugTs[x,y]=modeltable['Drug','t value']
+		Drugps[x,y]=modeltable['Drug','Pr(>|t|)']
 		# end for each y pixel
 	}
 	# end for each x pixel

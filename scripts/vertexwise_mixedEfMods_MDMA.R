@@ -1,5 +1,6 @@
 # needed libraries
-library(nlme)
+library(lme4)
+library(lmerTest)
 # load in info from R
 subjInfo=readRDS('/oak/stanford/groups/leanew1/users/apines/forVertexwise_MDMA.rds')
 # convert subjinfo to format of vertexwise csvs
@@ -50,16 +51,17 @@ for (v in 1:2562){
 		combinedData$Task[combinedData$Task=='rs2']='rs'
 		combinedData$Task<-as.factor(combinedData$Task)
 		combinedData <- within(combinedData, Task <- relevel(Task, ref = 2))
+		combinedData$Subject=as.factor(combinedData$Subject)
 		# fit model
-		model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
-		modeltable=summary(model)$tTable
+		model <- lmer(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs + (1 | Subject), data = combinedData)
+		modeltable=summary(model)$coefficients
 		# print out stats
-		DrugT_L[v]=modeltable['Drug1','t-value']
-		Drugp_L[v]=modeltable['Drug1','p-value']
-		TaskT_L[v]=modeltable['Taskwm','t-value']
-		Taskp_L[v]=modeltable['Taskwm','p-value']
-		DrugTaskT_L[v]=modeltable['Drug1:Taskwm','t-value']
-		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','p-value']
+		DrugT_L[v]=modeltable['Drug1','t value']
+		Drugp_L[v]=modeltable['Drug1','Pr(>|t|)']
+		TaskT_L[v]=modeltable['Taskwm','t value']
+		Taskp_L[v]=modeltable['Taskwm','Pr(>|t|)']
+		DrugTaskT_L[v]=modeltable['Drug1:Taskwm','t value']
+		DrugTaskp_L[v]=modeltable['Drug1:Taskwm','Pr(>|t|)']
 	}
 	# if right file exists
 	if (file.exists(paste0('/scratch/users/apines/taskVerts/v',v,'_R.csv'))){
@@ -74,16 +76,17 @@ for (v in 1:2562){
                 combinedData$Task[combinedData$Task=='rs2']='rs'
 		combinedData$Task<-as.factor(combinedData$Task)
 		combinedData <- within(combinedData, Task <- relevel(Task, ref = 2))
+		combinedData$Subject=as.factor(combinedData$Subject)
                 # fit model
-                model <- lme(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs, random = ~ 1 | Subject, data = combinedData)
-                modeltable=summary(model)$tTable
+                model <- lmer(Value ~ MeanFD + Drug+Task+Drug*Task + RemTRs + (1 | Subject), data = combinedData)
+                modeltable=summary(model)$coefficients
                 # print out stats
-                DrugT_R[v]=modeltable['Drug1','t-value']
-                Drugp_R[v]=modeltable['Drug1','p-value']
-                TaskT_R[v]=modeltable['Taskwm','t-value']
-                Taskp_R[v]=modeltable['Taskwm','p-value']
-                DrugTaskT_R[v]=modeltable['Drug1:Taskwm','t-value']
-                DrugTaskp_R[v]=modeltable['Drug1:Taskwm','p-value']
+                DrugT_R[v]=modeltable['Drug1','t value']
+                Drugp_R[v]=modeltable['Drug1','Pr(>|t|)']
+                TaskT_R[v]=modeltable['Taskwm','t value']
+                Taskp_R[v]=modeltable['Taskwm','Pr(>|t|)']
+                DrugTaskT_R[v]=modeltable['Drug1:Taskwm','t value']
+                DrugTaskp_R[v]=modeltable['Drug1:Taskwm','Pr(>|t|)']
 	}
 # end for each vertex
 }
