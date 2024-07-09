@@ -7,7 +7,7 @@ date: "2024-05-15"
 ```{r}
 library(ggplot2)
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(2).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
 
 
 # Rename the columns for easier reference
