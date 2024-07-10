@@ -95,7 +95,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"
 matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs2')"
 matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','wm')"
-matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling)"
+matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling')"
 
 
 # extract autocorr

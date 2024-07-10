@@ -1,4 +1,5 @@
 function AngDist_to_FreqDur(subj,sesh,task)
+
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 
@@ -46,7 +47,8 @@ for F=1:mr_ts_Faces_L
 		% extract OpFl in this segment in this face
 		OFMeasures=AngDist.Left(F,SegStart:SegEnd);
 		%%%% derive number of BUP episodes
-		% find indices where the value crosses below and above 90
+		% find indices where the value crosses below and above thresholds for BUP and TD
+		% note it is not 90 in this iteration
 		above_90 = OFMeasures > 90;
 		below_90 = OFMeasures <= 90;
 		% get start/end indices for each episode
@@ -54,8 +56,8 @@ for F=1:mr_ts_Faces_L
 		BUPends=[];
 		% for each timepoint (other than first, because episode definiton requires a shift from TD to BUP)
 		for tp=2:(BWTRFrameCounts(S)-1)
-			BUPstart=above_90(tp)==1 && above_90(tp+1)==0;
-			BUPend=above_90(tp)==1 && above_90(tp-1)==0;
+			BUPstart=below_90(tp)==0 && below_90(tp+1)==1;
+			BUPend=below_90(tp)==0 && below_90(tp-1)==1;
 			if BUPstart==1
 				BUPstarts=[BUPstarts (tp+1)];
 			end
@@ -151,8 +153,8 @@ for F=1:mr_ts_Faces_R
                 BUPends=[];
                 % for each timepoint (other than first, because episode definiton requires a shift from TD to BUP)
                 for tp=2:(BWTRFrameCounts(S)-1)
-                        BUPstart=above_90(tp)==1 && above_90(tp+1)==0;
-                        BUPend=above_90(tp)==1 && above_90(tp-1)==0;
+                        BUPstart=below_90(tp)==0 && below_90(tp+1)==1;
+                        BUPend=below_90(tp)==0 && below_90(tp-1)==1;
                         if BUPstart==1
                                 BUPstarts=[BUPstarts (tp+1)];
                         end
@@ -244,3 +246,11 @@ save(outFP,'BUPcount');
 % save count TD
 outFP=[inFP '/' subj '_' sesh '_' task '_TD_counts.mat'];
 save(outFP,'TDcount');
+% save out mean duration
+meanBUPdur=mean(BUPdurations);
+outFP=[inFP '/' subj '_' sesh '_' task '_BU_meanDur.mat'];
+save(outFP,'meanBUPdur');
+meanTDdur=mean(TDdurations);
+outFP=[inFP '/' subj '_' sesh '_' task '_TD_meanDur.mat'];
+save(outFP,'meanTDdur');
+

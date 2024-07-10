@@ -27,34 +27,34 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		disp(s)
 	        % get session info NOTE K4 HAS ALL 4 VALUES, K1 has INTENDED VALUE AS WELL
 	        seshInfo=subSeshDose{s,2:5};
-	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_BU_counts.mat'];
+	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_TD_counts.mat'];
 	        bvFP=strjoin(bvFP,'');
 		% and grab reverse phase encoding direction nifti
-		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_BU_counts.mat'];
+		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_TD_counts.mat'];
 	        pFP=strjoin(pFP,'');
-	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_BU_counts.mat'];
+	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_TD_counts.mat'];
 	        m1FP=strjoin(m1FP,'');
-	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_BU_counts.mat'];
+	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_TD_counts.mat'];
 	        m2FP=strjoin(m2FP,'');
 		% load in baseline mats
 		if exist(bvFP,'file')
 		bv=load(bvFP);
-	        outDF(s,1)=bv.BUPcount;
+	        outDF(s,1)=bv.TDcount;
 		%%%%
-		bvFP2=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_BU_dur_counts.mat'];
+		bvFP2=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_TD_dur_counts.mat'];
 		bvFP2=strjoin(bvFP2,'');
 		bv2=load(bvFP2);
-		histCountTot=histCountTot+bv2.BU_dur_counts;
+		histCountTot=histCountTot+bv2.TD_dur_counts;
 		%%%%
-		totsum=sum(bv2.BU_dur_counts);
-		outDF(s,2)=sum(bv2.BU_dur_counts(4:end))/totsum;
-		outDF(s,3)=sum(bv2.BU_dur_counts(6:end))/totsum;
-		outDF(s,4)=sum(bv2.BU_dur_counts(10:end))/totsum;
+		totsum=sum(bv2.TD_dur_counts);
+		outDF(s,2)=sum(bv2.TD_dur_counts(4:end))/totsum;
+		outDF(s,3)=sum(bv2.TD_dur_counts(6:end))/totsum;
+		outDF(s,4)=sum(bv2.TD_dur_counts(10:end))/totsum;
 		%%%% MEAN DURATION
-		bvFP3=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_BU_meanDur.mat'];
+                bvFP3=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_TD_meanDur.mat'];
                 bvFP3=strjoin(bvFP3,'');
                 bv3=load(bvFP3);
-		outDF(s,3)=bv3.meanBUPdur;
+                outDF(s,3)=bv3.meanTDdur;
 		% load in remaining frames
 	        childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{1} ];
                 bvCSIfp=[childfp '/' subjList(s) '_' seshInfo{1} '_task-' task '_ValidSegments_Trunc.txt'];
@@ -68,22 +68,22 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(pFP,'file')
 		p=load(pFP);
 		% extract in group consensus atlas: placebo
-		outDF(s,5)=p.BUPcount;
+		outDF(s,5)=p.TDcount;
 		%%%%
-                pFP2=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_BU_dur_counts.mat'];
+                pFP2=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_TD_dur_counts.mat'];
                 pFP2=strjoin(bvFP2,'');
                 p2=load(pFP2);
-                histCountTot=histCountTot+p2.BU_dur_counts;
+                histCountTot=histCountTot+p2.TD_dur_counts;
                 %%%%
-		totsum=sum(p2.BU_dur_counts);
-		outDF(s,6)=sum(p2.BU_dur_counts(4:end))/totsum;
-		outDF(s,7)=sum(p2.BU_dur_counts(6:end))/totsum;
-		outDF(s,8)=sum(p2.BU_dur_counts(10:end))/totsum;;
+		totsum=sum(p2.TD_dur_counts);
+		outDF(s,6)=sum(p2.TD_dur_counts(4:end))/totsum;
+		outDF(s,7)=sum(p2.TD_dur_counts(6:end))/totsum;
+		outDF(s,8)=sum(p2.TD_dur_counts(10:end))/totsum;;
 		%%%% MEAN DURATION
-                pFP3=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_BU_meanDur.mat'];
+                pFP3=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_TD_meanDur.mat'];
                 pFP3=strjoin(pFP3,'');
                 p3=load(pFP3);
-                outDF(s,7)=p3.meanBUPdur;
+                outDF(s,7)=p3.meanTDdur;
 		% remaining TRs
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{2} ];
                 pCSIfp=[childfp '/' subjList(s) '_' seshInfo{2} '_task-' task '_ValidSegments_Trunc.txt'];
@@ -96,23 +96,23 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(m1FP,'file')
 		m1=load(m1FP);
 		% extact in group consensus atlas: mdma 1
-		outDF(s,9)=m1.BUPcount;
+		outDF(s,9)=m1.TDcount;
 		%%%%
-                m1FP2=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_BU_dur_counts.mat'];
+                m1FP2=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_TD_dur_counts.mat'];
                 m1FP2=strjoin(m1FP2,'');
                 m1_2=load(m1FP2);
-                histCountTot=histCountTot+m1_2.BU_dur_counts;
+                histCountTot=histCountTot+m1_2.TD_dur_counts;
                 %%%%
-		totsum=sum(m1_2.BU_dur_counts);
-		outDF(s,10)=sum(m1_2.BU_dur_counts(4:end))/totsum;
-		outDF(s,11)=sum(m1_2.BU_dur_counts(6:end))/totsum;
-		outDF(s,12)=sum(m1_2.BU_dur_counts(10:end))/totsum;
+		totsum=sum(m1_2.TD_dur_counts);
+		outDF(s,10)=sum(m1_2.TD_dur_counts(4:end))/totsum;
+		outDF(s,11)=sum(m1_2.TD_dur_counts(6:end))/totsum;
+		outDF(s,12)=sum(m1_2.TD_dur_counts(10:end))/totsum;
 		%%%% MEAN DURATION
-                m1FP3=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_BU_meanDur.mat'];
+                m1FP3=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_TD_meanDur.mat'];
                 m1FP3=strjoin(m1FP3,'');
                 m13=load(m1FP3);
-                outDF(s,11)=m13.meanBUPdur;
-		% remaining TRs
+                outDF(s,11)=m13.meanTDdur;
+		%%%%%%%%%%%%%%%%%%
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{3} ];
                 m1CSIfp=[childfp '/' subjList(s) '_' seshInfo{3} '_task-' task '_ValidSegments_Trunc.txt'];
                 m1CSIfp=strjoin(m1CSIfp,'');
@@ -124,23 +124,23 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		if exist(m2FP,'file')
 		m2=load(m2FP);
 		% extract in group consensus atlas: mdma 2
-		outDF(s,13)=m2.BUPcount;
+		outDF(s,13)=m2.TDcount;
 		%%%%
-                m2FP2=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_BU_dur_counts.mat'];
+                m2FP2=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_TD_dur_counts.mat'];
                 m2FP2=strjoin(m2FP2,'');
                 m2_2=load(m2FP2);
-                histCountTot=histCountTot+m2_2.BU_dur_counts;
+                histCountTot=histCountTot+m2_2.TD_dur_counts;
                 %%%%
-		totsum=sum(m2_2.BU_dur_counts);
-		outDF(s,14)=sum(m2_2.BU_dur_counts(4:end))/totsum;
-		outDF(s,15)=sum(m2_2.BU_dur_counts(6:end))/totsum;
-		outDF(s,16)=sum(m2_2.BU_dur_counts(10:end))/totsum;
+		totsum=sum(m2_2.TD_dur_counts);
+		outDF(s,14)=sum(m2_2.TD_dur_counts(4:end))/totsum;
+		outDF(s,15)=sum(m2_2.TD_dur_counts(6:end))/totsum;
+		outDF(s,16)=sum(m2_2.TD_dur_counts(10:end))/totsum;
 		%%%% MEAN DURATION
-                m2FP3=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_BU_meanDur.mat'];
+                m2FP3=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_TD_meanDur.mat'];
                 m2FP3=strjoin(m2FP3,'');
                 m23=load(m2FP3);
-                outDF(s,15)=m23.meanBUPdur;
-		% remaining TRs
+                outDF(s,15)=m23.meanTDdur;
+		%%%%
 		childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{4} ];
                 m2CSIfp=[childfp '/' subjList(s) '_' seshInfo{4} '_task-' task '_ValidSegments_Trunc.txt'];
                 m2CSIfp=strjoin(m2CSIfp,'');
@@ -150,7 +150,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_BUP_freq_merged.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_TD_freq_merged.csv'],''))
 end
 
 %%% for normative dwell time distributions

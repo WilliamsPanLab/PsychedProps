@@ -46,7 +46,7 @@ Mask=Mask';
 MaskSize=sum(sum(Mask));
 MaskInds=find(Mask);
 % save out mask as csv
-svwrite('~/MouseMaskBool_67x70.csv',Mask)  
+csvwrite('~/MouseMaskBool_67x70.csv',Mask)  
 
 % extract size of time series
 NumTRs=size(vf);
