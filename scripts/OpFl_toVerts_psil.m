@@ -1,4 +1,4 @@
-function OpFl_toVerts(subj,sesh,task)
+function OpFl_toVerts_psil(subj,sesh,task)
 % take angles and interpolate them to vertices. Then combine with BOLD time series.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % add paths

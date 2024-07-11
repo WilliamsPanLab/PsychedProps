@@ -139,20 +139,23 @@ for k=1
 	%hold off;
 	%print('~/DMUnder.png','-dpng','-r600');
 	%%%%% Ca2+ signal+vectors, DMN gradient vectors
-       	%fig=figure;
-	%imagesc(signalGrid(:,:,1));
-	%colormap('jet');
-	%hold on;
-	% Create a grid for the quiver plot
-        %[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
-        % Hold on to the current image and overlay the quiver plot
-        %hold on;
-        %quiver(x, y, nGx, nGy);
-        %hold on;
-	% quiver for of vectors
-	%quiver(x,y,OpF_x(:,:,1),OpF_y(:,:,1),'w')
-	%hold off;
-	%print(fig, '~/DMNGrad_SignalUnder', '-dpng', '-r600')
+       	%for fr=100:200
+	%	fig=figure;
+	%	imagesc(signalGrid(:,:,fr));
+	%	colormap('jet');
+	%	caxis([min(min(signalGrid(:,:,30)))-0.002,max(max(signalGrid(:,:,30)))+0.002]);
+	%	hold on;
+		% Create a grid for the quiver plot
+        %	[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
+        	% Hold on to the current image and overlay the quiver plot
+        %	hold on;
+        %	quiver(x, y, nGx, nGy);
+        %	hold on;
+		% quiver for of vectors
+	%	quiver(x,y,OpF_x(:,:,fr),OpF_y(:,:,fr),'w')
+	%	hold off;
+	%	print(fig, ['~/DMNGrad_SignalUnder_' num2str(fr)], '-dpng', '-r600')
+	%end
 	%%%%%% Boolean DMN mask, Ca2+ signal and DMN gradient vectors
 	%fig=figure;
 	%DMN_bool=Dnet;
@@ -206,7 +209,8 @@ for k=1
                 % get vector for each face (network vector)
                 nVec=[nGx(F) nGy(F)];
                 % loop over each tp
-                for fr=1:lenOpFl
+                %for fr=1:lenOpFl
+		for fr=20:50	
 			% pull out optical flow vectors for this pixel (denoted by F, because it represents faces in human workflow)
 			curOpF_x=OpF_x(:,:,fr);
 			curOpF_y=OpF_y(:,:,fr);
