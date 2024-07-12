@@ -240,7 +240,7 @@ rs6m2$Dosage='Drug'
 
 ```{r}
 
-# parse out only existin grows 
+# parse out only existing rows 
 rs1bv=rs1bv[rs1bv$TDProp1>0,]
 rs1p=rs1p[rs1p$TDProp1>0,]
 rs1m1=rs1m1[rs1m1$TDProp1>0,]
@@ -588,12 +588,6 @@ B_A=rbind(Before,After)
 allScans$Drug[allScans$Dosage=='none']='none'
 ```
 
-
-```{r}
-# saveout merged DF for vertexwise analyses on HPC
-saveRDS(allScans,'~/forVertexwise_psil.rds')
-```
-
 ```{r}
 ### make chronological order column.
 allScans$TemporalOrder=0
@@ -692,6 +686,88 @@ for (s in 1:length(unique(allScans$Subject))) {
 ```
 
 ```{r}
+# need to add a session column with After1, After2, etc. to match vertexwise
+
+# Adding session column
+allScans$Session <- NA
+
+# Unique subjects
+subjects <- unique(allScans$Subjects)
+
+# for each subject
+for (subject in subjects) {
+  # Subset for each subject
+  subject_data <- allScans[allScans$Subjects == subject, ]
+  
+  # for all categories (before, between, drug, after)
+  categories <- unique(subject_data$Dosage)
+
+  # use Temporal Order column (all rows with same Temporal Order column) to set "Session" variable as concatenated category variable + 1 for first in temporal order, , cat. + 2 for second in order, etc.
+  # Loop over each category
+  for (category in categories) {
+    # Subset for each category
+    category_data <- subject_data[subject_data$Dosage == category, ]
+    
+    # Get unique TemporalOrder values
+    temporal_orders <- unique(category_data$TemporalOrder)
+    
+    # Loop over each TemporalOrder
+    for (i in seq_along(temporal_orders)) {
+      temporal_order <- temporal_orders[i]
+      # Assign session values
+      category_data$Session[category_data$TemporalOrder == temporal_order] <- paste(category, i, sep = "")
+    }
+    
+    # Update the main dataframe
+    allScans[allScans$Subjects == subject & allScans$Dosage == category, ] <- category_data
+  }
+}
+
+# end
+
+# final thing is to convert all "before" to "Baseline", "between" to "Between". and "after" to "After"
+allScans$Session <- gsub("before", "Baseline", allScans$Session)
+allScans$Session <- gsub("between", "Between", allScans$Session)
+allScans$Session <- gsub("after", "After", allScans$Session)
+
+```
+
+```{r}
+# remove data that needs to be removed (<250 TRs)
+allScans=allScans[allScans$RemTRs>250,]
+# saveout merged DF for vertexwise analyses on HPC
+saveRDS(allScans,'~/forVertexwise_psil.rds')
+
+# make donut plot)
+donutData<- data.frame(
+  Category=levels(allScans$Drug)[1:3],
+  count=tabulate(allScans$Drug)
+)
+
+# convert labels to be consistent across studies
+donutData$Category=c('No Drug','Active Control','Psychedelic')
+
+# percentages
+donutData$frac = donutData$count / sum(donutData$count)
+
+# Compute the cumulative for plotting
+donutData$ymax = cumsum(donutData$frac)
+
+# Compute the bottom of each rectangle (plotted as rectangle and coord_polar'ed)
+donutData$ymin = c(0, head(donutData$ymax, n=-1))
+ 
+# plot
+ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(1, 4)) + theme_classic(base_size=25)+theme(
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.line = element_blank()
+  )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#FFB200","#0018A8","#9532AA"))
+```
+
+```{r}
 ### match 99's to <9x ID's
 
 # temporal order of 99's has to be after 03 16 18 19!
@@ -718,9 +794,6 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ```{r}
-# remove data that needs to be removed (<250 TRs)
-allScans=allScans[allScans$RemTRs>250,]
-
 # model
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
@@ -875,7 +948,7 @@ ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
   labs(title = "Psilocybin vs. No-drug scans \n",
        x = "",
        y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
-  theme_minimal(base_size=25)
+  theme_minimal(base_size=40)
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Psilo + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)

@@ -6,6 +6,7 @@ date: "2024-05-15"
 
 ```{r}
 library(ggplot2)
+library(dplyr)
 # load in average DMN angles
 DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
 
@@ -47,6 +48,22 @@ DMNAngs_long=na.omit(DMNAngs_long)
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
 
+### and make plain figure version without longitudinal lines (Fig 2A)
+# sep. pre and post
+DMNAngs_long$TP=NULL
+DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
+DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
+# reorder it
+DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
+ggplot(DMNAngs_long, aes(x = TP, y = Value)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "LSD vs. No-drug scans \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('Pre','LSD'))+
+  theme_minimal(base_size=25)
+
+
 # for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
 DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
 DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
@@ -87,6 +104,213 @@ ggplot() +
   labs(color='mice')+
   # Adjust the x-axis limits to accommodate the box plots
   scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
+
+
+# make donut plot
+DMNAngs_long$Drug<-as.factor(DMNAngs_long$Drug)
+donutData<- data.frame(
+  Category=levels(DMNAngs_long$Drug),
+  count=tabulate(DMNAngs_long$Drug)
+)
+
+# convert labels to be consistent across studies
+donutData$Category=c('No Drug','Psychedelic')
+
+# percentages
+donutData$frac = donutData$count / sum(donutData$count)
+
+# Compute the cumulative for plotting
+donutData$ymax = cumsum(donutData$frac)
+
+# Compute the bottom of each rectangle (plotted as rectangle and coord_polar'ed)
+donutData$ymin = c(0, head(donutData$ymax, n=-1))
+ 
+# plot
+ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(1, 4)) + theme_classic(base_size=25)+theme(
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.line = element_blank()
+  )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#0018A8","#9532AA"))
+
+```
+
+```{r}
+# load in average BUP durations
+BUPFreqs=read.csv('~/Downloads/mice_AngDur_Merged_mice_LSD.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(BUPFreqs) <- c("V1", paste0("V", 2:ncol(BUPFreqs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+BUPFreqs <- reshape(BUPFreqs, 
+                        varying = list(names(BUPFreqs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(BUPFreqs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+BUPFreqs$Timepoint <- BUPFreqs$Timepoint - 1
+
+# Reset row names
+rownames(BUPFreqs) <- NULL
+
+# plot it out
+ggplot(BUPFreqs, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "Mean BUP Duration (Frames)", color = "Variable") +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug values
+BUPFreqs$Drug=1
+BUPFreqs$Drug[BUPFreqs$Timepoint==1]=0
+# remove any NA values
+BUPFreqs=na.omit(BUPFreqs)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = BUPFreqs)
+summary(fit_lme)
+
+```
+
+```{r}
+# load in average BUP durations
+BUPFreqs=read.csv('~/Downloads/mice_AngFreq_Merged_mice_LSD.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(BUPFreqs) <- c("V1", paste0("V", 2:ncol(BUPFreqs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+BUPFreqs <- reshape(BUPFreqs, 
+                        varying = list(names(BUPFreqs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(BUPFreqs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+BUPFreqs$Timepoint <- BUPFreqs$Timepoint - 1
+
+# Reset row names
+rownames(BUPFreqs) <- NULL
+
+# plot it out
+ggplot(BUPFreqs, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "BUP Occurences", color = "Variable") +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug values
+BUPFreqs$Drug=1
+BUPFreqs$Drug[BUPFreqs$Timepoint==1]=0
+# remove any NA values
+BUPFreqs=na.omit(BUPFreqs)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = BUPFreqs)
+summary(fit_lme)
+
+```
+```{r}
+# load in average TD durations
+BUPFreqs=read.csv('~/Downloads/mice_AngDur_Merged_mice_LSD_TD.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(BUPFreqs) <- c("V1", paste0("V", 2:ncol(BUPFreqs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+BUPFreqs <- reshape(BUPFreqs, 
+                        varying = list(names(BUPFreqs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(BUPFreqs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+BUPFreqs$Timepoint <- BUPFreqs$Timepoint - 1
+
+# Reset row names
+rownames(BUPFreqs) <- NULL
+
+# plot it out
+ggplot(BUPFreqs, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "Mean TD Duration (Frames)", color = "Variable") +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug values
+BUPFreqs$Drug=1
+BUPFreqs$Drug[BUPFreqs$Timepoint==1]=0
+# remove any NA values
+BUPFreqs=na.omit(BUPFreqs)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = BUPFreqs)
+summary(fit_lme)
+
+```
+
+```{r}
+# load in average BUP durations
+BUPFreqs=read.csv('~/Downloads/mice_AngFreq_Merged_mice_LSD_TD.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(BUPFreqs) <- c("V1", paste0("V", 2:ncol(BUPFreqs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+BUPFreqs <- reshape(BUPFreqs, 
+                        varying = list(names(BUPFreqs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(BUPFreqs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+BUPFreqs$Timepoint <- BUPFreqs$Timepoint - 1
+
+# Reset row names
+rownames(BUPFreqs) <- NULL
+
+# plot it out
+ggplot(BUPFreqs, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "TD Occurences", color = "Variable") +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug values
+BUPFreqs$Drug=1
+BUPFreqs$Drug[BUPFreqs$Timepoint==1]=0
+# remove any NA values
+BUPFreqs=na.omit(BUPFreqs)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = BUPFreqs)
+summary(fit_lme)
+
+```
 
 # NOTE BELOW CODE ASSUMES INCOMPLETE MOUSE IS EXCLUDED
 
