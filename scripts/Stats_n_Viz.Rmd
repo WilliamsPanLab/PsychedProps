@@ -247,6 +247,38 @@ mergedDf$Task[mergedDf$Task=='rs2']='rs'
 mergedDf$Task=as.factor(mergedDf$Task)
 mergedDf_clean=mergedDf[mergedDf$Dosage!='baseline',]
 
+# make donut plot
+donutData<- data.frame(
+  Category=levels(mergedDf$Dosage),
+  count=tabulate(mergedDf$Dosage)
+)
+
+# convert labels to be consistent across studies
+donutData$Category=c('Psychedelic','x','No Drug','Placebo')
+# merge 120 and 80mg for clear plots
+donutData$count[donutData$Category=='Psychedelic']=donutData$count[donutData$Category=='Psychedelic']+donutData$count[donutData$Category=='x']
+donutData=donutData[donutData$Category!='x',]
+
+# percentages
+donutData$frac = donutData$count / sum(donutData$count)
+
+# Compute the cumulative for plotting
+donutData$ymax = cumsum(donutData$frac)
+
+# Compute the bottom of each rectangle (plotted as rectangle and coord_polar'ed)
+donutData$ymin = c(0, head(donutData$ymax, n=-1))
+ 
+# plot
+ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
+     geom_rect() +
+     coord_polar(theta="y") + 
+     xlim(c(1, 4)) + theme_classic(base_size=25)+theme(
+    axis.text.y = element_blank(),
+    axis.ticks = element_blank(),
+    axis.line = element_blank()
+  )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#0018A8","#FFB200","#9532AA"))
+
+
 # get head-motion regressed values for plotting
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf_clean)
 mergedDf_clean$Residuals<-resid(model_to_reg)+mean(mergedDf_clean$TDProp1)
@@ -263,6 +295,13 @@ ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
 summaryLME<-summary(fit_lme)
+
+# testing lme4 for robustness
+library(lme4)
+library(lmerTest)
+fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf_clean)
+# checks out
+
 #####
 #### with all non-drug scans: Figure 2b
 #####
@@ -282,6 +321,10 @@ ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf)
 summaryLME<-summary(fit_lme)
+
+# lme4 test for robustness
+fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf)
+# checks out
 ```
 
 ```{r}
@@ -806,7 +849,7 @@ cx_task_model <- lme(Complexity ~ MeanFD + Task+RemTRs, random = ~ 1 | Subjects,
 ```
 
 ```{r}
-# briefly demonstrate lack of relationship between complexity and BUP
+# briefly demonstrate lack of relationship between complexity and BUP, can consider using residuals (contr for motion + task)
 ggplot(mergedDfPropsComplAutoC,aes(x=Complexity,y=TDProp1))+geom_point()+theme_minimal(base_size=25)+ylab('Bottom-up %')
 ```
 
@@ -845,9 +888,9 @@ for (i in 1:num_bootstrap_samples){
   # resample data
   data=mergedDfPropsComplAutoC[sample(nrow(mergedDfPropsComplAutoC), replace = TRUE), ]
   # fit on all models
-  td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
+  td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+Complexity+AutoCor, random = ~ 1 | Subjects, data = data)
+  sa_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task+Complexity+TDProp1, random = ~ 1 | Subjects, data = data)
+  cx_model <- lme(Complexity ~ MeanFD + Drug+RemTRs+Task+TDProp1+AutoCor, random = ~ 1 | Subjects, data = data)
   # get t-values
   td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug1", "t-value"]
   td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "MeanFD", "t-value"]
@@ -902,7 +945,22 @@ vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
 vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
 VASmerge=merge(vas,mergedDfPropsComplAutoC,by=c("Subjects","Dosage"))
 
-# extract DAS for pca
+# and add in CADSS
+cadss=read.csv('~/Downloads/MDMA_Questionnaires_Post-Pre_RepeatedMeasures_Pervisit.csv')
+cadss$Subjects <- paste0("sub-MDMA", sprintf("%03d", cadss$Subjects))
+cadss=merge(cadss,VASmerge,by=c("Subjects","Dosage"))
+
+
+# and add in dissoc measure from SSV
+dissoc=read.csv('~/Downloads/P50MDMA-5ASC_DATA_2024-07-09_0846_wDissoc.csv')
+dissoc$Subjects <- paste0("sub-MDMA", sprintf("%03d", dissoc$Subjects))
+dissoc=merge(dissoc,VASmerge,by=c("Subjects","Session"))
+
+# model cadss and SSV dissoc measures
+model<-lme(TDProp1 ~ CADSS_post_pre + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = cadss)
+model<-lme(TDProp1 ~ dascscore_dissociation_SV_normed + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = dissoc)
+
+# extract DASC
 Das=vas[,40:56]
 # retain parallel version with subject names and session to recover them later
 Das_SubjSesh=cbind(vas$Subjects,vas$Dosage,Das)
@@ -929,8 +987,37 @@ print(dim(DasNoNa))
 print(any(is.na(DasNoNa)))
 print(dim(Das_SubjSesh))
 
+```
+```{r}
+### use the dissoc csv to get data-driven NMF components
 # Load the NMF library
 library(NMF)
+
+# create DAS item-level clean data
+D_IL_C=dissoc[,3:94]
+# retain parallel version with subject names and session to recover them later
+Das_SubjSesh=cbind(dissoc$Subjects,dissoc$Dosage,D_IL_C)
+# find zero rows and columns
+zero_rows <- apply(D_IL_C, 1, function(x) all(x == 0))
+na_columns <- apply(D_IL_C, 2, function(x) sum(is.na(x > 0)))
+# Remove zero rows if found
+D_IL_C <- D_IL_C[!zero_rows, ]
+# for plugging zero subjs back in later
+zeroSubjsRemade=Das_SubjSesh[zero_rows,]
+#zeroSubjsRemade=zeroSubjsRemade[,3:94]
+# and in parallel keep subjsesh maintained
+Das_SubjSesh <- Das_SubjSesh[!zero_rows, ]
+# Remove zero columns if found
+D_IL_C <- D_IL_C[,!na_columns]
+zeroSubjsRemade=Das_SubjSesh[,!na_columns]
+Das_SubjSesh <- Das_SubjSesh[,!na_columns]
+# scale to max of each column
+#for (c in 1:length(colnames(D_IL_C))){
+#  colmax=max(D_IL_C[,c])
+#  print(colmax)
+#  print(c)
+#  D_IL_C[,c]=D_IL_C[,c]/colmax
+#}
 
 # Function to calculate reconstruction error
 reconstruction_error <- function(nmf_result, data) {
@@ -939,7 +1026,7 @@ reconstruction_error <- function(nmf_result, data) {
 }
 
 # Range of components to test
-num_components_range <- 1:12
+num_components_range <- 1:20
 
 # Store reconstruction errors
 errors <- numeric(length(num_components_range))
@@ -947,45 +1034,42 @@ errors <- numeric(length(num_components_range))
 set.seed(1)
 
 # Calculate reconstruction errors for each number of components
-for (k in num_components_range) {
-  nmf_result <- nmf(DasNoNa, k)
-  errors[k] <- reconstruction_error(nmf_result, DasNoNa)
-}
+#for (k in num_components_range) {
+#  nmf_result <- nmf(D_IL_C, k)
+#  errors[k] <- reconstruction_error(nmf_result, D_IL_C)
+#}
 
 # Plot reconstruction errors
-plot(num_components_range, errors, type = "b", pch = 19, xlab = "Number of Components", ylab = "Reconstruction Error",
-     main = "Reconstruction Error vs Number of Components")
+#plot(num_components_range, errors, type = "b", pch = 19, xlab = "Number of Components", ylab = "Reconstruction Error",
+#     main = "Reconstruction Error vs Number of Components")
 
 # Set the number of components
-num_components <- 8
+num_components <- 15
 
 # Run NMF
-nmf_result <- nmf(DasNoNa, num_components)
+nmf_result <- nmf(D_IL_C, num_components)
 
 # Extract the basis matrix (W) and coefficient matrix (H)
 basis_matrix <- basis(nmf_result)
 coef_matrix <- coef(nmf_result)
 
 # make a vector of DAS scale names
-dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
+#dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
 
 
 # Function to create and print plot for a specific component
-create_plot <- function(component_index) {
+create_plot <- function(component_index){
   loadings <- coef_matrix[component_index, ]
   sorted_indices <- order(loadings, decreasing = TRUE)
   sorted_loadings <- loadings[sorted_indices]
-  sorted_names <- dascNames[sorted_indices]
-  
+  sorted_names <- names(na_columns[na_columns==0])[sorted_indices]
   loadings_df <- data.frame(Question = factor(sorted_names, levels = sorted_names), Loading = sorted_loadings)
-  
   p <- ggplot(loadings_df, aes(x = Question, y = Loading)) +
     geom_bar(stat = "identity", fill = "gray") +
     ggtitle(paste("Component", component_index)) +
     theme_minimal(base_size=14) +
     theme(axis.text.x = element_text(angle = 70, hjust = 1)) +
     ylim(0, 0.35)+xlab('')
-  
   print(p)
 }
 create_plot(1)
@@ -996,7 +1080,13 @@ create_plot(5)
 create_plot(6)
 create_plot(7)
 create_plot(8)
-
+create_plot(9)
+create_plot(10)
+create_plot(11)
+create_plot(12)
+create_plot(13)
+create_plot(14)
+create_plot(15)
 
 # use subj sesh to re-establish subject/session component loadings
 Das_SubjSesh$Comp1<-basis_matrix[,1]
@@ -1007,13 +1097,20 @@ Das_SubjSesh$Comp5<-basis_matrix[,5]
 Das_SubjSesh$Comp6<-basis_matrix[,6]
 Das_SubjSesh$Comp7<-basis_matrix[,7]
 Das_SubjSesh$Comp8<-basis_matrix[,8]
+Das_SubjSesh$Comp9<-basis_matrix[,9]
+Das_SubjSesh$Comp10<-basis_matrix[,10]
+Das_SubjSesh$Comp11<-basis_matrix[,11]
+Das_SubjSesh$Comp12<-basis_matrix[,12]
+Das_SubjSesh$Comp13<-basis_matrix[,13]
+Das_SubjSesh$Comp14<-basis_matrix[,14]
+Das_SubjSesh$Comp15<-basis_matrix[,15]
 ```
 
 ```{r}
 # set column names to equivalent
 colnames(Das_SubjSesh)[1:2]<-c('Subjects','Dosage')
 colnames(zeroSubjsRemade)[1:2]<-c('Subjects','Dosage')
-### you CAN re-insert the 0-DAS items row for an extra piece of brain data... safe to assume they would load as 0 onto all components
+#### you CAN re-insert the 0-DAS items row for an extra piece of brain data... safe to assume they #would load as 0 onto all components
 zeroSubjsRemade$Comp1<-0
 zeroSubjsRemade$Comp2<-0
 zeroSubjsRemade$Comp3<-0
@@ -1022,23 +1119,31 @@ zeroSubjsRemade$Comp5<-0
 zeroSubjsRemade$Comp6<-0
 zeroSubjsRemade$Comp7<-0
 zeroSubjsRemade$Comp8<-0
-
-# add back in
+zeroSubjsRemade$Comp9<-0
+zeroSubjsRemade$Comp10<-0
+zeroSubjsRemade$Comp11<-0
+zeroSubjsRemade$Comp12<-0
+zeroSubjsRemade$Comp13<-0
+zeroSubjsRemade$Comp14<-0
+zeroSubjsRemade$Comp15<-0
+#
+## add back in
 Das_SubjSesh=rbind(Das_SubjSesh,zeroSubjsRemade)
-
-# regenerate 
+#
+## regenerate 
 mergedDf=merge(Das_SubjSesh,mergedDfPropsComplAutoC,by=c("Subjects","Dosage"))
-
-# loop over each component (1-8), return coefficient and p-value of association with both complexity and tdprop1, populate 4 resultant vectors with these values for subsequent plotting
-
-# Initialize vectors to store coefficients and p-values for subsequent plotting
-coef_complexity <- numeric(8)
-pval_complexity <- numeric(8)
-coef_tdprop1 <- numeric(8)
-pval_tdprop1 <- numeric(8)
-
-# Loop over each component (1-8)
-for (i in 1:8) {
+#
+## loop over each component (1-15), return coefficient and p-value of association with both #complexity and tdprop1, populate 4 resultant vectors with these values for subsequent plotting
+#
+## Initialize vectors to store coefficients and p-values for subsequent plotting
+coef_complexity <- numeric(15)
+pval_complexity <- numeric(15)
+coef_tdprop1 <- numeric(15)
+pval_tdprop1 <- numeric(15)
+#
+## Loop over each component (1-15)
+library(nlme)
+for (i in 1:15) {
   # Construct the formula dynamically for the current component
   formulaTD <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + TDProp1+ Complexity", sep = ""))
   formulaCompl <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + Complexity", sep = ""))
@@ -1054,27 +1159,134 @@ for (i in 1:8) {
 
 ```
 
+
+```{r}
+# recreate with 5 components, more succinct
+# LOW DIMENSIONAL SOLUTION
+# create DAS item-level clean data
+D_IL_C=dissoc[,3:94]
+# retain parallel version with subject names and session to recover them later
+Das_SubjSesh=cbind(dissoc$Subjects,dissoc$Dosage,D_IL_C)
+# find zero rows and columns
+zero_rows <- apply(D_IL_C, 1, function(x) all(x == 0))
+na_columns <- apply(D_IL_C, 2, function(x) sum(is.na(x > 0)))
+# Remove zero rows if found
+D_IL_C <- D_IL_C[!zero_rows, ]
+# for plugging zero subjs back in later
+zeroSubjsRemade=Das_SubjSesh[zero_rows,]
+#zeroSubjsRemade=zeroSubjsRemade[,3:94]
+# and in parallel keep subjsesh maintained
+Das_SubjSesh <- Das_SubjSesh[!zero_rows, ]
+# Remove zero columns if found
+D_IL_C <- D_IL_C[,!na_columns]
+zeroSubjsRemade=Das_SubjSesh[,!na_columns]
+Das_SubjSesh <- Das_SubjSesh[,!na_columns]
+# Set the number of components
+num_components <- 5
+
+# Run NMF
+nmf_result <- nmf(D_IL_C, num_components)
+
+# Extract the basis matrix (W) and coefficient matrix (H)
+basis_matrix <- basis(nmf_result)
+coef_matrix <- coef(nmf_result)
+
+# make a vector of DAS scale names
+#dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
+
+
+# Function to create and print plot for a specific component
+create_plot <- function(component_index){
+  loadings <- coef_matrix[component_index, ]
+  sorted_indices <- order(loadings, decreasing = TRUE)
+  sorted_loadings <- loadings[sorted_indices]
+  sorted_names <- names(na_columns[na_columns==0])[sorted_indices]
+  loadings_df <- data.frame(Question = factor(sorted_names, levels = sorted_names), Loading = sorted_loadings)
+  p <- ggplot(loadings_df, aes(x = Question, y = Loading)) +
+    geom_bar(stat = "identity", fill = "gray") +
+    ggtitle(paste("Component", component_index)) +
+    theme_minimal(base_size=14) +
+    theme(axis.text.x = element_text(angle = 70, hjust = 1)) +
+    ylim(0, 0.55)+xlab('')
+  print(p)
+}
+create_plot(1)
+create_plot(2)
+create_plot(3)
+create_plot(4)
+create_plot(5)
+
+# use subj sesh to re-establish subject/session component loadings
+Das_SubjSesh$Comp1<-basis_matrix[,1]
+Das_SubjSesh$Comp2<-basis_matrix[,2]
+Das_SubjSesh$Comp3<-basis_matrix[,3]
+Das_SubjSesh$Comp4<-basis_matrix[,4]
+Das_SubjSesh$Comp5<-basis_matrix[,5]
+
+# set column names to equivalent
+colnames(Das_SubjSesh)[1:2]<-c('Subjects','Dosage')
+colnames(zeroSubjsRemade)[1:2]<-c('Subjects','Dosage')
+#### you CAN re-insert the 0-DAS items row for an extra piece of brain data... safe to assume they #would load as 0 onto all components
+zeroSubjsRemade$Comp1<-0
+zeroSubjsRemade$Comp2<-0
+zeroSubjsRemade$Comp3<-0
+zeroSubjsRemade$Comp4<-0
+zeroSubjsRemade$Comp5<-0
+
+#
+## add back in
+Das_SubjSesh=rbind(Das_SubjSesh,zeroSubjsRemade)
+#
+## regenerate 
+mergedDf=merge(Das_SubjSesh,mergedDfPropsComplAutoC,by=c("Subjects","Dosage"))
+#
+## loop over each component (1-5), return coefficient and p-value of association with both #complexity and tdprop1, populate 4 resultant vectors with these values for subsequent plotting
+#
+## Initialize vectors to store coefficients and p-values for subsequent plotting
+coef_complexity <- numeric(5)
+pval_complexity <- numeric(5)
+coef_tdprop1 <- numeric(5)
+pval_tdprop1 <- numeric(5)
+#
+## Loop over each component (1-5)
+library(nlme)
+for (i in 1:5) {
+  # Construct the formula dynamically for the current component
+  formulaTD <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + TDProp1+ Complexity", sep = ""))
+  formulaCompl <- as.formula(paste("Comp", i, " ~ MeanFD + RemTRs + Complexity", sep = ""))
+  # Fit the linear mixed-effects model
+  modelT <- lme(formulaTD, random = ~ 1 | Subjects, data = mergedDf)
+  modelC <- lme(formulaCompl, random = ~ 1 | Subjects, data = mergedDf)
+  # Extract coefficients and p-values for both Complexity (Intercept) and TDProp1
+  coef_complexity[i] <- summary(modelC)$tTable["Complexity", "t-value"]
+  pval_complexity[i] <- summary(modelC)$tTable["Complexity", "p-value"]
+  coef_tdprop1[i] <- summary(modelT)$tTable["TDProp1", "t-value"]
+  pval_tdprop1[i] <- summary(modelT)$tTable["TDProp1", "p-value"]
+}
+
+```
 ```{r}
 # plot it
 library(circular)
 library(plotrix)
 
-# Adjust p-values for multiple comparisons using FDR method
+## Adjust p-values for multiple comparisons using FDR method
 pval_complexity_mc <- p.adjust(pval_complexity, method = 'fdr')
 pval_tdprop1_mc <- p.adjust(pval_tdprop1, method = 'fdr')
 
-# Create a data frame with the coefficients and p-values
+## Create a data frame with the coefficients and p-values
 plot_df <- data.frame(
-  Component = factor(1:8),
+  Component = factor(1:5),
   Coef_Complexity = coef_complexity,
   Pval_Complexity = pval_complexity,
+  # - for interpretative simplicity: converts % bottom-up to % Top-down
   Coef_TDProp1 = -coef_tdprop1,
   Pval_TDProp1 = pval_tdprop1,
   Pval_Complexity_MC = pval_complexity_mc,
   Pval_TDProp1_MC = pval_tdprop1_mc
 )
 
-# Function to generate circular barplot with three colors
+## Function to generate circular barplot with three colors
 circular_barplot <- function(df, coef_column, pval_column, pval_mc_column, title) {
   ggplot(df, aes(x = Component, y = !!sym(coef_column))) +
     geom_bar(aes(fill = factor(ifelse(!!sym(pval_mc_column) < 0.05, "FDR", 
@@ -1083,12 +1295,64 @@ circular_barplot <- function(df, coef_column, pval_column, pval_mc_column, title
     scale_fill_manual(values = c("FDR" = "red", "Uncr" = "blue", "NS" = "grey")) +
     coord_polar(theta = "x", start = 0) +
     labs(title = title, fill = "P-value") +
-    theme_minimal() +
+    theme_minimal(base_size=28) +
     theme(
-      axis.text.x = element_text(size = 12),
+      #axis.text.x = element_text(size = 28),
       axis.title = element_blank()
     )
 }
+#
+circular_barplot(plot_df, "Coef_Complexity", "Pval_Complexity", "Pval_Complexity_MC", "Coefficients of Complexity")
+#
+circular_barplot(plot_df, "Coef_TDProp1", "Pval_TDProp1", "Pval_TDProp1_MC", "Coefficients of DMN Prop. Directions")
+
+```
+
+```{r}
+# and an all-questions version
+coef_complexity <- NULL
+pval_complexity <- NULL
+coef_tdprop1 <- NULL
+pval_tdprop1 <- NULL
+question_name <- NULL
+
+zero_rows <- apply(mergedDf, 1, function(x) all(x == 0))
+na_columns <- apply(mergedDf, 2, function(x) sum(is.na(x > 0)))
+
+mergedDf_noMissing=mergedDf[!zero_rows,]
+mergedDf_noMissing=mergedDf_noMissing[,!na_columns]
+
+for (i in 3:91) {
+  # Construct the formula dynamically for the current component
+  formulaTD <- as.formula(paste(colnames(mergedDf_noMissing)[i], " ~ MeanFD + RemTRs + TDProp1", sep = ""))
+  formulaCompl <- as.formula(paste(colnames(mergedDf_noMissing)[i], " ~ MeanFD + RemTRs + Complexity", sep = ""))
+  # Fit the linear mixed-effects model
+  modelT <- lme(formulaTD, random = ~ 1 | Subjects, data = mergedDf)
+  modelC <- lme(formulaCompl, random = ~ 1 | Subjects, data = mergedDf)
+  # Extract coefficients and p-values for both Complexity (Intercept) and TDProp1
+  coef_complexity[i-2] <- summary(modelC)$tTable["Complexity", "t-value"]
+  pval_complexity[i-2] <- summary(modelC)$tTable["Complexity", "p-value"]
+  coef_tdprop1[i-2] <- summary(modelT)$tTable["TDProp1", "t-value"]
+  pval_tdprop1[i-2] <- summary(modelT)$tTable["TDProp1", "p-value"]
+  question_name[i-2] <- colnames(mergedDf_noMissing)[i]
+}
+
+## Adjust p-values for multiple comparisons using FDR method
+pval_complexity_mc <- p.adjust(pval_complexity, method = 'fdr')
+pval_tdprop1_mc <- p.adjust(pval_tdprop1, method = 'fdr')
+
+## Create a data frame with the coefficients and p-values
+plot_df <- data.frame(
+  Component = factor(question_name),
+  Coef_Complexity = coef_complexity,
+  Pval_Complexity = pval_complexity,
+  # - for interpretative simplicity: converts % bottom-up to % Top-down
+  Coef_TDProp1 = -coef_tdprop1,
+  Pval_TDProp1 = pval_tdprop1,
+  Pval_Complexity_MC = pval_complexity_mc,
+  Pval_TDProp1_MC = pval_tdprop1_mc
+)
+
 
 circular_barplot(plot_df, "Coef_Complexity", "Pval_Complexity", "Pval_Complexity_MC", "Coefficients of Complexity")
 
@@ -1096,12 +1360,109 @@ circular_barplot(plot_df, "Coef_TDProp1", "Pval_TDProp1", "Pval_TDProp1_MC", "Co
 
 ```
 
+```{r}
+# bootstrap approach to determine if two t-stats are different
+boot_df_coefsTD=array(0,dim=c(100,89))
+boot_df_coefsComplex=array(0,dim=c(100,89))
+question_name=NULL
+# glean number of subjects
+numSubjs=length(unique(mergedDf_noMissing$Subjects))
+# get those subjs
+subjs=unique(mergedDf_noMissing$Subjects)
+
+# b = 1 as tmp for speedy re-running
+for (b in 1){
+  print(b)
+  BootSubjs=sample(subjs,numSubjs,replace=T)
+  bootSamp <- data.frame()
+  for (j in 1:length(BootSubjs)){
+    subject_obs <- mergedDf_noMissing[mergedDf_noMissing$Subjects == BootSubjs[j], ]
+    bootSamp <- rbind(bootSamp, subject_obs)
+  }
+  # run tests
+  for (i in 3:91) {
+    # calculate range in question answers in this bootstrap
+    dasItemRange=range(bootSamp[,colnames(mergedDf_noMissing)[i]])[2]-range(bootSamp[,colnames(mergedDf_noMissing)[i]])[1]
+    # if there is enoughdata in the bootstrapped dasc item
+    if (dasItemRange>30){
+    # Construct the formula dynamically for the current component
+    formulaTD <- as.formula(paste(colnames(mergedDf_noMissing)[i], " ~ MeanFD + RemTRs + TDProp1", sep = ""))
+    formulaCompl <- as.formula(paste(colnames(mergedDf_noMissing)[i], " ~ MeanFD + RemTRs + Complexity", sep = ""))
+    # Fit the linear mixed-effects model
+    modelT <- lme(formulaTD, random = ~ 1 | Subjects, data = bootSamp)
+    modelC <- lme(formulaCompl, random = ~ 1 | Subjects, data = bootSamp)
+    # Extract coefficients and p-values for both Complexity (Intercept) and TDProp1
+    boot_df_coefsComplex[b,i-2] <- summary(modelC)$tTable["Complexity", "t-value"]
+    boot_df_coefsTD[b,i-2] <- summary(modelT)$tTable["TDProp1", "t-value"]
+    question_name[i-2] <- colnames(mergedDf_noMissing)[i]
+    } 
+  }
+}
+
+# initialize t-diff
+tdiff=array(0,dim=c(100,89))
+
+# plot distributions of t-diff (omit instances where t=0, not populated due to enough data constraint)
+for (i in 1:ncol(tdiff)){
+  for (b in 1:100){
+    if (boot_df_coefsComplex[b,i]!=0 && boot_df_coefsTD[b,i]!=0){
+    tdiff[b,i]=boot_df_coefsComplex[b,i]-(-boot_df_coefsTD[b,i])
+    }
+  }
+}
+tdiffPropNeg=rep(0,89)
+tdiffPropPos=rep(0,89)
+# get manual p-values, described as proportion of non-zero entries where tdiff is consistently positive or negative
+for (i in 1:ncol(tdiff)){
+  # nonzero rows
+  nonzeroRows=tdiff[,i]!=0
+  tdiffPropNeg[i]=sum(tdiff[nonzeroRows,i]<0)/sum(nonzeroRows)
+  tdiffPropPos[i]=sum(tdiff[nonzeroRows,i]>0)/sum(nonzeroRows)
+}
+# get na indices
+NA_indicesNeg=is.na(tdiffPropNeg)
+NA_indicesPos=is.na(tdiffPropPos)
+# convert to p-values
+tdiffProp_neg_ps=tdiffPropNeg[!NA_indicesNeg]
+tdiffProp_pos_ps=tdiffPropPos[!NA_indicesPos]
+
+tdiffProp_neg_ps_mc=p.adjust(tdiffProp_neg_ps,method='fdr')
+tdiffProp_pos_ps_mc=p.adjust(tdiffProp_pos_ps,method='fdr')
+
+
+# use NA indices to get question names out
+question_nameIndexedNeg=question_name[!NA_indicesNeg]
+question_nameIndexedPos=question_name[!NA_indicesPos]
+ComplexityGreater=question_nameIndexedPos[tdiffProp_pos_ps_mc<0.05]
+TDPropGreater=question_nameIndexedNeg[tdiffProp_neg_ps_mc<0.05]
+# doesn't match, need to check indexing
+```
+
+
+```{r}
+# and amygdalar reactivity baseline
+AmygB=data.frame(c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17),c(-0.872159019,-1.613577432,-0.148527068,0.903748312,0.877461373,0.710832929,0.436758886,0.599261478,0.112770896,1.541066765,-1.393745839,-0.302041457,1.8678551,0.690276024,-0.805738997,1.514496002))
+
+colnames(AmygB)=c('Subjects','BaselineAmygReact')
+AmygB$Subjects<-AmygB$Subjects <- paste0("sub-MDMA", sprintf("%03d", AmygB$Subjects))
+
+# merged
+mergedAmyg=merge(AmygB,mergedDfPropsComplAutoC,by='Subjects')
+
+# test
+TD_int=lme(TDProp1 ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+Compl_int=lme(Complexity ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+
+library(sjPlot)
+plot_model(TD_int,type='int',title='% bottom-up by baseline \n amygdalar reactivity')
+plot_model(Compl_int,type='int',title='complexity by baseline \n amygdalar reactivity')
+```
 
 ```{r}
 # make a vector of DAS scale names
 dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
 
-
+# the goal here is to return some CIs to look at non-overlappingness with 
 
 # TD PROP
 # initialize correlation vector for dasc
@@ -1111,8 +1472,8 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp1")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + RemTRs + TDProp1")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','RemTRs','TDProp1','Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
   corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
   pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "p-value"]
@@ -1122,12 +1483,18 @@ for (i in 40:56){
   print(summary(currModel)$tTable)
 }
 
+# 7/9/24: adding dissociation in
+model<-lme(dascscore_dissociation_SV_normed ~ TDProp1 + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = dissoc)
+corvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "t-value"]
+pvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "p-value"]
+colNameVec[18]='Dissociation'
+
 # Create a dataframe with the values and column names
 df <- data.frame(Values = corvec, ColumnNames = colNameVec)
 
 # Order the ColumnNames as an ordered factor based on the Values
 df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-df$ColumnNamesFull<-dascNames
+df$ColumnNamesFull<-c(dascNames,'Dissociation')
 df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
 # make a color vector by significance
 fdrp=p.adjust(pvec,method='fdr')
@@ -1152,8 +1519,8 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + Drug")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','Drug','Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + RemTRs + Drug")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','RemTRs','Drug','Subjects')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
   corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
   pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "p-value"]
@@ -1194,8 +1561,8 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + TDProp1 + Drug")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects','Drug')])
+  formula_str <- paste(das_col, "~ MeanFD + TDProp1 + Drug + RemTRs")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','TDProp1','Subjects','Drug','RemTRs')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
   corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1", "t-value"]
   corvecD[i-39]<- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Drug1", "t-value"]
@@ -1261,8 +1628,8 @@ colNameVec=NULL
 for (i in 40:56){
   das_col <- colnames(VASmerge)[i]
   print(das_col)
-  formula_str <- paste(das_col, "~ MeanFD + Complexity")
-  df = na.omit(VASmerge[,c(das_col,'MeanFD','Complexity','Subjects')])
+  formula_str <- paste(das_col, "~ MeanFD + Complexity + RemTRs")
+  df = na.omit(VASmerge[,c(das_col,'MeanFD','Complexity','Subjects','RemTRs')])
   currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
   corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexity", "t-value"]
   pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexity", "p-value"]
