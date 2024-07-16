@@ -491,8 +491,8 @@ end
 % average across drug conditions for pl v drug and bv v drug
 pl_drug_L=(pl_80_L+pl_120_L)/2;
 pl_drug_R=(pl_80_R+pl_120_R)/2;
-bv_drug_L=(bv_80_L+bv_120_R)/2;
-bv_drug_R=(bv_80_L+bv_120_R)/2;
+bv_drug_L=(bv_80_L+bv_120_L)/2;
+bv_drug_R=(bv_80_R+bv_120_R)/2;
 sob_drug_L=(pl_80_L+bv_80_L+pl_120_L+bv_120_L)/4;
 sob_drug_R=(pl_80_R+bv_80_R+pl_120_R+bv_120_R)/4;
 

@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=12:00:00
+#SBATCH --time=2:00:00
 #SBATCH -n 1
-#SBATCH --mem=25G
+#SBATCH --mem=15G
 #SBATCH -p leanew1,normal # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -39,7 +39,7 @@ module load python/3.9
 # subject name is input argument
 subj=$1
 # sesh is input 2
-#sesh=$2
+sesh=$2
 
 # downsample baseline for NMF
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
@@ -85,11 +85,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-# task
-#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','wm')"
-#matlab -nodisplay -r "Extract_RelativeAngles_task('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
 # get frequency and duration of BUP and TD epsiodes
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"
@@ -98,7 +97,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling')"
 
 # calculate distance maps
-matlab -nodisplay -r "Calc_AvgCircDistr_Distance('$subj')"
+#matlab -nodisplay -r "Calc_AvgCircDistr_Distance('$subj')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"

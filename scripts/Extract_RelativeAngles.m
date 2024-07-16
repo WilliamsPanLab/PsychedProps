@@ -149,7 +149,7 @@ el_R=el_R(g_noMW_combined_R);
 
 % load in Networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
-%% k = 1 to select DMN. k = 2 if smooth used
+%% k = 1 to select DMN.
 Dnet_LH=networks.nets.Lnets(:,1);
 Dnet_RH=networks.nets.Rnets(:,1);
 for k=1:4

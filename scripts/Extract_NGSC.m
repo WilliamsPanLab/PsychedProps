@@ -21,25 +21,45 @@ end
 % extract time series
 C_timeseries=C.data;
 
-% read in gordon parcellation
-GP=ft_read_cifti_mod('~/null_lL_WG33/Gordon333_FreesurferSubcortical.32k_fs_LR.dlabel.nii');
+% subject to SNR Mask
+% ALREADY BAKED INTO NMF COMPONENTS
+%mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+%mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+%mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+%mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
+% 0's where invalid, 1 where valid
+%mw_L=ones(1,2562);
+%mw_L(mwAndTSNR_L==1)=0;
+%mw_R=ones(1,2562);
+%mw_R(mwAndTSNR_R==1)=0;
 
-% gordon parcel labels
-% https://balsa.wustl.edu/file/JX5V
+% load in DMN
+DMN=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/maps/Network1_fslr.dscalar.nii');
+%DMN_L=gifti('/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/Group_lh_Network_1_32k.func.gii');
+%DMN_R=gifti('/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/Group_rh_Network_1_32k.func.gii');
+%% 1st component to select DMN.
+%Dnet_LH=DMN_L.cdata;
+%Dnet_RH=DMN_R.cdata;
 
-% load in default mode network boundaries
-dmn=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/data/RobustInitialization/SoftParcel.dscalar.nii');
-% second is DMN
-dmn.data=dmn.data(:,2);
+% load into gifti'd gordon parcels
+%Gord_L=gifti('/oak/stanford/groups/leanew1/users/apines/maps/Gordon_333_left.label.gii').cdata;
+%Gord_R=gifti('/oak/stanford/groups/leanew1/users/apines/maps/Gordon_333_right.label.gii').cdata;
 
 % get average dmn value for each parcel
-pDMN=zeros(1,333);
-for p=1:333
-	pDMN(p)=mean(dmn.data(GP.data==p));
-end
+%pDMN=zeros(1,334);
+%for p=1:334
+	% if it's a left hemi parcel
+%	if sum(Gord_L==p)>0;
+%		pDMN(p)=mean(Dnet_LH(Gord_L==p));
+%	elseif sum(Gord_R==p)>0;
+%		pDMN(p)=mean(Dnet_RH(Gord_R==p));
+%	end
+%end
+
 % get gordon parcels where average DMN value is .3 or greater
-DMNParcels=find(pDMN>.3);
-cxDMN=[];
+%DMNParcels=find(pDMN>.3);
+%cxDMN=[];
+DMNInds=find(DMN.data>.3);
 
 % load in temporal mask
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -73,30 +93,12 @@ for row = 1:size(tmask, 1)
 end
 
 % get complexity of full time series
-dmn_ts=C_timeseries(1:59412,logical(TRwise_mask_cont));
+dmn_ts=C_timeseries(DMNInds,logical(TRwise_mask_cont));
 % explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
 [~,~,~,~,EXPLAINED]=pca(dmn_ts);
 EXPLAINED=EXPLAINED/100;
 nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
 cxDMN = nGSC;
-% can insert parcelwise saveout here later if interested
-%FullParcels=zeros(1,333);
-%FullParcels(DMNParcels)=1;
-%GPdataOut=zeros(91282,1);
-%iterator=1
-%for p=DMNParcels
-%   	GPdataOut(GP.data==p)=cxDMN(iterator);	
-%	iterator=iterator+1;
-%end
-% save out
-%ComplOut = read_cifti('/oak/stanford/groups/leanew1/users/apines/NeuroSynthMaps/dmn_smooth.dscalar.nii')
-%ComplOut.cdata=GPdataOut;
-%ComplOut.diminfo{2}.length=1
-%ComplOut.diminfo{2}.type='series'
-%ComplOut.diminfo{2}.seriesUnit='SECOND'
-%ComplOut.diminfo{2}.seriesStep=.71
-%ComplOut.diminfo{2}.seriesStart=0.00
-%write_cifti(ComplOut,[parentfp '/' subj '_' sesh '_' task '_Complexity.dtseries.nii']);
 
 % save out normalized entropy for dmn
 avComplexity=cxDMN;
