@@ -56,19 +56,19 @@ for row = 1:size(tmask, 1)
         end
 end
 
-% get complexity of full time series
-dmn_ts=C_timeseries(DMNInds,logical(TRwise_mask_cont));
-% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
-[~,~,~,~,EXPLAINED]=pca(dmn_ts);
-EXPLAINED=EXPLAINED/100;
-nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
-cxDMN = nGSC;
+% get correlation matrix of full time series... just cortex
+C_timeseries=C_timeseries(1:59412,logical(TRwise_mask_cont));
+% get non-dmn indices
+nonDMNinds=setdiff(1:59412,DMNInds);
+DMN_mat=C_timeseries(DMNInds,:);
+nonDMN_mat=C_timeseries(nonDMNinds,:);
+% avoid making full correlation matrix due to memory demands
+correlation_matrix = 1 - pdist2(DMN_mat, nonDMN_mat, 'correlation');  
+BWFC=mean(mean(correlation_matrix,'omitnan'),'omitnan');
 
-% save out normalized entropy for dmn
-avComplexity=cxDMN;
-
-T=table(avComplexity,'RowNames',"Row1");
+% save out
+T=table(BWFC,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-writetable(T,[outFP '/' subj '_' sesh '_' task '_Complexity_gro.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNSeg.csv'],'WriteRowNames',true)
 
 

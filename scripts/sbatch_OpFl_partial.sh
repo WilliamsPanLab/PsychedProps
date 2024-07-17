@@ -85,10 +85,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
 # get frequency and duration of BUP and TD epsiodes
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"
@@ -100,18 +100,25 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "Calc_AvgCircDistr_Distance('$subj')"
 
 # extract autocorr
-#matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_AutoCor('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
 # extract entropy
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+
+# extract DMNSeg
+matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
 
 # extract amygdalar FC (loops over tasks internally)
 #matlab -nodisplay -r "Extract_AmygFC('$subj','$sesh')"

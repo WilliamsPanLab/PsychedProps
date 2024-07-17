@@ -1,4 +1,4 @@
-function Extract_NGSC(subj,sesh,task)
+function Extract_TAutoCor(subj,sesh,task)
 % set parent directory
 parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
 
@@ -25,6 +25,9 @@ C_timeseries=C.data;
 DMN=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/maps/Network1_fslr.dscalar.nii');
 DMNInds=find(DMN.data>.3);
 
+% mask timeseries
+C_timeseries=C_timeseries(DMNInds,:);
+
 % load in temporal mask
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
@@ -44,31 +47,49 @@ FD=table2array(conf1(:,'framewise_displacement'));
 
 % make binary mask for continuous segments
 TRwise_mask_cont=zeros(1,length(FD));
-% Loop through each row in Absolut
-for row = 1:size(tmask, 1)
-	if tmask(row, 3) == 1
-        	% Extract the start and end values from the current row
-                startValue = tmask(row, 1);
-                endValue = tmask(row, 2);
-                % change TRwise_mask_cont to 1 where this sequence of continuous good TRs occurs
-                TRwise_mask_cont(startValue:endValue)=1;
-        else
-        end
+
+% read in good segments indicator
+CSIfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
+CSI = importdata(CSIfp);
+numSegments=sum(CSI(:,3)==1);
+ValidSegs=CSI(CSI(:,3)==1,:);
+
+% initialize an autocor array
+ACarray=zeros(numSegments,length(DMNInds));
+
+% loop over each segement
+for n=1:numSegments
+	% pull out TR numbers for this segment
+	segStart=ValidSegs(n,1);
+	segEnd=ValidSegs(n,2);
+	% loop over each vertex within DMN
+	for v=1:length(DMNInds);
+		% extract data
+		dataInSegAndVert=C_timeseries(v,segStart:segEnd);
+		% OG time series (-1)
+		OGTS=dataInSegAndVert(1:end-1);
+		ShiftTS=dataInSegAndVert(2:end);
+		% calculate autocor (t-1 vs. t)
+		correlationOfInterest=corrcoef(OGTS,ShiftTS);
+		% note this returns a correlation matrix: only interested in the between-timeseries measurement (off-diag)
+		ACarray(n,v)=correlationOfInterest(1,2);
+	% end vertex loop
+	end	
+	% end segment loop
 end
+% get mean autocor per segment
+MAC_PS=mean(ACarray,2);
 
-% get complexity of full time series
-dmn_ts=C_timeseries(DMNInds,logical(TRwise_mask_cont));
-% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
-[~,~,~,~,EXPLAINED]=pca(dmn_ts);
-EXPLAINED=EXPLAINED/100;
-nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
-cxDMN = nGSC;
+% get proportion of total TRs
+totalTRs=sum(ValidSegs(:,4));
+Proportions=ValidSegs(:,4)./totalTRs;
+% weight temporal autocors: autocor for segment i * proportion of total time series comprised of segment i
+weighted_PS=MAC_PS.*Proportions;
+% save out weighted autocor for DMN
+avTA=sum(weighted_PS);
 
-% save out normalized entropy for dmn
-avComplexity=cxDMN;
-
-T=table(avComplexity,'RowNames',"Row1");
+T=table(avTA,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-writetable(T,[outFP '/' subj '_' sesh '_' task '_Complexity_gro.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_' task '_TemporalAutoCor.csv'],'WriteRowNames',true)
 
 
