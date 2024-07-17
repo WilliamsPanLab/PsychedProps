@@ -45,9 +45,9 @@ mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 % note this is indexing for VALID vertices as opposed to some other scripts with 1 at INVALID vertices
 mw_L=ones(1,2562);
-mw_L(mwAndTSNR_L==1)=0;
+mw_L(mwAndTSNR_L>0)=0;
 mw_R=ones(1,2562);
-mw_R(mwAndTSNR_R==1)=0;
+mw_R(mwAndTSNR_R>0)=0;
 mw_L=logical(mw_L);
 mw_R=logical(mw_R);
 
@@ -299,234 +299,201 @@ disp('done with pre-distance mapping')
 
 
 % one big loop that will just print out avg magnitude for each vertex per scan 
+% initialize output vectors
+BV_L=zeros(sum(mw_L),1);
+BV_R=zeros(sum(mw_R),1);
+PL_L=zeros(sum(mw_L),1);
+PL_R=zeros(sum(mw_R),1);
+M1_L=zeros(sum(mw_L),1);
+M1_R=zeros(sum(mw_R),1);
+M2_L=zeros(sum(mw_L),1);
+M2_R=zeros(sum(mw_R),1);
 
-% one big loop that will perorm contrasts: difference of average magnitude
+% LEFT - BASELINE
+% loop over each left vertex
+for v=1:sum(mw_L);
+	% for each timepoint
+	for tp=1:numTPsBV
+		% get xy components for current timepoint
+		xy=bv_vs_L(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		BV_L(v)=BV_L(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	BV_L(v)=BV_L(v)/numTPsBV;
+end
 
+% RIGHT
+% loop over each right vertex
+for v=1:sum(mw_R);
+	% for each timepoint
+	for tp=1:numTPsBV
+		% get xy components for current timepoint
+		xy=bv_vs_R(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		BV_R(v)=BV_R(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	BV_R(v)=BV_R(v)/numTPsBV;
+end
 
+% LEFT - PLACEBO
+% loop over each left vertex
+for v=1:sum(mw_L);
+	% for each timepoint
+	for tp=1:numTPsPL
+		% get xy components for current timepoint
+		xy=pl_vs_L(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		PL_L(v)=PL_L(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	PL_L(v)=PL_L(v)/numTPsPL;
+end
 
+% RIGHT
+% loop over each right vertex
+for v=1:sum(mw_R);
+	% for each timepoint
+	for tp=1:numTPsPL
+		% get xy components for current timepoint
+		xy=pl_vs_R(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		PL_R(v)=PL_R(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	PL_R(v)=PL_R(v)/numTPsPL;
+end
 
+% LEFT - 80mg
+% loop over each left vertex
+for v=1:sum(mw_L);
+	% for each timepoint
+	for tp=1:numTPsm1
+		% get xy components for current timepoint
+		xy=m1_vs_L(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		M1_L(v)=M1_L(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	M1_L(v)=M1_L(v)/numTPsm1;
+end
 
+% RIGHT
+% loop over each right vertex
+for v=1:sum(mw_R);
+	% for each timepoint
+	for tp=1:numTPsm1
+		% get xy components for current timepoint
+		xy=m1_vs_R(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		M1_R(v)=M1_R(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	M1_R(v)=M1_R(v)/numTPsm1;
+end
 
-% now for each vertex AGAIN: this time we'll be calculating tp x tp distance matrices for each vertex in each condition contrast of interest
+% LEFT - 120mg
+% loop over each left vertex
+for v=1:sum(mw_L);
+	% for each timepoint
+	for tp=1:numTPsm2
+		% get xy components for current timepoint
+		xy=m2_vs_L(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		M2_L(v)=M2_L(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	M2_L(v)=M2_L(v)/numTPsm2;
+end
+
+% RIGHT
+% loop over each right vertex
+for v=1:sum(mw_R);
+	% for each timepoint
+	for tp=1:numTPsm2
+		% get xy components for current timepoint
+		xy=m2_vs_R(v,tp,:);
+		% get magnitude
+		magnitude = sqrt(sum(xy .^ 2));
+		% put magnitude into output vector
+		M2_R(v)=M2_R(v)+magnitude;
+	end
+	% average magnitude for this vertex
+	M2_R(v)=M2_R(v)/numTPsm2;
+end
+
+% save out average magnitude vectors to scratch
+outFP=['/scratch/users/apines/data/mdma/' subj];
+save(strjoin([outFP '/AvgMag_BV_L.mat'],""),'BV_L');
+save(strjoin([outFP '/AvgMag_BV_R.mat'],""),'BV_R');
+save(strjoin([outFP '/AvgMag_PL_L.mat'],""),'PL_L');
+save(strjoin([outFP '/AvgMag_PL_R.mat'],""),'PL_R');
+save(strjoin([outFP '/AvgMag_M1_L.mat'],""),'M1_L');
+save(strjoin([outFP '/AvgMag_M1_R.mat'],""),'M1_R');
+save(strjoin([outFP '/AvgMag_M2_L.mat'],""),'M2_L');
+save(strjoin([outFP '/AvgMag_M2_R.mat'],""),'M2_R');
+
+% one big loop that will perorm contrasts: difference of average magnitude for each vertex across conditions (use old arrays like pl_80_L)
+
 % LEFT
 for v=1:sum(mw_L);
-	v
 	% pl vs 80 for this vertex
-	distanceMatrix=zeros(numTPsPL,numTPsm1);
-	for tp1 = 1:numTPsPL
-		for tp2 = 1:numTPsm1
-			% get xy components for current timepoint
-			xy_pl=pl_vs_L(v,tp1,:);
-			xy_m1=m1_vs_L(v,tp2,:);
-			distance = sqrt(sum((xy_pl - xy_m1) .^ 2));
-			distance_matrix(tp1, tp2)=distance;
-		end
-	end
-	% put average of this distance matrix into output vector
-	pl_80_L(v)=mean(mean(distance_matrix));
-
+	pl_80_L(v)=PL_L(v)-BV_L(v);
 	% pl vs 120 for this vertex
-        distanceMatrix=zeros(numTPsPL,numTPsm2);
-        for tp1 = 1:numTPsPL
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_pl=pl_vs_L(v,tp1,:);
-                        xy_m2=m2_vs_L(v,tp2,:);
-                        distance = sqrt(sum((xy_pl - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-	% consider plotting one distance matrix for the records
-	%figure;
-	%imagesc(distance_matrix)
-	%colorbar;
-	%print('~/distancematrix_example.png','-dpng','-r400')	
-
-	% put average of this distance matrix into output vector
-        pl_120_L(v)=mean(mean(distance_matrix));
-
+	pl_120_L(v)=PL_L(v)-M2_L(v);
 	% bv vs 80 for this vertex
-        distanceMatrix=zeros(numTPsBV,numTPsm1);
-        for tp1 = 1:numTPsBV
-                for tp2 = 1:numTPsm1
-                        % get xy components for current timepoint
-                        xy_bv=bv_vs_L(v,tp1,:);
-                        xy_m1=m1_vs_L(v,tp2,:);
-                        distance = sqrt(sum((xy_bv - xy_m1) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-	% put average of this distance matrix into output vector
-        bv_80_L(v)=mean(mean(distance_matrix));
-
+	bv_80_L(v)=BV_L(v)-M1_L(v);
 	% bv vs 120 for this vertex
-        distanceMatrix=zeros(numTPsBV,numTPsm2);
-        for tp1 = 1:numTPsBV
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_bv=bv_vs_L(v,tp1,:);
-                        xy_m2=m2_vs_L(v,tp2,:);
-                        distance = sqrt(sum((xy_bv - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-	% put average of this distance matrix into output vector
-        bv_120_L(v)=mean(mean(distance_matrix));
-
+	bv_120_L(v)=BV_L(v)-M2_L(v);
 	% pl vs bv for this vertex
-        distanceMatrix=zeros(numTPsPL,numTPsBV);
-        for tp1 = 1:numTPsPL
-                for tp2 = 1:numTPsBV
-                        % get xy components for current timepoint
-                        xy_pl=pl_vs_L(v,tp1,:);
-                        xy_bv=bv_vs_L(v,tp2,:);
-                        distance = sqrt(sum((xy_pl - xy_bv) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-	% put average of this distance matrix into output vector
-        pl_bv_L(v)=mean(mean(distance_matrix));
-
+	pl_bv_L(v)=PL_L(v)-BV_L(v);
 	% 80 vs 120 for this vertex
-        distanceMatrix=zeros(numTPsm1,numTPsm2);
-        for tp1 = 1:numTPsm1
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_m1=m1_vs_L(v,tp1,:);
-                        xy_m2=m2_vs_L(v,tp2,:);
-                        distance = sqrt(sum((xy_m1 - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-	% put average of this distance matrix into output vector
-        m80_120_L(v)=mean(mean(distance_matrix));
+	m80_120_L(v)=M1_L(v)-M2_L(v);
 end
-disp('done with left hemi distance mapping')
-% RIGHT HEMISPHERE
+% RIGHT
 for v=1:sum(mw_R);
-	v
-        % pl vs 80 for this vertex
-        distanceMatrix=zeros(numTPsPL,numTPsm1);
-        for tp1 = 1:numTPsPL
-                for tp2 = 1:numTPsm1
-                        % get xy components for current timepoint
-                        xy_pl=pl_vs_R(v,tp1,:);
-                        xy_m1=m1_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_pl - xy_m1) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-        % put average of this distance matrix into output vector
-        pl_80_R(v)=mean(mean(distance_matrix));
-
-        % pl vs 120 for this vertex
-        distanceMatrix=zeros(numTPsPL,numTPsm2);
-        for tp1 = 1:numTPsPL
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_pl=pl_vs_R(v,tp1,:);
-                        xy_m2=m2_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_pl - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-        % put average of this distance matrix into output vector
-        pl_120_R(v)=mean(mean(distance_matrix));
-
-        % bv vs 80 for this vertex
-        distanceMatrix=zeros(numTPsBV,numTPsm1);
-        for tp1 = 1:numTPsBV
-                for tp2 = 1:numTPsm1
-                        % get xy components for current timepoint
-                        xy_bv=bv_vs_R(v,tp1,:);
-                        xy_m1=m1_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_bv - xy_m1) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-        % put average of this distance matrix into output vector
-        bv_80_R(v)=mean(mean(distance_matrix));
-
-        % bv vs 120 for this vertex
-        distanceMatrix=zeros(numTPsBV,numTPsm2);
-        for tp1 = 1:numTPsBV
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_bv=bv_vs_R(v,tp1,:);
-                        xy_m2=m2_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_bv - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-        % put average of this distance matrix into output vector
-        bv_120_R(v)=mean(mean(distance_matrix));
-
-        % pl vs bv for this vertex
-        distanceMatrix=zeros(numTPsPL,numTPsBV);
-        for tp1 = 1:numTPsPL
-                for tp2 = 1:numTPsBV
-                        % get xy components for current timepoint
-                        xy_pl=pl_vs_R(v,tp1,:);
-                        xy_bv=bv_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_pl - xy_bv) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-        % put average of this distance matrix into output vector
-        pl_bv_R(v)=mean(mean(distance_matrix));
-
-        % 80 vs 120 for this vertex
-        distanceMatrix=zeros(numTPsm1,numTPsm2);
-        for tp1 = 1:numTPsm1
-                for tp2 = 1:numTPsm2
-                        % get xy components for current timepoint
-                        xy_m1=m1_vs_R(v,tp1,:);
-                        xy_m2=m2_vs_R(v,tp2,:);
-                        distance = sqrt(sum((xy_m1 - xy_m2) .^ 2));
-                        distance_matrix(tp1, tp2)=distance;
-                end
-        end
-
-        % put average of this distance matrix into output vector
-        m80_120_R(v)=mean(mean(distance_matrix));
+	% pl vs 80 for this vertex
+	pl_80_R(v)=PL_R(v)-BV_R(v);
+	% pl vs 120 for this vertex
+	pl_120_R(v)=PL_R(v)-M2_R(v);
+	% bv vs 80 for this vertex
+	bv_80_R(v)=BV_R(v)-M1_R(v);
+	% bv vs 120 for this vertex
+	bv_120_R(v)=BV_R(v)-M2_R(v);
+	% pl vs bv for this vertex
+	pl_bv_R(v)=PL_R(v)-BV_R(v);
+	% 80 vs 120 for this vertex
+	m80_120_R(v)=M1_R(v)-M2_R(v);
 end
-
-% average across drug conditions for pl v drug and bv v drug
-pl_drug_L=(pl_80_L+pl_120_L)/2;
-pl_drug_R=(pl_80_R+pl_120_R)/2;
-bv_drug_L=(bv_80_L+bv_120_L)/2;
-bv_drug_R=(bv_80_R+bv_120_R)/2;
-sob_drug_L=(pl_80_L+bv_80_L+pl_120_L+bv_120_L)/4;
-sob_drug_R=(pl_80_R+bv_80_R+pl_120_R+bv_120_R)/4;
 
 % save out angular distance contrasts to scratch
 outFP=['/scratch/users/apines/data/mdma/' subj];
-save(strjoin([outFP '/pl_80_L.mat'],""),'pl_80_L');
-save(strjoin([outFP '/pl_80_R.mat'],""),'pl_80_R');
-save(strjoin([outFP '/pl_120_L.mat'],""),'pl_120_L');
-save(strjoin([outFP '/pl_120_R.mat'],""),'pl_120_R');
-save(strjoin([outFP '/bv_80_L.mat'],""),'bv_80_L');
-save(strjoin([outFP '/bv_80_R.mat'],""),'bv_80_R');
-save(strjoin([outFP '/bv_120_L.mat'],""),'bv_120_L');
-save(strjoin([outFP '/bv_120_R.mat'],""),'bv_120_R');
-save(strjoin([outFP '/pl_drug_L.mat'],""),'pl_drug_L');
-save(strjoin([outFP '/pl_drug_R.mat'],""),'pl_drug_R');
-save(strjoin([outFP '/bv_drug_L.mat'],""),'bv_drug_L');
-save(strjoin([outFP '/bv_drug_R.mat'],""),'bv_drug_R');
-save(strjoin([outFP '/pl_bv_L.mat'],""),'pl_bv_L');
-save(strjoin([outFP '/pl_bv_R.mat'],""),'pl_bv_R');
-save(strjoin([outFP '/sob_drug_L.mat'],""),'sob_drug_L');
-save(strjoin([outFP '/sob_drug_R.mat'],""),'sob_drug_R');
+save(strjoin([outFP '/pl_80_L_Mag.mat'],""),'pl_80_L');
+save(strjoin([outFP '/pl_80_R_Mag.mat'],""),'pl_80_R');
+save(strjoin([outFP '/pl_120_L_Mag.mat'],""),'pl_120_L');
+save(strjoin([outFP '/pl_120_R_Mag.mat'],""),'pl_120_R');
+save(strjoin([outFP '/bv_80_L_Mag.mat'],""),'bv_80_L');
+save(strjoin([outFP '/bv_80_R_Mag.mat'],""),'bv_80_R');
+save(strjoin([outFP '/bv_120_L_Mag.mat'],""),'bv_120_L');
+save(strjoin([outFP '/bv_120_R_Mag.mat'],""),'bv_120_R');
+save(strjoin([outFP '/pl_bv_L_Mag.mat'],""),'pl_bv_L');
+save(strjoin([outFP '/pl_bv_R_Mag.mat'],""),'pl_bv_R');
+save(strjoin([outFP '/m80_120_L_Mag.mat'],""),'m80_120_L');
 
 
-
-
+end
