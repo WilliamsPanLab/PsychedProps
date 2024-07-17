@@ -31,9 +31,9 @@ mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=ones(1,2562);
-mw_L(mwAndTSNR_L==1)=0;
+mw_L(mwAndTSNR_L>0)=0;
 mw_R=ones(1,2562);
-mw_R(mwAndTSNR_R==1)=0;
+mw_R(mwAndTSNR_R>0)=0;
 mwIndVec_l=find(mw_L);
 mwIndVec_r=find(mw_R);
 
@@ -51,8 +51,8 @@ maxcol=max(VertVecL);
 % for resultant vector distance mapping (Calc_cirdist)
 mincol=.005;
 maxcol=.025;
-mincol=-7;
-maxcol=7;
+mincol=-0.015;
+maxcol=0.015;
 % for nmf networks
 %mincol=0;
 %maxcol=1;

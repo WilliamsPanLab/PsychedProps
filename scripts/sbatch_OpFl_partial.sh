@@ -39,7 +39,7 @@ module load python/3.9
 # subject name is input argument
 subj=$1
 # sesh is input 2
-sesh=$2
+#sesh=$2
 
 # downsample baseline for NMF
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
@@ -101,7 +101,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling')"
 
 # calculate distance maps
-#matlab -nodisplay -r "Calc_AvgCircDistr_Distance('$subj')"
+matlab -nodisplay -r "Calc_AvgMagnitude('$subj')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
@@ -111,11 +111,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
 # extract entropy
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
 # extract DMNSeg
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"

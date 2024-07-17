@@ -83,8 +83,8 @@ for p=1:333
 	cxDMN = [cxDMN nGSC];
 end
 
-% save out normalized entropy for dmn
-avComplexity=mean(cxDMN(DMNParcels));
+% save out normalized entropy for whole-cortex
+avComplexity=mean(cxDMN);
 
 T=table(avComplexity,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];

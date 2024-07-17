@@ -453,7 +453,7 @@ save(strjoin([outFP '/AvgMag_M2_R.mat'],""),'M2_R');
 % LEFT
 for v=1:sum(mw_L);
 	% pl vs 80 for this vertex
-	pl_80_L(v)=PL_L(v)-BV_L(v);
+	pl_80_L(v)=PL_L(v)-M1_L(v);
 	% pl vs 120 for this vertex
 	pl_120_L(v)=PL_L(v)-M2_L(v);
 	% bv vs 80 for this vertex
@@ -468,7 +468,7 @@ end
 % RIGHT
 for v=1:sum(mw_R);
 	% pl vs 80 for this vertex
-	pl_80_R(v)=PL_R(v)-BV_R(v);
+	pl_80_R(v)=PL_R(v)-M1_R(v);
 	% pl vs 120 for this vertex
 	pl_120_R(v)=PL_R(v)-M2_R(v);
 	% bv vs 80 for this vertex
@@ -495,5 +495,3 @@ save(strjoin([outFP '/pl_bv_L_Mag.mat'],""),'pl_bv_L');
 save(strjoin([outFP '/pl_bv_R_Mag.mat'],""),'pl_bv_R');
 save(strjoin([outFP '/m80_120_L_Mag.mat'],""),'m80_120_L');
 
-
-end
