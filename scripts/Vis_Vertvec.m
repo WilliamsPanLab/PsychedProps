@@ -51,6 +51,8 @@ maxcol=max(VertVecL);
 % for resultant vector distance mapping (Calc_cirdist)
 mincol=.005;
 maxcol=.025;
+mincol=-7;
+maxcol=7;
 % for nmf networks
 %mincol=0;
 %maxcol=1;
@@ -305,7 +307,7 @@ set(gcf,'Color','w')
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 %colorbar
-%c=colorbar
+c=colorbar
 %c.Location='southoutside'
 
 colormap(custommap)

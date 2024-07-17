@@ -58,8 +58,12 @@ sesh=$2
 # smooth subject's fs4 nets
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_DownSampled_Nets.sh $subj
 
-# convert to .mat file for extracting angles
-#matlab -nodisplay -r "Netgiis_2_mat_Ind('$subj')"
+# motion masking
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 # interpolate fs4 time series to faces and between-timepoints
 #matlab -nodisplay -r "InterpolateTS('$subj','$sesh','rs1')"
@@ -100,11 +104,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Calc_AvgCircDistr_Distance('$subj')"
 
 # extract autocorr
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
 # extract entropy
 matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
@@ -114,11 +118,11 @@ matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
 
 # extract DMNSeg
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
 
 # extract amygdalar FC (loops over tasks internally)
 #matlab -nodisplay -r "Extract_AmygFC('$subj','$sesh')"

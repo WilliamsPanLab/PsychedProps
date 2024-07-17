@@ -23,7 +23,7 @@ C_timeseries=C.data;
 
 % load in DMN
 DMN=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/maps/Network1_fslr.dscalar.nii');
-DMNInds=find(DMN.data>.3);
+%DMNInds=find(DMN.data>.3);
 
 % load in temporal mask
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -56,16 +56,35 @@ for row = 1:size(tmask, 1)
         end
 end
 
-% get complexity of full time series
-dmn_ts=C_timeseries(DMNInds,logical(TRwise_mask_cont));
-% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
-[~,~,~,~,EXPLAINED]=pca(dmn_ts);
-EXPLAINED=EXPLAINED/100;
-nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
-cxDMN = nGSC;
+
+% read in gordon parcellation
+GP=ft_read_cifti_mod('~/null_lL_WG33/Gordon333_FreesurferSubcortical.32k_fs_LR.dlabel.nii');
+% gordon parcel labels
+% https://balsa.wustl.edu/file/JX5V
+% get average dmn value for each parcel
+pDMN=zeros(1,333);
+for p=1:333
+	pDMN(p)=mean(DMN.data(GP.data==p));
+end
+% get gordon parcels where average DMN value is .3 or greater
+DMNParcels=find(pDMN>.3);
+
+% initialize by-parcel values
+cxDMN=[];
+
+% for each parcel, get complexity of timeseries
+for p=1:333
+	% get complexity of full time series
+	dmn_ts=C_timeseries(logical(GP.data==p),logical(TRwise_mask_cont));
+	% explicitly using Josh's code, note scrubbing mask is TRwise_mask_cont
+	[~,~,~,~,EXPLAINED]=pca(dmn_ts);
+	EXPLAINED=EXPLAINED/100;
+	nGSC=-sum(EXPLAINED .* log(EXPLAINED))/log(length(EXPLAINED));
+	cxDMN = [cxDMN nGSC];
+end
 
 % save out normalized entropy for dmn
-avComplexity=cxDMN;
+avComplexity=mean(cxDMN(DMNParcels));
 
 T=table(avComplexity,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];

@@ -31,8 +31,8 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	        m2FP=strjoin(m2FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')
-		% check using props, but load in Cx
-		bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_Complexity_gro.csv'];
+		% check using props, but load in Dseg
+		bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_DMNSeg.csv'];
 		bvFP=strjoin(bvFP,'');
 		bv=readmatrix(bvFP);
 	        outDF(s,1)=bv(1,2);
@@ -47,8 +47,8 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		end
 		% load in placebo csvs
 		if exist(pFP,'file')
-		% check using props, but load in Cx
-                pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_Complexity_gro.csv'];
+		% check using props, but load in Dseg
+                pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_DMNSeg.csv'];
                 pFP=strjoin(pFP,'');
 		p=readmatrix(pFP);
 		% extract in group consensus atlas: placebo
@@ -62,8 +62,8 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		end
 		% load mdma 1 (80 mg)
 		if exist(m1FP,'file')
-		% check using props, but load in Cx
-                m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_Complexity_gro.csv'];
+		% check using props, but load in Dseg
+                m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_DMNSeg.csv'];
                 m1FP=strjoin(m1FP,'');
 		m1=readmatrix(m1FP);
 		% extact in group consensus atlas: mdma 1
@@ -77,8 +77,8 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		end
 		% load mdma 2 (120 mg)
 		if exist(m2FP,'file')
-		% check using props, but load in TA
-		m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_Complexity_gro.csv'];
+		% check using props, but load in Dseg
+		m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_DMNSeg.csv'];
                 m2FP=strjoin(m2FP,'');
 		m2=readmatrix(m2FP);
 		% extract in group consensus atlas: mdma 2
@@ -92,5 +92,5 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_ComplexityMerged.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_DMNSegMerged.csv'],''))
 end
