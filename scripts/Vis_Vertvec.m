@@ -39,9 +39,11 @@ mwIndVec_r=find(mw_R);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-data=zeros(1,2562);
-data(mwIndVec_l)=VertVecL;
+%data=zeros(1,2562);
+%data(mwIndVec_l)=VertVecL;
 %data(mwIndVec_l)=0;
+% for medial wall plotting
+data=VertVecL;
 
 %%%%%%% fixed colorscale varities
 
@@ -51,8 +53,10 @@ maxcol=max(VertVecL);
 % for resultant vector distance mapping (Calc_cirdist)
 mincol=.005;
 maxcol=.025;
-mincol=-0.015;
+mincol=-0.005;
 maxcol=0.015;
+mincol=0;
+maxcol=0.03;
 % for nmf networks
 %mincol=0;
 %maxcol=1;
@@ -223,8 +227,11 @@ set(gca,'CLim',[mincol,maxcol]);
 V_R=vertices;
 F_R=faces;
 
-data=zeros(1,2562);
-data(mwIndVec_r)=VertVecR;
+%data=zeros(1,2562);
+%data(mwIndVec_r)=VertVecR;
+% for medial wall plotting
+data=VertVecR;
+
 % calculate network gradients on sphere
 ng_R = grad(F_R, V_R, n_RH);
 % convert both back to vertices for angular comparisons
