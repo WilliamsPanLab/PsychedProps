@@ -8,8 +8,9 @@ from skimage.transform import downscale_local_mean, resize
 from skimage.measure import block_reduce as downscale_local_mean
 from scipy.ndimage import gaussian_filter
 
-data_dir = '/scratch/users/apines/p50_mice/proc'
-subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_postDrug.txt', delimiter=' ', names=['date', 'session'])
+#data_dir = '/scratch/users/apines/p50_mice/proc'
+data_dir = '/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/drugs/processed_data'
+subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_postDiaz.txt', delimiter=' ', names=['date', 'session'])
 fname = 'masked_dff.h5'
 data_key = 'vid'
 
