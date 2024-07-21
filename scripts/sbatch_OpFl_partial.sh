@@ -94,6 +94,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 #matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
+# extract relative angles
+#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','emotion')"
 
 # Extract DMN magnitudes
 matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"

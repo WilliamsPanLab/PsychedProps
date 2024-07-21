@@ -123,6 +123,16 @@ for v=1:sum(DMN_bool_R);
         end     
 end
 
+% read in angular distance from extract_relangleverts script
+inFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+AngDistFP=[inFP '/' subj '_' sesh '_' task '_k1_AngDistVertsMat.mat'];
+AngDist=load(AngDistFP).AngDist;
+% make BUP mask for both hemis
+BUP_L=AngDist.Left<90;
+BUP_R=AngDist.Right<90;
+% make TD mask for both hemis
+TD_L=AngDist.Left>90;
+TD_R=AngDist.Right>90;
 
 % get average vector magnitude for each vertex
 % LEFT
@@ -133,10 +143,34 @@ rightAvgMag=mean(mags_R,2);
 Mags=[leftAvgMag; rightAvgMag];
 % get average across all DMN vertices
 avgMag=mean(Mags);
+%%% now for BUP
+leftAvgMag=mean(mags_L(BUP_L),2);
+% RIGHT
+rightAvgMag=mean(mags_R(BUP_R),2);
+% combined for averaging with weight-by-vertex rather than by-hemisphere
+Mags=[leftAvgMag; rightAvgMag];
+% get average across all DMN vertices
+avgMag_bup=mean(Mags);
+%%% now for TD
+leftAvgMag=mean(mags_L(TD_L),2);
+% RIGHT
+rightAvgMag=mean(mags_R(TD_R),2);
+% combined for averaging with weight-by-vertex rather than by-hemisphere
+Mags=[leftAvgMag; rightAvgMag];
+% get average across all DMN vertices 
+avgMag_td=mean(Mags);
 
 % save out
 T=table(avgMag,'RowNames',"Row1");
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNMag.csv'],'WriteRowNames',true)
 
+% save out
+T=table(avgMag_bup,'RowNames',"Row1");
+outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNMag_BUP.csv'],'WriteRowNames',true)
 
+% save out
+T=table(avgMag_td,'RowNames',"Row1");
+outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNMag_TD.csv'],'WriteRowNames',true)
