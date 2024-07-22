@@ -34,7 +34,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			SubjNameCol((s+(i*11))-11)=cellstr(subjList(s));
 	        	% grab baseline
 			bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
-	        	bvFP=strjoin(bvFP,'')
+	        	bvFP=strjoin(bvFP,'');
 			% p = between
 			pFP=[commonFP subjList(s) '/Between' num2str(i)  '/' subjList(s) '_Between' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	pFP=strjoin(pFP,'');
@@ -46,6 +46,9 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 	        	m2FP=strjoin(m2FP,'');
 			% load in baseline csvs
 			if exist(bvFP,'file')
+				% new bvfp based on prop feats existing
+				bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_DMNMag.csv'];
+				bvFP=strjoin(bvFP,'');
 				bv=readmatrix(bvFP);
 				% s+i*11-11 to insert into subj-sesh row 
 				outDF(((s+(i*11))-11),1)=bv(1,2);
@@ -73,6 +76,8 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			end
 			% load in Between csvs
 			if exist(pFP,'file')
+				pFP=[commonFP subjList(s) '/Between' num2str(i) '/' subjList(s) '_Between' num2str(i) '_' task '_DMNMag.csv'];
+				pFP=strjoin(pFP,'');
 				p=readmatrix(pFP);
 				% extract in group consensus atlas: placebo
 				outDF(((s+(i*11))-11),5)=p(1,2);
@@ -97,6 +102,8 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                         end
 			% load After
 			if exist(m1FP,'file')
+				m1FP=[commonFP subjList(s) '/After' num2str(i) '/' subjList(s) '_After' num2str(i) '_' task '_DMNMag.csv'];
+				m1FP=strjoin(m1FP,'');
 				m1=readmatrix(m1FP);
 				% extact in group consensus atlas: mdma 1
 				outDF(((s+(i*11))-11),9)=m1(1,2);
@@ -121,6 +128,8 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			end
 			% load Drug
 			if exist(m2FP,'file')
+				m2FP=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_' task '_DMNMag.csv'];
+				m2FP=strjoin(m2FP,'');
 				m2=readmatrix(m2FP);
 				% extract in group consensus atlas: mdma 2
 				outDF(((s+(i*11))-11),13)=m2(1,2);
@@ -146,7 +155,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_DMNMagMerged.csv'],''))
 	% and subject ID column
 	writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged_subjOrder.csv'],''))
 end

@@ -97,32 +97,41 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 
 # combine angular time series with magnitude time series
 #matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs2')"
 
 # OPFL TO VERTS
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs6')"
 
-# EXTRACT vertexwise angles, EVEN THOUGH _TASK IS A MISNOMER IS THIS INSTANCE
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_RelativeAngles_VertsPsil('$subj','$sesh','rs6')"
+# extract vertexwise angles
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs6')"
+
+# Extract DMN mag
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
+
 
 ### OUTSIDE OF SUBJECT LEVEL
 
