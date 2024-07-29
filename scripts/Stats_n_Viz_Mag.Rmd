@@ -15,11 +15,11 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/Downloads/rs1_propsMerged(4).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_propsMerged(4).csv',header=F)
-emo=read.csv('~/Downloads/emotion_propsMerged(4).csv',header=F)
-gambling=read.csv('~/Downloads/gambling_propsMerged(4).csv',header=F)
-wm=read.csv('~/Downloads/wm_propsMerged(4).csv',header=F)
+rs1=read.csv('~/Downloads/rs1_DMNMagMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_DMNMagMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_DMNMagMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_DMNMagMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_DMNMagMerged.csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -41,50 +41,50 @@ wm=wm[-c(4),]
 
 # this is going to be ugly but simple
 # manually pair columns as sep. observations of baseline, placebo, 80, 120mg
-rs1bv=data.frame(cbind(rs1$V1,rs1$V2,rs1$V3,rs1$V4,rs1$V17))
-rs1p=data.frame(cbind(rs1$V5,rs1$V6,rs1$V7,rs1$V8,rs1$V18))
-rs1m1=data.frame(cbind(rs1$V9,rs1$V10,rs1$V11,rs1$V12,rs1$V19))
-rs1m2=data.frame(cbind(rs1$V13,rs1$V14,rs1$V15,rs1$V16,rs1$V20))
-colnames(rs1bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs1p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs1m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs1m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+rs1bv=data.frame(cbind(rs1$V1,rs1$V5))
+rs1p=data.frame(cbind(rs1$V2,rs1$V6))
+rs1m1=data.frame(cbind(rs1$V3,rs1$V7))
+rs1m2=data.frame(cbind(rs1$V4,rs1$V8))
+colnames(rs1bv)=c('TDProp1','RemTRs')
+colnames(rs1p)=c('TDProp1','RemTRs')
+colnames(rs1m1)=c('TDProp1','RemTRs')
+colnames(rs1m2)=c('TDProp1','RemTRs')
 
-rs2bv=data.frame(cbind(rs2$V1,rs2$V2,rs2$V3,rs2$V4,rs2$V17))
-rs2p=data.frame(cbind(rs2$V5,rs2$V6,rs2$V7,rs2$V8,rs2$V18))
-rs2m1=data.frame(cbind(rs2$V9,rs2$V10,rs2$V11,rs2$V12,rs2$V19))
-rs2m2=data.frame(cbind(rs2$V13,rs2$V14,rs2$V15,rs2$V16,rs2$V20))
-colnames(rs2bv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs2p)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs2m1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(rs2m2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+rs2bv=data.frame(cbind(rs2$V1,rs2$V5))
+rs2p=data.frame(cbind(rs2$V2,rs2$V6))
+rs2m1=data.frame(cbind(rs2$V3,rs2$V7))
+rs2m2=data.frame(cbind(rs2$V4,rs2$V8))
+colnames(rs2bv)=c('TDProp1','RemTRs')
+colnames(rs2p)=c('TDProp1','RemTRs')
+colnames(rs2m1)=c('TDProp1','RemTRs')
+colnames(rs2m2)=c('TDProp1','RemTRs')
 
-emobv=data.frame(cbind(emo$V1,emo$V2,emo$V3,emo$V4,emo$V17))
-emop=data.frame(cbind(emo$V5,emo$V6,emo$V7,emo$V8,emo$V18))
-emom1=data.frame(cbind(emo$V9,emo$V10,emo$V11,emo$V12,emo$V19))
-emom2=data.frame(cbind(emo$V13,emo$V14,emo$V15,emo$V16,emo$V20))
-colnames(emobv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(emop)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(emom1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(emom2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+emobv=data.frame(cbind(emo$V1,emo$V5))
+emop=data.frame(cbind(emo$V2,emo$V6))
+emom1=data.frame(cbind(emo$V3,emo$V7))
+emom2=data.frame(cbind(emo$V4,emo$V8))
+colnames(emobv)=c('TDProp1','RemTRs')
+colnames(emop)=c('TDProp1','RemTRs')
+colnames(emom1)=c('TDProp1','RemTRs')
+colnames(emom2)=c('TDProp1','RemTRs')
 
-gamblingbv=data.frame(cbind(gambling$V1,gambling$V2,gambling$V3,gambling$V4,gambling$V17))
-gamblingp=data.frame(cbind(gambling$V5,gambling$V6,gambling$V7,gambling$V8,gambling$V18))
-gamblingm1=data.frame(cbind(gambling$V9,gambling$V10,gambling$V11,gambling$V12,gambling$V19))
-gamblingm2=data.frame(cbind(gambling$V13,gambling$V14,gambling$V15,gambling$V16,gambling$V20))
-colnames(gamblingbv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(gamblingp)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(gamblingm1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(gamblingm2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+gamblingbv=data.frame(cbind(gambling$V1,gambling$V5))
+gamblingp=data.frame(cbind(gambling$V2,gambling$V6))
+gamblingm1=data.frame(cbind(gambling$V3,gambling$V7))
+gamblingm2=data.frame(cbind(gambling$V4,gambling$V8))
+colnames(gamblingbv)=c('TDProp1','RemTRs')
+colnames(gamblingp)=c('TDProp1','RemTRs')
+colnames(gamblingm1)=c('TDProp1','RemTRs')
+colnames(gamblingm2)=c('TDProp1','RemTRs')
 
-wmbv=data.frame(cbind(wm$V1,wm$V2,wm$V3,wm$V4,wm$V17))
-wmp=data.frame(cbind(wm$V5,wm$V6,wm$V7,wm$V8,wm$V18))
-wmm1=data.frame(cbind(wm$V9,wm$V10,wm$V11,wm$V12,wm$V19))
-wmm2=data.frame(cbind(wm$V13,wm$V14,wm$V15,wm$V16,wm$V20))
-colnames(wmbv)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(wmp)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(wmm1)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
-colnames(wmm2)=c('TDProp1','TDProp2','TDProp3','TDProp4','RemTRs')
+wmbv=data.frame(cbind(wm$V1,wm$V5))
+wmp=data.frame(cbind(wm$V2,wm$V6))
+wmm1=data.frame(cbind(wm$V3,wm$V7))
+wmm2=data.frame(cbind(wm$V4,wm$V8))
+colnames(wmbv)=c('TDProp1','RemTRs')
+colnames(wmp)=c('TDProp1','RemTRs')
+colnames(wmm1)=c('TDProp1','RemTRs')
+colnames(wmm2)=c('TDProp1','RemTRs')
 
 # get subject IDs from this rds
 alff=readRDS('~/OutPlacDrug_alff.rds')
@@ -315,7 +315,7 @@ ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "MDMA vs. Placebo \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('Placebo','MDMA'))+
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('Placebo','MDMA'))+
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
 
@@ -343,7 +343,7 @@ ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "MDMA vs. No-drug scans \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','MDMA'))+
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','MDMA'))+
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
@@ -1195,70 +1195,6 @@ source("http://www.sthda.com/upload/rquery_cormat.r")
 
 corrmatrix=rquery.cormat(forCormat,type="full")
 corrplot(as.matrix(corrmatrix$r),method='number')
-
-# need to establish which DMN metrics are associated above and beyond drug effect
-# DMN FC
-dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task+TDProp1+AutoCor+DMNMag, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN tdprops
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+DMNFC+AutoCor+DMNMag, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN Mag
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+DMNFC+AutoCor+TDProp1, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN autocor
-dmnAC_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task+DMNFC+DMNMag+TDProp1, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-
-library(pROC)
-library(plotROC)
-# Fit logistic regression models
-model0 <- glm(Drug ~ MeanFD + RemTRs + Task, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model2 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model3 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*TDProp1 + Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model4 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*AutoCor+Task*DMNMag + Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-
-# Predict probabilities
-prob0 <- predict(model0, type = "response")
-prob1 <- predict(model1, type = "response")
-prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
-prob4 <- predict(model4, type = "response")
-
-# Create a combined data frame for all models
-df <- data.frame(
-  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, 5)),
-  predictions = c(prob0, prob1, prob2, prob3, prob4),
-  model = factor(rep(c("Head Motion", "FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag)))
-)
-
-# Generate the ROC plot
-ggplot(df, aes(m = predictions, d = labels, color = model)) + 
-  geom_roc(n.cuts = 0, labels = FALSE) + 
-  ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting MDMA vs. Placebo") + 
-  theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#FFEE00","#000000"))+
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
-
-
-# Calculate AUC for each model
-roc0 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob0)
-roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob1)
-roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob2)
-roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob3)
-roc4 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob4)
-
-# Print AUC values
-auc0 <- auc(roc0)
-auc1 <- auc(roc1)
-auc2 <- auc(roc2)
-auc3 <- auc(roc3)
-auc4 <- auc(roc4)
-
-print(paste("AUC for Head Motion:", auc0))
-print(paste("AUC for FC:", auc1))
-print(paste("AUC for BUP %:", auc2))
-print(paste("AUC for AutoCor:", auc3))
-print(paste("AUC for Magnitudes:", auc4))
-
 ```
 
 ```{r}
@@ -1376,15 +1312,15 @@ for (i in 1:num_bootstrap_samples){
   ds_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = data)
   dm_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = data)
   # get t-values
-  td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug1", "t-value"]
+  td_d[i]=-summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug1", "t-value"]
   td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "MeanFD", "t-value"]
-  ta_d[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "Drug1", "t-value"]
+  ta_d[i]=-summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "Drug1", "t-value"]
   ta_fd[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "MeanFD", "t-value"]
   cx_d[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "Drug1", "t-value"]
   cx_fd[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "MeanFD", "t-value"]
   ds_d[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "Drug1", "t-value"]
   ds_fd[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "MeanFD", "t-value"]
-  dm_d[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "Drug1", "t-value"]
+  dm_d[i]=-summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "Drug1", "t-value"]
   dm_fd[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "MeanFD", "t-value"]
 }
 # convert to dataframes
@@ -1423,52 +1359,30 @@ cx_fd$Cov='FD'
 ds_fd$Cov='FD'
 dm_fd$Cov='FD'
 
-td_d$Model='Bottom-up %'
-ta_d$Model='Temporal AutoCor'
+td_d$Model='Top-Down'
+ta_d$Model='AutoCor'
 cx_d$Model='Complexity'
-ds_d$Model='Integration'
-dm_d$Model='Magnitude'
+ds_d$Model='DMNFC'
+dm_d$Model='DMNMag'
 
-td_fd$Model='Bottom-up %'
-ta_fd$Model='Temporal AutoCor'
+td_fd$Model='Top-Down'
+ta_fd$Model='AutoCor'
 cx_fd$Model='Complexity'
-ds_fd$Model='Integration'
-dm_fd$Model='Magnitude'
+ds_fd$Model='DMNFC'
+dm_fd$Model='DMNMag'
 
-bootstrap_results_FD=rbind(td_fd,ta_fd,ds_fd,dm_fd)
-bootstrap_results_Drug=rbind(td_d,ta_d,ds_d,dm_d)
-# Calculate the average t-value for each Model category
-average_t_values <- bootstrap_results_FD %>%
-  group_by(Model) %>%
-  summarize(avg_t_value = mean(abs(tstat), na.rm = TRUE))
-
-# Reorder the Model factor based on the average t-values
-bootstrap_results_FD$Model <- factor(bootstrap_results_FD$Model, 
-                                     levels = average_t_values$Model[order(average_t_values$avg_t_value)])
-
-# Generate the plot
+bootstrap_results_FD=rbind(td_fd,ta_fd,cx_fd,ds_fd,dm_fd)
+bootstrap_results_Drug=rbind(td_d,ta_d,cx_d,ds_d,dm_d)
+# Create box-and-whisker plots
 ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
-  geom_boxplot(position = position_dodge(width = 0.8), fill = '#EF9500') +
-  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MeanFD effect") +
-  theme_minimal(base_size = 18) +
-  geom_hline(yintercept = 0,linetype = "dashed")
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for MeanFD") +
+  theme_minimal(base_size = 16)#+scale_fill_manual(values=c('blue','red'))
 
-# Calculate the average t-value for each Model category
-average_t_values <- bootstrap_results_Drug %>%
-  group_by(Model) %>%
-  summarize(avg_t_value = mean(abs(tstat), na.rm = TRUE))
-
-# Reorder the Model factor based on the average t-values
-bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
-                                     levels = average_t_values$Model[order(average_t_values$avg_t_value)])
-
-# Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = abs(tstat), fill = Cov)) +
-  geom_boxplot(position = position_dodge(width = 0.8), fill = '#840032') +
-  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MDMA effect") +
-  theme_minimal(base_size = 18) +
-  geom_hline(yintercept = 0,linetype = "dashed")
-
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+  geom_boxplot(position = position_dodge(width = 0.8)) +
+  labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Drug") +
+  theme_minimal(base_size = 16)#+scale_fill_manual(values=c('blue','red'))
 
 ```
 
@@ -1893,41 +1807,6 @@ for (i in 41:57){
   colNameVec[counter]=colnames(DAS_changeDF)[i]
   counter=counter+1
 }
-
-DAS_changeDF$Colors <- generated_colors[DAS_changeDF$Subjects]
-#DAS_changeDF$Subjects <- factor(DAS_changeDF$Subjects, levels = names(generated_colors))
-# merge people in
-people=data.frame(mergedDf$Subjects,mergedDf$People)
-colnames(people)=c('Subjects','People')
-DAS_changeDF_people=merge(DAS_changeDF,people,by='Subjects')
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Dread of Ego Dissolution", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 16)
-cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_gasc,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Global Effects", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_gasc,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_anxiety,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Anxiety", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_anxiety,DAS_changeDF_people$TDPropChange)
-
 ```
 
 ```{r}
@@ -1976,94 +1855,20 @@ DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
 # omit NA rows
 DAS_changeDF=DAS_changeDF[DAS_changeDF$DMNMagChange!='NaN',]
 # initialize output correlation stats
-mcorvec=NULL
-mpvec=NULL
+corvec=NULL
+pvec=NULL
 colNameVec=NULL
 counter=1
 # plot change from placebo with reported DAS scores
 for (i in 41:57){
   plot(DAS_changeDF$DMNMagChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
   a=cor.test(DAS_changeDF$DMNMagChange,DAS_changeDF[,i])
-  mcorvec[counter]=a$estimate
-  mpvec[counter]=a$p.value
+  corvec[counter]=a$estimate
+  pvec[counter]=a$p.value
   colNameVec[counter]=colnames(DAS_changeDF)[i]
   counter=counter+1
 }
-
-
 ```
-```{r}
-# plot percent bottom-up by DAS
-combinedPs=c(pvec,mpvec)
-# use combined Ps to MC correct both
-combinedPs=p.adjust(combinedPs,method='fdr')
-mc_pvec=combinedPs[1:length(pvec)]
-mc_mpvec=combinedPs[(length(pvec)+1):length(combinedPs)]
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = corvec, ColumnNames = colNameVec,pvals=pvec,mc_pvec=mc_pvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-colorvec=rep('NS',length(mc_pvec))
-colorvec[pvec<.05]='Uncr'
-colorvec[mc_pvec<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
-c("","","")
-
-# convert into radar plot
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-##############
-##############
-############################
-# equivalent for magnitude
-############################
-##############
-##############
-# Create a dataframe with the values and column names
-df <- data.frame(Values = mcorvec, ColumnNames = colNameVec,pvals=mpvec,mc_pvec=mc_mpvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-colorvec=rep('NS',length(mc_pvec))
-colorvec[mpvec<.05]='Uncr'
-colorvec[mc_mpvec<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
-c("","","")
-
-# convert into radar plot
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Magnitudes")+theme_minimal(base_size=17)
-
-```
-
 ```{r}
 #### associate change from placebo with reported DAS scores
 ##### DMN FC

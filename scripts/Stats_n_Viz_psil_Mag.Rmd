@@ -16,12 +16,12 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/Downloads/rs1_Psil_propsMerged(5).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_propsMerged(5).csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_propsMerged(5).csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_propsMerged(5).csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_propsMerged(5).csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_propsMerged(5).csv',header=F)
+rs1=read.csv('~/Downloads/rs1_Psil_DMNMagMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_DMNMagMerged.csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_DMNMagMerged.csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_DMNMagMerged.csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_DMNMagMerged.csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_DMNMagMerged.csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -948,7 +948,7 @@ ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "Psilocybin vs. No-drug scans \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)
 
 # full model for stats
@@ -974,7 +974,7 @@ ggplot(drugScans, aes(x = Drug, y = ResidualsReduced)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "Psilocybin vs. Active Placebo \n \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('Methylphenidate','Psilocybin'))+
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('Methylphenidate','Psilocybin'))+
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)+theme(axis.text.x = element_text(size = 15))
 
 # full model for stats
