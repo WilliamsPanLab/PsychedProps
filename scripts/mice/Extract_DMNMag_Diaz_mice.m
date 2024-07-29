@@ -1,4 +1,4 @@
-function Extract_RelativeAngles_mice(subj,sesh)
+function Extract_DMNMag_mice(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each pixel.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6,8 +6,7 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % Load in flatmouse opflow calc
-% note this is for LSD only! Adapt recording date for ketamine if needed
-childfp='/scratch/users/apines/p50_mice/proc/20200228/'
+childfp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/drugs/processed_data/20200305/'
 datafp=[childfp subj '_vf_out_' num2str(sesh) '.mat']
 % adding in if it exists: ends all the way at the end of the script
 if exist(datafp)
@@ -122,32 +121,20 @@ for k=1
 	faceMatrix=zeros(sum(sum(DMN_bool)));
         % network of interest
         net=Dnet;
-	% calculate gradient of DMN
-        [nGx, nGy] =imgradientxy(net);
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%% temporary visualization code to triple check stuff
 	%%%%% DMN gradient + vectors
-	figure;
-	% use threshold
-	netThresh=Dnet;
-	netThresh(netThresh<.6)=0;
-	% and divide by 2 to normalize
-	% and use mask to contrast background
-	netThresh(Mask)=netThresh(Mask)+.1;
-	netThresh=netThresh./2;
-	imagesc(netThresh);
-	colormap('jet');
-	hold on;
+	%figure;
+	%imagesc(net);
+	%colormap('jet');
+	%hold on;
 	% Create a grid for the quiver plot
-	[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
+	%[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
 	% Hold on to the current image and overlay the quiver plot
-	hold on;
-	% thresh grad
-	x(netThresh<.6)=0;
-	y(netThresh<.6)=0;
-	quiver(x, y, nGx, nGy);
+	%hold on;
+	%quiver(x, y, nGx, nGy);
 	%hold off;
-	print('~/DMUnder.png','-dpng','-r1400');
+	%print('~/DMUnder.png','-dpng','-r600');
 	%%%%% Ca2+ signal+vectors, DMN gradient vectors
        	%for fr=100:200
 	%	fig=figure;
@@ -189,13 +176,6 @@ for k=1
 	% looks good, commenting out for now
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	% calculate network gradients on sphere
-        %ng_L = grad(F_L, V_L, n_LH);
-        % use medial wall mask as common starting point (from which to mask both opfl vecs and net grads further)
-        % use DMN < .3 as mask
-	nGx=nGx(DMN_bool);
-	nGy=nGy(DMN_bool);
-        
 	%nx_L=ng_L(InclLeft,1);
         %ny_L=ng_L(InclLeft,2);
 
@@ -209,18 +189,11 @@ for k=1
         %end
 
         % initialize angular distance vector for each network (l and r) above
-        NangDs=zeros(sum(sum(DMN_bool)),lenOpFl);
-	% initialize circ SD vectors
-	SDs=zeros(1,sum(sum(DMN_bool)));
-	Thetas=zeros(1,lenOpFl);
-	Mags=zeros(1,lenOpFl);
+        Mags=zeros(sum(sum(DMN_bool)),lenOpFl);
 	% get angular distance for each face for each timepoint
-        for F=1:length(nGx);
-                % get vector for each face (network vector)
-                nVec=[nGx(F) nGy(F)];
+        for F=1:sum(sum(DMN_bool));
                 % loop over each tp
                 for fr=1:lenOpFl
-		%for fr=20:50	
 			% pull out optical flow vectors for this pixel (denoted by F, because it represents faces in human workflow)
 			curOpF_x=OpF_x(:,:,fr);
 			curOpF_y=OpF_y(:,:,fr);
@@ -229,10 +202,7 @@ for k=1
                         % get optical flow vector
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
 			
-			% get angular distance at that timepoint (degrees)
-                        a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         
 			% Calculate angles from the origin to each vector using atan2
         		%theta_nVec = atan2(nVec(2), nVec(1));
@@ -249,9 +219,8 @@ for k=1
 			% These two lines are working!
 			%CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
 			%a = real(acosd(CosTheta));
-	
-			% populate vector
-                        NangDs(F,fr)=a;
+			% calculate magnitude!
+                        Mags(F,fr)=sqrt(sum(OpFlVec .^2));
 			%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
 			%fig=figure('Visible','off');
 			% Plot the reference vector (assuming nVec is already defined in your workspace)
@@ -276,28 +245,17 @@ for k=1
 		%SD(F)=CSD;
 	% end each face loop
         end
-        % average values over time and plop into facematrix for this participant
-        faceMatrix(DMN_bool)=mean(NangDs,2);
-        % and time series population
-	OutTs=NangDs;
 	% average angular distances across hemispheres
-        avgD=mean(mean(NangDs));
-	% 6/8/24: replacing with percentage for attempt at clearer presentation of results
-	% num points
-	sizeOutput=size(NangDs);
-	numPoints=sizeOutput(1)*sizeOutput(2);
-        percBUP=length(NangDs(NangDs<90))/(numPoints);
-        Propvec=[Propvec percBUP];
+        avgD=mean(mean(Mags));
+        Propvec=[Propvec avgD];
         % add label
-        stringVec=[stringVec ['AngD_1']];
+        stringVec=[stringVec ['Mag_1']];
 	% save out as csv
 	T=table(Propvec,'RowNames',stringVec);
 	% calc outFP
-	outFP=['/scratch/users/apines/data/mouse/'];
+	outFP=['/scratch/users/apines/data/mouse/Diaz/'];
 	% write out
-	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
-	% save out time series
-	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
+	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_Mag.csv'],'WriteRowNames',true)
 end
 else
 	disp('file not found')

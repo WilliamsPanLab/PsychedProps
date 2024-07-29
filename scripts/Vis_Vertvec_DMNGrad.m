@@ -1,4 +1,4 @@
-function Vis_Vertvec(VertVecL,VertVecR,Fn) 
+function Vis_Vertvec_DMNGrad(VertVecL,VertVecR,Fn) 
 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 
@@ -30,47 +30,36 @@ mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.
 mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
-mw_L=ones(1,2562);
-mw_L(mwAndTSNR_L>0)=0;
-mw_R=ones(1,2562);
-mw_R(mwAndTSNR_R>0)=0;
+mw_L=zeros(1,2562);
+mw_L(mwAndTSNR_L>0)=1;
+mw_R=zeros(1,2562);
+mw_R(mwAndTSNR_R>0)=1;
 mwIndVec_l=find(mw_L);
 mwIndVec_r=find(mw_R);
-
+% make binary "is medial wall" vector for vertices
+mw_L=zeros(1,2562);
+mw_L(mwIndVec_l)=1;
+mw_R=zeros(1,2562);
+mw_R(mwIndVec_r)=1;
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-%data=zeros(1,2562);
-%data(mwIndVec_l)=VertVecL;
-%data(mwIndVec_l)=0;
-% for medial wall plotting
 data=VertVecL;
+data(mwIndVec_l)=0;
 
 %%%%%%% fixed colorscale varities
 
 %%% circular
 mincol=min(VertVecL);
 maxcol=max(VertVecL);
-% for resultant vector distance mapping (Calc_cirdist)
-mincol=.005;
-maxcol=.025;
-mincol=-0.005;
-maxcol=0.015;
 mincol=0;
 maxcol=1;
-% for nmf networks
-%mincol=0;
-%maxcol=1;
-% for t-stats
-%  mincol=-9;
-%  maxcol=9;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
-%custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
-%  grayColor = [0.7, 0.7, 0.7];  % Define gray color
+%grayColor = [0.7, 0.7, 0.7];  % Define gray color
 % Add gray color to the colormap
-%   custommap = [custommap; grayColor];
+%custommap = [custommap; grayColor];
 %custommap(126,:)=[.5 .5 .5];
 custommap=colormap(jet);
 
@@ -194,15 +183,15 @@ camlight;
 	alpha(1)
 
 set(gca,'CLim',[mincol,maxcol]);
-bplot=quiver3D(vertices(VertVecL>0,1),vertices(VertVecL>0,2),vertices(VertVecL>0,3),ret(VertVecL>0,1), ret(VertVecL>0,2), ret(VertVecL>0,3),[.3 .5 .7])
+%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-rotate(bplot, [0 0 1], 180)
+%rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -226,11 +215,8 @@ set(gca,'CLim',[mincol,maxcol]);
 V_R=vertices;
 F_R=faces;
 
-%data=zeros(1,2562);
-%data(mwIndVec_r)=VertVecR;
-% for medial wall plotting
 data=VertVecR;
-
+data(mwIndVec_r)=0;
 % calculate network gradients on sphere
 ng_R = grad(F_R, V_R, n_RH);
 % convert both back to vertices for angular comparisons
@@ -270,10 +256,10 @@ ret(mwIndVec_r,:)=0;
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-bplot = quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+%bplot = quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-rotate(bplot, [0 0 1], 180)
+%rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -293,7 +279,7 @@ set(gca,'CLim',[mincol,maxcol]);
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 colormap(custommap)
 caxis([mincol; maxcol]);
@@ -313,9 +299,9 @@ set(gcf,'Color','w')
 set(gca,'CLim',[mincol,maxcol]);
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 %colorbar
-c=colorbar
+%c=colorbar
 %c.Location='southoutside'
 
 colormap(custommap)
 
-print(Fn,'-dpng','-r1400')
+print(Fn,'-dpng','-r800')
