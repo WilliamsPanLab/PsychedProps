@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=48:00:00
+#SBATCH --time=50:00:00
 #SBATCH -n 1
 #SBATCH --mem=30G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -19,10 +19,10 @@ ml ffmpeg/5.0
 # subject name is input argument
 subj=$1
 
-# optical flow
-#matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',1)"
-#matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',2)"
-#matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',3)"
-#matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',4)"
-#matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',5)"
-matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',6)"
+# Delta frequency band
+#matlab -nodisplay -r "Mouse_OF('$subj','Del',1)"
+#matlab -nodisplay -r "Mouse_OF('$subj','Del',2)"
+#matlab -nodisplay -r "Mouse_OF('$subj','Del',3)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',4)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',5)"
+matlab -nodisplay -r "Mouse_OF('$subj','Del',6)"

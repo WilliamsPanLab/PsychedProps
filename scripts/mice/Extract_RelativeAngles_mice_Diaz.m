@@ -1,4 +1,4 @@
-function Extract_RelativeAngles_mice(subj,sesh)
+function Extract_RelativeAngles_mice_Diaz(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each pixel.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6,8 +6,8 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % Load in flatmouse opflow calc
-% note this is for LSD only! Adapt recording date for ketamine if needed
-childfp='/scratch/users/apines/p50_mice/proc/20200228/'
+% note this is for LSD only! Adapt recording date for other drugs if needed
+childfp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/drugs/processed_data/20200305/'
 datafp=[childfp subj '_vf_out_' num2str(sesh) '.mat']
 % adding in if it exists: ends all the way at the end of the script
 if exist(datafp)
@@ -283,7 +283,7 @@ for k=1
 	% save out as csv
 	T=table(Propvec,'RowNames',stringVec);
 	% calc outFP
-	outFP=['/scratch/users/apines/data/mouse/'];
+	outFP=['/scratch/users/apines/data/mouse/Diaz/'];
 	% write out
 	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out time series
