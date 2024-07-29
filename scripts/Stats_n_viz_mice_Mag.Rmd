@@ -8,7 +8,7 @@ date: "2024-05-15"
 library(ggplot2)
 library(dplyr)
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_magsMerged_mice_LSD.csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -117,7 +117,7 @@ library(dplyr)
 ######## DIAZEPAM
 
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_Diaz.csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_magsMerged_mice_Diaz.csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -139,14 +139,6 @@ DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
 
 # Reset row names
 rownames(DMNAngs_long) <- NULL
-
-# plot it out
-ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
-  geom_line() +
-  geom_point(size=4) +
-  scale_color_viridis_d(option = "plasma") +
-  labs(x = "Timepoint", y = "% Bottom-up", color = "Variable",title='Diazepam') +
-  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
 
 # add drug value and test standalone
 DMNAngs_long$Drug=1
@@ -222,7 +214,7 @@ library(dplyr)
 ######## DEXMEDETOMIDINE
 
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_Dex.csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_magsMerged_mice_Dex.csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -323,7 +315,7 @@ ggplot() +
 # let's merge them all into one set to test for any interactions
 ### LSD ###
 # load in average DMN angles
-DMNAngsLSD=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
+DMNAngsLSD=read.csv('~/Downloads/mice_magsMerged_mice_LSD.csv',header=F)
 # Rename the columns for easier reference
 colnames(DMNAngsLSD) <- c("V1", paste0("V", 2:ncol(DMNAngsLSD)))
 # Reshape the data to long format using base R
@@ -344,7 +336,7 @@ DMNAngsLSD_long$WhichDrug='LSD'
 
 ### DIAZEPAM ###
 # load in average DMN angles
-DMNAngsDiaz=read.csv('~/Downloads/mice_propsMerged_mice_Diaz.csv',header=F)
+DMNAngsDiaz=read.csv('~/Downloads/mice_magsMerged_mice_Diaz.csv',header=F)
 # Rename the columns for easier reference
 colnames(DMNAngsDiaz) <- c("V1", paste0("V", 2:ncol(DMNAngsDiaz)))
 # Reshape the data to long format using base R
@@ -365,7 +357,7 @@ DMNAngsDiaz_long$WhichDrug='Diaz'
 
 ### Dexmedetomidine ###
 # load in average DMN angles
-DMNAngsDex=read.csv('~/Downloads/mice_propsMerged_mice_Dex.csv',header=F)
+DMNAngsDex=read.csv('~/Downloads/mice_magsMerged_mice_Dex.csv',header=F)
 # Rename the columns for easier reference
 colnames(DMNAngsDex) <- c("V1", paste0("V", 2:ncol(DMNAngsDex)))
 # Reshape the data to long format using base R
@@ -469,7 +461,7 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "LSD vs. No-drug scans \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','LSD'))+
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','LSD'))+
   theme_minimal(base_size=25)
 
 # copy in color scheme
@@ -505,28 +497,10 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
   labs(title = "LSD vs. No-drug scans \n",
        x = "",
-       y = "% Bottom-up") +
+       y = "Avg. Magnitude in DMN") +
   scale_x_discrete(labels = c('No Drug', 'LSD')) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
-  theme_minimal(base_size = 28)
-
-# plotting against active controls: figure 2: middle
-ggplot(masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',], aes(x = WhichDrug, y = Value)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 4, aes(color = V1)) +  # Jittered points
-  geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
-  labs(title = "LSD vs. Active Control \n",
-       x = "",
-       y = "% Bottom-up") +
-  #scale_x_discrete(labels = c('No Drug', 'LSD')) +
-  scale_color_manual(values = generated_colors) +  # Custom generated color palette
-  theme_minimal(base_size = 28)
-
-# model it
-actContrDf=masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',]
-actContrDf$WhichDrug<-as.factor(actContrDf$WhichDrug)
-actContrDf <- within(actContrDf, WhichDrug <- relevel(WhichDrug, ref = 3))
-
-s <- lme(Value ~ WhichDrug, random = ~ 1 | V1, data = actContrDf)
+  theme_minimal(base_size = 28)+theme(axis.title.y = element_text(size = 22))
 
 
 ```
@@ -544,8 +518,9 @@ ggplot(DMNAngs_long, aes(x = Minutes, y = Value,  group = V1)) +
   geom_line() +
   geom_point(size=4,aes(color=V1)) +
   scale_color_viridis_d(option = "plasma") +
-  labs(x = "Minutes", y = "% Bottom-up", color = "Variable",title='LSD') +
-  theme_minimal(base_size=25)+geom_vline(xintercept=0,linetype='dashed')+scale_color_manual(values = generated_colors)
+  labs(x = "Minutes", y = "Avg. Magnitude in DMN", color = "Mouse",title='LSD') +
+  theme_minimal(base_size=25)+geom_vline(xintercept=0,linetype='dashed')+scale_color_manual(values = generated_colors)+
+  theme(axis.title.y = element_text(size = 22))
 
 
 
@@ -575,10 +550,10 @@ plot_data <- function(data, title) {
   ggplot(data, aes(x = Minutes, y = Value, group = V1)) +
     geom_line() +
     geom_point(size = 4, aes(color = V1)) +
-    labs(x = "Minutes", y = "% Bottom-up", color = "Mouse", title = title) +
+    labs(x = "Minutes", y = "Avg. Magnitude in DMN", color = "Mouse", title = title) +
     theme_minimal(base_size = 25) +
     geom_vline(xintercept = 0, linetype = 'dashed') +
-    scale_color_manual(values = generated_colors)
+    scale_color_manual(values = generated_colors)+theme(axis.title.y = element_text(size = 22))
 }
 
 # Extract LSD data
