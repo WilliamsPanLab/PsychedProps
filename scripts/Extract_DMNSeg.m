@@ -1,4 +1,4 @@
-function Extract_NGSC(subj,sesh,task)
+function Extract_DMNSeg(subj,sesh,task)
 % set parent directory
 parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
 

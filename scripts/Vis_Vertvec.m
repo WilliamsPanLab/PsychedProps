@@ -55,7 +55,7 @@ mincol=.005;
 maxcol=.025;
 mincol=-0.005;
 maxcol=0.015;
-mincol=0;
+mincol=-1;
 maxcol=1;
 % for nmf networks
 %mincol=0;
@@ -317,5 +317,4 @@ c=colorbar
 %c.Location='southoutside'
 
 colormap(custommap)
-
-print(Fn,'-dpng','-r1400')
+print(Fn,'-dpng','-r800')

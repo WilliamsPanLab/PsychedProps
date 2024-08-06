@@ -56,6 +56,7 @@ maxcol=1;
 %%% for red/blue 0-centered
 %mincol=-9;
 %maxcol=9;
+custommap=colormap(b2r(mincol,maxcol));
 % abscense of color to gray to accom. lighting "none"
 %grayColor = [0.7, 0.7, 0.7];  % Define gray color
 % Add gray color to the colormap
@@ -183,15 +184,15 @@ camlight;
 	alpha(1)
 
 set(gca,'CLim',[mincol,maxcol]);
-%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 %set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-%rotate(bplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -256,10 +257,10 @@ ret(mwIndVec_r,:)=0;
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0,'Holdaxis',1);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-%bplot = quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+bplot = quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 rotate(aplot, [0 0 1], 180)
-%rotate(bplot, [0 0 1], 180)
+rotate(bplot, [0 0 1], 180)
 colormap(custommap)
 caxis([mincol; maxcol]);
 daspect([1 1 1]);
@@ -279,7 +280,7 @@ set(gca,'CLim',[mincol,maxcol]);
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3),data)
-%bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
+bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.3 .5 .7])
 view([90 0]);
 colormap(custommap)
 caxis([mincol; maxcol]);

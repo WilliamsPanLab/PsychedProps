@@ -23,7 +23,7 @@ for subject_dir in "$base_dir"/*/; do
             # Submit sbatch job
 		echo $subject
 		echo $session
-            	sbatch sbatch_OpFl_psil.sh "$subject" "$session"
+            	sbatch sbatch_OpFl_psil_partial.sh "$subject" "$session"
         fi
     done
 done
