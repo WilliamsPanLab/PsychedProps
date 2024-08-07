@@ -16,12 +16,12 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/Downloads/rs1_Psil_propsMerged(5).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_propsMerged(5).csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_propsMerged(5).csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_propsMerged(5).csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_propsMerged(5).csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_propsMerged(5).csv',header=F)
+rs1=read.csv('~/Downloads/rs1_Psil_DMNSegMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_DMNSegMerged.csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_DMNSegMerged.csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_DMNSegMerged.csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_DMNSegMerged.csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_DMNSegMerged.csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
@@ -798,16 +798,16 @@ allScans$Subjects=as.factor(allScans$Subjects)
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=FALSE))
 
 # methylphenidate vs. psilocybin
 drugScans=allScans[allScans$Drug!='none',]
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=FALSE))
 # save out this df for merging
-saveRDS(allScans,'~/Downloads/Psil_BUP_Merged.rds')
+saveRDS(allScans,'~/Downloads/Psil_DMNSeg_Merged.rds')
 ```
 
 ```{r}
@@ -1010,244 +1010,6 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
-
-```{r}
-# figure 3: load in all DMN measures
-BUP=readRDS('~/Downloads/Psil_BUP_Merged.rds')
-DMNSeg=readRDS('~/Downloads/Psil_DMNSeg_Merged.rds')
-Mag=readRDS('~/Downloads/Psil_MagMerged.rds')
-TA=readRDS('~/Downloads/Psil_TAuto_Merged.rds')
-# merge em all
-colnames(BUP)[1]<-'BUP'
-colnames(DMNSeg)[1]<-'DMNFC'
-colnames(Mag)[1]<-'Magnitudes'
-colnames(TA)[1]<-'TmpAutoCor'
-
-# merge em
-PsilMerged=merge(BUP,DMNSeg,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
-PsilMerged=merge(PsilMerged,Mag,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
-PsilMerged=merge(PsilMerged,TA,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
-
-# remove methylphenidate for ease of interpretation
-PsilMerged=PsilMerged[PsilMerged$Drug!='Methyl',]
-PsilMerged$DrugBinary=0
-PsilMerged$DrugBinary[PsilMerged$Drug=='Psilo']=1
-
-# AUC thangs
-library(pROC)
-library(plotROC)
-# Fit logistic regression models
-model0 <- glm(DrugBinary ~ FD + RemTRs, data = PsilMerged, family = binomial)
-model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC, data = PsilMerged, family = binomial)
-model2 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP, data = PsilMerged, family = binomial)
-model3 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor, data = PsilMerged, family = binomial)
-model4 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor+Magnitudes, data = PsilMerged, family = binomial)
-
-# Predict probabilities
-prob0 <- predict(model0, type = "response")
-prob1 <- predict(model1, type = "response")
-prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
-prob4 <- predict(model4, type = "response")
-
-# Create a combined data frame for all models
-df <- data.frame(
-  labels = as.numeric(rep(PsilMerged$Drug, 5)),
-  predictions = c(prob0, prob1, prob2, prob3, prob4),
-  model = factor(rep(c("Head Motion", "FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(PsilMerged)))
-)
-
-# Generate the ROC plot
-ggplot(df, aes(m = predictions, d = labels, color = model)) + 
-  geom_roc(n.cuts = 0, labels = FALSE) + 
-  ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting Psilocybin") + 
-  theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#FFEE00","#000000"))+
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
-  theme(legend.position = "none")
-
-
-# Calculate AUC for each model
-roc0 <- roc(PsilMerged$DrugBinary, prob0)
-roc1 <- roc(PsilMerged$DrugBinary, prob1)
-roc2 <- roc(PsilMerged$DrugBinary, prob2)
-roc3 <- roc(PsilMerged$DrugBinary, prob3)
-roc4 <- roc(PsilMerged$DrugBinary, prob4)
-
-# Print AUC values
-auc0 <- auc(roc0)
-auc1 <- auc(roc1)
-auc2 <- auc(roc2)
-auc3 <- auc(roc3)
-auc4 <- auc(roc4)
-
-print(paste("AUC for Head Motion:", auc0))
-print(paste("AUC for FC:", auc1))
-print(paste("AUC for BUP %:", auc2))
-print(paste("AUC for AutoCor:", auc3))
-print(paste("AUC for Magnitudes:", auc4))
-```
-
-```{r}
-# and bootstrapping: also figure 3
-# Set the number of bootstrap samples
-num_bootstrap_samples <- 1000
-# initialize t vectors
-td_d<-rep(0,num_bootstrap_samples)
-td_fd<-rep(0,num_bootstrap_samples)
-ta_d<-rep(0,num_bootstrap_samples)
-ta_fd<-rep(0,num_bootstrap_samples)
-cx_d<-rep(0,num_bootstrap_samples)
-cx_fd<-rep(0,num_bootstrap_samples)
-ds_d<-rep(0,num_bootstrap_samples)
-ds_fd<-rep(0,num_bootstrap_samples)
-dm_d<-rep(0,num_bootstrap_samples)
-dm_fd<-rep(0,num_bootstrap_samples)
-
-# bootstrap loops
-set.seed(1)
-for (i in 1:num_bootstrap_samples){
-  # resample data
-  data=PsilMerged[sample(nrow(PsilMerged), replace = TRUE), ]
-  # fit on all models
-  td_model <- lme(BUP ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  ta_model <- lme(TmpAutoCor ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  #cx_model <- lme(Complexity ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  ds_model <- lme(DMNFC ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  dm_model <- lme(Magnitudes ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = data)
-  # get t-values
-  td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "DrugPsilo", "t-value"]
-  td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "FD", "t-value"]
-  ta_d[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "DrugPsilo", "t-value"]
-  ta_fd[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "FD", "t-value"]
-  #cx_d[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "Drug1", "t-value"]
-  #cx_fd[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "MeanFD", "t-value"]
-  ds_d[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "DrugPsilo", "t-value"]
-  ds_fd[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "FD", "t-value"]
-  dm_d[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "DrugPsilo", "t-value"]
-  dm_fd[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "FD", "t-value"]
-}
-# convert to dataframes
-td_d=data.frame(td_d)
-ta_d=data.frame(ta_d)
-#cx_d=data.frame(cx_d)
-ds_d=data.frame(ds_d)
-dm_d=data.frame(dm_d)
-td_fd=data.frame(td_fd)
-ta_fd=data.frame(ta_fd)
-#cx_fd=data.frame(cx_fd)
-ds_fd=data.frame(ds_fd)
-dm_fd=data.frame(dm_fd)
-
-colnames(td_d)='tstat'
-colnames(ta_d)='tstat'
-#colnames(cx_d)='tstat'
-colnames(ds_d)='tstat'
-colnames(dm_d)='tstat'
-colnames(td_fd)='tstat'
-colnames(ta_fd)='tstat'
-#colnames(cx_fd)='tstat'
-colnames(ds_fd)='tstat'
-colnames(dm_fd)='tstat'
-
-# set column names for merging
-td_d$Cov='Drug'
-ta_d$Cov='Drug'
-#cx_d$Cov='Drug'
-ds_d$Cov='Drug'
-dm_d$Cov='Drug'
-
-td_fd$Cov='FD'
-ta_fd$Cov='FD'
-#cx_fd$Cov='FD'
-ds_fd$Cov='FD'
-dm_fd$Cov='FD'
-
-td_d$Model='Bottom-up %'
-ta_d$Model='AutoCor'
-#cx_d$Model='Complexity'
-ds_d$Model='Integration'
-dm_d$Model='Magnitude'
-
-td_fd$Model='Bottom-up %'
-ta_fd$Model='AutoCor'
-#cx_fd$Model='Complexity'
-ds_fd$Model='Integration'
-dm_fd$Model='Magnitude'
-
-bootstrap_results_FD=rbind(td_fd,ta_fd,ds_fd,dm_fd)
-bootstrap_results_Drug=rbind(td_d,ta_d,ds_d,dm_d)
-# Calculate the average t-value for each Model category
-average_t_values <- bootstrap_results_FD %>%
-  group_by(Model) %>%
-  summarize(avg_t_value = mean(tstat, na.rm = TRUE))
-
-# Reorder the Model factor based on the average t-values
-bootstrap_results_FD$Model <- factor(bootstrap_results_FD$Model, 
-                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
-
-# Generate the plot
-library(ggdist)
-ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
-    geom_boxplot(
-        width = 0.12,
-        # Removing outliers
-        outlier.color = NA,
-        fill='#EF9500'
-    ) +
-    stat_dots(
-        # Plotting on left side
-        side = "left",
-        # Adjusting position
-        justification = 1.1,
-        # Adjust grouping (binning) of observations
-        binwidth = 0.08
-    ) +
-    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for FD effect") +
-    theme_minimal(base_size = 18) +
-    geom_hline(yintercept = 0, linetype = "dashed")+
-    # just to prevent extra x-axis expansion
-    coord_cartesian(xlim = c(.8, length(unique(bootstrap_results_Drug$Model))))+
-    theme(legend.position = "none")
-
-
-
-# Calculate the average t-value for each Model category
-average_t_values <- bootstrap_results_Drug %>%
-  group_by(Model) %>%
-  summarize(avg_t_value = mean(tstat, na.rm = TRUE))
-
-# Reorder the Model factor based on the average t-values
-bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
-                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
-
-# Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
-    geom_boxplot(
-        width = 0.12,
-        # Removing outliers
-        outlier.color = NA,
-        fill='#840032'
-    ) +
-    stat_dots(
-        # Plotting on left side
-        side = "left",
-        # Adjusting position
-        justification = 1.1,
-        # Adjust grouping (binning) of observations
-        binwidth = 0.08
-    ) +
-    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Psilocybin effect") +
-    theme_minimal(base_size = 18) +
-    geom_hline(yintercept = 0, linetype = "dashed")+
-    # just to prevent extra x-axis expansion
-    coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
-    theme(legend.position = "none")+ylim(c(-10.5,10.5))
-
-
-```
-
 
 ```{r}
 # calculate change in TD prop from No Drug to Drug to compare with MEQ positive emotion (inverse)

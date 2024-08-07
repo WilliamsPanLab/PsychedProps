@@ -63,7 +63,8 @@ ggplot(DMNAngs_long, aes(x = TP, y = Value)) +
        y = "% Bottom-up") + scale_x_discrete(labels=c('Pre','LSD'))+
   theme_minimal(base_size=25)
 
-
+# retain original
+DMNAngs_longOG=DMNAngs_long
 # for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
 DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
 DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
@@ -105,11 +106,494 @@ ggplot() +
   # Adjust the x-axis limits to accommodate the box plots
   scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
 
-
+# save df for eventual merge
+DMN_angles_long=DMNAngs_longOG
 
 ```
 
+```{r}
+library(ggplot2)
+library(dplyr)
+# load in average DMN magnitudes
+DMNAngs=read.csv('~/Downloads/mice_magsMerged_mice_LSD.csv',header=F)
 
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "% Bottom-up", color = "Variable",title='LSD') +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug value and test standalone
+DMNAngs_long$Drug=1
+DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
+# remove any NA values
+DMNAngs_long=na.omit(DMNAngs_long)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+
+### and make plain figure version without longitudinal lines (Fig 2A)
+# sep. pre and post
+DMNAngs_long$TP=NULL
+DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
+DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
+# reorder it
+DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
+ggplot(DMNAngs_long, aes(x = TP, y = Value)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "LSD vs. No-drug scans \n",
+       x = "",
+       y = "% Bottom-up") + scale_x_discrete(labels=c('Pre','LSD'))+
+  theme_minimal(base_size=25)
+
+# retain original
+DMNAngs_longOG=DMNAngs_long
+# for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=4,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=6,]
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==1]=0
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==5]=1
+
+# equivalent plot
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  geom_point(size = 4) +
+  geom_line() +
+  
+  scale_color_viridis_d(option = "plasma") +
+  theme_minimal(base_size = 22)+ylab(paste0('Degrees from Bottom-up'))+xlab('LSD (mice)')
+
+boxplot_data_left <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[1])
+
+boxplot_data_right <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[2])
+
+# Plotting with boxplots
+ggplot() +
+  # Scatter plot and lines
+  geom_point(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1), size = 4) +
+  geom_line(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Timepoint) - 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Timepoint) + 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Custom color scale
+  scale_color_viridis_d(option = "plasma") +
+  # Theme and labels
+  theme_minimal(base_size = 22) +
+  ylab('% Bottom-up') +
+  xlab('LSD (mice)') +
+  labs(color='mice')+
+  # Adjust the x-axis limits to accommodate the box plots
+  scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
+
+# save df for eventual merge
+DMN_Mags_long=DMNAngs_longOG
+
+```
+
+```{r}
+# load in average DMN FC
+DMNAngs=read.csv('~/Downloads/mice_DMNSeg_Merged_mice_LSD(1).csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "DMN FC", color = "Variable",title='LSD') +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug value and test standalone
+DMNAngs_long$Drug=1
+DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
+# remove any NA values
+DMNAngs_long=na.omit(DMNAngs_long)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+
+### and make plain figure version without longitudinal lines (Fig 2A)
+# sep. pre and post
+DMNAngs_long$TP=NULL
+DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
+DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
+# reorder it
+DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
+ggplot(DMNAngs_long, aes(x = TP, y = Value)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "LSD vs. No-drug scans \n",
+       x = "",
+       y = "DMN FC") + scale_x_discrete(labels=c('Pre','LSD'))+
+  theme_minimal(base_size=25)
+
+# retain original
+DMNAngs_longOG=DMNAngs_long
+# for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=4,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=6,]
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==1]=0
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==5]=1
+
+# equivalent plot
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  geom_point(size = 4) +
+  geom_line() +
+  
+  scale_color_viridis_d(option = "plasma") +
+  theme_minimal(base_size = 22)+ylab(paste0('DMN FC'))+xlab('LSD (mice)')
+
+boxplot_data_left <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[1])
+
+boxplot_data_right <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[2])
+
+# Plotting with boxplots
+ggplot() +
+  # Scatter plot and lines
+  geom_point(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1), size = 4) +
+  geom_line(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Timepoint) - 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Timepoint) + 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Custom color scale
+  scale_color_viridis_d(option = "plasma") +
+  # Theme and labels
+  theme_minimal(base_size = 22) +
+  ylab('DMN FC') +
+  xlab('LSD (mice)') +
+  labs(color='mice')+
+  # Adjust the x-axis limits to accommodate the box plots
+  scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
+
+
+# save df for eventual merge
+DMN_Segs_long=DMNAngs_longOG
+
+```
+```{r}
+# load in average DMN temporal autocor
+DMNAngs=read.csv('~/Downloads/mice_av_AutoCor_Merged_mice_LSD(1).csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# remove incompoelte pt
+#DMNAngs=DMNAngs[DMNAngs$V1!='m7507',]
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "DMN TAutoCor", color = "Variable",title='LSD') +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug value and test standalone
+DMNAngs_long$Drug=1
+DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
+# remove any NA values
+DMNAngs_long=na.omit(DMNAngs_long)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+
+### and make plain figure version without longitudinal lines (Fig 2A)
+# sep. pre and post
+DMNAngs_long$TP=NULL
+DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
+DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
+# reorder it
+DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
+ggplot(DMNAngs_long, aes(x = TP, y = Value)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.5,size=4) +  # Jittered points
+  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+  labs(title = "LSD vs. No-drug scans \n",
+       x = "",
+       y = "DMN TAutoCo") + scale_x_discrete(labels=c('Pre','LSD'))+
+  theme_minimal(base_size=25)
+
+
+# retain original
+DMNAngs_longOG=DMNAngs_long
+# for equivalence to nature paper use timepoint 1 and 5 for dichotomous binarization of drug/nondrug
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=2,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=3,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=4,]
+DMNAngs_long=DMNAngs_long[DMNAngs_long$Timepoint!=6,]
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==1]=0
+DMNAngs_long$Timepoint[DMNAngs_long$Timepoint==5]=1
+
+# equivalent plot
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  geom_point(size = 4) +
+  geom_line() +
+  
+  scale_color_viridis_d(option = "plasma") +
+  theme_minimal(base_size = 22)+ylab(paste0('DMN TAutoCo'))+xlab('LSD (mice)')
+
+boxplot_data_left <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[1])
+
+boxplot_data_right <- DMNAngs_long %>%
+  filter(Timepoint == unique(DMNAngs_long$Timepoint)[2])
+
+# Plotting with boxplots
+ggplot() +
+  # Scatter plot and lines
+  geom_point(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1), size = 4) +
+  geom_line(data = DMNAngs_long, aes(x = Timepoint, y = Value, group = V1, color = V1)) +
+  # Box plot on the left side
+  geom_boxplot(data = boxplot_data_left, aes(x = as.numeric(Timepoint) - 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Box plot on the right side
+  geom_boxplot(data = boxplot_data_right, aes(x = as.numeric(Timepoint) + 0.5, y = Value, group = Timepoint), width = 0.2, outlier.shape = NA, color = "black") +
+  # Custom color scale
+  scale_color_viridis_d(option = "plasma") +
+  # Theme and labels
+  theme_minimal(base_size = 22) +
+  ylab('DMN TAutoCor') +
+  xlab('LSD (mice)') +
+  labs(color='mice')+
+  # Adjust the x-axis limits to accommodate the box plots
+  scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
+
+
+# save df for eventual merge
+DMN_autoCors_long=DMNAngs_longOG
+
+```
+```{r}
+colnames(DMN_angles_long)[3]<-'BUP'
+colnames(DMN_autoCors_long)[3]<-'TA'
+colnames(DMN_Mags_long)[3]<-'Mag'
+colnames(DMN_Segs_long)[3]<-'Seg'
+# merge 
+mergedMice_LSD=merge(DMN_angles_long,DMN_autoCors_long,by=c('V1','Timepoint','id','Drug','TP'))
+mergedMice_LSD=merge(mergedMice_LSD,DMN_Mags_long,by=c('V1','Timepoint','id','Drug','TP'))
+mergedMice_LSD=merge(mergedMice_LSD,DMN_Segs_long,by=c('V1','Timepoint','id','Drug','TP'))
+
+library(pROC)
+library(plotROC)
+# Fit logistic regression models
+model1 <- glm(Drug ~  Seg, data = mergedMice_LSD, family = binomial)
+model2 <- glm(Drug ~  Seg + BUP, data = mergedMice_LSD, family = binomial)
+model3 <- glm(Drug ~  Seg + BUP + TA, data = mergedMice_LSD, family = binomial)
+model4 <- glm(Drug ~  Seg + TA+ Mag + BUP, data = mergedMice_LSD, family = binomial)
+
+# Predict probabilities
+prob1 <- predict(model1, type = "response")
+prob2 <- predict(model2, type = "response")
+prob3 <- predict(model3, type = "response")
+prob4 <- predict(model4, type = "response")
+
+# Create a combined data frame for all models
+df <- data.frame(
+  labels = as.numeric(rep(mergedMice_LSD$Drug, 4)),
+  predictions = c(prob1, prob2, prob3, prob4),
+  model = factor(rep(c("FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(mergedMice_LSD)))
+)
+
+# Generate the ROC plot
+ggplot(df, aes(m = predictions, d = labels, color = model)) + 
+  geom_roc(n.cuts = 0, labels = FALSE) + 
+  ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
+  ggtitle("ROC Curves for Predicting LSD") + 
+  theme_minimal(base_size=18) + 
+  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#000000"))+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
+  theme(legend.position = "none")
+
+
+# Calculate AUC for each model
+roc1 <- roc(mergedMice_LSD$Drug, prob1)
+roc2 <- roc(mergedMice_LSD$Drug, prob2)
+roc3 <- roc(mergedMice_LSD$Drug, prob3)
+roc4 <- roc(mergedMice_LSD$Drug, prob4)
+
+# Print AUC values
+auc1 <- auc(roc1)
+auc2 <- auc(roc2)
+auc3 <- auc(roc3)
+auc4 <- auc(roc4)
+
+print(paste("AUC for FC:", auc1))
+print(paste("AUC for BUP %:", auc2))
+print(paste("AUC for AutoCor:", auc3))
+print(paste("AUC for Magnitudes:", auc4))
+
+```
+
+```{r}
+# also figure 3: bootstraps
+# great, now let's bootstrap them
+# Set the number of bootstrap samples
+num_bootstrap_samples <- 1000
+# initialize t vectors
+td_d<-rep(0,num_bootstrap_samples)
+td_fd<-rep(0,num_bootstrap_samples)
+ta_d<-rep(0,num_bootstrap_samples)
+ta_fd<-rep(0,num_bootstrap_samples)
+cx_d<-rep(0,num_bootstrap_samples)
+cx_fd<-rep(0,num_bootstrap_samples)
+ds_d<-rep(0,num_bootstrap_samples)
+ds_fd<-rep(0,num_bootstrap_samples)
+dm_d<-rep(0,num_bootstrap_samples)
+dm_fd<-rep(0,num_bootstrap_samples)
+
+# bootstrap loops
+set.seed(1)
+for (i in 1:num_bootstrap_samples){
+  # needed to add more contraints so no bootstrap resample has <3 no drug scans
+  valid_sample <- FALSE
+  while (!valid_sample) {
+    # Resample data
+    data <- mergedMice_LSD[sample(nrow(mergedMice_LSD), replace = TRUE), ]
+    
+    # Check conditions
+    if (nrow(data[data$Drug == 0, ]) >= 3) {
+      valid_sample <- TRUE
+    }
+  }
+  # fit on all models
+  td_model <- lme(BUP ~  Drug, random = ~ 1 | V1, data = data)
+  ta_model <- lme(TA ~ Drug, random = ~ 1 | V1, data = data)
+  #cx_model <- lme(Complexity~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = data)
+  ds_model <- lme(Seg ~ Drug, random = ~ 1 | V1, data = data)
+  dm_model <- lme(Mag ~ Drug, random = ~ 1 | V1, data = data)
+  # get t-values
+  td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug", "t-value"]
+  ta_d[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "Drug", "t-value"]
+  #cx_d[i]=summary(cx_model)$tTable[rownames(summary(cx_model)$tTable) == "Drug1", "t-value"]
+  ds_d[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "Drug", "t-value"]
+  dm_d[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "Drug", "t-value"]
+}
+# convert to dataframes
+td_d=data.frame(td_d)
+ta_d=data.frame(ta_d)
+#cx_d=data.frame(cx_d)
+ds_d=data.frame(ds_d)
+dm_d=data.frame(dm_d)
+
+colnames(td_d)='tstat'
+colnames(ta_d)='tstat'
+#colnames(cx_d)='tstat'
+colnames(ds_d)='tstat'
+colnames(dm_d)='tstat'
+
+# set column names for merging
+td_d$Cov='Drug'
+ta_d$Cov='Drug'
+#cx_d$Cov='Drug'
+ds_d$Cov='Drug'
+dm_d$Cov='Drug'
+
+td_d$Model='Bottom-up %'
+ta_d$Model='AutoCor'
+#cx_d$Model='Complexity'
+ds_d$Model='Integration'
+dm_d$Model='Magnitude'
+
+bootstrap_results_Drug=rbind(td_d,ta_d,ds_d,dm_d)
+
+# Calculate the average t-value for each Model category
+average_t_values <- bootstrap_results_Drug %>%
+  group_by(Model) %>%
+  summarize(avg_t_value = mean(tstat, na.rm = TRUE))
+
+# Reorder the Model factor based on the average t-values
+bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
+                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
+
+# Generate the plot
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+    geom_boxplot(
+        width = 0.12,
+        # Removing outliers
+        outlier.color = NA,
+        fill='#840032'
+    ) +
+    stat_dots(
+        # Plotting on left side
+        side = "left",
+        # Adjusting position
+        justification = 1.1,
+        # Adjust grouping (binning) of observations
+        binwidth = 0.08
+    ) +
+    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for LSD effect") +
+    theme_minimal(base_size = 18) +
+    geom_hline(yintercept = 0, linetype = "dashed")+
+    # just to prevent extra x-axis expansion
+    coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
+    theme(legend.position = "none")+ylim(c(-16,16))
+```
 
 ```{r}
 library(ggplot2)
