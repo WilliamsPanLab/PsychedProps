@@ -141,3 +141,7 @@ avg_R=mean(aggregate_R);
 Vis_Vertvec(avg_L,avg_R,'~/PL_vs_BV_MagDif.png')
 
 
+%%% FOR FIGURE 2
+%%%%% plot avg. placebo vs. avg drug
+
+% plot avg. no drug vs. avg. drug
