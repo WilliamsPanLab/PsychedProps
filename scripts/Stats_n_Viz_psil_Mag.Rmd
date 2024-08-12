@@ -806,6 +806,8 @@ fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = dru
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+# save out this df for merging
+saveRDS(allScans,'~/Downloads/Psil_MagMerged.rds')
 ```
 
 ```{r}
@@ -1010,18 +1012,17 @@ paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summ
 ```
 
 ```{r}
-# below this is old
 
 ```
 
 ```{r}
 # load in MEQ data
-#MEQ=read.csv('~/Downloads/FCChange_LME_data_table_small.csv')
-#MEQ=read.csv('~/Desktop/FCChange_LME_data_table.csv')
-#MEQ$Subjects=MEQ$SubID
+MEQ=read.csv('~/Downloads/FCChange_LME_data_table_small.csv')
+MEQ=read.csv('~/Desktop/FCChange_LME_data_table.csv')
+MEQ$Subjects=MEQ$SubID
 ## weed out nondrug scans
-#DrugScans=allScans[allScans$Drug!='none',]
-#DrugScans=DrugScans[DrugScans$Drug!='after',]
+DrugScans=allScans[allScans$Drug!='none',]
+DrugScans=DrugScans[DrugScans$Drug!='after',]
 #
 #results <- data.frame(Subjects = character(), Avg_TDProp1 = numeric(), Drug = numeric(), stringsAsFactors = FALSE)
 #

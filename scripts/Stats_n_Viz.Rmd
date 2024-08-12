@@ -353,6 +353,9 @@ summaryLME<-summary(fit_lme)
 # lme4 test for robustness
 fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf)
 # checks out
+
+# make a "people"-"subjects" equivalence data frame to reference in figures down below
+unique_pairs <- unique(mergedDf[c("People", "Subjects")])
 ```
 
 ```{r}
@@ -1210,33 +1213,32 @@ library(pROC)
 library(plotROC)
 # Fit logistic regression models
 model0 <- glm(Drug ~ MeanFD + RemTRs + Task, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model2 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model3 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*TDProp1 + Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model4 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*AutoCor+Task*DMNMag + Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC+Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+model2 <- glm(Drug ~ MeanFD + RemTRs + Task*TDProp1 + Task*DMNMag, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+model3 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*AutoCor+Task*DMNMag+Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
 
 # Predict probabilities
 prob0 <- predict(model0, type = "response")
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
 prob3 <- predict(model3, type = "response")
-prob4 <- predict(model4, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, 5)),
-  predictions = c(prob0, prob1, prob2, prob3, prob4),
-  model = factor(rep(c("Head Motion", "FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag)))
+  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, 4)),
+  predictions = c(prob0, prob1, prob2, prob3),
+  model = factor(rep(c("Head Motion", "DMN Correlations", "DMN Propagations", "Full model"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag)))
 )
 
 # Generate the ROC plot
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
   geom_roc(n.cuts = 0, labels = FALSE) + 
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting MDMA vs. Placebo") + 
+  ggtitle("ROC Curves for Predicting MDMA") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#FFEE00","#000000"))+
-  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")
+  scale_color_manual(values = c("#dd003a","#EF9500",'#000000',"#FFEE00"))+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
+  theme(legend.position = "none")
 
 
 # Calculate AUC for each model
@@ -1244,27 +1246,101 @@ roc0 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob0)
 roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob1)
 roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob2)
 roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob3)
-roc4 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob4)
 
 # Print AUC values
 auc0 <- auc(roc0)
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
 auc3 <- auc(roc3)
-auc4 <- auc(roc4)
 
 print(paste("AUC for Head Motion:", auc0))
-print(paste("AUC for FC:", auc1))
-print(paste("AUC for BUP %:", auc2))
-print(paste("AUC for AutoCor:", auc3))
-print(paste("AUC for Magnitudes:", auc4))
+print(paste("AUC for DMN Correlations:", auc1))
+print(paste("AUC for DMN Propagations:", auc2))
+print(paste("AUC for Full Model:", auc3))
+
+# Calculate AUC difference between full and reduced models
+auc_diff1 <- auc1 - auc0
+auc_diff2 <- auc2 - auc0
+auc_diff3 <- auc3 - auc2
+auc_diff4 <- auc3 - auc1
+
+```
+
+```{r}
+# make equivalent AUC calculations on permuted data
+# initialize AUC difference vectors
+auc_diffs1 <- rep(NA, 1000)
+auc_diffs2 <- rep(NA, 1000)
+auc_diffs3 <- rep(NA, 1000)
+auc_diffs4 <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNFC
+  mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC)
+  # permute DMNMag
+  mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag)
+  # permute TDProp1
+  mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1)
+  # permute AutoCor
+  mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor)
+  # permute MeanFD
+  mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD)
+  # permute remTRs
+  mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs)
+  
+  # Fit logistic regression models
+  model0 <- glm(Drug ~ MeanFD + RemTRs + Task, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model1_perm <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC_perm+Task*AutoCor_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC+Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model2_perm <- glm(Drug ~ MeanFD_perm + RemTRs + Task*TDProp1_perm+Task*DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model2 <- glm(Drug ~ MeanFD_perm + RemTRs + Task*TDProp1+Task*DMNMag +, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model3_perm <- glm(Drug ~ MeanFD+RemTRs+Task*DMNFC_perm+Task*TDProp1_perm+Task*AutoCor_perm+Task*DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+  model3 <- glm(Drug ~ MeanFD+RemTRs+Task*DMNFC+Task*TDProp1+Task*AutoCor+Task*DMNMag, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc0 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model0, type = "response"))
+  roc1_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model1_perm, type = "response"))
+  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model1, type = "response"))
+  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model2_perm, type = "response"))
+  roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model2, type = "response"))
+  roc3_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model3_perm, type = "response"))
+  roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model3, type = "response"))
+  
+  # Print AUC values
+  auc0 <- auc(roc0)
+  auc1 <- auc(roc1)
+  auc1_perm <-auc(roc1_perm)
+  auc2 <- auc(roc2)
+  auc2_perm <-auc(roc2_perm)
+  auc3 <- auc(roc3)
+  auc3_perm <-auc(roc3_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. head motion only model
+  auc_diffs1[i] <- auc1_perm - auc0
+  # DMN propagations vs. head motion only model
+  auc_diffs2[i] <- auc2_perm - auc0
+  # Full model vs. propagations only
+  auc_diffs3[i] <- auc3_perm - auc2
+  # Full model vs. correlations only
+  auc_diffs4[i] <- auc3_perm - auc1
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs1>auc_diff1)
+sum(auc_diffs2>auc_diff2)
+sum(auc_diffs3>auc_diff3)
+sum(auc_diffs4>auc_diff4)
 
 ```
 
 ```{r}
 # partial correlations
 # Install and load necessary packages
-install.packages("ppcor")
+#install.packages("ppcor")
 library(ppcor)
 
 # Create your data frame
@@ -1351,7 +1427,7 @@ print(max_diff_subject)
 ```{r}
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
-num_bootstrap_samples <- 100
+num_bootstrap_samples <- 1000
 # initialize t vectors
 td_d<-rep(0,num_bootstrap_samples)
 td_fd<-rep(0,num_bootstrap_samples)
@@ -1424,13 +1500,13 @@ ds_fd$Cov='FD'
 dm_fd$Cov='FD'
 
 td_d$Model='Bottom-up %'
-ta_d$Model='Temporal AutoCor'
+ta_d$Model='AutoCor'
 cx_d$Model='Complexity'
 ds_d$Model='Integration'
 dm_d$Model='Magnitude'
 
 td_fd$Model='Bottom-up %'
-ta_fd$Model='Temporal AutoCor'
+ta_fd$Model='AutoCor'
 cx_fd$Model='Complexity'
 ds_fd$Model='Integration'
 dm_fd$Model='Magnitude'
@@ -1446,13 +1522,13 @@ average_t_values <- bootstrap_results_FD %>%
 bootstrap_results_FD$Model <- factor(bootstrap_results_FD$Model, 
                                      levels = average_t_values$Model[order(average_t_values$avg_t_value)])
 
-# Generate the plot
-ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
-  geom_boxplot(position = position_dodge(width = 0.8), fill = '#EF9500') +
-  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MeanFD effect") +
-  theme_minimal(base_size = 18) +
-  geom_hline(yintercept = 0,linetype = "dashed")
-
+## Generate the plot
+#ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
+#  geom_boxplot(position = position_dodge(width = 0.8), fill = '#EF9500') +
+#  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MeanFD effect") +
+#  theme_minimal(base_size = 18) +
+#  geom_hline(yintercept = 0,linetype = "dashed")
+#
 # Calculate the average t-value for each Model category
 average_t_values <- bootstrap_results_Drug %>%
   group_by(Model) %>%
@@ -1461,14 +1537,72 @@ average_t_values <- bootstrap_results_Drug %>%
 # Reorder the Model factor based on the average t-values
 bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
                                      levels = average_t_values$Model[order(average_t_values$avg_t_value)])
+#
+## Generate the plot
+#ggplot(bootstrap_results_Drug, aes(x = Model, y = abs(tstat), fill = Cov)) +
+#  geom_boxplot(position = position_dodge(width = 0.8), fill = '#840032') +
+#  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MDMA effect") +
+#  theme_minimal(base_size = 18) +
+#  geom_hline(yintercept = 0,linetype = "dashed")
+#
+
 
 # Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = abs(tstat), fill = Cov)) +
-  geom_boxplot(position = position_dodge(width = 0.8), fill = '#840032') +
-  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MDMA effect") +
-  theme_minimal(base_size = 18) +
-  geom_hline(yintercept = 0,linetype = "dashed")
+ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
+    geom_boxplot(
+        width = 0.12,
+        # Removing outliers
+        outlier.color = NA,
+        fill='#EF9500'
+    ) +
+    stat_dots(
+        # Plotting on left side
+        side = "left",
+        # Adjusting position
+        justification = 1.1,
+        # Adjust grouping (binning) of observations
+        binwidth = 0.08
+    ) +
+    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for FD effect") +
+    theme_minimal(base_size = 18) +
+    geom_hline(yintercept = 0, linetype = "dashed")+
+    # just to prevent extra x-axis expansion
+    coord_cartesian(xlim = c(.8, length(unique(bootstrap_results_Drug$Model))))+
+    theme(legend.position = "none")
 
+
+
+# Calculate the average t-value for each Model category
+average_t_values <- bootstrap_results_Drug %>%
+  group_by(Model) %>%
+  summarize(avg_t_value = mean(tstat, na.rm = TRUE))
+
+# Reorder the Model factor based on the average t-values
+bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
+                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
+
+# Generate the plot
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+    geom_boxplot(
+        width = 0.12,
+        # Removing outliers
+        outlier.color = NA,
+        fill='#840032'
+    ) +
+    stat_dots(
+        # Plotting on left side
+        side = "left",
+        # Adjusting position
+        justification = 1.1,
+        # Adjust grouping (binning) of observations
+        binwidth = 0.08
+    ) +
+    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for MDMA effect") +
+    theme_minimal(base_size = 18) +
+    geom_hline(yintercept = 0, linetype = "dashed")+
+    # just to prevent extra x-axis expansion
+    coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
+    theme(legend.position = "none")+ylim(c(-10.5,10.5))
 
 ```
 
@@ -1895,11 +2029,11 @@ for (i in 41:57){
 }
 
 DAS_changeDF$Colors <- generated_colors[DAS_changeDF$Subjects]
-#DAS_changeDF$Subjects <- factor(DAS_changeDF$Subjects, levels = names(generated_colors))
-# merge people in
-people=data.frame(mergedDf$Subjects,mergedDf$People)
-colnames(people)=c('Subjects','People')
-DAS_changeDF_people=merge(DAS_changeDF,people,by='Subjects')
+DAS_changeDF_people <- merge(DAS_changeDF, unique_pairs, by = 'Subjects', all.x = TRUE)
+DAS_changeDF_people$SubjectsCols <- factor(DAS_changeDF_people$Subjects, levels = names(generated_colors))
+
+# plot out scatters
+
 ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=TDPropChange*100))+
   geom_point(size=4,aes(color = People))+
   labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
@@ -2185,6 +2319,7 @@ for (i in 41:57){
   counter=counter+1
 }
 ```
+
 ```{r}
 #### associate change from placebo with reported DAS scores
 ##### TEMPORAL AUTOCOR
@@ -2246,76 +2381,57 @@ for (i in 41:57){
 ```
 
 ```{r}
-#### These are mediations! construe as such
+###### spin tests
+# load in y7 alignment left
+y7align_L=read.csv('~/Downloads/perm_vs_obs_DMN_Y7_L.csv')
+y7align_R=read.csv('~/Downloads/perm_vs_obs_DMN_Y7_R.csv')
+# add a real vs. permuted value
+y7align_L$Observed=0
+y7align_R$Observed=0
+y7align_L$Observed[10001]=1
+y7align_R$Observed[10001]=1
+# add right vs. left
+y7align_L$Side='Left'
+y7align_R$Side='Right'
+y7plotdf=rbind(y7align_L,y7align_R)
 
-# library lavaan
-library(lavaan)
-library(psych)
-# Make a vector of DAS scale names
-dascNames <- c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
-
-# Initialize vectors to store results
-directEffects <- NULL
-indirectEffects <- NULL
-totalEffects <- NULL
-directPvalues <- NULL
-indirectPvalues <- NULL
-totalPvalues <- NULL
-# dummy variables instead of multi-category task variable
-VASmerge$Gambling=0
-VASmerge$WM=0
-VASmerge$Gambling[VASmerge$Task=='gambling']=1
-VASmerge$WM[VASmerge$Task=='wm']=1
-VASmerge$Gambling<-as.factor(VASmerge$Gambling)
-VASmerge$WM<-as.factor(VASmerge$WM)
-# Loop through each DAS item
-for (i in 40:56) {
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # standardize self report item to z-score
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  # Define the SEM model with the current DAS item
-  sem_model <- paste0('
-    TDProp1z ~ a*Drug + MeanFD + RemTRs + WM + Gambling
-    Zed ~ c*Drug + MeanFD + RemTRs + WM + Gambling + b*TDProp1z
-    
-    # direct effect
-    direct := c
-    
-    # indirect effect
-    indirect := a*b
-    
-    # total effect
-    total := c + (a*b)
-  ')
+# subset spun and nonspun df
+spunL=y7align_L[1:10000,]
+ObsL=y7align_L[10001,]
+spunR=y7align_R[1:10000,]
+ObsR=y7align_R[10001,]
   
-  # Fit the model
-  fit <- sem(sem_model, data = VASmerge, missing = "fiml")
-  
-  # Extract results
-  estimates <- parameterEstimates(fit, standardized = TRUE)
-  directEffects <- c(directEffects, estimates$est[estimates$label == "direct"])
-  indirectEffects <- c(indirectEffects, estimates$est[estimates$label == "indirect"])
-  totalEffects <- c(totalEffects, estimates$est[estimates$label == "total"])
-  directPvalues <- c(directPvalues, estimates$pvalue[estimates$label == "direct"])
-  indirectPvalues <- c(indirectPvalues, estimates$pvalue[estimates$label == "indirect"])
-  totalPvalues <- c(totalPvalues, estimates$pvalue[estimates$label == "total"])
-  
-  print(summary(fit, standardized = TRUE))
-}
+# left hemi
+ggplot(spunL,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsL$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Yeo7 Boundary: Left hemisphere')
 
-# Combine results into a data frame for easier viewing
-results <- data.frame(
-  DAS_Item = dascNames,
-  Direct_Effect = directEffects,
-  Indirect_Effect = indirectEffects,
-  Total_Effect = totalEffects,
-  Direct_Pvalue = directPvalues,
-  Indirect_Pvalue = indirectPvalues,
-  Total_Pvalue = totalPvalues
-)
+# right hemi
+ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Yeo7 Boundary: Right hemisphere')
 
-print(results)
+
+# now for biol psych rois
+bpalign_L=read.csv('~/Downloads/perm_vs_obs_DMN_BiolPsych_L.csv')
+bpalign_R=read.csv('~/Downloads/perm_vs_obs_DMN_BiolPsych_R.csv')
+# add a real vs. permuted value
+bpalign_L$Observed=0
+bpalign_R$Observed=0
+bpalign_L$Observed[10001]=1
+bpalign_R$Observed[10001]=1
+# add right vs. left
+bpalign_L$Side='Left'
+bpalign_R$Side='Right'
+
+# subset spun and nonspun df
+spunL=bpalign_L[1:10000,]
+ObsL=bpalign_L[10001,]
+spunR=bpalign_R[1:10000,]
+ObsR=bpalign_R[10001,]
+  
+# left hemi
+ggplot(spunL,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsL$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Biol. Psych. ROIs: Left hemisphere')
+
+# right hemi
+ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Biol. Psych. ROIs: Right hemisphere')
+
 
 ```
 
