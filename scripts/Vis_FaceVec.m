@@ -21,16 +21,16 @@ F_R=faces_r;
 % vertices V
 V_R=vx_r;
 
-% use native freesurfer command for mw mask indices
-surfML = [SubjectsFolder '/lh.Medial_wall.label'];
-mwIndVec_l = read_medial_wall_label(surfML);
-surfMR = [SubjectsFolder '/rh.Medial_wall.label'];
-mwIndVec_r = read_medial_wall_label(surfMR);
-% make binary "is medial wall" vector for vertices
+% load in medial wall + SNR so we don't have to loop over every single vertex and then mask out later
+% add TSNR mask, includes medial wall
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
 mw_L=zeros(1,2562);
-mw_L(mwIndVec_l)=1;
+mw_L(mwAndTSNR_L==1)=1;
 mw_R=zeros(1,2562);
-mw_R(mwIndVec_r)=1;
+mw_R(mwAndTSNR_R==1)=1;
 % convert to faces
 F_MW_L=sum(mw_L(faces_l),2)./3;
 F_MW_R=sum(mw_R(faces_r),2)./3;
@@ -40,83 +40,55 @@ F_MW_R=ceil(F_MW_R);
 % face mask indices
 fmwIndVec_l=find(F_MW_L);
 fmwIndVec_r=find(F_MW_R);
-% make medial wall vector
-g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
-g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
+% load in DMN to make more thorough mask
+networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
+%% k = 1 to select DMN.
+Dnet_LH=networks.nets.Lnets(:,1);
+Dnet_RH=networks.nets.Rnets(:,1);
+nets_LH=networks.nets.Lnets(:,1);
+nets_RH=networks.nets.Rnets(:,1);
+% create face-wise network mask
+DMN_bool_L=sum(nets_LH(faces_l),2)./3;
+DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+DMN_bool_L(DMN_bool_L>.3)=1;
+DMN_bool_R(DMN_bool_R>.3)=1;
+DMN_bool_L(DMN_bool_L<.3)=0;
+DMN_bool_R(DMN_bool_R<.3)=0;
+DMN_bool_L=logical(DMN_bool_L);
+DMN_bool_R=logical(DMN_bool_R);
+% combine with medial wall mask
+MasterMask_L=DMN_bool_L;
+MasterMask_R=DMN_bool_R;
+MasterMask_L(fmwIndVec_l)=0;
+MasterMask_R(fmwIndVec_r)=0;
+% should be 1116 faces for left, 996 for right
+mw_L=MasterMask_L;
+mw_R=MasterMask_R;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=zeros(1,5120);
 %data(g_noMW_combined_L)=FaceVecL;
-data=FaceVecL;
+data(mw_L)=FaceVecL;
 %%%%%%% fixed colorscale varities
 
-
-%%% for red/blue 0-centered
-mincol=min(data);
-maxcol=max(data);
-%custommap=colormap(b2r(mincol,maxcol));
-custommap=colormap('jet');
-% abscense of color to gray to accom. lighting "none"
-%custommap(126,:)=[.5 .5 .5];
-
 % blue-orange color scheme
-%BO_cm=inferno(9);
-%BO_cm(1,:)=[49 197 244];
-%BO_cm(2,:)=[71 141 203];
-%BO_cm(3,:)=[61 90 168];
-%BO_cm(4,:)=[64 104 178];
-%BO_cm(5,:)=[126 126 126];
-%BO_cm(6,:)=[240 74 35];
-%BO_cm(7,:)=[243 108 33];
-%BO_cm(8,:)=[252 177 11];
-%BO_cm(9,:)=[247 236 31];
+BO_cm=inferno(9);
+BO_cm(1,:)=[49 197 244];
+BO_cm(2,:)=[71 141 203];
+BO_cm(3,:)=[61 90 168];
+BO_cm(4,:)=[64 104 178];
+BO_cm(5,:)=[126 126 126];
+BO_cm(6,:)=[240 74 35];
+BO_cm(7,:)=[243 108 33];
+BO_cm(8,:)=[252 177 11];
+BO_cm(9,:)=[247 236 31];
 % scale to 1
-%BO_cm=BO_cm.*(1/255);
+BO_cm=BO_cm.*(1/255);
 % interpolate color gradient
-%interpsteps=[0 .125 .25 .375 .5 .625 .75 .875 1];
-%BO_cm=interp1(interpsteps,BO_cm,linspace(0,1,255));
-%custommap=BO_cm;
-%custommap=colormap(inferno);
-
-%%% matches circular hist
-% for 180 degree max
-%roybigbl_cm=inferno(6);
-%roybigbl_cm(1,:)=[0, 0, 255];
-%roybigbl_cm(2,:)=[0, 255, 255];
-%roybigbl_cm(3,:)=[116, 192, 68];
-%roybigbl_cm(4,:)=[246, 235, 20];
-%roybigbl_cm(5,:)=[255, 165, 0];
-%roybigbl_cm(6,:)=[255, 0, 0];
-% scale to 1
-%roybigbl_cm=roybigbl_cm.*(1/255);
-% interpolate color gradient
-%interpsteps=[0 .2 .4 .6 .8 1];
-%roybigbl_cm=interp1(interpsteps,roybigbl_cm,linspace(0,1,255));
-% make circular with flipud
-%custommap=vertcat(flipud(roybigbl_cm),roybigbl_cm);
-
-% for 90 degree max
-%roybigbl_cm=inferno(3);
-% blue
-%roybigbl_cm(1,:)=[0, 0, 255];
-% cyan
-%roybigbl_cm(2,:)=[0, 255, 255];
-% green
-%roybigbl_cm(3,:)=[116, 192, 68];
-% yellow
-%roybigbl_cm(4,:)=[246, 235, 20];
-% scale to 1
-%roybigbl_cm=roybigbl_cm.*(1/255);
-% interpolate color gradient
-%interpsteps=[0 .33333 .66666 1];
-%interpsteps=[0 .5 1];
-%roybigbl_cm=interp1(interpsteps,roybigbl_cm,linspace(0,1,255));
-% make circular with flipud
-%custommap=vertcat(flipud(roybigbl_cm),roybigbl_cm);
-%custommap=roybigbl_cm;
-%custommap=colormap(parula);
-% mw to black
-%custommap(1,:)=[0 0 0];
+interpsteps=[0 .125 .25 .375 .5 .625 .75 .875 1];
+BO_cm=interp1(interpsteps,BO_cm,linspace(0,1,255));
+custommap=BO_cm;
 
 figure
 surfL = [SubjectsFolder '/lh.inflated'];
@@ -137,9 +109,11 @@ camlight;
 	alpha(1)
 
 length(faces)
-
+% reset mincol here
+mincol=min(FaceVecL);
+maxcol=-mincol;
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
@@ -160,13 +134,13 @@ alpha(1)
 set(gcf,'Color','w')
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 
 %%% right hemisphere
 data=zeros(1,5120);
 %data(g_noMW_combined_R)=FaceVecR;
-data=FaceVecR;
+data(mw_R)=FaceVecR;
 [vertices, faces] = freesurfer_read_surf(surfR);
 
 asub = subaxis(2,2,2, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
@@ -188,7 +162,7 @@ alpha(1)
 
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
 asub = subaxis(2,2,3, 'sh', 0.0, 'sv', 0.0, 'padding', 0, 'margin', 0);
 aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
@@ -209,10 +183,10 @@ set(gcf,'Color','w')
 
 
 set(gca,'CLim',[mincol,maxcol]);
-set(aplot,'FaceColor','flat','FaceVertexCData',data,'CDataMapping','scaled');
+set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 c=colorbar;
 %c=colorbar('XTickLabel',{'.45', '.50', '.55'},'XTick', .45:.05:.55)
-%c.Location='southoutside'
+c.Location='southoutside'
 %colormap(custommap)
 
 print(Fn,'-dpng')

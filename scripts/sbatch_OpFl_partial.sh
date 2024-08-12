@@ -89,10 +89,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
 # extract relative angles
 #matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs1')"
@@ -102,11 +102,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','emotion')"
 
 # Extract DMN magnitudes
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
 
 # get frequency and duration of BUP and TD epsiodes
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"

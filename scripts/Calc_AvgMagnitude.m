@@ -1,4 +1,4 @@
-function Calc_AvgCircMagnitude(subj)
+function Calc_AvgMagnitude(subj)
 % read in subj-session-dose correspondence
 subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 % add paths

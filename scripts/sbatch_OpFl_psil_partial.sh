@@ -97,12 +97,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 
 # extract DMN FC
 #matlab -nodisplay -r "Extract_DMNSeg_psil('$subj','$sesh','rs1')"
@@ -113,12 +113,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_DMNSeg_psil('$subj','$sesh','rs6')"
 
 # extract DMN temporal autocor
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs6')"
 
 # combine angular time series with magnitude time series
 #matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs1')"

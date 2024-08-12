@@ -1,5 +1,20 @@
-function Calc_AvgBup(subj)
+function Calc_AvgBup_psil(subj)
 % read in subj-session-dose correspondence
+
+
+
+
+
+
+
+%%%%% TO ESTABLISH WHICH DRUG IS WHICH IN THIS SCRIPT? SHOULD GO WITH YES FOR SIMPLICITY: ALL NON DRUG VS. PSIL, METHYL VS. PSIL
+
+
+
+
+
+
+
 restoredefaultpath
 subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 % add paths
