@@ -953,6 +953,17 @@ ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
        y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)
 
+# job application version - 350 x 600
+ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = People)) +  # Jittered points
+  geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
+  labs(x = "",
+       y = "% Bottom-up") +
+  scale_x_discrete(labels = c('No Drug', 'Psilocybin')) +
+  scale_color_manual(values = generated_colors) +  # Custom generated color palette
+  theme_minimal(base_size = 28)+
+  theme(legend.position = "none",axis.text.x=element_text(angle=45))
+
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Psilo + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
@@ -1037,24 +1048,18 @@ PsilMerged$DrugBinary[PsilMerged$Drug=='Psilo']=1
 library(pROC)
 library(plotROC)
 # Fit logistic regression models
-model0 <- glm(DrugBinary ~ FD + RemTRs, data = PsilMerged, family = binomial)
-model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC, data = PsilMerged, family = binomial)
-model2 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP, data = PsilMerged, family = binomial)
-model3 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor, data = PsilMerged, family = binomial)
-model4 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor+Magnitudes, data = PsilMerged, family = binomial)
+model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
+model2 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor+Magnitudes, data = PsilMerged, family = binomial)
 
 # Predict probabilities
-prob0 <- predict(model0, type = "response")
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
-prob4 <- predict(model4, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(PsilMerged$Drug, 5)),
-  predictions = c(prob0, prob1, prob2, prob3, prob4),
-  model = factor(rep(c("Head Motion", "FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(PsilMerged)))
+  labels = as.numeric(rep(PsilMerged$Drug, 2)),
+  predictions = c(prob1, prob2),
+  model = factor(rep(c("DMN Correlations","DMN Propagations"), each = nrow(PsilMerged)))
 )
 
 # Generate the ROC plot
@@ -1063,30 +1068,59 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Predicting Psilocybin") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#FFEE00","#000000"))+
+  scale_color_manual(values = c("#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 
 
 # Calculate AUC for each model
-roc0 <- roc(PsilMerged$DrugBinary, prob0)
 roc1 <- roc(PsilMerged$DrugBinary, prob1)
 roc2 <- roc(PsilMerged$DrugBinary, prob2)
-roc3 <- roc(PsilMerged$DrugBinary, prob3)
-roc4 <- roc(PsilMerged$DrugBinary, prob4)
 
 # Print AUC values
-auc0 <- auc(roc0)
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
-auc3 <- auc(roc3)
-auc4 <- auc(roc4)
 
-print(paste("AUC for Head Motion:", auc0))
-print(paste("AUC for FC:", auc1))
-print(paste("AUC for BUP %:", auc2))
-print(paste("AUC for AutoCor:", auc3))
-print(paste("AUC for Magnitudes:", auc4))
+print(paste("AUC for DMN Correlations:", auc1))
+print(paste("AUC for DMN Propagations:", auc2))
+# Calculate AUC difference between full and reduced models
+auc_diff <- auc2 - auc1
+```
+
+```{r}
+# make equivalent AUC calculations on permuted data
+# initialize AUC difference vectors
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  PsilMerged$DMNMag_perm <- sample(PsilMerged$Magnitudes)
+  # permute TDProp1
+  PsilMerged$TDProp1_perm <- sample(PsilMerged$BUP)
+ 
+  # Fit logistic regression models
+  model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
+  model2_perm <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor+TDProp1_perm+DMNMag_perm, data = PsilMerged, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(PsilMerged$DrugBinary, predict(model1, type = "response"))
+  roc2_perm <- roc(PsilMerged$DrugBinary, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc1 - auc2_perm
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
+# 0 indicates p <0.001
 ```
 
 ```{r}
@@ -1220,23 +1254,29 @@ average_t_values <- bootstrap_results_Drug %>%
 
 # Reorder the Model factor based on the average t-values
 bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
-                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
+                                     levels = c('Integration','AutoCor','Bottom-up %','Magnitude'))
+
+# add fill column
+bootstrap_results_Drug$Fill='DMN Correlatons'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Bottom-up %']='DMN Propagations'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Magnitude']='DMN Propagations'
+
 
 # Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     geom_boxplot(
         width = 0.12,
         # Removing outliers
-        outlier.color = NA,
-        fill='#840032'
-    ) +
+        outlier.color = NA) +
+        scale_fill_manual(values=c("#c12139","#09416b"))+
     stat_dots(
         # Plotting on left side
         side = "left",
         # Adjusting position
         justification = 1.1,
         # Adjust grouping (binning) of observations
-        binwidth = 0.08
+        binwidth = 0.08,
+        overflow = "compress"
     ) +
     labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for Psilocybin effect") +
     theme_minimal(base_size = 18) +

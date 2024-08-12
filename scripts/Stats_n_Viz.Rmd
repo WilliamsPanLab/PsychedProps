@@ -267,7 +267,7 @@ donutData<- data.frame(
 )
 
 # convert labels to be consistent across studies
-donutData$Category=c('Psychedelic','x','No Drug','Placebo')
+donutData$Category=c('Psychedelic','x','Baseline','Placebo')
 # merge 120 and 80mg for clear plots
 donutData$count[donutData$Category=='Psychedelic']=donutData$count[donutData$Category=='Psychedelic']+donutData$count[donutData$Category=='x']
 donutData=donutData[donutData$Category!='x',]
@@ -282,7 +282,7 @@ donutData$ymax = cumsum(donutData$frac)
 donutData$ymin = c(0, head(donutData$ymax, n=-1))
 
 # convert to factor for manual ordering
-donutData$Category <- factor(donutData$Category, levels = c('Placebo', 'No Drug', 'Psychedelic'))
+donutData$Category <- factor(donutData$Category, levels = c('Placebo', 'Baseline', 'Psychedelic'))
 
 
 # plot
@@ -318,6 +318,18 @@ ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
        y = "% Bottom-up") + scale_x_discrete(labels=c('Placebo','MDMA'))+
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
+
+
+# job application version - 350 x 650
+ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = People)) +  # Jittered points
+  geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
+  labs(x = "",
+       y = "% Bottom-up") +
+  scale_x_discrete(labels = c('Placebo', 'MDMA')) +
+  scale_color_manual(values = generated_colors) +  # Custom generated color palette
+  theme_minimal(base_size = 28)+
+  theme(legend.position = "none",axis.text.x=element_text(angle=45))
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
@@ -1211,23 +1223,20 @@ dmnAC_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task+DMNFC+DMNMag+TDProp1, ran
 
 library(pROC)
 library(plotROC)
+mergedDfPropsComplAutoCdmnFCdmnMag_notask=mergedDfPropsComplAutoCdmnFCdmnMag[mergedDfPropsComplAutoCdmnFCdmnMag$Task=='rs',]
 # Fit logistic regression models
-model0 <- glm(Drug ~ MeanFD + RemTRs + Task, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC+Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model2 <- glm(Drug ~ MeanFD + RemTRs + Task*TDProp1 + Task*DMNMag, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-model3 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC + Task*AutoCor+Task*DMNMag+Task*TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
+model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+model2 <- glm(Drug ~ MeanFD + RemTRs + DMNFC + AutoCor+DMNMag+TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
 
 # Predict probabilities
-prob0 <- predict(model0, type = "response")
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, 4)),
-  predictions = c(prob0, prob1, prob2, prob3),
-  model = factor(rep(c("Head Motion", "DMN Correlations", "DMN Propagations", "Full model"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag)))
+  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, 2)),
+  predictions = c(prob1, prob2),
+  model = factor(rep(c("DMN Correlations", "+DMN Propagations"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag_notask)))
 )
 
 # Generate the ROC plot
@@ -1236,105 +1245,66 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Predicting MDMA") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#dd003a","#EF9500",'#000000',"#FFEE00"))+
+  scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 
 
 # Calculate AUC for each model
-roc0 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob0)
-roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob1)
-roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob2)
-roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, prob3)
+roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob1)
+roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
 
 # Print AUC values
-auc0 <- auc(roc0)
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
-auc3 <- auc(roc3)
 
-print(paste("AUC for Head Motion:", auc0))
+
 print(paste("AUC for DMN Correlations:", auc1))
-print(paste("AUC for DMN Propagations:", auc2))
-print(paste("AUC for Full Model:", auc3))
+print(paste("AUC for Full Model:", auc2))
 
 # Calculate AUC difference between full and reduced models
-auc_diff1 <- auc1 - auc0
-auc_diff2 <- auc2 - auc0
-auc_diff3 <- auc3 - auc2
-auc_diff4 <- auc3 - auc1
-
+auc_diff <- auc2 - auc1
 ```
 
 ```{r}
+# Temporary comment out: output is making rstudio wonky
+
+
+
+
 # make equivalent AUC calculations on permuted data
 # initialize AUC difference vectors
-auc_diffs1 <- rep(NA, 1000)
-auc_diffs2 <- rep(NA, 1000)
-auc_diffs3 <- rep(NA, 1000)
-auc_diffs4 <- rep(NA, 1000)
-
-# 1. permute each DMN variable (and FD)
-set.seed(1)
-for (i in 1:1000){
-  print(i)
-  # permute DMNFC
-  mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC)
-  # permute DMNMag
-  mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag)
-  # permute TDProp1
-  mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1)
-  # permute AutoCor
-  mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor)
-  # permute MeanFD
-  mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD)
-  # permute remTRs
-  mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs)
-  
-  # Fit logistic regression models
-  model0 <- glm(Drug ~ MeanFD + RemTRs + Task, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model1_perm <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC_perm+Task*AutoCor_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model1 <- glm(Drug ~ MeanFD + RemTRs + Task*DMNFC+Task*AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model2_perm <- glm(Drug ~ MeanFD_perm + RemTRs + Task*TDProp1_perm+Task*DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model2 <- glm(Drug ~ MeanFD_perm + RemTRs + Task*TDProp1+Task*DMNMag +, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model3_perm <- glm(Drug ~ MeanFD+RemTRs+Task*DMNFC_perm+Task*TDProp1_perm+Task*AutoCor_perm+Task*DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-  model3 <- glm(Drug ~ MeanFD+RemTRs+Task*DMNFC+Task*TDProp1+Task*AutoCor+Task*DMNMag, data = mergedDfPropsComplAutoCdmnFCdmnMag, family = binomial)
-	
-  # 3. calculate AUC difference between full and reduced models with permuted data
-  roc0 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model0, type = "response"))
-  roc1_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model1_perm, type = "response"))
-  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model1, type = "response"))
-  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model2_perm, type = "response"))
-  roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model2, type = "response"))
-  roc3_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model3_perm, type = "response"))
-  roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag$Drug, predict(model3, type = "response"))
-  
-  # Print AUC values
-  auc0 <- auc(roc0)
-  auc1 <- auc(roc1)
-  auc1_perm <-auc(roc1_perm)
-  auc2 <- auc(roc2)
-  auc2_perm <-auc(roc2_perm)
-  auc3 <- auc(roc3)
-  auc3_perm <-auc(roc3_perm)
-
-  # populate auc_diff vectors
-  # DMN correlations vs. head motion only model
-  auc_diffs1[i] <- auc1_perm - auc0
-  # DMN propagations vs. head motion only model
-  auc_diffs2[i] <- auc2_perm - auc0
-  # Full model vs. propagations only
-  auc_diffs3[i] <- auc3_perm - auc2
-  # Full model vs. correlations only
-  auc_diffs4[i] <- auc3_perm - auc1
-}
-# 4. Compare true AUC differences to permuted AUC differences
-
-sum(auc_diffs1>auc_diff1)
-sum(auc_diffs2>auc_diff2)
-sum(auc_diffs3>auc_diff3)
-sum(auc_diffs4>auc_diff4)
-
+#auc_diffs <- rep(NA, 1000)
+#
+## 1. permute each DMN variable (and FD)
+#set.seed(1)
+#for (i in 1:1000){
+#  print(i)
+#  # permute DMNMag
+#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag)
+#  # permute TDProp1
+#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1)
+# 
+#  # Fit logistic regression models
+#  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = #binomial)
+#  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = #mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+#	
+#  # 3. calculate AUC difference between full and reduced models with permuted data
+#  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
+#  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
+#  
+#  # Print AUC values
+#  auc1 <- auc(roc1)
+#  auc2_perm <-auc(roc2_perm)
+#
+#  # populate auc_diff vectors
+#  # DMN correlations vs. full (permuted props) model
+#  auc_diffs[i] <- auc1 - auc2_perm
+#}
+## 4. Compare true AUC differences to permuted AUC differences
+#
+#sum(auc_diffs>auc_diff)
+# 0 indicates p <0.001
 ```
 
 ```{r}
@@ -1522,13 +1492,7 @@ average_t_values <- bootstrap_results_FD %>%
 bootstrap_results_FD$Model <- factor(bootstrap_results_FD$Model, 
                                      levels = average_t_values$Model[order(average_t_values$avg_t_value)])
 
-## Generate the plot
-#ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
-#  geom_boxplot(position = position_dodge(width = 0.8), fill = '#EF9500') +
-#  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MeanFD effect") +
-#  theme_minimal(base_size = 18) +
-#  geom_hline(yintercept = 0,linetype = "dashed")
-#
+
 # Calculate the average t-value for each Model category
 average_t_values <- bootstrap_results_Drug %>%
   group_by(Model) %>%
@@ -1537,16 +1501,8 @@ average_t_values <- bootstrap_results_Drug %>%
 # Reorder the Model factor based on the average t-values
 bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
                                      levels = average_t_values$Model[order(average_t_values$avg_t_value)])
-#
-## Generate the plot
-#ggplot(bootstrap_results_Drug, aes(x = Model, y = abs(tstat), fill = Cov)) +
-#  geom_boxplot(position = position_dodge(width = 0.8), fill = '#840032') +
-#  labs(x = "Model", y = "abs(T-Values)", title = "Bootstrap T-Values for MDMA effect") +
-#  theme_minimal(base_size = 18) +
-#  geom_hline(yintercept = 0,linetype = "dashed")
-#
 
-
+library(ggdist)
 # Generate the plot
 ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
     geom_boxplot(
@@ -1579,23 +1535,30 @@ average_t_values <- bootstrap_results_Drug %>%
 
 # Reorder the Model factor based on the average t-values
 bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
-                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
+                                     levels = c('Integration','AutoCor','Bottom-up %','Magnitude'))
+
+
+# add fill column
+bootstrap_results_Drug$Fill='DMN Correlatons'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Bottom-up %']='DMN Propagations'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Magnitude']='DMN Propagations'
+
 
 # Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     geom_boxplot(
         width = 0.12,
         # Removing outliers
-        outlier.color = NA,
-        fill='#840032'
-    ) +
+        outlier.color = NA) +
+        scale_fill_manual(values=c("#c12139","#09416b"))+
     stat_dots(
         # Plotting on left side
         side = "left",
         # Adjusting position
         justification = 1.1,
         # Adjust grouping (binning) of observations
-        binwidth = 0.08
+        binwidth = 0.08,
+        overflow = "compress"
     ) +
     labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for MDMA effect") +
     theme_minimal(base_size = 18) +
@@ -1632,753 +1595,30 @@ model<-lme(TDProp1 ~ dascscore_dissociation_SV_normed + RemTRs + MeanFD+Task, ra
 ```
 
 ```{r}
-# and amygdalar reactivity baseline
-AmygB=data.frame(c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17),c(-0.872159019,-1.613577432,-0.148527068,0.903748312,0.877461373,0.710832929,0.436758886,0.599261478,0.112770896,1.541066765,-1.393745839,-0.302041457,1.8678551,0.690276024,-0.805738997,1.514496002))
-
-colnames(AmygB)=c('Subjects','BaselineAmygReact')
-AmygB$Subjects<-AmygB$Subjects <- paste0("sub-MDMA", sprintf("%03d", AmygB$Subjects))
-
-# merged
-mergedAmyg=merge(AmygB,mergedDfPropsComplAutoCdmnFCdmnMag,by='Subjects')
-
-# test
-TD_int=lme(TDProp1 ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
-Compl_int=lme(Complexity ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
-TA_int=lme(AutoCor ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
-DMNS_int=lme(DMNFC ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
-DMNMag_int=lme(DMNMag ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
-
-library(sjPlot)
-plot_model(TD_int,type='int',title='% bottom-up by baseline \n amygdalar reactivity')
-plot_model(Compl_int,type='int',title='complexity by baseline \n amygdalar reactivity')
-plot_model(TA_int,type='int',title='AutoCor by baseline \n amygdalar reactivity')
-plot_model(DMNS_int,type='int',title='DMN FC by baseline \n amygdalar reactivity')
-plot_model(DMNMag_int,type='int',title='DMN Magnitude by baseline \n amygdalar reactivity')
+## and amygdalar reactivity baseline
+#AmygB=data.frame(c(1,2,3,5,6,7,8,9,10,11,12,13,14,15,16,17),c(-0.872159019,-1.613577432,-0.148527068,0.903748312,0.87746#1373,0.710832929,0.436758886,0.599261478,0.112770896,1.541066765,-1.393745839,-0.302041457,1.8678551,0.690276024,-0.8057#38997,1.514496002))
+#
+#colnames(AmygB)=c('Subjects','BaselineAmygReact')
+#AmygB$Subjects<-AmygB$Subjects <- paste0("sub-MDMA", sprintf("%03d", AmygB$Subjects))
+#
+## merged
+#mergedAmyg=merge(AmygB,mergedDfPropsComplAutoCdmnFCdmnMag,by='Subjects')
+#
+## test
+#TD_int=lme(TDProp1 ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+#Compl_int=lme(Complexity ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+#TA_int=lme(AutoCor ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+#DMNS_int=lme(DMNFC ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+#DMNMag_int=lme(DMNMag ~ MeanFD + Drug*BaselineAmygReact+RemTRs+Task, random = ~ 1 | Subjects, data = mergedAmyg)
+#
+#library(sjPlot)
+#plot_model(TD_int,type='int',title='% bottom-up by baseline \n amygdalar reactivity')
+#plot_model(Compl_int,type='int',title='complexity by baseline \n amygdalar reactivity')
+#plot_model(TA_int,type='int',title='AutoCor by baseline \n amygdalar reactivity')
+#plot_model(DMNS_int,type='int',title='DMN FC by baseline \n amygdalar reactivity')
+#plot_model(DMNMag_int,type='int',title='DMN Magnitude by baseline \n amygdalar reactivity')
 ```
 
-```{r}
-# make a vector of DAS scale names
-dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
-# TD PROP
-# initialize correlation vector for dasc
-corvec=NULL
-upperCIvec=NULL
-lowerCIvec=NULL
-pvec=NULL
-colNameVec=NULL
-
-# convert to z scores to be comparable with complexity
-VASmerge$TDProp1z=scale(VASmerge$TDProp1)
-    
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + TDProp1z")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','TDProp1z','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1z", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1z", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  upperCIvec[i-39]=CIs$fixed["TDProp1z","upper"]
-  lowerCIvec[i-39]=CIs$fixed["TDProp1z","lower"]
-  # edit to make corvec more interpretable
-  corvec[i-39]=intervals(currModel)$fixed["TDProp1z","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# 7/9/24: adding dissociation in
-#model<-lme(dascscore_dissociation_SV_normed ~ TDProp1 + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = dissoc)
-#orvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "t-value"]
-#pvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "p-value"]
-#colNameVec[18]='Dissociation'
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = corvec, ColumnNames = colNameVec, 
-                 UpperCI = upperCIvec, LowerCI = lowerCIvec,pvals=pvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-# make a color vector by significance
-fdrp=p.adjust(pvec,method='fdr')
-colorvec=rep('NS',length(fdrp))
-colorvec[pvec<.05]='Uncr'
-colorvec[fdrp<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = -Values, y = ColumnNamesFull,color=Sig)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = -LowerCI, xmax = -UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = -Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-
-
-#########
-# equivalent for complexity
-#########
-VASmerge$Complexityz=scale(VASmerge$Complexity)
-
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + Complexityz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','Complexityz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexityz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexityz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["Complexityz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["Complexityz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["Complexityz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with Complexity")+theme_minimal(base_size=18)
-
-#########
-# equivalent for AutoCor
-#########
-VASmerge$AutoCorz=scale(VASmerge$AutoCor)
-
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + AutoCorz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','AutoCorz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "AutoCorz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "AutoCorz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["AutoCorz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["AutoCorz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["AutoCorz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with AutoCor")+theme_minimal(base_size=18)
-
-#########
-# equivalent for DMN seg
-#########
-VASmerge$DMNFCz=scale(VASmerge$DMNFC)
-
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + DMNFCz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','DMNFCz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNFCz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNFCz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["DMNFCz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["DMNFCz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["DMNFCz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with DMNFC")+theme_minimal(base_size=18)
-
-#########
-# equivalent for DMN Magnitude
-#########
-VASmerge$DMNMagz=scale(VASmerge$DMNMag)
-
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + DMNMagz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','DMNMagz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNMagz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNMagz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["DMNMagz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["DMNMagz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["DMNMagz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with DMN Magnitude")+theme_minimal(base_size=18)
-```
-```{r}
-#### associate change from placebo with reported DAS scores
-##### TDPROP
-# initialize change columns
-DAS_Change_Subject=c('')
-DAS_Change_Dosage=c('')
-DAS_Change_ChangeTDProp=0
-
-# isolate drug sessions
-VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
-VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
-eachSubj=unique(VASmerge$Subjects)
-
-# create change from placebo column
-for (i in 1:length(eachSubj)){
-  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
-  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
-  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
-  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
-  TDPropPlac=mean(SubjPlac$TDProp1)
-  TDProp80=mean(Subj80$TDProp1)
-  TDProp120=mean(Subj120$TDProp1)
-  SubjChange80=TDPropPlac-TDProp80
-  SubjChange120=TDPropPlac-TDProp120
-  # put into VAS_change, 80mg
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
-  DAS_Change_ChangeTDProp<-c(DAS_Change_ChangeTDProp,SubjChange80)
-  # 120
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
-  DAS_Change_ChangeTDProp<-c(DAS_Change_ChangeTDProp,SubjChange120)
-  #counter=counter+1
-}
-
-# create dataframe
-DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeTDProp)
-# drop first row (initialization row)
-DAS_changeDF=DAS_changeDF[-c(1),]
-colnames(DAS_changeDF)<-c('Subjects','Dosage','TDPropChange')
-
-# merge with DAS scores
-DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
-# omit NA rows
-DAS_changeDF=DAS_changeDF[DAS_changeDF$TDPropChange!='NaN',]
-# initialize output correlation stats
-corvec=NULL
-pvec=NULL
-colNameVec=NULL
-counter=1
-# plot change from placebo with reported DAS scores
-for (i in 41:57){
-  plot(DAS_changeDF$TDPropChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
-  # note das scores are not normally distriuted, even from drug sessions
-  a=cor.test(DAS_changeDF$TDPropChange,DAS_changeDF[,i])
-  corvec[counter]=a$estimate
-  pvec[counter]=a$p.value
-  colNameVec[counter]=colnames(DAS_changeDF)[i]
-  counter=counter+1
-}
-
-DAS_changeDF$Colors <- generated_colors[DAS_changeDF$Subjects]
-DAS_changeDF_people <- merge(DAS_changeDF, unique_pairs, by = 'Subjects', all.x = TRUE)
-DAS_changeDF_people$SubjectsCols <- factor(DAS_changeDF_people$Subjects, levels = names(generated_colors))
-
-# plot out scatters
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Dread of Ego Dissolution", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 16)
-cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_gasc,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Global Effects", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_gasc,DAS_changeDF_people$TDPropChange)
-
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_anxiety,x=TDPropChange*100))+
-  geom_point(size=4,aes(color = People))+
-  labs(x = "Decrease in Bottom-up %", y = "Increase in Anxiety", color = "People") +
-  scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 18)
-cor.test(DAS_changeDF_people$dascscore_anxiety,DAS_changeDF_people$TDPropChange)
-
-```
-
-```{r}
-#### associate change from placebo with reported DAS scores
-##### DMN MAGNITUDES
-# initialize change columns
-DAS_Change_Subject=c('')
-DAS_Change_Dosage=c('')
-DAS_Change_ChangeDMNMag=0
-
-# isolate drug sessions
-VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
-VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
-eachSubj=unique(VASmerge$Subjects)
-
-# create change from placebo column
-for (i in 1:length(eachSubj)){
-  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
-  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
-  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
-  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
-  DMNMagPlac=mean(SubjPlac$DMNMag)
-  DMNMag80=mean(Subj80$DMNMag)
-  DMNMag120=mean(Subj120$DMNMag)
-  SubjChange80=DMNMagPlac-DMNMag80
-  SubjChange120=DMNMagPlac-DMNMag120
-  # put into VAS_change, 80mg
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
-  DAS_Change_ChangeDMNMag<-c(DAS_Change_ChangeDMNMag,SubjChange80)
-  # 120
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
-  DAS_Change_ChangeDMNMag<-c(DAS_Change_ChangeDMNMag,SubjChange120)
-  #counter=counter+1
-}
-
-# create dataframe
-DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeDMNMag)
-# drop first row (initialization row)
-DAS_changeDF=DAS_changeDF[-c(1),]
-colnames(DAS_changeDF)<-c('Subjects','Dosage','DMNMagChange')
-
-# merge with DAS scores
-DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
-# omit NA rows
-DAS_changeDF=DAS_changeDF[DAS_changeDF$DMNMagChange!='NaN',]
-# initialize output correlation stats
-mcorvec=NULL
-mpvec=NULL
-colNameVec=NULL
-counter=1
-# plot change from placebo with reported DAS scores
-for (i in 41:57){
-  plot(DAS_changeDF$DMNMagChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
-  a=cor.test(DAS_changeDF$DMNMagChange,DAS_changeDF[,i])
-  mcorvec[counter]=a$estimate
-  mpvec[counter]=a$p.value
-  colNameVec[counter]=colnames(DAS_changeDF)[i]
-  counter=counter+1
-}
-
-
-```
-```{r}
-# plot percent bottom-up by DAS
-combinedPs=c(pvec,mpvec)
-# use combined Ps to MC correct both
-combinedPs=p.adjust(combinedPs,method='fdr')
-mc_pvec=combinedPs[1:length(pvec)]
-mc_mpvec=combinedPs[(length(pvec)+1):length(combinedPs)]
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = corvec, ColumnNames = colNameVec,pvals=pvec,mc_pvec=mc_pvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-colorvec=rep('NS',length(mc_pvec))
-colorvec[pvec<.05]='Uncr'
-colorvec[mc_pvec<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
-c("","","")
-
-# convert into radar plot
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-##############
-##############
-############################
-# equivalent for magnitude
-############################
-##############
-##############
-# Create a dataframe with the values and column names
-df <- data.frame(Values = mcorvec, ColumnNames = colNameVec,pvals=mpvec,mc_pvec=mc_mpvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-colorvec=rep('NS',length(mc_pvec))
-colorvec[mpvec<.05]='Uncr'
-colorvec[mc_mpvec<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
-c("","","")
-
-# convert into radar plot
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Magnitudes")+theme_minimal(base_size=17)
-
-```
-
-```{r}
-#### associate change from placebo with reported DAS scores
-##### DMN FC
-# initialize change columns
-DAS_Change_Subject=c('')
-DAS_Change_Dosage=c('')
-DAS_Change_ChangeDMNFC=0
-
-# isolate drug sessions
-VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
-VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
-eachSubj=unique(VASmerge$Subjects)
-
-# create change from placebo column
-for (i in 1:length(eachSubj)){
-  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
-  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
-  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
-  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
-  DMNFCPlac=mean(SubjPlac$DMNFC)
-  DMNFC80=mean(Subj80$DMNFC)
-  DMNFC120=mean(Subj120$DMNFC)
-  SubjChange80=DMNFCPlac-DMNFC80
-  SubjChange120=DMNFCPlac-DMNFC120
-  # put into VAS_change, 80mg
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
-  DAS_Change_ChangeDMNFC<-c(DAS_Change_ChangeDMNFC,SubjChange80)
-  # 120
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
-  DAS_Change_ChangeDMNFC<-c(DAS_Change_ChangeDMNFC,SubjChange120)
-  #counter=counter+1
-}
-
-# create dataframe
-DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeDMNFC)
-# drop first row (initialization row)
-DAS_changeDF=DAS_changeDF[-c(1),]
-colnames(DAS_changeDF)<-c('Subjects','Dosage','DMNFCChange')
-
-# merge with DAS scores
-DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
-# omit NA rows
-DAS_changeDF=DAS_changeDF[DAS_changeDF$DMNFCChange!='NaN',]
-# initialize output correlation stats
-corvec=NULL
-pvec=NULL
-colNameVec=NULL
-counter=1
-# plot change from placebo with reported DAS scores
-for (i in 41:57){
-  plot(DAS_changeDF$DMNFCChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
-  a=cor.test(DAS_changeDF$DMNFCChange,DAS_changeDF[,i])
-  corvec[counter]=a$estimate
-  pvec[counter]=a$p.value
-  colNameVec[counter]=colnames(DAS_changeDF)[i]
-  counter=counter+1
-}
-```
-
-```{r}
-#### associate change from placebo with reported DAS scores
-##### COMPLEXITY
-# initialize change columns
-DAS_Change_Subject=c('')
-DAS_Change_Dosage=c('')
-DAS_Change_ChangeComlx=0
-
-# isolate drug sessions
-VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
-VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
-eachSubj=unique(VASmerge$Subjects)
-
-# create change from placebo column
-for (i in 1:length(eachSubj)){
-  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
-  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
-  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
-  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
-  ComlxPlac=mean(SubjPlac$Complexity)
-  Comlx80=mean(Subj80$Complexity)
-  Comlx120=mean(Subj120$Complexity)
-  SubjChange80=ComlxPlac-Comlx80
-  SubjChange120=ComlxPlac-Comlx120
-  # put into VAS_change, 80mg
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
-  DAS_Change_ChangeComlx<-c(DAS_Change_ChangeComlx,SubjChange80)
-  # 120
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
-  DAS_Change_ChangeComlx<-c(DAS_Change_ChangeComlx,SubjChange120)
-  #counter=counter+1
-}
-
-# create dataframe
-DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeComlx)
-# drop first row (initialization row)
-DAS_changeDF=DAS_changeDF[-c(1),]
-colnames(DAS_changeDF)<-c('Subjects','Dosage','ComplxChange')
-
-# merge with DAS scores
-DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
-# omit NA rows
-DAS_changeDF=DAS_changeDF[DAS_changeDF$ComplxChange!='NaN',]
-# initialize output correlation stats
-corvec=NULL
-pvec=NULL
-colNameVec=NULL
-counter=1
-# plot change from placebo with reported DAS scores
-for (i in 41:57){
-  plot(DAS_changeDF$ComplxChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
-  a=cor.test(DAS_changeDF$ComplxChange,DAS_changeDF[,i])
-  corvec[counter]=a$estimate
-  pvec[counter]=a$p.value
-  colNameVec[counter]=colnames(DAS_changeDF)[i]
-  counter=counter+1
-}
-```
-
-```{r}
-#### associate change from placebo with reported DAS scores
-##### TEMPORAL AUTOCOR
-# initialize change columns
-DAS_Change_Subject=c('')
-DAS_Change_Dosage=c('')
-DAS_Change_ChangeTA=0
-
-# isolate drug sessions
-VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
-VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
-eachSubj=unique(VASmerge$Subjects)
-
-# create change from placebo column
-for (i in 1:length(eachSubj)){
-  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
-  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
-  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
-  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
-  TAPlac=mean(SubjPlac$AutoCor)
-  TA80=mean(Subj80$AutoCor)
-  TA120=mean(Subj120$AutoCor)
-  SubjChange80=TAPlac-TA80
-  SubjChange120=TAPlac-TA120
-  # put into VAS_change, 80mg
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
-  DAS_Change_ChangeTA<-c(DAS_Change_ChangeTA,SubjChange80)
-  # 120
-  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
-  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
-  DAS_Change_ChangeTA<-c(DAS_Change_ChangeTA,SubjChange120)
-}
-
-# create dataframe
-DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeTA)
-# drop first row (initialization row)
-DAS_changeDF=DAS_changeDF[-c(1),]
-colnames(DAS_changeDF)<-c('Subjects','Dosage','TAChange')
-
-# merge with DAS scores
-DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
-# omit NA rows
-DAS_changeDF=DAS_changeDF[DAS_changeDF$TAChange!='NaN',]
-# initialize output correlation stats
-corvec=NULL
-pvec=NULL
-colNameVec=NULL
-counter=1
-# plot change from placebo with reported DAS scores
-for (i in 41:57){
-  plot(DAS_changeDF$TAChange,DAS_changeDF[,i],main=colnames(DAS_changeDF)[i])
-  a=cor.test(DAS_changeDF$TAChange,DAS_changeDF[,i])
-  corvec[counter]=a$estimate
-  pvec[counter]=a$p.value
-  colNameVec[counter]=colnames(DAS_changeDF)[i]
-  counter=counter+1
-}
-```
 
 ```{r}
 ###### spin tests
@@ -2435,320 +1675,448 @@ ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Va
 
 ```
 
+```{r}
+# calculate change in DAS to investigate inter-psychedelic-session variability
+# initialize change columns
+DAS_Change_Subject=c('')
+DAS_Change_Dosage=c('')
+DAS_Change_ChangeTA=0
+DAS_Change_ChangeFC=0
+DAS_Change_ChangeBUP=0
+DAS_Change_ChangeMag=0
+
+# isolate drug sessions
+VASmerge_DrugSeshs=VASmerge[VASmerge$Drug==1,]
+VASmerge_Plac=VASmerge[VASmerge$Drug==0,]
+eachSubj=unique(VASmerge$Subjects)
+
+# create change from placebo column
+for (i in 1:length(eachSubj)){
+  # extract drug sessions
+  SubjDrug=VASmerge_DrugSeshs[VASmerge_DrugSeshs$Subjects==eachSubj[i],]
+  Subj80=SubjDrug[SubjDrug$Dosage=='80mg',]
+  Subj120=SubjDrug[SubjDrug$Dosage=='120mg',]
+  # extract placebo session
+  SubjPlac=VASmerge_Plac[VASmerge_Plac$Subjects==eachSubj[i],]
+
+  # calculate mean change across scans (TA)
+  TA_Plac=mean(SubjPlac$AutoCor)
+  TA_80=mean(Subj80$AutoCor)
+  TA_120=mean(Subj120$AutoCor)
+  SubjChange_TA_80=TA_Plac-TA_80
+  SubjChange_TA_120=TA_Plac-TA_120
+  
+  # calculate mean change across scans (DMN integration)
+  FC_Plac=mean(SubjPlac$DMNFC)
+  FC_80=mean(Subj80$DMNFC)
+  FC_120=mean(Subj120$DMNFC)
+  SubjChange_FC_80=FC_Plac-FC_80
+  SubjChange_FC_120=FC_Plac-FC_120
+  
+  # calculate mean change across scans (BUP)
+  BUP_Plac=mean(SubjPlac$TDProp1)
+  BUP_80=mean(Subj80$TDProp1)
+  BUP_120=mean(Subj120$TDProp1)
+  SubjChange_BUP_80=BUP_Plac-BUP_80
+  SubjChange_BUP_120=BUP_Plac-BUP_120
+  
+  # calculate mean change across scans (Magnitude)
+  Mag_Plac=mean(SubjPlac$DMNMag)
+  Mag_80=mean(Subj80$DMNMag)
+  Mag_120=mean(Subj120$DMNMag)
+  SubjChange_Mag_80=Mag_Plac-Mag_80
+  SubjChange_Mag_120=Mag_Plac-Mag_120
+  
+  # put into VAS_change, 80mg
+  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
+  DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
+  DAS_Change_ChangeFC<-c(DAS_Change_ChangeFC,SubjChange_TA_80)
+  DAS_Change_ChangeTA<-c(DAS_Change_ChangeTA,SubjChange_FC_80)
+  DAS_Change_ChangeBUP<-c(DAS_Change_ChangeBUP,SubjChange_BUP_80)
+  DAS_Change_ChangeMag<-c(DAS_Change_ChangeMag,SubjChange_Mag_80)
+  # 120
+  DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
+  DAS_Change_Dosage<-c(DAS_Change_Dosage,'120mg')
+  DAS_Change_ChangeFC<-c(DAS_Change_ChangeFC,SubjChange_TA_120)
+  DAS_Change_ChangeTA<-c(DAS_Change_ChangeTA,SubjChange_FC_120)
+  DAS_Change_ChangeBUP<-c(DAS_Change_ChangeBUP,SubjChange_BUP_120)
+  DAS_Change_ChangeMag<-c(DAS_Change_ChangeMag,SubjChange_Mag_120)
+}
+
+DAS_changeDF=data.frame(DAS_Change_Subject,DAS_Change_Dosage,DAS_Change_ChangeFC,DAS_Change_ChangeTA,DAS_Change_ChangeBUP,DAS_Change_ChangeMag)
+# drop first row (initialization row)
+DAS_changeDF=DAS_changeDF[-c(1),]
+colnames(DAS_changeDF)<-c('Subjects','Dosage','FC_Decrease','TA_Decrease','BUP_Decrease','Mag_Decrease')
+# merge with DAS scores
+DAS_changeDF=merge(DAS_changeDF,vas,by=c("Subjects","Dosage"))
+# omit NA rows
+DAS_changeDF=DAS_changeDF[DAS_changeDF$FC_Decrease!='NaN',]
+```
 
 ```{r}
+### figure 3B - coarse
+# make a vector of DAS scale names \n is a newline for the ggplots
+dascNames <- c(
+  'Oceaninc\nBoundlessness',
+  'Dread of Ego\nDissolution',
+  'Visionary\nRestructuralization',
+  'Auditory\nAlterations',
+  'Vigilance\nReduction'
+)
 
-# make a vector of DAS scale names
-dascNames=c('Oceaninc Boundlessness','Dread of Ego Dissolution','Visionary Restructuralization','Auditory Alterations','Vigilance Reduction','Global Effects','Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning of precepts')
-# TD PROP
+dascNamesAcr <- c(
+  'O.B.',
+  'D.E.D.',
+  'V.Res.',
+  'A.A.',
+  'V.Red.'
+)
+
+
+##### Propagation directions
 # initialize correlation vector for dasc
-corvec=NULL
-upperCIvec=NULL
-lowerCIvec=NULL
-pvec=NULL
+BUP_corvec=NULL
+BUP_pvec=NULL
 colNameVec=NULL
-
-# convert to z scores to be comparable with complexity
-VASmerge$TDProp1z=scale(VASmerge$TDProp1)
-    
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + TDProp1z")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','TDProp1z','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1z", "t-value"]
-  pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "TDProp1z", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  upperCIvec[i-39]=CIs$fixed["TDProp1z","upper"]
-  lowerCIvec[i-39]=CIs$fixed["TDProp1z","lower"]
-  # edit to make corvec more interpretable
-  corvec[i-39]=intervals(currModel)$fixed["TDProp1z","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
+# initialize counter
+counter=1
+for (i in 44:48){
+  a=cor.test(DAS_changeDF$BUP_Decrease,DAS_changeDF[,i])
+  BUP_corvec[counter] <- a$estimate
+  BUP_pvec[counter] <- a$p.value
+  counter=counter+1
 }
 
-# 7/9/24: adding dissociation in
-#model<-lme(dascscore_dissociation_SV_normed ~ TDProp1 + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = dissoc)
-#orvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "t-value"]
-#pvec[18]=summary(model)$tTable[rownames(summary(model)$tTable) == "TDProp1", "p-value"]
-#colNameVec[18]='Dissociation'
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = corvec, ColumnNames = colNameVec, 
-                 UpperCI = upperCIvec, LowerCI = lowerCIvec,pvals=pvec)
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = TRUE)])
-# make a color vector by significance
-fdrp=p.adjust(pvec,method='fdr')
-colorvec=rep('NS',length(fdrp))
-colorvec[pvec<.05]='Uncr'
-colorvec[fdrp<.05]='FDR'
-df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = -Values, y = ColumnNamesFull,color=Sig)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = -LowerCI, xmax = -UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-
-
-# make acronym version
-dascNamesAcr=c('O.B.','D.E.D.','V. Restruct.','A.A.','V. Reduct.','G.E.','E.U.','S.E.','B.S.','Ins.','Disemb.','I.C.','Anx.','C.I.','E.I.','Synsth.','C.M.P.')
-
-df$ColumnNamesAcr<-c(dascNamesAcr)
-# circular version
-ggplot(df, aes(y = -Values, x = ColumnNamesAcr,fill=Sig)) +
-  geom_bar(size=3,stat = "identity")+
-  coord_polar(theta = "x", start = 0) +
-  scale_fill_manual(values = colors) +
-  labs(x = "", y = "DASC Scale",title="Association with Propagation Directions")+theme_minimal(base_size=18)
-
-
-#########
-# equivalent for complexity
-#########
-VASmerge$Complexityz=scale(VASmerge$Complexity)
-
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + Complexityz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','Complexityz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexityz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "Complexityz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["Complexityz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["Complexityz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["Complexityz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
-}
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with Complexity")+theme_minimal(base_size=18)
 
 #########
 # equivalent for AutoCor
 #########
-VASmerge$AutoCorz=scale(VASmerge$AutoCor)
 
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + AutoCorz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','AutoCorz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "AutoCorz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "AutoCorz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["AutoCorz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["AutoCorz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["AutoCorz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
+TA_corvec=NULL
+TA_pvec=NULL
+# initialize counter
+counter=1
+for (i in 44:48){
+  a=cor.test(DAS_changeDF$TA_Decrease,DAS_changeDF[,i])
+  TA_corvec[counter] <- a$estimate
+  TA_pvec[counter] <- a$p.value
+  counter=counter+1
 }
 
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with AutoCor")+theme_minimal(base_size=18)
 
 #########
 # equivalent for DMN seg
 #########
-VASmerge$DMNFCz=scale(VASmerge$DMNFC)
 
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + DMNFCz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','DMNFCz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNFCz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNFCz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["DMNFCz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["DMNFCz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["DMNFCz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
+S_corvec=NULL
+S_pvec=NULL
+# initialize counter
+counter=1
+for (i in 44:48){
+  a=cor.test(DAS_changeDF$FC_Decrease,DAS_changeDF[,i])
+  S_corvec[counter] <- a$estimate
+  S_pvec[counter] <- a$p.value
+  counter=counter+1
 }
-
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
-
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
-# make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
-# Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with DMNFC")+theme_minimal(base_size=18)
 
 #########
 # equivalent for DMN Magnitude
 #########
-VASmerge$DMNMagz=scale(VASmerge$DMNMag)
 
-C_corvec=NULL
-C_upperCIvec=NULL
-C_lowerCIvec=NULL
-C_pvec=NULL
-C_colNameVec=NULL
-
-for (i in 40:56){
-  das_col <- colnames(VASmerge)[i]
-  print(das_col)
-  # make a z-score das column
-  VASmerge$Zed<-scale(VASmerge[,das_col])
-  formula_str <- paste("Zed ~ MeanFD + RemTRs + DMNMagz")
-  df = na.omit(VASmerge[,c("Zed",'MeanFD','RemTRs','DMNMagz','Subjects')])
-
-  currModel <- lme(as.formula(formula_str), random = ~ 1 | Subjects, data = df)
-  C_corvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNMagz", "t-value"]
-  C_pvec[i-39] <- summary(currModel)$tTable[rownames(summary(currModel)$tTable) == "DMNMagz", "p-value"]
-  # get CIs
-  CIs=intervals(currModel)
-  C_upperCIvec[i-39]=CIs$fixed["DMNMagz","upper"]
-  C_lowerCIvec[i-39]=CIs$fixed["DMNMagz","lower"]
-  # edit to make corvec more interpretable
-  C_corvec[i-39]=intervals(currModel)$fixed["DMNMagz","est."]
-#  corvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$estimate
-#  pvec[i-2]=cor.test(VASmerge$TDProp,VASmerge[,i])$p.value
-  colNameVec[i-39]=colnames(VASmerge)[i]
-  print(summary(currModel)$tTable)
+M_corvec=NULL
+M_pvec=NULL
+# initialize counter
+counter=1
+for (i in 44:48){
+  a=cor.test(DAS_changeDF$Mag_Decrease,DAS_changeDF[,i])
+  M_corvec[counter] <- a$estimate
+  M_pvec[counter] <- a$p.value
+  counter=counter+1
 }
 
-# Create a dataframe with the values and column names
-df <- data.frame(Values = C_corvec, ColumnNames = colNameVec, 
-                 UpperCI = C_upperCIvec, LowerCI = C_lowerCIvec)
+# correct all for multiple comparisons
+allPs=c(S_pvec,TA_pvec,BUP_pvec,M_pvec)
+allPs_MC=p.adjust(allPs,method='fdr')
 
-# Order the ColumnNames as an ordered factor based on the Values
-df$ColumnNames <- factor(df$ColumnNames, levels = df$ColumnNames[order(df$Values, decreasing = TRUE)])
-#df$ColumnNamesFull<-c(dascNames,'Dissociation')
-df$ColumnNamesFull<-c(dascNames)
-df$ColumnNamesFull <- factor(df$ColumnNamesFull, levels = df$ColumnNamesFull[order(df$Values, decreasing = FALSE)])
+# pull out S pvecs
+S_pvec_mc=allPs_MC[1:5]
+TA_pvec_mc=allPs_MC[6:10]
+BUP_pvec_mc=allPs_MC[11:15]
+M_pvec_mc=allPs_MC[16:20]
+
+# BAR PLOTS FOR ALL
+# DMN SEGREGATION
+# Create a dataframe with the values and column names
+df <- data.frame(Values = S_corvec, pvals=S_pvec)
+
 # make a color vector by significance
-fdrp=p.adjust(C_pvec,method='fdr')
-colorvec_C=rep('NS',length(fdrp))
-colorvec_C[C_pvec<.05]='Uncr'
-colorvec_C[C_pvec<.05]='FDR'
-df$Sig_C <- factor(colorvec_C, levels = c('NS', 'Uncr', 'FDR'))
+colorvec=rep('NS',5)
+colorvec[S_pvec<.05]='Uncr'
+colorvec[S_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
-colors <- c('NS' = 'gray', 'Uncr' = 'blue', 'FDR' = 'red')
-# Create the plot using ggplot: note negative Values for easy interp.
-ggplot(df, aes(x = Values, y = ColumnNamesFull,color=Sig_C)) +
-  geom_point(size=3)+
-  geom_errorbarh(aes(xmin = LowerCI, xmax = UpperCI), height = 0.2) + # Add error bars
-  scale_color_manual(values = colors) +
-  labs(x = "estimate (z)", y = "DAS Questions",title="Association with DMN Magnitude")+theme_minimal(base_size=18)
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNames)
+# linear version
+ggplot(df, aes(x = Values, y = dascNames,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Integration")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# DMN AUTOCOTR
+# Create a dataframe with the values and column names
+df <- data.frame(Values = TA_corvec, pvals=TA_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',5)
+colorvec[TA_pvec<.05]='Uncr'
+colorvec[TA_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNamesAcr)
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Autocorrelation")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# DMN BUP
+# Create a dataframe with the values and column names
+df <- data.frame(Values = BUP_corvec, pvals=BUP_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',5)
+colorvec[BUP_pvec<.05]='Uncr'
+colorvec[BUP_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNamesAcr)
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# DMN Mag
+# Create a dataframe with the values and column names
+df <- data.frame(Values = M_corvec, pvals=M_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',5)
+colorvec[M_pvec<.05]='Uncr'
+colorvec[M_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNamesAcr)
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Prop. Magnitudes")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# pull out BUP~DED correlation
+ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=TDPropChange*100))+
+  geom_point(size=4,aes(color = People))+
+  labs(x = "Decrease in Bottom-up %", y = "Increase in Dread of Ego Dissolution", color = "People") +
+  scale_color_manual(values = generated_colors) +
+  theme_minimal(base_size = 16)
+cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$TDPropChange)
+```
+```{r}
+### figure 3B - granular
+# make a vector of DAS scale names \n is a newline for the ggplots
+dascNames=c('Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning\n of precepts')
+
+dascNamesAcr <- c(
+  'E.U.',
+  'S.E.',
+  'B.S.',
+  'Ins.',
+  'Disemb.',
+  'I.C.',
+  'Anx.',
+  'C.Im.',
+  'E.Im.',
+  'Syn.',
+  'C.M.O.P.'
+)
+##### Propagation directions
+# initialize correlation vector for dasc
+BUP_corvec=NULL
+BUP_pvec=NULL
+colNameVec=NULL
+# initialize counter
+counter=1
+for (i in 50:60){
+  a=cor.test(DAS_changeDF$BUP_Decrease,DAS_changeDF[,i])
+  BUP_corvec[counter] <- a$estimate
+  BUP_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+
+
+#########
+# equivalent for AutoCor
+#########
+
+TA_corvec=NULL
+TA_pvec=NULL
+# initialize counter
+counter=1
+for (i in 50:60){
+  a=cor.test(DAS_changeDF$TA_Decrease,DAS_changeDF[,i])
+  TA_corvec[counter] <- a$estimate
+  TA_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+
+
+#########
+# equivalent for DMN seg
+#########
+
+S_corvec=NULL
+S_pvec=NULL
+# initialize counter
+counter=1
+for (i in 50:60){
+  a=cor.test(DAS_changeDF$FC_Decrease,DAS_changeDF[,i])
+  S_corvec[counter] <- a$estimate
+  S_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+
+#########
+# equivalent for DMN Magnitude
+#########
+
+M_corvec=NULL
+M_pvec=NULL
+# initialize counter
+counter=1
+for (i in 50:60){
+  a=cor.test(DAS_changeDF$Mag_Decrease,DAS_changeDF[,i])
+  M_corvec[counter] <- a$estimate
+  M_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+
+# correct all for multiple comparisons
+allPs=c(S_pvec,TA_pvec,BUP_pvec,M_pvec)
+allPs_MC=p.adjust(allPs,method='fdr')
+
+# pull out S pvecs
+S_pvec_mc=allPs_MC[1:11]
+TA_pvec_mc=allPs_MC[12:22]
+BUP_pvec_mc=allPs_MC[23:33]
+M_pvec_mc=allPs_MC[34:44]
+
+# BAR PLOTS FOR ALL
+# DMN SEGREGATION
+# Create a dataframe with the values and column names
+df <- data.frame(Values = S_corvec, pvals=S_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',11)
+colorvec[S_pvec<.05]='Uncr'
+colorvec[S_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNames)
+# linear version
+ggplot(df, aes(x = Values, y = dascNames,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Integration")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# DMN AUTOCOR
+# Create a dataframe with the values and column names
+df <- data.frame(Values = TA_corvec, pvals=TA_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',11)
+colorvec[TA_pvec<.05]='Uncr'
+colorvec[TA_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+# extra step needs to be done to maintain same row ordering as previous plot
+df$ColumnNamesAcr<-c(dascNamesAcr)
+df$ColumnNamesAcr<-factor(df$ColumnNamesAcr,levels=c('Anx.','B.S.','C.M.O.P.','C.Im.','Disemb.','E.Im.','E.U.','I.C.','Ins.','S.E.','Syn.'))
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Autocorrelation")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# DMN BUP
+# Create a dataframe with the values and column names
+df <- data.frame(Values = BUP_corvec, pvals=BUP_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',11)
+colorvec[BUP_pvec<.05]='Uncr'
+colorvec[BUP_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+# extra step needs to be done to maintain same row ordering as previous plot
+df$ColumnNamesAcr<-c(dascNamesAcr)
+df$ColumnNamesAcr<-factor(df$ColumnNamesAcr,levels=c('Anx.','B.S.','C.M.O.P.','C.Im.','Disemb.','E.Im.','E.U.','I.C.','Ins.','S.E.','Syn.'))
+
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+# and one just for the legend
+df$Significant=df$Sig
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Significant)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Prop. Magnitudes")+theme_minimal(base_size=17)+xlim(c(-.3,.8))
+
+# DMN Mag
+# Create a dataframe with the values and column names
+df <- data.frame(Values = M_corvec, pvals=M_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',11)
+colorvec[M_pvec<.05]='Uncr'
+colorvec[M_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c(dascNamesAcr)
+# bar version
+ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Prop. Magnitudes")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
+  theme(legend.position='none')
+
+# pull out BUP~Impaired Control correlation
+ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=TDPropChange*100))+
+  geom_point(size=4,aes(color = People))+
+  labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
+  scale_color_manual(values = generated_colors) +
+  theme_minimal(base_size = 16)
+cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$TDPropChange)
 
 ```
+
+#### OLD BELOW
 
 ```{r}
 # same, covarying for each other

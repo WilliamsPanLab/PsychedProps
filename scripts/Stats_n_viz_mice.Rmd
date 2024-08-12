@@ -442,22 +442,18 @@ mergedMice_LSD=merge(mergedMice_LSD,DMN_Segs_long,by=c('V1','Timepoint','id','Dr
 library(pROC)
 library(plotROC)
 # Fit logistic regression models
-model1 <- glm(Drug ~  Seg, data = mergedMice_LSD, family = binomial)
-model2 <- glm(Drug ~  Seg + BUP, data = mergedMice_LSD, family = binomial)
-model3 <- glm(Drug ~  Seg + BUP + TA, data = mergedMice_LSD, family = binomial)
-model4 <- glm(Drug ~  Seg + TA+ Mag + BUP, data = mergedMice_LSD, family = binomial)
+model1 <- glm(Drug ~  Seg + TA, data = mergedMice_LSD, family = binomial)
+model2 <- glm(Drug ~  Seg + TA+ Mag + BUP, data = mergedMice_LSD, family = binomial)
 
 # Predict probabilities
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
-prob4 <- predict(model4, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedMice_LSD$Drug, 4)),
-  predictions = c(prob1, prob2, prob3, prob4),
-  model = factor(rep(c("FC", "BUP %", "AutoCor", "Magnitudes"), each = nrow(mergedMice_LSD)))
+  labels = as.numeric(rep(mergedMice_LSD$Drug, 2)),
+  predictions = c(prob1, prob2),
+  model = factor(rep(c("DMN Correlations","DMN Propagations"), each = nrow(mergedMice_LSD)))
 )
 
 # Generate the ROC plot
@@ -466,7 +462,7 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Predicting LSD") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#770036","#dd003a","#EF9500","#000000"))+
+  scale_color_manual(values = c("#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 
@@ -474,20 +470,51 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
 # Calculate AUC for each model
 roc1 <- roc(mergedMice_LSD$Drug, prob1)
 roc2 <- roc(mergedMice_LSD$Drug, prob2)
-roc3 <- roc(mergedMice_LSD$Drug, prob3)
-roc4 <- roc(mergedMice_LSD$Drug, prob4)
 
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
-auc3 <- auc(roc3)
-auc4 <- auc(roc4)
 
-print(paste("AUC for FC:", auc1))
-print(paste("AUC for BUP %:", auc2))
-print(paste("AUC for AutoCor:", auc3))
-print(paste("AUC for Magnitudes:", auc4))
 
+print(paste("AUC for DMN Correlations:", auc1))
+print(paste("AUC for DMN Propagations:", auc2))
+auc_diff=auc2-auc1
+```
+
+```{r}
+# make equivalent AUC calculations on permuted data
+# initialize AUC difference vectors
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  mergedMice_LSD$DMNMag_perm <- sample(mergedMice_LSD$Mag)
+  # permute TDProp1
+  mergedMice_LSD$TDProp1_perm <- sample(mergedMice_LSD$BUP)
+ 
+  # Fit logistic regression models
+  model1 <- glm(Drug ~ Seg+TA, data = mergedMice_LSD, family = binomial)
+  model2_perm <- glm(Drug ~Seg+TA+TDProp1_perm+DMNMag_perm, data = mergedMice_LSD, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(mergedMice_LSD$Drug, predict(model1, type = "response"))
+  roc2_perm <- roc(mergedMice_LSD$Drug, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc1 - auc2_perm
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
+# 0 indicates p <0.001
 ```
 
 ```{r}
@@ -569,30 +596,35 @@ average_t_values <- bootstrap_results_Drug %>%
 
 # Reorder the Model factor based on the average t-values
 bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
-                                     levels = c('Integration','Bottom-up %','AutoCor','Magnitude'))
+                                     levels = c('Integration','AutoCor','Bottom-up %','Magnitude'))
+# add fill column
+bootstrap_results_Drug$Fill='DMN Correlatons'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Bottom-up %']='DMN Propagations'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Magnitude']='DMN Propagations'
+
 
 # Generate the plot
-ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Cov)) +
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     geom_boxplot(
         width = 0.12,
         # Removing outliers
-        outlier.color = NA,
-        fill='#840032'
-    ) +
+        outlier.color = NA) +
+        scale_fill_manual(values=c("#c12139","#09416b"))+
     stat_dots(
         # Plotting on left side
         side = "left",
         # Adjusting position
         justification = 1.1,
         # Adjust grouping (binning) of observations
-        binwidth = 0.08
+        binwidth = 0.08,
+        overflow = "compress"
     ) +
     labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for LSD effect") +
     theme_minimal(base_size = 18) +
     geom_hline(yintercept = 0, linetype = "dashed")+
     # just to prevent extra x-axis expansion
     coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
-    theme(legend.position = "none")+ylim(c(-16,16))
+    theme(legend.position = "none")+ylim(c(-14.5,14.5))
 ```
 
 ```{r}
@@ -803,6 +835,7 @@ ggplot() +
   # Adjust the x-axis limits to accommodate the box plots
   scale_x_continuous(breaks = unique(as.numeric(DMNAngs_long$Timepoint)), limits = c(min(as.numeric(DMNAngs_long$Timepoint)) - 1, max(as.numeric(DMNAngs_long$Timepoint)) + 1))
 ```
+
 ```{r}
 # let's merge them all into one set to test for any interactions
 ### LSD ###
@@ -884,15 +917,16 @@ masterMousedf <- within(masterMousedf, WhichDrug <- relevel(WhichDrug, ref = 2))
 # mixed effect model
 fit_lme <- lme(BUP ~ Drug*WhichDrug, random = ~ 1 | mouse, data = masterMousedf)
 summary(fit_lme)
+library(sjPlot)
 plot_model(fit_lme,type='int',title='% bottom-up by Drug')
 ```
 
 ```{r}
 masterMouseAll=rbind(DMNAngsLSD_long,DMNAngsDiaz_long,DMNAngsDex_long)
 masterMouseAll$WhichDrug2=NULL
-masterMouseAll$WhichDrug2[masterMouseAll$Drug==0]='No Drug'
-masterMouseAll$WhichDrug2[masterMouseAll$WhichDrug=='Dex' & masterMouseAll$Drug==1]='Active Control'
-masterMouseAll$WhichDrug2[masterMouseAll$WhichDrug=='Diaz' & masterMouseAll$Drug==1]='Active Control'
+masterMouseAll$WhichDrug2[masterMouseAll$Drug==0]='Baseline'
+masterMouseAll$WhichDrug2[masterMouseAll$WhichDrug=='Dex' & masterMouseAll$Drug==1]='Active Controls'
+masterMouseAll$WhichDrug2[masterMouseAll$WhichDrug=='Diaz' & masterMouseAll$Drug==1]='Active Controls'
 masterMouseAll$WhichDrug2[masterMouseAll$WhichDrug=='LSD' & masterMouseAll$Drug==1]='Psychedelic'
 
 # remove na rows
@@ -906,7 +940,7 @@ donutData<- data.frame(
 )
 
 # convert labels to be consistent across studies
-donutData$Category=c('Active Control','No Drug','Psychedelic')
+donutData$Category=c('Active Controls','Baseline','Psychedelic')
 
 # percentages
 donutData$frac = donutData$count / sum(donutData$count)
@@ -993,6 +1027,16 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   scale_x_discrete(labels = c('No Drug', 'LSD')) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)
+# job application version with reduced labels - 350 x 600
+ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
+  geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = Mice)) +  # Jittered points
+  geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
+  labs(x = "",
+       y = "% Bottom-up") +
+  scale_x_discrete(labels = c('No Drug', 'LSD')) +
+  scale_color_manual(values = generated_colors) +  # Custom generated color palette
+  theme_minimal(base_size = 28)+
+  theme(legend.position = "none",axis.text.x=element_text(angle=45))
 
 # plotting against active controls: figure 2: middle
 ggplot(masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',], aes(x = WhichDrug, y = Value)) +

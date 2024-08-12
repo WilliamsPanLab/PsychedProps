@@ -153,8 +153,8 @@ function [xa,ya,za,faces,vertices]=gen_template_arrow(X,Y,Z,N);
 % S=3/10;          % Arrow slope
 
 L=3/4;             % Arrow length...
-R=3/40;            % Arrow radius...
-S=1/4;             % Arrow slope...
+R=12/40;            % Arrow radius...
+S=1/3;             % Arrow slope...
 
 % Generate the FAUX surface data for tesselation.
 % ...can't easily tesselate the true surface data because of the
@@ -172,7 +172,8 @@ vertices=[xx(:),yy(:),zz(:)];
 faces=convhulln(vertices);
 
 % Generate the REAL surface data for rendering
-[xt,yt,zt]=cylinder(linspace(0.7*S,0,2),max(N));  % Arrow tip
+% AP: 2 (in 2*s) was changed from 0.7
+[xt,yt,zt]=cylinder(linspace(2*S,0,2),max(N));  % Arrow tip
 [xb,yb,zb]=cylinder(R,max(N));                    % Arrow body
 
 % Scale the data and shift the tip to the end of the arrow body...
