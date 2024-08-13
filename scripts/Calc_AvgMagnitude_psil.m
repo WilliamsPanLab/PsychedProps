@@ -249,9 +249,6 @@ p_R=zeros(sum(mw_R),1);
 % aggregate before scans
 % Get the list of fields in the struct
 fields = fieldnames(OpFl_rs_bv);
-% Initialize matrices to accumulate the sum
-sum_L = 0;
-sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
    fieldName = fields{i};
@@ -282,37 +279,106 @@ for i = 1:length(fields)
 	vwise_vec_L=vwise_vec_L./(size(bv_vecs_L,2));
     end
     % right hemisphere
+    for v=1:sum(mw_R)
+	% Extract the L and R matrices
+	bv_vecs_R = OpFl_rs_bv.(fieldName).R;
+	% get the average magnitude per vertex
+	x_comps_R = bv_vecs_R(v,:,1);
+	y_comps_R = bv_vecs_R(v,:,2);
+	z_comps_R = bv_vecs_R(v,:,3);
+	% for each timepoint
+	for tp=1:size(bv_vecs_R,2);
+		x_comp_R=x_comps_R(tp);
+		y_comp_R=y_comps_R(tp);
+		z_comp_R=z_comps_R(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_R=vwise_vec_R./(size(bv_vecs_R,2));
+    end
+    % add in vwise vecs to bv_L and bv_R
+    bv_L=bv_L+vwise_vec_L;
+    bv_R=bv_R+vwise_vec_R;
 end
-
-
 % average across each scan
-avg_L = sum_L / length(fields);
-avg_R = sum_R / length(fields);
+avg_L = bv_L / length(fields);
+avg_R = bv_R / length(fields);
+
 % some conditions will be unpopulated
 if (~isnan(avg_L))
-	save(strjoin([outFP '/AvgBup_Bf_L.mat'],""),'avg_L');
-	save(strjoin([outFP '/AvgBup_Bf_R.mat'],""),'avg_R');
+	save(strjoin([outFP '/AvgMag_Bf_L.mat'],""),'avg_L');
+	save(strjoin([outFP '/AvgMag_Bf_R.mat'],""),'avg_R');
 end
 
 % aggregate between scans
 % Get the list of fields in the struct
 fields = fieldnames(OpFl_rs_bw);
-% Initialize matrices to accumulate the sum
-sum_L = 0;
-sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
     fieldName = fields{i};
-    % Extract the L and R matrices
-    bw_Angles_L = mean(OpFl_rs_bw.(fieldName).L,2);
-    bw_Angles_R = mean(OpFl_rs_bw.(fieldName).R,2);
-    % Accumulate the sum across fields
-    sum_L = sum_L + bw_Angles_L;
-    sum_R = sum_R + bw_Angles_R;
+    % initialize vertexwise vector for this field
+    vwise_vec_L=zeros(sum(mw_L),1);
+    vwise_vec_R=zeros(sum(mw_R),1);
+    % loop over each vertex: left hemisphere
+    for v=1:sum(mw_L)
+	% Extract the L and R matrices
+	bw_vecs_L = OpFl_rs_bw.(fieldName).L;
+	% get the average magnitude per vertex
+	x_comps_L = bw_vecs_L(v,:,1);
+	y_comps_L = bw_vecs_L(v,:,2);
+	z_comps_L = bw_vecs_L(v,:,3);
+	% for each timepoint
+	for tp=1:size(bw_vecs_L,2);
+		x_comp_L=x_comps_L(tp);
+		y_comp_L=y_comps_L(tp);
+		z_comp_L=z_comps_L(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_L=vwise_vec_L./(size(bw_vecs_L,2));
+    end
+    % right hemisphere
+    for v=1:sum(mw_R)
+	% Extract the L and R matrices
+	bw_vecs_R = OpFl_rs_bw.(fieldName).R;
+	% get the average magnitude per vertex
+	x_comps_R = bw_vecs_R(v,:,1);
+	y_comps_R = bw_vecs_R(v,:,2);
+	z_comps_R = bw_vecs_R(v,:,3);
+	% for each timepoint
+	for tp=1:size(bw_vecs_R,2);
+		x_comp_R=x_comps_R(tp);
+		y_comp_R=y_comps_R(tp);
+		z_comp_R=z_comps_R(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_R=vwise_vec_R./(size(bw_vecs_R,2));
+    end
+    % add in vwise vecs to bw_L and bw_R
+    bw_L=bw_L+vwise_vec_L;
+    bw_R=bw_R+vwise_vec_R;
 end
 % average across each scan
-avg_L = sum_L / length(fields);
-avg_R = sum_R / length(fields);
+avg_L = bw_L / length(fields);
+avg_R = bw_R / length(fields);
+
+% saveout
 if (~isnan(avg_L))
 	save(strjoin([outFP '/AvgBup_Bw_L.mat'],""),'avg_L');
 	save(strjoin([outFP '/AvgBup_Bw_R.mat'],""),'avg_R');
@@ -321,22 +387,67 @@ end
 % aggregate after scans
 % Get the list of fields in the struct
 fields = fieldnames(OpFl_rs_af);
-% Initialize matrices to accumulate the sum
-sum_L = 0;
-sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
     fieldName = fields{i};
-    % Extract the L and R matrices
-    af_Angles_L = mean(OpFl_rs_af.(fieldName).L,2);
-    af_Angles_R = mean(OpFl_rs_af.(fieldName).R,2);
-    % Accumulate the sum across fields
-    sum_L = sum_L + af_Angles_L;
-    sum_R = sum_R + af_Angles_R;
+    % initialize vertexwise vector for this field
+    vwise_vec_L=zeros(sum(mw_L),1);
+    vwise_vec_R=zeros(sum(mw_R),1);
+    % loop over each vertex: left hemisphere
+    for v=1:sum(mw_L)
+	% Extract the L and R matrices
+	af_vecs_L = OpFl_rs_af.(fieldName).L;
+	% get the average magnitude per vertex
+	x_comps_L = af_vecs_L(v,:,1);
+	y_comps_L = af_vecs_L(v,:,2);
+	z_comps_L = af_vecs_L(v,:,3);
+	% for each timepoint
+	for tp=1:size(af_vecs_L,2);
+		x_comp_L=x_comps_L(tp);
+		y_comp_L=y_comps_L(tp);
+		z_comp_L=z_comps_L(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_L=vwise_vec_L./(size(af_vecs_L,2));
+    end
+    % right hemisphere
+    for v=1:sum(mw_R)
+	% Extract the L and R matrices
+	af_vecs_R = OpFl_rs_af.(fieldName).R;
+	% get the average magnitude per vertex
+	x_comps_R = af_vecs_R(v,:,1);
+	y_comps_R = af_vecs_R(v,:,2);
+	z_comps_R = af_vecs_R(v,:,3);
+	% for each timepoint
+	for tp=1:size(af_vecs_R,2);
+		x_comp_R=x_comps_R(tp);
+		y_comp_R=y_comps_R(tp);
+		z_comp_R=z_comps_R(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_R=vwise_vec_R./(size(af_vecs_R,2));
+    end
+    % add in vwise vecs to af_L and af_R
+    af_L=af_L+vwise_vec_L;
+    af_R=af_R+vwise_vec_R;
 end
+
 % average across each scan
-avg_L = sum_L / length(fields);
-avg_R = sum_R / length(fields);
+avg_L = af_L / length(fields);
+avg_R = af_R / length(fields);
+% saveout
 if (~isnan(avg_L))
 	save(strjoin([outFP '/AvgBup_Af_L.mat'],""),'avg_L');
 	save(strjoin([outFP '/AvgBup_Af_R.mat'],""),'avg_R');
@@ -344,19 +455,65 @@ end
 % aggregate psil scans
 % Get the list of fields in the struct
 fields = fieldnames(OpFl_rs_p);
-% Initialize matrices to accumulate the sum
-sum_L = 0;
-sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
     fieldName = fields{i};
-    % Extract the L and R matrices
-    p_Angles_L = mean(OpFl_rs_p.(fieldName).L,2);
-    p_Angles_R = mean(OpFl_rs_p.(fieldName).R,2);
-    % Accumulate the sum across fields
-    sum_L = sum_L + p_Angles_L;
-    sum_R = sum_R + p_Angles_R;
+    % initialize vertexwise vector for this field
+    vwise_vec_L=zeros(sum(mw_L),1);
+    vwise_vec_R=zeros(sum(mw_R),1);
+    % loop over each vertex: left hemisphere
+    for v=1:sum(mw_L)
+	% Extract the L and R matrices
+	p_vecs_L = OpFl_rs_p.(fieldName).L;
+	% get the average magnitude per vertex
+	x_comps_L = p_vecs_L(v,:,1);
+	y_comps_L = p_vecs_L(v,:,2);
+	z_comps_L = p_vecs_L(v,:,3);
+	% for each timepoint
+	for tp=1:size(p_vecs_L,2);
+		x_comp_L=x_comps_L(tp);
+		y_comp_L=y_comps_L(tp);
+		z_comp_L=z_comps_L(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_L=vwise_vec_L./(size(p_vecs_L,2));
+    end
+    % right hemisphere
+    for v=1:sum(mw_R)
+	% Extract the L and R matrices
+	p_vecs_R = OpFl_rs_p.(fieldName).R;
+	% get the average magnitude per vertex
+	x_comps_R = p_vecs_R(v,:,1);
+	y_comps_R = p_vecs_R(v,:,2);
+	z_comps_R = p_vecs_R(v,:,3);
+	% for each timepoint
+	for tp=1:size(p_vecs_R,2);
+		x_comp_R=x_comps_R(tp);
+		y_comp_R=y_comps_R(tp);
+		z_comp_R=z_comps_R(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_R=vwise_vec_R./(size(p_vecs_R,2));
+    end
+    % add in vwise vecs to p_L and p_R
+    p_L=p_L+vwise_vec_L;
+    p_R=p_R+vwise_vec_R;
 end
+% average across each scan
+avg_L = p_L / length(fields);
+avg_R = p_R / length(fields);
 % average across each scan
 avg_L = sum_L / length(fields);
 avg_R = sum_R / length(fields);
@@ -368,22 +525,66 @@ end
 % aggregate methyl scans
 % Get the list of fields in the struct
 fields = fieldnames(OpFl_rs_m);
-% Initialize matrices to accumulate the sum
-sum_L = 0;
-sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
     fieldName = fields{i};
-    % Extract the L and R matrices
-    m_Angles_L = mean(OpFl_rs_m.(fieldName).L,2);
-    m_Angles_R = mean(OpFl_rs_m.(fieldName).R,2);
-    % Accumulate the sum across fields
-    sum_L = sum_L + m_Angles_L;
-    sum_R = sum_R + m_Angles_R;
+    % initialize vertexwise vector for this field
+    vwise_vec_L=zeros(sum(mw_L),1);
+    vwise_vec_R=zeros(sum(mw_R),1);
+    % loop over each vertex: left hemisphere
+    for v=1:sum(mw_L)
+	% Extract the L and R matrices
+	m_vecs_L = OpFl_rs_m.(fieldName).L;
+	% get the average magnitude per vertex
+	x_comps_L = m_vecs_L(v,:,1);
+	y_comps_L = m_vecs_L(v,:,2);
+	z_comps_L = m_vecs_L(v,:,3);
+	% for each timepoint
+	for tp=1:size(m_vecs_L,2);
+		x_comp_L=x_comps_L(tp);
+		y_comp_L=y_comps_L(tp);
+		z_comp_L=z_comps_L(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_L=vwise_vec_L./(size(m_vecs_L,2));
+    end
+    % right hemisphere
+    for v=1:sum(mw_R)
+	% Extract the L and R matrices
+	m_vecs_R = OpFl_rs_m.(fieldName).R;
+	% get the average magnitude per vertex
+	x_comps_R = m_vecs_R(v,:,1);
+	y_comps_R = m_vecs_R(v,:,2);
+	z_comps_R = m_vecs_R(v,:,3);
+	% for each timepoint
+	for tp=1:size(m_vecs_R,2);
+		x_comp_R=x_comps_R(tp);
+		y_comp_R=y_comps_R(tp);
+		z_comp_R=z_comps_R(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_R=vwise_vec_R./(size(m_vecs_R,2));
+    end
+    % add in vwise vecs to m_L and m_R
+    m_L=m_L+vwise_vec_L;
+    m_R=m_R+vwise_vec_R;
 end
 % average across each scan
-avg_L = sum_L / length(fields);
-avg_R = sum_R / length(fields);
+avg_L = m_L / length(fields);
+avg_R = m_R / length(fields);
+
 if (~isnan(avg_L))
 	save(strjoin([outFP '/AvgBup_m_L.mat'],""),'avg_L');
 	save(strjoin([outFP '/AvgBup_m_R.mat'],""),'avg_R');

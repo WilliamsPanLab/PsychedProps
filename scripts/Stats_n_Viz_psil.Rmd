@@ -745,7 +745,7 @@ donutData<- data.frame(
 )
 
 # convert labels to be consistent across studies
-donutData$Category=c('No Drug','Active Control','Psychedelic')
+donutData$Category=c('Baseline','Active Control','Psychedelic')
 
 # percentages
 donutData$frac = donutData$count / sum(donutData$count)
