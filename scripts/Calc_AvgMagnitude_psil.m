@@ -1,4 +1,4 @@
-function Calc_AvgBup_psil(subj)
+function Calc_AvgMagnitude_psil(subj)
 
 % just need whether it's drug 1 or 2 that corresponds to psil
 restoredefaultpath
@@ -28,50 +28,35 @@ V_L=vx_l;
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
+%%% need this to get more surface geometry information
+% get incenters of triangles
+TR_L = TriRep(F_L,V_L);
+% note X returns vertices rather than incenters of faces
+P_L = TR_L.X;
+TR_R = TriRep(F_R,V_R);
+P_R = TR_R.X;
+% translate xyz spherical coordinates to az/el/r
+[az_L,el_L,r_L]=cart2sph(P_L(:,1),P_L(:,2),P_L(:,3));
+[az_R,el_R,r_R]=cart2sph(P_R(:,1),P_R(:,2),P_R(:,3));
+% convert from radians to degrees
+azd_L=rad2deg(az_L);
+eld_L=rad2deg(el_L);
+azd_R=rad2deg(az_R);
+eld_R=rad2deg(el_R);
+
 
 % load in medial wall + SNR so we don't have to loop over every single vertex and then mask out later
-% add TSNR mask, includes medial wall
 mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
 mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
 mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
 mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
-mw_L=zeros(1,2562);
-mw_L(mwAndTSNR_L==1)=1;
-mw_R=zeros(1,2562);
-mw_R(mwAndTSNR_R==1)=1;
-% convert to faces
-F_MW_L=sum(mw_L(faces_l),2)./3;
-F_MW_R=sum(mw_R(faces_r),2)./3;
-% convert "partial" medial wall to medial wall
-F_MW_L=ceil(F_MW_L);
-F_MW_R=ceil(F_MW_R);
-% face mask indices
-fmwIndVec_l=find(F_MW_L);
-fmwIndVec_r=find(F_MW_R);
-% load in DMN to make more thorough mask
-networks=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
-%% k = 1 to select DMN.
-Dnet_LH=networks.nets.Lnets(:,1);
-Dnet_RH=networks.nets.Rnets(:,1);
-nets_LH=networks.nets.Lnets(:,1);
-nets_RH=networks.nets.Rnets(:,1);
-% create face-wise network mask
-DMN_bool_L=sum(nets_LH(faces_l),2)./3;
-DMN_bool_R=sum(nets_RH(faces_r),2)./3;
-DMN_bool_L(DMN_bool_L>.3)=1;
-DMN_bool_R(DMN_bool_R>.3)=1;
-DMN_bool_L(DMN_bool_L<.3)=0;
-DMN_bool_R(DMN_bool_R<.3)=0;
-DMN_bool_L=logical(DMN_bool_L);
-DMN_bool_R=logical(DMN_bool_R);
-% combine with medial wall mask
-MasterMask_L=DMN_bool_L;
-MasterMask_R=DMN_bool_R;
-MasterMask_L(fmwIndVec_l)=0;
-MasterMask_R(fmwIndVec_r)=0;
-% should be 1116 faces for left, 996 for right
-mw_L=MasterMask_L;
-mw_R=MasterMask_R;
+% note this is indexing for VALID vertices as opposed to some other scripts with 1 at INVALID vertices
+mw_L=ones(1,2562);
+mw_L(mwAndTSNR_L>0)=0;
+mw_R=ones(1,2562);
+mw_R(mwAndTSNR_R>0)=0;
+mw_L=logical(mw_L);
+mw_R=logical(mw_R);
 
 % get subj list
 subjPrefix=repmat('PS',10,1);
@@ -93,8 +78,8 @@ OpFl_rs_bv = struct();
 
 %%%% now loop over each condition to load in each and concatenate resting-state angular time series
 % get all baseline scans
-baselineStrSearch_L=strjoin(['/scratch/users/apines/data/psil/' subj '/Baseline*/*_k1_Prop_TS_dmn_L.csv'],'');
-baselineStrSearch_R=strjoin(['/scratch/users/apines/data/psil/' subj '/Baseline*/*_k1_Prop_TS_dmn_R.csv'],'');
+baselineStrSearch_L=strjoin([commonFP '/' subj '/Baseline*/*_p2mm_masked_Vert_Angles_L.mat'],'');
+baselineStrSearch_R=strjoin([commonFP '/' subj '/Baseline*/*_p2mm_masked_Vert_Angles_R.mat'],'');
 bvscans_L=g_ls(char(baselineStrSearch_L));
 bvscans_R=g_ls(char(baselineStrSearch_R));
 % loop over all baseline %%
@@ -106,7 +91,7 @@ for c=1:length(bvscans_L);
 	fileinfo=strsplit(filename,'_');
 	task=fileinfo{3};
 	% use extracted info to pull in number of remaining TRs
-	survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
+	survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
 	survivingTrs=load(survivingTrsFP);
 	% if remaining TRs > 250, concatenate it onto struct
 	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;	
@@ -114,16 +99,16 @@ for c=1:length(bvscans_L);
 		% LOAD IN ANGULAR TIME SERIES instead (and facewise)
 		fpl=bvscans_L{c};
 		fpr=bvscans_R{c};
-		OpFl_rs_bv.(['f' num2str(c)]).L=dlmread(fpl);
-		OpFl_rs_bv.(['f' num2str(c)]).R=dlmread(fpr);
+		OpFl_rs_bv.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
+		OpFl_rs_bv.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
 	end
 end
 
 % initialize opfl structure to hold each condition/hemisphere
 OpFl_rs_bw = struct();
 % get all between scans
-betweenStrSearch_L=strjoin(['/scratch/users/apines/data/psil/' subj '/Between*/*_k1_Prop_TS_dmn_L.csv'],'');
-betweenStrSearch_R=strjoin(['/scratch/users/apines/data/psil/' subj '/Between*/*_k1_Prop_TS_dmn_R.csv'],'');
+betweenStrSearch_L=strjoin([commonFP '/' subj '/Between*/*_p2mm_masked_Vert_Angles_L.mat'],'');
+betweenStrSearch_R=strjoin([commonFP '/' subj '/Between*/*_p2mm_masked_Vert_Angles_R.mat'],'');
 bwscans_L=g_ls(char(betweenStrSearch_L));
 bwscans_R=g_ls(char(betweenStrSearch_R));
 % loop over all between %%
@@ -135,7 +120,7 @@ for c=1:length(bwscans_L);
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
         % if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250; 
@@ -143,8 +128,8 @@ for c=1:length(bwscans_L);
                 % LOAD IN ANGULAR TIME SERIES instead (and facewise)
                 fpl=bwscans_L{c};
                 fpr=bwscans_R{c};
-                OpFl_rs_bw.(['f' num2str(c)]).L=dlmread(fpl);
-                OpFl_rs_bw.(['f' num2str(c)]).R=dlmread(fpr);
+                OpFl_rs_bw.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
+                OpFl_rs_bw.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
         end
 end
 
@@ -152,8 +137,8 @@ end
 % initialize opfl structure to hold each condition/hemisphere
 OpFl_rs_af = struct();
 % get all after scans
-afterStrSearch_L=strjoin(['/scratch/users/apines/data/psil/' subj '/After*/*_k1_Prop_TS_dmn_L.csv'],'');
-afterStrSearch_R=strjoin(['/scratch/users/apines/data/psil/' subj '/After*/*_k1_Prop_TS_dmn_R.csv'],'');
+afterStrSearch_L=strjoin([commonFP '/' subj '/After*/*_p2mm_masked_Vert_Angles_L.mat'],'');
+afterStrSearch_R=strjoin([commonFP '/' subj '/After*/*_p2mm_masked_Vert_Angles_R.mat'],'');
 afscans_L=g_ls(char(afterStrSearch_L));
 afscans_R=g_ls(char(afterStrSearch_R));
 % loop over all after %%
@@ -165,7 +150,7 @@ for c=1:length(afscans_L);
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
         % if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
@@ -173,8 +158,8 @@ for c=1:length(afscans_L);
                 % LOAD IN ANGULAR TIME SERIES instead (and facewise)
                 fpl=afscans_L{c};
                 fpr=afscans_R{c};
-                OpFl_rs_af.(['f' num2str(c)]).L=dlmread(fpl);
-                OpFl_rs_af.(['f' num2str(c)]).R=dlmread(fpr);
+                OpFl_rs_af.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
+                OpFl_rs_af.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
         end
 end
 
@@ -184,8 +169,8 @@ OpFl_rs_p = struct();
 % figure out which is psil and which is methyl for this PT
 psilNum=subSeshDose{1,s};
 % get all psil scans
-psilStrSearch_L=strjoin(['/scratch/users/apines/data/psil/' subj '/Drug' num2str(psilNum) '/*_k1_Prop_TS_dmn_L.csv'],'');
-psilStrSearch_R=strjoin(['/scratch/users/apines/data/psil/' subj '/Drug' num2str(psilNum) '/*_k1_Prop_TS_dmn_R.csv'],'');
+psilStrSearch_L=strjoin([commonFP '/' subj '/Drug' num2str(psilNum) '/*_p2mm_masked_Vert_Angles_L.mat'],'');
+psilStrSearch_R=strjoin([commonFP '/' subj '/Drug' num2str(psilNum) '/*_p2mm_masked_Vert_Angles_R.mat'],'');
 pscans_L=g_ls(char(psilStrSearch_L));
 pscans_R=g_ls(char(psilStrSearch_R));
 % loop over all between %%
@@ -197,7 +182,7 @@ for c=1:length(pscans_L);
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
         % if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
@@ -205,8 +190,8 @@ for c=1:length(pscans_L);
                 % LOAD IN ANGULAR TIME SERIES instead (and facewise)
                 fpl=pscans_L{c};
                 fpr=pscans_R{c};
-                OpFl_rs_p.(['f' num2str(c)]).L=dlmread(fpl);
-                OpFl_rs_p.(['f' num2str(c)]).R=dlmread(fpr);
+                OpFl_rs_p.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
+                OpFl_rs_p.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
         end
 end
 
@@ -216,8 +201,8 @@ OpFl_rs_m = struct();
 methyNum=setdiff([1 2],psilNum);
 
 % get all methyl scans
-methStrSearch_L=strjoin(['/scratch/users/apines/data/psil/' subj '/Drug' num2str(methyNum) '/*_k1_Prop_TS_dmn_L.csv'],'');
-methStrSearch_R=strjoin(['/scratch/users/apines/data/psil/' subj '/Drug' num2str(methyNum) '/*_k1_Prop_TS_dmn_R.csv'],'');
+methStrSearch_L=strjoin([commonFP '/' subj '/Drug' num2str(methyNum) '/*_p2mm_masked_Vert_Angles_L.mat'],'');
+methStrSearch_R=strjoin([commonFP '/' subj '/Drug' num2str(methyNum) '/*_p2mm_masked_Vert_Angles_R.mat'],'');
 mscans_L=g_ls(char(methStrSearch_L));
 mscans_R=g_ls(char(methStrSearch_R));
 % loop over all between %%
@@ -229,7 +214,7 @@ for c=1:length(mscans_L);
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
         % if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
@@ -237,13 +222,29 @@ for c=1:length(mscans_L);
                 % LOAD IN ANGULAR TIME SERIES instead (and facewise)
                 fpl=mscans_L{c};
                 fpr=mscans_R{c};
-                OpFl_rs_m.(['f' num2str(c)]).L=dlmread(fpl);
-                OpFl_rs_m.(['f' num2str(c)]).R=dlmread(fpr);
+                OpFl_rs_m.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
+                OpFl_rs_m.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
         end
 end
 
 % saveout filepath
 outFP=['/scratch/users/apines/data/psil/' subj];
+
+% create valid verts of surface geometry
+valid_verts_L=find(mw_L);
+valid_verts_R=find(mw_R);
+
+% initialize 2d vector arrays
+bv_L=zeros(sum(mw_L),1);
+bv_R=zeros(sum(mw_R),1);
+bw_L=zeros(sum(mw_L),1);
+bw_R=zeros(sum(mw_R),1);
+af_L=zeros(sum(mw_L),1);
+af_R=zeros(sum(mw_R),1);
+m_L=zeros(sum(mw_L),1);
+m_R=zeros(sum(mw_R),1);
+p_L=zeros(sum(mw_R),1);
+p_R=zeros(sum(mw_R),1);
 
 % aggregate before scans
 % Get the list of fields in the struct
@@ -253,14 +254,37 @@ sum_L = 0;
 sum_R = 0;
 % Loop over each field
 for i = 1:length(fields)
-    fieldName = fields{i};
-    % Extract the L and R matrices
-    bv_Angles_L = mean(OpFl_rs_bv.(fieldName).L,2);
-    bv_Angles_R = mean(OpFl_rs_bv.(fieldName).R,2);
-    % Accumulate the sum across fields
-    sum_L = sum_L + bv_Angles_L;
-    sum_R = sum_R + bv_Angles_R;
+   fieldName = fields{i};
+   % initialize vertexwise vector for this field
+   vwise_vec_L=zeros(sum(mw_L),1);
+   vwise_vec_R=zeros(sum(mw_R),1);
+   % loop over each vertex: left hemisphere
+   for v=1:sum(mw_L)
+   	% Extract the L and R matrices
+   	bv_vecs_L = OpFl_rs_bv.(fieldName).L;
+   	% get the average magnitude per vertex
+   	x_comps_L = bv_vecs_L(v,:,1);
+	y_comps_L = bv_vecs_L(v,:,2);
+	z_comps_L = bv_vecs_L(v,:,3);
+	% for each timepoint
+	for tp=1:size(bv_vecs_L,2);
+		x_comp_L=x_comps_L(tp);
+		y_comp_L=y_comps_L(tp);
+		z_comp_L=z_comps_L(tp);
+		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		% convert now x-y equivalent vectors to magnitude
+		xy=azelrho(1:2);
+		magnitude = sqrt(sum(xy .^ 2));
+		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+	end
+	% correct magnitude by length of time series to get average
+	vwise_vec_L=vwise_vec_L./(size(bv_vecs_L,2));
+    end
+    % right hemisphere
 end
+
+
 % average across each scan
 avg_L = sum_L / length(fields);
 avg_R = sum_R / length(fields);

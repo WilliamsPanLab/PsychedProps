@@ -110,8 +110,8 @@ camlight;
 
 length(faces)
 % reset mincol here
-mincol=min(FaceVecL);
-maxcol=-mincol;
+mincol=-5.2;
+maxcol=5.2;
 set(gca,'CLim',[mincol,maxcol]);
 set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 
@@ -187,6 +187,5 @@ set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 c=colorbar;
 %c=colorbar('XTickLabel',{'.45', '.50', '.55'},'XTick', .45:.05:.55)
 c.Location='southoutside'
-%colormap(custommap)
 
 print(Fn,'-dpng')
