@@ -255,8 +255,8 @@ sum_R = 0;
 for i = 1:length(fields)
     fieldName = fields{i};
     % Extract the L and R matrices
-    bv_Angles_L = mean(OpFl_rs_bv.(fieldName).L,2);
-    bv_Angles_R = mean(OpFl_rs_bv.(fieldName).R,2);
+    bv_Angles_L = (sum(OpFl_rs_bv.(fieldName).L < 90,2) / size(OpFl_rs_bv.(fieldName).L,2))*100;
+    bv_Angles_R = (sum(OpFl_rs_bv.(fieldName).R < 90,2) / size(OpFl_rs_bv.(fieldName).R,2))*100;
     % Accumulate the sum across fields
     sum_L = sum_L + bv_Angles_L;
     sum_R = sum_R + bv_Angles_R;
@@ -280,8 +280,8 @@ sum_R = 0;
 for i = 1:length(fields)
     fieldName = fields{i};
     % Extract the L and R matrices
-    bw_Angles_L = mean(OpFl_rs_bw.(fieldName).L,2);
-    bw_Angles_R = mean(OpFl_rs_bw.(fieldName).R,2);
+    bw_Angles_L = (sum(OpFl_rs_bw.(fieldName).L < 90,2) / size(OpFl_rs_bw.(fieldName).L,2))*100;
+    bw_Angles_R = (sum(OpFl_rs_bw.(fieldName).R < 90,2) / size(OpFl_rs_bw.(fieldName).R,2))*100;
     % Accumulate the sum across fields
     sum_L = sum_L + bw_Angles_L;
     sum_R = sum_R + bw_Angles_R;
@@ -304,8 +304,8 @@ sum_R = 0;
 for i = 1:length(fields)
     fieldName = fields{i};
     % Extract the L and R matrices
-    af_Angles_L = mean(OpFl_rs_af.(fieldName).L,2);
-    af_Angles_R = mean(OpFl_rs_af.(fieldName).R,2);
+    af_Angles_L = (sum(OpFl_rs_af.(fieldName).L < 90,2) / size(OpFl_rs_af.(fieldName).L,2))*100;
+    af_Angles_R = (sum(OpFl_rs_af.(fieldName).R < 90,2) / size(OpFl_rs_af.(fieldName).R,2))*100;
     % Accumulate the sum across fields
     sum_L = sum_L + af_Angles_L;
     sum_R = sum_R + af_Angles_R;
@@ -327,8 +327,8 @@ sum_R = 0;
 for i = 1:length(fields)
     fieldName = fields{i};
     % Extract the L and R matrices
-    p_Angles_L = mean(OpFl_rs_p.(fieldName).L,2);
-    p_Angles_R = mean(OpFl_rs_p.(fieldName).R,2);
+    p_Angles_L = (sum(OpFl_rs_p.(fieldName).L < 90,2) / size(OpFl_rs_p.(fieldName).L,2))*100;
+    p_Angles_R = (sum(OpFl_rs_p.(fieldName).R < 90,2) / size(OpFl_rs_p.(fieldName).R,2))*100;
     % Accumulate the sum across fields
     sum_L = sum_L + p_Angles_L;
     sum_R = sum_R + p_Angles_R;
@@ -351,8 +351,8 @@ sum_R = 0;
 for i = 1:length(fields)
     fieldName = fields{i};
     % Extract the L and R matrices
-    m_Angles_L = mean(OpFl_rs_m.(fieldName).L,2);
-    m_Angles_R = mean(OpFl_rs_m.(fieldName).R,2);
+    m_Angles_L = (sum(OpFl_rs_m.(fieldName).L < 90,2) / size(OpFl_rs_m.(fieldName).L,2))*100;
+    m_Angles_R = (sum(OpFl_rs_m.(fieldName).R < 90,2) / size(OpFl_rs_m.(fieldName).R,2))*100;
     % Accumulate the sum across fields
     sum_L = sum_L + m_Angles_L;
     sum_R = sum_R + m_Angles_R;

@@ -89,10 +89,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
 # extract relative angles
 #matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs1')"
@@ -115,7 +115,7 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling')"
 
 # calculate distance maps
-#matlab -nodisplay -r "Calc_AvgMagnitude('$subj')"
+matlab -nodisplay -r "Calc_AvgBup('$subj')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
