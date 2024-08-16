@@ -191,6 +191,9 @@ imagesc(preMinPostLSD);
 colormap(custommap);
 maxcol=(max(max(preMinPostLSD)));
 mincol=-maxcol;
+% for equivalence w/ Dex for supp figs
+maxcol=1.3;
+mincol=-1.3;
 caxis([mincol maxcol]); 
 colorbar
 hold on;
