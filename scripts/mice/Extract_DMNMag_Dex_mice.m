@@ -249,15 +249,18 @@ for k=1
 		%SD(F)=CSD;
 	% end each face loop
         end
+	% calc outFP
+	outFP=['/scratch/users/apines/data/mouse/Dex/'];
+	% time series population
+	OutTs=Mags;
+	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Mag_TS_dmn.csv'])	
 	% average angular distances across hemispheres
-        avgD=mean(mean(Mags));
+	avgD=mean(mean(Mags));
         Propvec=[Propvec avgD];
         % add label
         stringVec=[stringVec ['Mag_1']];
 	% save out as csv
 	T=table(Propvec,'RowNames',stringVec);
-	% calc outFP
-	outFP=['/scratch/users/apines/data/mouse/Dex/'];
 	% write out
 	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_Mag.csv'],'WriteRowNames',true)
 end

@@ -47,33 +47,6 @@ data(mwIndVec_l)=VertVecL;
 
 %%%%%%% fixed colorscale varities
 
-%%% circular
-mincol=min(VertVecL);
-maxcol=max(VertVecL);
-% for resultant vector distance mapping (Calc_cirdist)
-mincol=-.015;
-maxcol=.015;
-%mincol=-0.005;
-%maxcol=0.015;
-%mincol=-1;
-%maxcol=1;
-% for nmf networks
-%mincol=0;
-%maxcol=1;
-% for t-stats
-%  mincol=-9;
-%  maxcol=9;
-%%% for red/blue 0-centered
-%mincol=-9;
-%maxcol=9;
-%custommap=colormap(b2r(mincol,maxcol));
-% abscense of color to gray to accom. lighting "none"
-%  grayColor = [0.7, 0.7, 0.7];  % Define gray color
-% Add gray color to the colormap
-%   custommap = [custommap; grayColor];
-%custommap(126,:)=[.5 .5 .5];
-%custommap=colormap(jet);
-
 % blue-orange color scheme
 BO_cm=inferno(9);
 BO_cm(1,:)=[49 197 244];
@@ -147,8 +120,8 @@ n_LHBool=ones(1,2562);
 n_LHBool(n_LH<.3)=0;
 data(~logical(n_LHBool))=0;
 % reset mincol here
-mincol=min(data);
-maxcol=-mincol;
+mincol=-.012;
+maxcol=.012;
 figure
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 

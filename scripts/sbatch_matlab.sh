@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-#SBATCH --job-name=spins
-#SBATCH --time=48:00:00
+#SBATCH --job-name=magAgg
+#SBATCH --time=3:00:00
 #SBATCH -n 1
 #SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -9,9 +9,7 @@
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
 # ------------------------------------------
-
-# dumb cd
-cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DMN_validate/
+subj=$1
 # will need matlab
 module load matlab
-matlab -nodisplay -r "spin_DMN"
+matlab -nodisplay -r "Calc_AvgMagnitude_psil('$subj')"

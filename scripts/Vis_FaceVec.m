@@ -110,8 +110,8 @@ camlight;
 
 length(faces)
 % reset mincol here
-mincol=-5.2;
-maxcol=5.2;
+mincol=-5.1;
+maxcol=5.1;
 set(gca,'CLim',[mincol,maxcol]);
 set(aplot,'FaceColor','flat','FaceVertexCData',data','CDataMapping','scaled');
 

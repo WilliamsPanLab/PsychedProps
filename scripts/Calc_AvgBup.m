@@ -181,42 +181,44 @@ end
 outFP=['/scratch/users/apines/data/mdma/' subj];
 
 % for each face, get average BUP angle instead of time series of them
-if exist('OpFl.bv.L','var') ~=0
+if OpFl.bv.L(1)>0
 	% BV
 	bv_Angles_L=OpFl.bv.L;
 	bv_Angles_R=OpFl.bv.R;
-	BV_L=mean(bv_Angles_L,2);
-	BV_R=mean(bv_Angles_R,2);
+	% convert to % BUP
+	BV_L=(sum(bv_Angles_L < 90,2) / size(bv_Angles_L,2) * 100);
+	BV_R=(sum(bv_Angles_R < 90,2) / size(bv_Angles_R,2) * 100);
 	save(strjoin([outFP '/AvgBup_BV_L.mat'],""),'BV_L');
 	save(strjoin([outFP '/AvgBup_BV_R.mat'],""),'BV_R');
 end
 % placebo
-if exist('OpFl.pl.L','var') ~=0
+if OpFl.pl.L(1)>0
 	% PL
 	pl_Angles_L=OpFl.pl.L;
 	pl_Angles_R=OpFl.pl.R;
-	PL_L=mean(pl_Angles_L,2);
-	PL_R=mean(pl_Angles_R,2);
+	PL_L=(sum(pl_Angles_L < 90,2) / size(pl_Angles_L,2) * 100);
+	PL_R=(sum(pl_Angles_R < 90,2) / size(pl_Angles_R,2) * 100);
 	save(strjoin([outFP '/AvgBup_PL_L.mat'],""),'PL_L');
 	save(strjoin([outFP '/AvgBup_PL_R.mat'],""),'PL_R');
 end
 % m80
-if exist('OpFl.m1.L','var') ~=0
+if OpFl.m1.L(1)>0
 	% m1
 	m1_Angles_L=OpFl.m1.L;
 	m1_Angles_R=OpFl.m1.R;
-	M1_L=mean(m1_Angles_L,2);
-	M1_R=mean(m1_Angles_R,2);
-	save(strjoin([outFP '/AvgBup_M1_L.mat'],""),'M1_L');
-	save(strjoin([outFP '/AvgBup_M1_R.mat'],""),'M1_R');
+	M1_L=(sum(m1_Angles_L < 90,2) / size(m1_Angles_L,2) * 100);
+	M1_R=(sum(m1_Angles_R < 90,2) / size(m1_Angles_R,2) * 100);
+	% save out average BUP to scratch
+        save(strjoin([outFP '/AvgBup_M1_L.mat'],""),'M1_L');
+        save(strjoin([outFP '/AvgBup_M1_R.mat'],""),'M1_R');
 end
 % m120
-if exist('OpFl.m2.L','var') ~=0
+if OpFl.m2.L(1)>0
 	% m2
 	m2_Angles_L=OpFl.m2.L;
 	m2_Angles_R=OpFl.m2.R;
-	M2_L=mean(m2_Angles_L,2);
-	M2_R=mean(m2_Angles_R,2);
+	M2_L=(sum(m2_Angles_L < 90,2) / size(m2_Angles_L,2) * 100);
+	M2_R=(sum(m2_Angles_R < 90,2) / size(m2_Angles_R,2) * 100);
 	% save out average BUP to scratch
 	save(strjoin([outFP '/AvgBup_M2_L.mat'],""),'M2_L');
 	save(strjoin([outFP '/AvgBup_M2_R.mat'],""),'M2_R');

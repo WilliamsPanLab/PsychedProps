@@ -49,10 +49,10 @@ end
 avg_L2=mean(aggregate_L2);
 avg_R2=mean(aggregate_R2);
 % subtract
-avg_L_dif=avg_L2-avg_L;
-avg_R_dif=avg_R2-avg_R;
+avg_L_dif=avg_L-avg_L2;
+avg_R_dif=avg_R-avg_R2;
 % plot avg. no drug vs. avg. drug
-Vis_FaceVec(avg_L_dif,avg_R_dif,'~/PL_vs_Drug_BupDif.png')
+Vis_Vertvec(avg_L_dif,avg_R_dif,'~/PL_vs_MDMA_MagDif.png')
 
 %%%%% plot avg. no drug vs. avg drug
 % initialize output vectors, load in a template to do so
@@ -94,7 +94,7 @@ end
 avg_L2=mean(aggregate_L2);
 avg_R2=mean(aggregate_R2);
 % subtract
-avg_L_dif=avg_L2-avg_L;
-avg_R_dif=avg_R2-avg_R;
+avg_L_dif=avg_L-avg_L2;
+avg_R_dif=avg_R-avg_R2;
 % plot avg. no drug vs. avg. drug
-Vis_FaceVec(avg_L_dif,avg_R_dif,'~/NoDrug_vs_Drug_BupDif.png')
+Vis_Vertvec(avg_L_dif,avg_R_dif,'~/NoDrug_vs_MDMA_MagDif.png')

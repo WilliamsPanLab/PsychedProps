@@ -3,16 +3,16 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% plot condition maps
-L_bv_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Bf_L.mat']);
-R_bv_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Bf_R.mat']);
-L_bw_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Bw_L.mat']);
-R_bw_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Bw_R.mat']);
-L_af_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Af_L.mat']);
-R_af_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_Af_R.mat']);
-L_p_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_p_L.mat']);
-R_p_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_p_R.mat']);
-L_m_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_m_L.mat']);
-R_m_list=g_ls(['/scratch/users/apines/data/psil/*/AvgBup_m_R.mat']);
+L_bv_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Bf_L.mat']);
+R_bv_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Bf_R.mat']);
+L_bw_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Bw_L.mat']);
+R_bw_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Bw_R.mat']);
+L_af_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Af_L.mat']);
+R_af_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_Af_R.mat']);
+L_p_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_p_L.mat']);
+R_p_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_p_R.mat']);
+L_m_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_m_L.mat']);
+R_m_list=g_ls(['/scratch/users/apines/data/psil/*/AvgMag_m_R.mat']);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% plot difference maps
@@ -49,7 +49,7 @@ avg_R2=mean(aggregate_R2);
 avg_L_dif=avg_L-avg_L2;
 avg_R_dif=avg_R-avg_R2;
 % plot avg. no drug vs. avg. drug
-Vis_FaceVec(avg_L_dif,avg_R_dif,'~/Methyl_vs_Psilo_BupDif.png')
+Vis_Vertvec(avg_L_dif,avg_R_dif,'~/Methyl_vs_Psilo_MagDif.png')
 
 %%%%% plot avg. no drug vs. avg drug
 % initialize output vectors, load in a template to do so
@@ -94,4 +94,4 @@ avg_R2=mean(aggregate_R2);
 avg_L_dif=avg_L-avg_L2;
 avg_R_dif=avg_R-avg_R2;
 % plot avg. no drug vs. avg. drug
-Vis_FaceVec(avg_L_dif,avg_R_dif,'~/NoDrug_vs_psil_BupDif.png')
+Vis_Vertvec(avg_L_dif,avg_R_dif,'~/NoDrug_vs_Psilo_MagDif.png')

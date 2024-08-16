@@ -44,7 +44,6 @@ eld_L=rad2deg(el_L);
 azd_R=rad2deg(az_R);
 eld_R=rad2deg(el_R);
 
-
 % load in medial wall + SNR so we don't have to loop over every single vertex and then mask out later
 mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
 mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
@@ -243,7 +242,7 @@ af_L=zeros(sum(mw_L),1);
 af_R=zeros(sum(mw_R),1);
 m_L=zeros(sum(mw_L),1);
 m_R=zeros(sum(mw_R),1);
-p_L=zeros(sum(mw_R),1);
+p_L=zeros(sum(mw_L),1);
 p_R=zeros(sum(mw_R),1);
 
 % aggregate before scans
@@ -275,9 +274,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_L=vwise_vec_L./(size(bv_vecs_L,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_L=vwise_vec_L./(size(bv_vecs_L,2));
     % right hemisphere
     for v=1:sum(mw_R)
 	% Extract the L and R matrices
@@ -298,9 +297,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_R=vwise_vec_R./(size(bv_vecs_R,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_R=vwise_vec_R./(size(bv_vecs_R,2));
     % add in vwise vecs to bv_L and bv_R
     bv_L=bv_L+vwise_vec_L;
     bv_R=bv_R+vwise_vec_R;
@@ -344,9 +343,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_L=vwise_vec_L./(size(bw_vecs_L,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_L=vwise_vec_L./(size(bw_vecs_L,2));
     % right hemisphere
     for v=1:sum(mw_R)
 	% Extract the L and R matrices
@@ -367,9 +366,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_R=vwise_vec_R./(size(bw_vecs_R,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_R=vwise_vec_R./(size(bw_vecs_R,2));
     % add in vwise vecs to bw_L and bw_R
     bw_L=bw_L+vwise_vec_L;
     bw_R=bw_R+vwise_vec_R;
@@ -380,8 +379,8 @@ avg_R = bw_R / length(fields);
 
 % saveout
 if (~isnan(avg_L))
-	save(strjoin([outFP '/AvgBup_Bw_L.mat'],""),'avg_L');
-	save(strjoin([outFP '/AvgBup_Bw_R.mat'],""),'avg_R');
+	save(strjoin([outFP '/AvgMag_Bw_L.mat'],""),'avg_L');
+	save(strjoin([outFP '/AvgMag_Bw_R.mat'],""),'avg_R');
 end
 
 % aggregate after scans
@@ -413,9 +412,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_L=vwise_vec_L./(size(af_vecs_L,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_L=vwise_vec_L./(size(af_vecs_L,2));
     % right hemisphere
     for v=1:sum(mw_R)
 	% Extract the L and R matrices
@@ -436,9 +435,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_R=vwise_vec_R./(size(af_vecs_R,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_R=vwise_vec_R./(size(af_vecs_R,2));
     % add in vwise vecs to af_L and af_R
     af_L=af_L+vwise_vec_L;
     af_R=af_R+vwise_vec_R;
@@ -449,8 +448,8 @@ avg_L = af_L / length(fields);
 avg_R = af_R / length(fields);
 % saveout
 if (~isnan(avg_L))
-	save(strjoin([outFP '/AvgBup_Af_L.mat'],""),'avg_L');
-	save(strjoin([outFP '/AvgBup_Af_R.mat'],""),'avg_R');
+	save(strjoin([outFP '/AvgMag_Af_L.mat'],""),'avg_L');
+	save(strjoin([outFP '/AvgMag_Af_R.mat'],""),'avg_R');
 end
 % aggregate psil scans
 % Get the list of fields in the struct
@@ -481,9 +480,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_L=vwise_vec_L./(size(p_vecs_L,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_L=vwise_vec_L./(size(p_vecs_L,2));
     % right hemisphere
     for v=1:sum(mw_R)
 	% Extract the L and R matrices
@@ -504,9 +503,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_R=vwise_vec_R./(size(p_vecs_R,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_R=vwise_vec_R./(size(p_vecs_R,2));
     % add in vwise vecs to p_L and p_R
     p_L=p_L+vwise_vec_L;
     p_R=p_R+vwise_vec_R;
@@ -514,12 +513,10 @@ end
 % average across each scan
 avg_L = p_L / length(fields);
 avg_R = p_R / length(fields);
-% average across each scan
-avg_L = sum_L / length(fields);
-avg_R = sum_R / length(fields);
+% saveout
 if (~isnan(avg_L))
-	save(strjoin([outFP '/AvgBup_p_L.mat'],""),'avg_L');
-	save(strjoin([outFP '/AvgBup_p_R.mat'],""),'avg_R');
+	save(strjoin([outFP '/AvgMag_p_L.mat'],""),'avg_L');
+	save(strjoin([outFP '/AvgMag_p_R.mat'],""),'avg_R');
 end
 
 % aggregate methyl scans
@@ -551,9 +548,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_L=vwise_vec_L./(size(m_vecs_L,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_L=vwise_vec_L./(size(m_vecs_L,2));
     % right hemisphere
     for v=1:sum(mw_R)
 	% Extract the L and R matrices
@@ -574,9 +571,9 @@ for i = 1:length(fields)
 		magnitude = sqrt(sum(xy .^ 2));
 		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
 	end
-	% correct magnitude by length of time series to get average
-	vwise_vec_R=vwise_vec_R./(size(m_vecs_R,2));
     end
+    % correct magnitude by length of time series to get average
+    vwise_vec_R=vwise_vec_R./(size(m_vecs_R,2));
     % add in vwise vecs to m_L and m_R
     m_L=m_L+vwise_vec_L;
     m_R=m_R+vwise_vec_R;
@@ -584,8 +581,8 @@ end
 % average across each scan
 avg_L = m_L / length(fields);
 avg_R = m_R / length(fields);
-
+% saveout
 if (~isnan(avg_L))
-	save(strjoin([outFP '/AvgBup_m_L.mat'],""),'avg_L');
-	save(strjoin([outFP '/AvgBup_m_R.mat'],""),'avg_R');
+	save(strjoin([outFP '/AvgMag_m_L.mat'],""),'avg_L');
+	save(strjoin([outFP '/AvgMag_m_R.mat'],""),'avg_R');
 end

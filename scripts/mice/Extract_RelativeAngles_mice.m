@@ -127,27 +127,27 @@ for k=1
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%% temporary visualization code to triple check stuff
 	%%%%% DMN gradient + vectors
-	figure;
+	%figure;
 	% use threshold
-	netThresh=Dnet;
-	netThresh(netThresh<.6)=0;
+	%netThresh=Dnet;
+	%netThresh(netThresh<.6)=0;
 	% and divide by 2 to normalize
 	% and use mask to contrast background
-	netThresh(Mask)=netThresh(Mask)+.1;
-	netThresh=netThresh./2;
-	imagesc(netThresh);
-	colormap('jet');
-	hold on;
+	%netThresh(Mask)=netThresh(Mask)+.1;
+	%netThresh=netThresh./2;
+	%imagesc(netThresh);
+	%colormap('jet');
+	%hold on;
 	% Create a grid for the quiver plot
-	[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
+	%[x, y] = meshgrid(1:size(net, 2), 1:size(net, 1));
 	% Hold on to the current image and overlay the quiver plot
-	hold on;
+	%hold on;
 	% thresh grad
-	x(netThresh<.6)=0;
-	y(netThresh<.6)=0;
-	quiver(x, y, nGx, nGy);
+	%x(netThresh<.6)=0;
+	%y(netThresh<.6)=0;
+	%quiver(x, y, nGx, nGy);
 	%hold off;
-	print('~/DMUnder.png','-dpng','-r1400');
+	%print('~/DMUnder.png','-dpng','-r1400');
 	%%%%% Ca2+ signal+vectors, DMN gradient vectors
        	%for fr=100:200
 	%	fig=figure;
