@@ -246,7 +246,7 @@ saveRDS(mergedDf,'~/forVertexwise_MDMA.rds')
 # get unique subj names
 mergedDf$Subjects <- droplevels(mergedDf$Subjects)
 unique_values <- unique(mergedDf$Subjects)
-new_labels <- paste0("sub-MDMA", seq_along(unique_values))
+new_labels <- paste0("MDMA", seq_along(unique_values))
 names(new_labels) <- unique_values
 
 # Replace the values in Subjects using the new labels
@@ -309,13 +309,19 @@ generated_colors <- extended_palette(num_colors)
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf_clean)
 mergedDf_clean$Residuals<-resid(model_to_reg)+mean(mergedDf_clean$TDProp1)
 
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(2)
+mergedDf_clean$JitteredDrug <- as.numeric(mergedDf_clean$Drug) + rnorm(nrow(mergedDf_clean), mean = 0, sd = 0.1)
+
 # figure 2a
-ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. Placebo \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('Placebo','MDMA'))+
+       y = "% Bottom-up") + 
+  scale_x_continuous(breaks = 1:2, labels = c('Placebo', 'MDMA')) +
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
 
@@ -349,14 +355,31 @@ fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = 
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf)
 mergedDf$Residuals<-resid(model_to_reg)+mean(mergedDf$TDProp1)
 
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(1)
+mergedDf$JitteredDrug <- as.numeric(mergedDf$Drug) + rnorm(nrow(mergedDf), mean = 0, sd = 0.1)
+
 # figure 2a
-ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. No-drug scans \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','MDMA'))+
-  theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
+       y = "% Bottom-up") + 
+  scale_x_continuous(breaks = 1:2, labels = c('No Drug', 'MDMA')) +
+  theme_minimal(base_size = 25) +
+  scale_color_manual(values = generated_colors)
+
+
+# figure 2a
+#ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
+#  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
+#  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+#  labs(title = "MDMA vs. No-drug scans \n",
+#       x = "",
+#       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','MDMA'))+
+#  theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf)
@@ -1243,7 +1266,7 @@ df <- data.frame(
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
   geom_roc(n.cuts = 0, labels = FALSE) + 
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting MDMA") + 
+  ggtitle("ROC Curves for Classifying MDMA") + 
   theme_minimal(base_size=18) + 
   scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
@@ -1646,7 +1669,6 @@ ggplot(spunL,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsL$Va
 
 # right hemi
 ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Yeo7 Boundary: Right hemisphere')
-
 
 # now for biol psych rois
 bpalign_L=read.csv('~/Downloads/perm_vs_obs_DMN_BiolPsych_L.csv')

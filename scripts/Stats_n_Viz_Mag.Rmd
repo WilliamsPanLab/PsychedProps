@@ -246,7 +246,7 @@ saveRDS(mergedDf,'~/forVertexwise_MDMA.rds')
 # get unique subj names
 mergedDf$Subjects <- droplevels(mergedDf$Subjects)
 unique_values <- unique(mergedDf$Subjects)
-new_labels <- paste0("sub-MDMA", seq_along(unique_values))
+new_labels <- paste0("MDMA", seq_along(unique_values))
 names(new_labels) <- unique_values
 
 # Replace the values in Subjects using the new labels
@@ -309,16 +309,23 @@ generated_colors <- extended_palette(num_colors)
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf_clean)
 mergedDf_clean$Residuals<-resid(model_to_reg)+mean(mergedDf_clean$TDProp1)
 
+# gaussian jitter
+set.seed(2)
+mergedDf_clean$JitteredDrug <- as.numeric(mergedDf_clean$Drug) + rnorm(nrow(mergedDf_clean), mean = 0, sd = 0.1)
+
 # figure 2a
-ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. Placebo \n",
        x = "",
-       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('Placebo','MDMA'))+
+       y = "Avg. Magnitude in DMN") + 
+  scale_x_continuous(breaks = 1:2, labels = c('Placebo', 'MDMA')) +
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
 
+    
+    
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
 summaryLME<-summary(fit_lme)
@@ -337,15 +344,22 @@ fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = 
 model_to_reg <- lm(TDProp1 ~ MeanFD + RemTRs+Task, data = mergedDf)
 mergedDf$Residuals<-resid(model_to_reg)+mean(mergedDf$TDProp1)
 
+
+# gaussian jitter
+set.seed(1)
+mergedDf$JitteredDrug <- as.numeric(mergedDf$Drug) + rnorm(nrow(mergedDf), mean = 0, sd = 0.1)
+
 # figure 2a
-ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. No-drug scans \n",
        x = "",
-       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','MDMA'))+
+       y = "Avg. Magnitude in DMN") + 
+  scale_x_continuous(breaks = 1:2, labels = c('No Drug','MDMA')) +
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
-
+  
+  
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf)
 summaryLME<-summary(fit_lme)

@@ -930,7 +930,7 @@ generated_colors <- extended_palette(num_colors)
 # get unique subj names
 allScans$Subjects <- droplevels(allScans$Subjects)
 unique_values <- unique(allScans$Subjects)
-new_labels <- paste0("sub-PSIL", seq_along(unique_values))
+new_labels <- paste0("PSIL", seq_along(unique_values))
 names(new_labels) <- unique_values
 
 # Replace the values in Subjects using the new labels
@@ -945,12 +945,18 @@ allScansNoMeth=allScans[allScans$Drug!='Methyl',]
 reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 allScansNoMeth$ResidualsReduced=resid(reducedModel)+mean(allScansNoMeth$TDProp1)
 
-ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=3,aes(color=People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
+
+# gaussian jitter, as.numeric - 1 because none is retained as factor level despite not being populated
+set.seed(1)
+allScansNoMeth$JitteredPsilo <- as.numeric(allScansNoMeth$Psilo) + rnorm(nrow(allScansNoMeth), mean = 0, sd = 0.1)
+
+ggplot(allScansNoMeth, aes(x = JitteredPsilo, y = ResidualsReduced)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Psilo), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "Psilocybin vs. No-drug scans \n",
        x = "",
-       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','Psilocybin'))+
+       y = "Avg. Magnitude in DMN") + 
+  scale_x_continuous(breaks = 1:2, labels = c('No Drug','Psilocybin')) +
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)
 
 # full model for stats
@@ -971,13 +977,18 @@ drugScans=allScans[allScans$Drug!='none',]
 reducedModel=lme(TDProp1 ~  RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
 drugScans$ResidualsReduced=resid(reducedModel)+mean(drugScans$TDProp1)
 
-ggplot(drugScans, aes(x = Drug, y = ResidualsReduced)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color=People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
-  labs(title = "Psilocybin vs. Active Placebo \n \n",
+# gaussian jitter, as.numeric, -1 because none is retained as a possible factor level despite not being populated
+set.seed(1)
+drugScans$JitteredDrug <- as.numeric(drugScans$Drug)-1 + rnorm(nrow(drugScans), mean = 0, sd = 0.1)
+
+ggplot(drugScans, aes(x = JitteredDrug, y = ResidualsReduced)) +
+  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
+  labs(title = "Psilocybin vs. Active Placebo \n",
        x = "",
-       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('Methylphenidate','Psilocybin'))+
-  theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)+theme(axis.text.x = element_text(size = 15))
+       y = "Avg. Magnitude in DMN") + 
+  scale_x_continuous(breaks = 1:2, labels = c('Methylphenidate','Psilocybin')) +
+  theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)+theme(axis.text.x = element_text(size = 20))
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
@@ -996,12 +1007,12 @@ allScansNoMeth=allScans[allScans$Condition2!='Methyl',]
 allScansNoMeth=allScansNoMeth[allScansNoMeth$Condition2!='immed_afterMethyl',]
 
 ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.6,size=3) +  # Jittered points
+  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=3,aes(color=People)) +  # Jittered points
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
-  labs(title = "Psilocybin: Lasting effects \n \n",
+  labs(title = "Psilocybin: Lasting effects \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
-  theme_minimal(base_size=25)
+       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
+  theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
@@ -1010,11 +1021,6 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
-
-```{r}
-
-```
-
 ```{r}
 # load in MEQ data
 MEQ=read.csv('~/Downloads/FCChange_LME_data_table_small.csv')

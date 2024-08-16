@@ -460,7 +460,7 @@ df <- data.frame(
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
   geom_roc(n.cuts = 0, labels = FALSE) + 
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting LSD") + 
+  ggtitle("ROC Curves for Classifying LSD") + 
   theme_minimal(base_size=18) + 
   scale_color_manual(values = c("#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
@@ -521,7 +521,9 @@ sum(auc_diffs>auc_diff)
 # also figure 3: bootstraps
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
-num_bootstrap_samples <- 1000
+#num_bootstrap_samples <- 1000
+# tmp to allow it to run thru easy
+num_bootstrap_samples <- 2
 # initialize t vectors
 td_d<-rep(0,num_bootstrap_samples)
 td_fd<-rep(0,num_bootstrap_samples)
