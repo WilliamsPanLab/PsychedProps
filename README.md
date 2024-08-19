@@ -121,7 +121,8 @@ BP and mask script
 ## 6. Self-Report: MDMA
 .rmd MDMA
 ## 7. Brain Visualizations
-Viz DMN grad humans
-Viz DMN grad mice
-Viz Opfl vectors humans
-Viz Opfl vectors mice
+  Viz DMN grad humans
+  Viz DMN grad mice
+  Viz Opfl vectors humans
+  Viz Opfl vectors mice
+  Connectome Workbench visualizations
