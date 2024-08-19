@@ -5,22 +5,22 @@ This document outlines the steps and methods used in the project. Below is a str
 ## 1. Preprocessing
 
 ### 1A. fMRI Preprocessing
-  fmriprep call - full_fmriprep.sh
-  SNR mask derivationi. - TSNR_mask_0_antimask
-  SNR mask derivationii. - TSNR_mask_1_ExtractSNR_subjectwise
-  SNR mask derivationiii. - TSNR_mask_2_Combine_SNRmaps
-  SNR mask derivationiv. - TSNR_mask_3_avSNR-mw_to_label
-  SNR mask derivationv. - Downsample
+  fmriprep call - [full_fmriprep](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/full_fmriprep.sh)
+  SNR mask derivationi. - [TSNR_mask_0_antimask](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/TSNR_mask_0_antimask.sh)
+  SNR mask derivationii. - [TSNR_mask_1_ExtractSNR_subjectwise](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/TSNR_mask_1_ExtractSNR_subjectwise.py)
+  SNR mask derivationiii. - [TSNR_mask_2_Combine_SNRmaps](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/TSNR_mask_2_Combine_SNRmaps.py)
+  SNR mask derivationiv. - [TSNR_mask_3_avSNR-mw_to_label](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/TSNR_mask_3_avSNR-mw_to_label.m)
+  SNR mask derivationv. - [Downsample]()
   xcpd call - sbatch_xcpd.sh
-  Download psilocybin data - DL_psilo_txts.sh
-  Download psilocybin data - DL_psilo_fd.sh
-  Download psilocybin data - DL_psilo.sh
+  Download psilocybin data: text files - [DL_psilo_txts]()
+  Download psilocybin data: framewise displacement files - [DL_psilo_fd]()
+  Download psilocybin data: neuroimages - [DL_psilo]()
 ### 1B. Ca2+ Preprocessing
-  List out sessions: sesh_lister.sh for extracting sessions into text file
-  Obtain group-level mask at factor of 2 downsample (NMF) - Group_Mask_and_DS_oneHalf.py
-  Obtain group-levcel mask at factor of 6 downsample (OpFl) - Group_Mask_and_DS_oneSixth.py
-  Downsample by factor of 2 for NMF - BP_Smooth_oneHalf.py
-  Downsample by factor of 6 for Optical flow - DS_Smooth_oneSixth_Drug.py (adapted for each drug with file path and extensions)
+  List out sessions: [sesh_lister]() for extracting sessions into text file
+  Obtain group-level mask at factor of 2 downsample (NMF) - [Group_Mask_and_DS_oneHalf]()
+  Obtain group-levcel mask at factor of 6 downsample (OpFl) - [Group_Mask_and_DS_oneSixth]()
+  Downsample by factor of 2 for NMF - [BP_Smooth_oneHalf]()
+  Downsample by factor of 6 for Optical flow - [DS_Smooth_oneSixth_Drug]() (adapted for each drug with file path and extensions)
 ### 1C. DMN Derivation
 - **1C.I** Human downsampling to fs5
   Downsample script
