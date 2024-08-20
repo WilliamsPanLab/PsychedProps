@@ -50,13 +50,13 @@ This document outlines the steps and methods used in the project. Below is a str
 
    By the end of this section, you might notice that the mouse data is generally a little less cumbersome to process. That pattern will continue. 
 
-### 1C. DMN Derivation
+### 1C. DMN Derivation - humans
 Before evaluating how DMN function is altered, we have to derive our DMN definition. This is done with regularized non negative matrix factorization. See [this link](https://www.sciencedirect.com/science/article/pii/S1053811917303944?via%3Dihub) for the original paper. 
 
-- **1C.I** Human downsampling to fs5
+- Downsampling to fs5
   First, the ciftis are downsampled to fsaverage5 to play nicely with NMF. That downsample script is available [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DS_surf_ts_mdma_fs5.sh)
   
-- **1C.II** Human NMF
+- NMF steps
   Alright, now that we have data in fsaverage5, we'll run it through the NMF pipeline. Basically the steps are to 1) prepare the data for internal NMF processing, 2) create a few candidate solutons using different combinations of brain scans 3) determine the optimal solution of the candidate solutions 4) convert the solution from a matrix to a proper brainmap for further use. Note that both human and mouse NMF utilized extra scans to for greater data volume and reliability. Also note you'll need the helper scripts that come with this code. If you are internal to our lab, you can find the helper scripts at:
 > /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts
 If you are external to our lab, check out Hongming Li's [repository](https://github.com/hmlicas/Collaborative_Brain_Decomposition).
@@ -70,11 +70,13 @@ If you are external to our lab, check out Hongming Li's [repository](https://git
 
   NMF script 4: this script just takes the derived solution and converts it to connectome workbench style file formats (giftis). Simple as. Here's [the script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/Step_4_Extract_Group_Atlas.m).
  
-  Downsampling the NMF solution to fsaverage4 for optical flow: this step is likely familiar by this point. To downsample fsaverage5 resolution networks to fsaverage4, use [this script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/DS_surf_Networks_fs5tofs4.sh).
+- Downsampling to fs4
+Downsampling the NMF solution to fsaverage4 for optical flow: this step is likely familiar by this point. To downsample fsaverage5 resolution networks to fsaverage4, use [this script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/DS_surf_Networks_fs5tofs4.sh).
 
-  The last step is to convert this brainmap back into a plain ol' matrix. This makes matlab less fussy down the road when loading it back in. You can use this [script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/Netgiis_2_mat.m)
+- func.gii to .mat
+The last step is to convert this brainmap back into a plain ol' matrix. This makes matlab less fussy down the road when loading it back in. You can use this [script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/Netgiis_2_mat.m)
 
-- **1C.III** Mouse NMF: algorithm alterations, extra scans, NMF parameters
+- **1D** Mouse NMF: algorithm alterations, extra scans, NMF parameters
   NMF script 1
   NMF script 2
   NMF script 3
