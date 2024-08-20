@@ -23,11 +23,11 @@ This document outlines the steps and methods used in the project. Below is a str
 
   The WashU crew was kind enough to send their data over already processed. More information on their dataset is available [here](https://www.nature.com/articles/s41586-024-07624-5).For full transparency, the code used to download the images and their associated files are linked below:
 
-  Download psilocybin data, text files: [DL_psilo_txts](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo_txts.sh)
+  *Download psilocybin data, text files*: [DL_psilo_txts](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo_txts.sh)
   
-  Download psilocybin data, framewise displacement files - [DL_psilo_fd](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo_fd.sh)
+  *Download psilocybin data, framewise displacement files* - [DL_psilo_fd](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo_fd.sh)
   
-  Download psilocybin data: neuroimages - [DL_psilo](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo.sh)
+  *Download psilocybin data: neuroimages* - [DL_psilo](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo.sh)
 
   OK, now we have all our processed data. To make it suitable for NMF and optical flow, we are going to motion-mask it. This goes a step further than normal temporal censoring: we are only interested in sequences of neuroimages uninterrupted by head motion. So rather than simply dropping high-motion frames, we'll only retain sequences of at least 8 TRs that are uninterrupted-by-motion. We'll save out the indices of these sequences for optical flow, as we're only interested in activity movement within clean segments (i.e., if frames 9 and 10 have high motion and we retain frames 1-8 and 11-20, we don't want to try and estimate activity movement between 8 and 11, just within the clean segments.) The script that takes care of this is [MotMask](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask.m). As will be the case for many scripts below, an [equivalent script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask_psil.m) exists for the psilocybin study. In general, the only differences are the input filepath and output file path. For this script in particular, some additional lines of code exist. As we get further in the pipeline, the file derivatives will be more equivalent, requiring fewer differences between MDMA study and Psilocybin Study scripts.
 
@@ -38,25 +38,25 @@ This document outlines the steps and methods used in the project. Below is a str
 
   Next, we'll obtain a group-level mask so that no mouse has pixels included that other mice don't. We'll combine this with downsampling to saveout a mask that is applicable to processing in downsampled space. As for human data, there are two different downsampled resolutions, with the greater resolution being provided to NMF and the lesser resolution being provided to optical flow for computational tractability.
 
-  Obtain group-level mask at factor of 2 downsample (NMF) - [Group_Mask_and_DS_oneHalf](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Group_Mask_and_DS_oneHalf.py)
+  *Obtain group-level mask at factor of 2 downsample (NMF)* - [Group_Mask_and_DS_oneHalf](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Group_Mask_and_DS_oneHalf.py)
 
-  Obtain group-levcel mask at factor of 6 downsample (OpFl) - [Group_Mask_and_DS_oneSixth](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Group_Mask_and_DS_oneSixth.py)
+  *Obtain group-levcel mask at factor of 6 downsample (OpFl)* - [Group_Mask_and_DS_oneSixth](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Group_Mask_and_DS_oneSixth.py)
 
   Just for cleanliness, these scripts are ran independently of downsampling the data for use in NMF and optical flow (even though internal calculations are matched). Here are those scripts. Note they also include gaussian smoothing [for SNR](https://support.brainvoyager.com/brainvoyager/functional-analysis-preparation/29-pre-processing/86-spatial-smoothing) purposes.
 
-  Downsample by factor of 2 for NMF - [BP_Smooth_oneHalf](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py)
+  *Downsample by factor of 2 for NMF* - [BP_Smooth_oneHalf](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py)
 
-  Downsample by factor of 6 for Optical flow - [DS_Smooth_oneSixth_Drug](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py) (adapted for each drug with file path and extensions)
+  *Downsample by factor of 6 for Optical flow* - [DS_Smooth_oneSixth_Drug](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py) (adapted for each drug with file path and extensions)
 
    By the end of this section, you might notice that the mouse data is generally a little less cumbersome to process. That pattern will continue. 
 
 ### 1C. DMN Derivation - humans
 Before evaluating how DMN function is altered, we have to derive our DMN definition. This is done with regularized non negative matrix factorization. See [this link](https://www.sciencedirect.com/science/article/pii/S1053811917303944?via%3Dihub) for the original paper. 
 
-- Downsampling to fs5
+*Downsampling to fs5*
   First, the ciftis are downsampled to fsaverage5 to play nicely with NMF. That downsample script is available [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DS_surf_ts_mdma_fs5.sh)
   
-- NMF steps
+*NMF steps*
   Alright, now that we have data in fsaverage5, we'll run it through the NMF pipeline. Basically the steps are to 1) prepare the data for internal NMF processing, 2) create a few candidate solutons using different combinations of brain scans 3) determine the optimal solution of the candidate solutions 4) convert the solution from a matrix to a proper brainmap for further use. Note that both human and mouse NMF utilized extra scans to for greater data volume and reliability. Also note you'll need the helper scripts that come with this code. If you are internal to our lab, you can find the helper scripts at:
 > /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts
 If you are external to our lab, check out Hongming Li's [repository](https://github.com/hmlicas/Collaborative_Brain_Decomposition).
@@ -70,20 +70,23 @@ If you are external to our lab, check out Hongming Li's [repository](https://git
 
   NMF script 4: this script just takes the derived solution and converts it to connectome workbench style file formats (giftis). Simple as. Here's [the script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/Step_4_Extract_Group_Atlas.m).
  
-- Downsampling to fs4
+*Downsampling to fs4*
 Downsampling the NMF solution to fsaverage4 for optical flow: this step is likely familiar by this point. To downsample fsaverage5 resolution networks to fsaverage4, use [this script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/DS_surf_Networks_fs5tofs4.sh).
 
-- func.gii to .mat
+*func.gii to .mat*
 The last step is to convert this brainmap back into a plain ol' matrix. This makes matlab less fussy down the road when loading it back in. You can use this [script](/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/NMF/Netgiis_2_mat.m)
 
-- **1D** Mouse NMF: algorithm alterations, extra scans, NMF parameters
+### 1C. DMN Derivation - mice
+  Thankfully, we can use the same code to derive functional networks in mice with some slight adaptations. The adaptations are pretty in-the-weeds but pretty simple at a conceptual level. Basically NMF uses an abutment matrix for spatial regularization, where all points in space are arranged in an adjacency matrix with all other points in space. Neighboring voxels are assigned a "1" to their edge, and when combined with regularization, this makes them more likely to be assigned to the same network. The main shift at hand is from a cortical surface mesh (i.e., fsaverage5) to the 2D brain surface captured via cranial windows. Because our collaborators were nice enough to share already-template-registered data, this isn't a huge lift. All it takes is slightly altering the code. I actually started with the volumetric adaptation of this pre-NMF script rather than the cortical surface mesh version, as it's closer to equivalent (after removing the "z" dimension). SEE /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder/code_patch_for_cifti FOR ALTERED SCRIPTS 
+
+
   NMF script 1
   NMF script 2
   NMF script 3
-- **1C.IV** NMF thresholding
+  *NMF thresholding*
   Script picking out DMN humans
   Script picking out DMN mice
-- **1C.V** NMF downsampling
+  *NMF downsampling*
 
 ### 1D. DMN validation
   Biol psych
