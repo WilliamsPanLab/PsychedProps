@@ -54,9 +54,13 @@ This document outlines the steps and methods used in the project. Below is a str
 Before evaluating how DMN function is altered, we have to derive our DMN definition. This is done with regularized non negative matrix factorization. See [this link](https://www.sciencedirect.com/science/article/pii/S1053811917303944?via%3Dihub) for the original paper. 
 
 - **1C.I** Human downsampling to fs5
-  First, the ciftis are downsampled to fsaverage5 to play nicely with NMF. That downsample script is available [here]()
-- **1C.II** Human NMF: extra scans and NMF parameters
-  NMF script 1
+  First, the ciftis are downsampled to fsaverage5 to play nicely with NMF. That downsample script is available [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DS_surf_ts_mdma_fs5.sh)
+  
+- **1C.II** Human NMF
+  Alright, now that we have data in fsaverage5, we'll run it through the NMF pipeline. Basically the steps are to 1) prepare the data for internal NMF processing, 2) create a few candidate solutons using different combinations of brain scans and 3) determine the optimal solution of the candidate solutions. Note that both human and mouse NMF utilized extra scans to for greater data volume and reliability.
+  
+  NMF script 1: this script will pull some information about the cortical surface you are using (fsaverage5 here) as well as the SNR mask generated in 1A. You can find it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/NMF/Step_1_CreatePrepData.m).
+  
   NMF script 2
   NMF script 3
 - **1C.III** Mouse NMF: algorithm alterations, extra scans, NMF parameters
