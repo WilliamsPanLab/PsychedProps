@@ -144,6 +144,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   Extract Magnitudes Mice: As usual, the script takes some adaptation to fit with the data structure of the mouse data. It's extremely similar under the hood though. sqrt(x^2+y^2) averaged within the DMN over time for each mouse. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_DMNMag_mice.m).
   
   *Extracting DMN magnitudes for assessment of session-to-session differences*
+  
   These script just aggregate the derivatives we've calculated. For MDMA, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag_dif.m) to loop over subjects and sessions.
   For psilocybin, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag_dif_psil.m). Again, just a tiny bit more complicated because of the variable number of sessions per participant.
   For LSD, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_mag_dif_mice.m).
