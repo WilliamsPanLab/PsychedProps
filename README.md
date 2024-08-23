@@ -129,8 +129,11 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   OpFl Mice: Within the "mice" folder, you'll find [Mouse_OpFl](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Mouse_OpFl.m). This script is also equivalent, but not exactly the same. First, it has to deal with the different file structure the mouse data is in, and it uses the 3D (x y time) optical flow [repository](https://github.com/BrainDynamicsUSYD/NeuroPattToolbox) provided by Pulin Gong's group. A lot of the code is commented out because we don't utilize the majority of the more nuanced feature-extraction code they've compiled for this application. There's also some built-in visualization code if you want to double or triple-check that stuff is processing as expected.
   
 ### 2B. Magnitudes
-  Now that we have optical flow estimations.
-  Extract Magnitudes MDMA
+  Now that we have optical flow estimations, we can pull out the magnitude of activity displacement. We'll just use some good ol' 2,500 year old math for this one. Specifically we apply Pythagorean theorem by calculating the square root of (x displacement^2 + y displacement^2) as our aggregate magnitude of each vector at each point in space over each point in time. We'll just average this over the entire DMN mask over all timepoints to get a single measurement per scan. 
+
+  Human/spherical optical flow measurements technically start out as 3D (x y and z components), but because we conducted optical flow on the sphere, movement of activity orthogonal to the surface of the sphere is negligible. We take advantage of this redundancy by using cart2sphvec, [a matlab-ordained function](https://www.mathworks.com/help/phased/ref/cart2sphvec.html),to obtain activity movement vectors in a tangent plane (tangential to the spherical surface). We're left with azimuth and elevation, which are equivalent to x and y. This has also been validated previously in our optical flow work in task-fMRI and neurodevelopment.
+
+  Extract Magnitudes MDMA: 
   Extract Magnitudes Psil
   Extract Magnitudes Mice
   Extract Dif *3
