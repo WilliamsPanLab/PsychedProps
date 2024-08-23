@@ -59,6 +59,7 @@ Before evaluating how DMN function is altered, we have to derive our DMN definit
 *NMF steps*
   Alright, now that we have data in fsaverage5, we'll run it through the NMF pipeline. Basically the steps are to 1) prepare the data for internal NMF processing, 2) create a few candidate solutons using different combinations of brain scans 3) determine the optimal solution of the candidate solutions 4) convert the solution from a matrix to a proper brainmap for further use. Note that both human and mouse NMF utilized extra scans to for greater data volume and reliability. Also note you'll need the helper scripts that come with this code. If you are internal to our lab, you can find the helper scripts at:
 > /oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts
+
 If you are external to our lab, check out Hongming Li's [repository](https://github.com/hmlicas/Collaborative_Brain_Decomposition).
 
   
@@ -107,6 +108,16 @@ That's it for step 1! As noted above, data were disimilar upon receipt, but are 
 
 
 ## 2. Optical Flow Derivations
+
+Optical flow is relatively similar to image registration tools we already commonly use in neuroimaging fields. Just like a lot of image registrations, optical flow seeks to find the deformation field that explains the displacement of signal between two images. In registration, we might use a similar algorithm to find the transformation matrix needed to map one brain image onto another. In optical flow, we instead use this optimization to estimate how signal moves over time between two temporally adjacent images in a timeseries. BOLD signal for humans, and calcium signal for mice. Just like image co-registrations, this is computationally intensive.
+
+For mice/3D data (x and y over time), this is fairly tractable with some downsampling. Specifically We use [this tool](https://github.com/BrainDynamicsUSYD/NeuroPattToolbox) from the Brain Dynamics Group to delineate activity movement trajectories in our mouse data.
+
+This gets a little more complicated for human data, because it's acquired in 4D (x y z over time). The workaround for this is to take advantage of tools like [freesurfer](https://surfer.nmr.mgh.harvard.edu/) that map BOLD to the cortical surface, and as an intermediate step, to a sphere. Once the data is in spherical space, we can then leverage a nice [spherical optical flow codebase](https://github.com/lukaslang/ofd) that makes this all computationally tractable on the cortical surface (largely through the summarization of activity patterns as spherical basis functions). This was originally designed to track the [movement of progenitor cells](https://www.semanticscholar.org/paper/Decomposition-of-optical-flow-on-the-sphere-Kirisits-Lang/c7db8ae08ce2f48513198fa5c724657cf8c0d330) on zebrafish gastrulae, but we have sucessfully adapted it for brain data in our [prior publication](https://pubmed.ncbi.nlm.nih.gov/36803653/).
+
+Once we have our resulant vector fields, which describe the movement of BOLD/Ca2+, we then compare it to the [gradient](https://en.wikipedia.org/wiki/Image_gradient) of a hierarchical cortical map to determine if the direction of activity movement is in the bottom-up or top-down direction. 
+
+
 ### 2A. Running optical flow
   OpFl MDMA
   OpFl Psil
