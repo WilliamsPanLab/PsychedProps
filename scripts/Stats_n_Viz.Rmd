@@ -398,9 +398,9 @@ unique_pairs <- unique(mergedDf[c("People", "Subjects")])
 library(dplyr)
 
 # Calculate the difference in TDProp1 between Drug and Placebo conditions
-df_diff <- mergedDf %>%
+df_diff <- mergedDf_clean %>%
   group_by(Subjects) %>%
-  summarise(Diff_TDProp1 = mean(TDProp1[Drug == 1]) - mean(TDProp1[Drug == 0], na.rm = TRUE))
+  summarise(Diff_TDProp1 = mean(TDProp1[Drug == 0]-mean(TDProp1[Drug == 1]), na.rm = TRUE))
 
 # Identify the participant with the greatest increase in TDProp1
 max_diff_subject <- df_diff %>%
