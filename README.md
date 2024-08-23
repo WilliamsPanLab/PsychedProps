@@ -2,6 +2,8 @@
 
 This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally.
 
+Some scripts also leverage g_ls, which is a handy script written by [Zaixu Cui](https://cuilab.cibr.ac.cn/Team/index.htm) a [long time ago](https://github.com/ZaixuCui/PANDA/blob/e537467173cbc47f8492b1d724ec7900d98c8a19/PANDA-1.1.0_32/g_ls.m#L4). This script just allows us to list files via * wildcards in matlab like we would in a unix shell.
+
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
 This is non-comprehensive, but you might find [this](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) parent script useful for further orienting yourself to order-of-operations.
@@ -127,16 +129,24 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   OpFl Psilocybin: This [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/OpFl_psil.m) is identical, but works with file paths/extensions from the psilocybin processing stream.
 
   OpFl Mice: Within the "mice" folder, you'll find [Mouse_OpFl](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Mouse_OpFl.m). This script is also equivalent, but not exactly the same. First, it has to deal with the different file structure the mouse data is in, and it uses the 3D (x y time) optical flow [repository](https://github.com/BrainDynamicsUSYD/NeuroPattToolbox) provided by Pulin Gong's group. A lot of the code is commented out because we don't utilize the majority of the more nuanced feature-extraction code they've compiled for this application. There's also some built-in visualization code if you want to double or triple-check that stuff is processing as expected.
-  
+
+  Human and mouse optical flow both use the same [underlying algorithm](https://en.wikipedia.org/wiki/Horn–Schunck_method). 
+
 ### 2B. Magnitudes
   Now that we have optical flow estimations, we can pull out the magnitude of activity displacement. We'll just use some good ol' 2,500 year old math for this one. Specifically we apply Pythagorean theorem by calculating the square root of (x displacement^2 + y displacement^2) as our aggregate magnitude of each vector at each point in space over each point in time. We'll just average this over the entire DMN mask over all timepoints to get a single measurement per scan. 
 
   Human/spherical optical flow measurements technically start out as 3D (x y and z components), but because we conducted optical flow on the sphere, movement of activity orthogonal to the surface of the sphere is negligible. We take advantage of this redundancy by using cart2sphvec, [a matlab-ordained function](https://www.mathworks.com/help/phased/ref/cart2sphvec.html),to obtain activity movement vectors in a tangent plane (tangential to the spherical surface). We're left with azimuth and elevation, which are equivalent to x and y. This has also been validated previously in our optical flow work in task-fMRI and neurodevelopment.
 
-  Extract Magnitudes MDMA: 
-  Extract Magnitudes Psil
-  Extract Magnitudes Mice
-  Extract Dif *3
+  Extract Magnitudes MDMA: We'll run this for individual subjects, once all optical flow runs for that subject have been completed. It's simple enough where we don't really need to break it up into individual runs. You can find the scripot for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude.m).
+  
+  Extract Magnitudes Psil: Again, extremely similar to what we ran for study 1. It takes some extra code because study 2 included a variable number study visits per condition per participant. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude_psil.m).
+
+  Extract Magnitudes Mice: As usual, the script takes some adaptation to fit with the data structure of the mouse data. It's extremely similar under the hood though. sqrt(x^2+y^2) averaged within the DMN over time for each mouse. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_DMNMag_mice.m).
+  
+  *Extracting DMN magnitudes for assessment of session-to-session differences*
+  These script just aggregate the derivatives we've calculated. For MDMA, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag_dif.m) to loop over subjects and sessions.
+  For psilocybin, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag_dif_psil.m). Again, just a tiny bit more complicated because of the variable number of sessions per participant.
+  For LSD, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_mag_dif_mice.m).
   
 ### 2C. Bottom-Up Relative Angles
   Extract Relative angles MDMA
@@ -216,3 +226,4 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   Viz Opfl vectors humans
   Viz Opfl vectors mice
   Connectome Workbench visualizations
+
