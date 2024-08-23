@@ -2,6 +2,10 @@
 
 This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally.
 
+I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
+
+This is non-comprehensive, but you might find [this](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) parent script useful for further orienting yourself to order-of-operations.
+
 ## 1. Preprocessing
 
 ### 1A. fMRI Preprocessing
@@ -29,7 +33,7 @@ This document outlines the steps and methods used in the project. Below is a str
   
   *Download psilocybin data: neuroimages* - [DL_psilo](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DL_psilo.sh)
 
-  OK, now we have all our processed data. To make it suitable for NMF and optical flow, we are going to motion-mask it. This goes a step further than normal temporal censoring: we are only interested in sequences of neuroimages uninterrupted by head motion. So rather than simply dropping high-motion frames, we'll only retain sequences of at least 8 TRs that are uninterrupted-by-motion. We'll save out the indices of these sequences for optical flow, as we're only interested in activity movement within clean segments (i.e., if frames 9 and 10 have high motion and we retain frames 1-8 and 11-20, we don't want to try and estimate activity movement between 8 and 11, just within the clean segments.) The script that takes care of this is [MotMask](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask.m). As will be the case for many scripts below, an [equivalent script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask_psil.m) exists for the psilocybin study. In general, the only differences are the input filepath and output file path. For this script in particular, some additional lines of code exist. As we get further in the pipeline, the file derivatives will be more equivalent, requiring fewer differences between MDMA study and Psilocybin Study scripts.
+  OK, now we have all our processed data. To make it suitable for NMF and optical flow, we are going to motion-mask it. This goes a step further than normal temporal censoring: we are only interested in sequences of neuroimages uninterrupted by head motion. So rather than simply dropping high-motion frames, we'll only retain sequences of at least 8 TRs that are uninterrupted-by-motion. We'll save out the indices of these sequences for optical flow, as we're only interested in activity movement within clean segments (i.e., if frames 9 and 10 have high motion and we retain frames 1-8 and 11-20, we don't want to try and estimate activity movement between 8 and 11, just within the clean segments.) The script that takes care of this is [MotMask](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask.m). It also converts files to .mgh internally, which are easier for matlab to work with. As will be the case for many scripts below, an [equivalent script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/MotMask_psil.m) exists for the psilocybin study. In general, the only differences are the input filepath and output file path. For this script in particular, some additional lines of code exist. As we get further in the pipeline, the file derivatives will be more equivalent, requiring fewer differences between MDMA study and Psilocybin Study scripts.
 
   Nice. Done with fMRI preprocessing!
   
@@ -117,13 +121,15 @@ This gets a little more complicated for human data, because it's acquired in 4D 
 
 Once we have our resulant vector fields, which describe the movement of BOLD/Ca2+, we then compare it to the [gradient](https://en.wikipedia.org/wiki/Image_gradient) of a hierarchical cortical map to determine if the direction of activity movement is in the bottom-up or top-down direction. 
 
-
 ### 2A. Running optical flow
-  OpFl MDMA
-  OpFl Psil
-  OpFl Mice
+  OpFl MDMA: To run optical flow on data from study 1 (MDMA), you can use this [OpFl_mdma.m](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/OpFl_mdma.m). This will take the .mgh output from the motion mask script, ensure it's aligned with the fsaverag4 spherical cortical surface, and run optical flow between each temporally adjacent image WITHIN low-motion segments. The latter is ensure by loading in the _ValidSegments_Trunc.txt file generated during the motion masking step. The real meat of this script comes between lines 103 and 114, where optical flow is ran via the *of* function. This function is directly pulled from the Kirisits et al. [paper](https://www.semanticscholar.org/paper/Decomposition-of-optical-flow-on-the-sphere-Kirisits-Lang/c7db8ae08ce2f48513198fa5c724657cf8c0d330) and [repository](https://github.com/lukaslang/ofd). We'll populate a matlab struct (us) with the fields vf_left and vf_right to store vector fields describing the motion of BOLD signal between timepoints. Parameters are the same as those provided by default in the code and used in our Neuron paper. These will undergo further processing to get our metrics of interest.
+
+  OpFl Psilocybin: This [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/OpFl_psil.m) is identical, but works with file paths/extensions from the psilocybin processing stream.
+
+  OpFl Mice: Within the "mice" folder, you'll find [Mouse_OpFl](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Mouse_OpFl.m). This script is also equivalent, but not exactly the same. First, it has to deal with the different file structure the mouse data is in, and it uses the 3D (x y time) optical flow [repository](https://github.com/BrainDynamicsUSYD/NeuroPattToolbox) provided by Pulin Gong's group. A lot of the code is commented out because we don't utilize the majority of the more nuanced feature-extraction code they've compiled for this application. There's also some built-in visualization code if you want to double or triple-check that stuff is processing as expected.
   
 ### 2B. Magnitudes
+  Now that we have optical flow estimations.
   Extract Magnitudes MDMA
   Extract Magnitudes Psil
   Extract Magnitudes Mice
