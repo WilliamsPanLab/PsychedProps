@@ -179,23 +179,30 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
 ## 3. DMN Measurement Derivations
 
+  Great, all of section 3 is a bit more straightforward to calculate. We'll start with FC, then temporal autocrrelation.
+  
 ### 3A. Functional Connectivity (FC)
-- **3A.I** Humans
-  Extract_DMNSeg
-  Extract_DMNSeg_psil
-  Extract dif *2
-- **3A.II** Mice
-  Extract_DMNSeg
-  Extract dif
+
+**3A.I** Humans
+  [Extract_DMNSeg](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_DMNSeg.m) just takes the time series, applies the same masking used in the optical flow pipeline (in terms of the DMN and temporal masking), and calculates the functional connectivity between the DMN and the rest of the cortex. [Here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_DMNSeg_psil.m) is the psilocybin version (different filepaths).
+
+  The scripts to aggregate the derived FC values are [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_DMNSeg_dif.m) for MDMA, and [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_DMNSeg_psil.m) for psilocybin.
+
+**3A.II** Mice
+  We use the same approach in mice, but again have to accomodate the different file formats. [Extract_DMNSeg_mice](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/mice/Extract_DMNSeg_mice.m) can be found here. The script to aggregate extracted DMN segregation values can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/mice/Extract_DMNSeg_dif_mice.m)
+
 ### 3B. Autocorrelation
-- **3B.I** Humans
+
+**3B.I** Humans
   Extract_DMNTA
   Extract_DMNSeg_psil
   Extract dif *2
-- **3B.II** Mice
+
+**3B.II** Mice
   Extract_TAutoCor
   Extract_TAutoCor_psil
   Extract dif
+
 ## 4. Main Effects
 ### 4A. DMN integration
 - **4A.I** MDMA
