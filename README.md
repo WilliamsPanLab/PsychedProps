@@ -68,7 +68,6 @@ Before evaluating how DMN function is altered, we have to derive our DMN definit
 
 If you are external to our lab, check out Hongming Li's [repository](https://github.com/hmlicas/Collaborative_Brain_Decomposition).
 
-  
   NMF script 1: this script will pull some information about the cortical surface you are using (fsaverage5 here) as well as the SNR mask generated in 1A. You can find it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/NMF/Step_1_CreatePrepData.m).
   
   NMF script 2: this script will launch a bunch of parallel matrix decomposition jobs (into a SLURM queue). The internal workflow is to concatenate the functional timeseries data into a single giant matrix, and to decompose the matrix into spatiotemporal components with NMF. Regularization parameters were set a priori, in accordance with previous literature. k=4 components was set in accordance with a nice coarse network solution we previously derived in an independent sample. The reason for using a coarse solution is outlined in the manuscript, but essentially it boils down to inclusive masking to capture propagations entering and exiting the core DMN. The script can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/NMF/Step_2nd_ParcellationInitialize.m)
@@ -194,9 +193,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 ### 3B. Autocorrelation
 
 **3B.I** Humans
-  Extract_DMNTA
-  Extract_DMNSeg_psil
-  Extract dif *2
+  We're following the lead of [this](https://www.nature.com/articles/s41593-023-01299-3) paper because they put forward a direct case that a lot of effects can be simplified to changes in temporal autocorrelation. Thankfully that does not seem to be the case for this propagation stuff, but we should be thinking about this paper in network analyses broadly. The operationalization of autocorrelation essentially comes down to the correlation between signal and signal shifted "+1" in time. The script to calculate temporal autocorrelation in the DMN for MDMA is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TAutoCor.m), and for psilocybin it is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TAutoCor_psil.m). To aggregate the MDMA autocor values, use [this](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TA_dif.m) script. To aggregate the psilocybin autocor values, use [this](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TA_dif_psil.m) script.
 
 **3B.II** Mice
   Extract_TAutoCor
