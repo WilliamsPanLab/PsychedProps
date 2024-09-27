@@ -6,7 +6,7 @@ Some scripts also leverage g_ls, which is a handy script written by [Zaixu Cui](
 
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
-This is non-comprehensive, but you might find [this](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) parent script useful for further orienting yourself to order-of-operations.
+This is non-comprehensive, but you might find [this](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) parent script useful for further orienting yourself to order-of-operations. If you are interested in cortical propagations broadly, you might also find [the replication guide](https://github.com/PennLINC/DevProps) from our previous [paper](https://www.sciencedirect.com/science/article/pii/S0896627323000387?via%3Dihub) useful. 
 
 ## 1. Preprocessing
 
@@ -137,7 +137,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
   Human/spherical optical flow measurements technically start out as 3D (x y and z components), but because we conducted optical flow on the sphere, movement of activity orthogonal to the surface of the sphere is negligible. We take advantage of this redundancy by using cart2sphvec, [a matlab-ordained function](https://www.mathworks.com/help/phased/ref/cart2sphvec.html),to obtain activity movement vectors in a tangent plane (tangential to the spherical surface). We're left with azimuth and elevation, which are equivalent to x and y. This has also been validated previously in our optical flow work in task-fMRI and neurodevelopment.
 
-  Extract Magnitudes MDMA: We'll run this for individual subjects, once all optical flow runs for that subject have been completed. It's simple enough where we don't really need to break it up into individual runs. You can find the scripot for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude.m).
+  Extract Magnitudes MDMA: We'll run this for individual subjects, once all optical flow runs for that subject have been completed. It's simple enough where we don't really need to break it up into individual runs. You can find the script for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude.m).
   
   Extract Magnitudes Psil: Again, extremely similar to what we ran for study 1. It takes some extra code because study 2 included a variable number study visits per condition per participant. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude_psil.m).
 
@@ -150,7 +150,10 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   For LSD, we'll use this [script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_mag_dif_mice.m).
   
 ### 2C. Bottom-Up Relative Angles
-  Extract Relative angles MDMA
+  Extract Relative angles MDMA: This will follow a lot of the same steps as magnitude extractions. We will again use cart2sphvec to obtain activity movement vectors in a tengent plane, but will instead measure the angle (in degrees) of these movement vectors relative to the gradient of the DMN. The surfaces are loaded in the same way, as are the optical flow vectors. As for magnitude, angles are calculated at each point in the DMN at each timepoint, but are averaged across space and time to yield a single observation per acquisition. Specifically, the percentage of all vectors within the DMN over time that are flowing in the bottom-up direction is saved as our primary measurement. As prior, we define bottom-up as < 90 degrees from the gradient of the DMN (BOLD flowing into the DMN) and top-down as > 90 degrees from the gradient of the DMN (BOLD flowing out of the DMN). That script can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_RelativeAngles.m).
+
+  Note that we are using "gradient" in the [classic calculus definition](https://en.wikipedia.org/wiki/Gradient), not in the sense used in the beautiful work by Paquola, Bernhardt, Valk,  Margulies, Misic, Shafiei, Vogel, Smallwood, too many other brilliant scientists to list, etc. For the rest of this guide, I'll refer to "the gradient of the DMN" as "[nabla](https://en.wikipedia.org/wiki/Nabla_symbol) DMN" for clarity.
+
   Extract Relative angles Psil
   Extract Relative angles mice
   Extract Dif *3
