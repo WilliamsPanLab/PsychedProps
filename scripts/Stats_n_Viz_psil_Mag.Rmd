@@ -1015,11 +1015,11 @@ ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
-fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
+fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
-paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 ```{r}
 # load in MEQ data
