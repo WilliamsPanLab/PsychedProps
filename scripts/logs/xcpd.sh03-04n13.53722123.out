@@ -1,0 +1,9 @@
+241002-09:03:51,850 nipype.workflow IMPORTANT:
+	 Running xcp_d version 0.3.0+0.g5a726e9.dirty:
+    * fMRI directory path: /scratch/users/apines/p50_copy/bids/data/derivatives/fmriprep-20.2.3/fmriprep.
+    * Participant list: ['MDMA001'].
+    * Run identifier: 20241002-090351_c3ae7ec5-0c0b-4ba3-9db2-95a38e09b051.
+
+
+241002-09:03:53,517 nipype.workflow INFO:
+	 Beginning the xcpd_wf workflow

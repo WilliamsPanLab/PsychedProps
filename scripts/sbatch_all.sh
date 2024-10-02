@@ -6,9 +6,6 @@ subjects=("sub-MDMA001" "sub-MDMA002" "sub-MDMA003" "sub-MDMA005"
           "sub-MDMA016" "sub-MDMA017")
 sessions=("ses-00" "ses-01" "ses-02" "ses-03")
 
-# temp
-sessions=("ses-00")
-
 # Loop through subjects
 for subject in "${subjects[@]}"; do
     # Loop through sessions
@@ -19,7 +16,7 @@ for subject in "${subjects[@]}"; do
   #          echo "File exists for $subject $session. Skipping inner loop."
   #      else
 		# Submit sbatch job
-   	    	sbatch sbatch_OpFl_partial.sh $subject $session
+   	    	sbatch sbatch_OpFl.sh $subject $session
   #		sbatch sbatch_OpFl_partial.sh $subject
   #	fi
   	done

@@ -1,4 +1,4 @@
-function us = OpFl_mdma(subj,sesh,task)
+function us = OpFl_psil(subj,sesh,task)
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 %%%%%%%%%%%%%%%%%%%% Set parameters

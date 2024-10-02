@@ -97,12 +97,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 
 # extract DMN FC
 #matlab -nodisplay -r "Extract_DMNSeg_psil('$subj','$sesh','rs1')"
@@ -120,18 +120,6 @@ matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 #matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs5')"
 #matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs6')"
 
-# combine angular time series with magnitude time series
-#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Combine_FacewiseTS('$subj','$sesh','rs2')"
-
-# OPFL TO VERTS
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "OpFl_toVerts_psil('$subj','$sesh','rs6')"
-
 # extract vertexwise angles
 #matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs2')"
@@ -141,45 +129,13 @@ matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 #matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs6')"
 
 # Extract DMN mag
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
 
-
-### OUTSIDE OF SUBJECT LEVEL
-
-# PSIL MATS TO CSV FOR R
-
-# R SCRIPT FOR VERTEXWISE
-
-#############################
-#### module IV: Create figures
-#############################
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module IV: Creating figures"
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-
-### filepaths for angular carpetplots
-#ATSl=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
-#ATSr=[childFP '/' subj '_' sesh '_Prop_TS_dmn_L.csv'];
-
-### make figure directory outside of scratch
-#mkdir /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
-
-### create interpolated carpetplot of bold
-#python3 Viz_ITS.py $subj $sesh
-
-### create angular carpetplot 
-#python3 Viz_ATS.py $subj $sesh
-
-### create positivity plots
-#python3 Viz_AngMag.py $subj $sesh
-
-### copy xcpd motion plots into figs dir
-#cp /scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/${subj}/figures/${subj}_${sesh}_task-rs_acq-mb_dir-pe?_run-0_space-fsLR_desc-censoring_motion.svg /oak/stanford/groups/leanew1/users/apines/data/p50/${subj}/${sesh}/figs
 
 #################
 echo "OpFl complete"

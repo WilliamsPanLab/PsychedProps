@@ -115,7 +115,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','gambling')"
 
 # calculate distance maps
-matlab -nodisplay -r "Calc_AvgBup('$subj')"
+#matlab -nodisplay -r "Calc_AvgBup('$subj')"
 
 # extract autocorr
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"

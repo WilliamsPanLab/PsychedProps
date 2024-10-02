@@ -21,7 +21,7 @@ if length(flSz)~=2
     error('  Only support 2D image for now');
 end
 
-% if length of the flat isnt = length of neighbor input (which should be 1?)
+% if length of the flat isnt = length of neighbor input (which should be 1)
 if length(flSz)~=length(neiR)
     neiRvec = repmat(neiR,1,length(flSz));
 else
