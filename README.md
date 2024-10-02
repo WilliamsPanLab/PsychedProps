@@ -136,7 +136,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
   Human/spherical optical flow measurements technically start out as 3D (x y and z components), but because we conducted optical flow on the sphere, movement of activity orthogonal to the surface of the sphere is negligible. We take advantage of this redundancy by using cart2sphvec, [a matlab-ordained function](https://www.mathworks.com/help/phased/ref/cart2sphvec.html),to obtain activity movement vectors in a tangent plane (tangential to the spherical surface). We're left with azimuth and elevation, which are equivalent to x and y. This has also been validated previously in our optical flow work in task-fMRI and neurodevelopment.
 
-  Extract Magnitudes MDMA: We'll run this for individual subjects, once all optical flow runs for that subject have been completed. It's simple enough where we don't really need to break it up into individual runs. You can find the script for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude.m).
+  Extract Magnitudes MDMA: We'll run this for individual subjects and sessions once all optical flow runs for that subject have been completed. All it does is get the average magnitude of optical flow vectors within the DMN over the ascquisition. You can find the script for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag.m).
   
   Extract Magnitudes Psil: Again, extremely similar to what we ran for study 1. It takes some extra code because study 2 included a variable number study visits per condition per participant. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude_psil.m).
 
