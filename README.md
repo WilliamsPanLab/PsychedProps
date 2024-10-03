@@ -202,14 +202,13 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
 ## 4. Main Effects
 
-We are going to run DMN magnitude analyses first, then integration, then autocorrelation, and end with bottom-up because the first three print out metrics used for the AUC curves (ran in the bottom-up scripting). So for a small portion of the bottom-up scripts, magnitude integration and autocorrelation r scripts are a prerequisite.
+We are going to run DMN magnitude analyses first, then integration, then autocorrelation, and end with bottom-up because the first three print out metrics used for the AUC curves (ran in the bottom-up scripting). So for a small portion of the bottom-up scripts, magnitude integration and autocorrelation r scripts are a prerequisite. Note that all aggregation scripts should have been run by this point to organize .csvs for r to easily read.
 
 ### 4A. Magnitudes
 - **4A.I** MDMA
   After running the aggregation scripts, you should be able to download the aggregated files as .csvs to your local machine. I'd reccomend running the r code locally because rstudio is the bomb. The script used to calculate magnitude effects (decreases in DMN magnitude) for study 1 (MDMA) can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_Mag.Rmd). I'm going to leave the within-rmarkdown comments as standalone instructions because this readme is getting long. Note this script will also saveout magnitude for unified DMN analyses, i.e., the AUC curves in figure 4.
   
 - **4A.II** Psilocybin
-
   This is structured to be parallel to the study 1 (MDMA) analyses, but requires a little extra scripting just to organize all data in an equivalent fashion. The .rmd can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_Mag.Rmd). As prior, I'm going to leave the within-markdown comments as instructions.
   
 - **4A.III** LSD
@@ -217,27 +216,27 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 
 ### 4B. DMN integration
 - **4B.I** MDMA
-  .rmd
+  Post-aggregation DMN integration evaluation in study 1 is within the bottom-up analysis script (4D.I)
 - **4B.II** Psilocybin
-  .rmd (note this will also prep saveouts for unified DMN analyses)
+  Because the psilocybin scripts take a little more organizing code to get everything in stats-friendly format, the integration and autocorrelation scripts as separated out. You can find the script for evaluating DMN integration [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_DMNSeg.Rmd). Some variable names and comments are left as they were when copied over from Stats_n_Viz_psil.Rmd, as the script is equivalent but with different input .csvs.
 - **4B.III** LSD
-  .rmd
+  Post-aggregation DMN integration evaluation in study 3 (mice/LSD) is within the bottom-up analysis script (4D.III).
+  
 ### 4C. DMN Autocor
 - **4C.I** MDMA
-  .rmd
+  Post-aggregation DMN autocorrelation evaluation in study 1 is within the bottom-up analysis script (4D.I)
 - **4C.II** Psilocybin
-  .rmd (note this will also prep saveouts for unified DMN analyses)
+  Because the psilocybin scripts take a little more organizing code to get everything in stats-friendly format, the integration and autocorrelation scripts as separated out. You can find the script for evaluating DMN integration [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_DMNTA.Rmd). Some variable names and comments are left as they were when copied over from Stats_n_Viz_psil.Rmd, as the script is equivalent but with different input .csvs.
 - **4C.III** LSD
-  .rmd
+  Post-aggregation DMN autocorrelation evaluation in study 3 (mice/LSD) is within the bottom-up analysis script (4D.III).
 
   ### 4D. Bottom-Up Analysis
 - **4D.I** MDMA
-  .rmd
+  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd).
 - **4D.II** Psilocybin
-  .rmd
-  .rmd of lasting effects
+  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.Rmd). Note this also has the lasting effects lil' chunk of code (just after line 1,000).
 - **4D.III** LSD
-  .rmd
+  The equivalent script for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.Rmd).
 
 
 ## 5. Bootstraps and AUC curves
