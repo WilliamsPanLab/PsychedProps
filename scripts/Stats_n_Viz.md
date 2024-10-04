@@ -1,17 +1,15 @@
----
-title: "p50"
-output: github_document
-date: "2023-07-13"
----
+p50
+================
+2023-07-13
 
-```{r}
+``` r
 library(reshape2)
 library(ggplot2)
 library(visreg)
 library(nlme)
 ```
 
-```{r}
+``` r
 # prop angles
 rs1=read.csv('~/Downloads/rs1_propsMerged(4).csv',header=F)
 rs2=read.csv('~/Downloads/rs2_propsMerged(4).csv',header=F)
@@ -184,7 +182,7 @@ mergedDfProps=mergedDf
 #saveRDS(mergedDf,'~/P50_cleaned_df.rds')
 ```
 
-```{r}
+``` r
 # remove data that needs to be removed (subs 6 and 10, <250 TRs)
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
@@ -194,7 +192,7 @@ mergedDf=mergedDf[mergedDf$RemTRs>250,]
 #saveRDS(mergedDf,'~/forVertexwise_MDMA.rds')
 ```
 
-```{r}
+``` r
 # assign clearer subject labels
 # get unique subj names
 mergedDf$Subjects <- droplevels(mergedDf$Subjects)
@@ -247,8 +245,11 @@ ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
     axis.ticks = element_blank(),
     axis.line = element_blank()
   )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#EF9500","#002642","#840032"))
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+``` r
 # generate extended color pal for subject plotting
 library(grDevices)
 # Define the extended custom palette function
@@ -277,8 +278,11 @@ ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals)) +
   scale_x_continuous(breaks = 1:2, labels = c('Placebo', 'MDMA')) +
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
 
+``` r
 # job application version - 350 x 650
 ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = People)) +  # Jittered points
@@ -289,15 +293,53 @@ ggplot(mergedDf_clean, aes(x = Drug, y = Residuals)) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)+
   theme(legend.position = "none",axis.text.x=element_text(angle=45))
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
 summaryLME<-summary(fit_lme)
 
 # testing lme4 for robustness
 library(lme4)
+```
+
+    ## Loading required package: Matrix
+
+    ## 
+    ## Attaching package: 'lme4'
+
+    ## The following object is masked from 'package:nlme':
+    ## 
+    ##     lmList
+
+``` r
 library(lmerTest)
+```
+
+    ## 
+    ## Attaching package: 'lmerTest'
+
+    ## The following object is masked from 'package:lme4':
+    ## 
+    ##     lmer
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     step
+
+``` r
 fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf_clean)
+```
+
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+
+``` r
 # checks out
 
 #####
@@ -323,8 +365,11 @@ ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals)) +
   scale_x_continuous(breaks = 1:2, labels = c('No Drug', 'MDMA')) +
   theme_minimal(base_size = 25) +
   scale_color_manual(values = generated_colors)
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-4-4.png)<!-- -->
 
+``` r
 # figure 2a
 #ggplot(mergedDf, aes(x = Drug, y = Residuals)) +
 #  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color = People)) +  # Jittered points
@@ -340,16 +385,41 @@ summaryLME<-summary(fit_lme)
 
 # lme4 test for robustness
 fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf)
+```
+
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+
+``` r
 # checks out
 
 # make a "people"-"subjects" equivalence data frame to reference in figures down below
 unique_pairs <- unique(mergedDf[c("People", "Subjects")])
 ```
 
-```{r}
+``` r
 # extract standout sessions/participants
 library(dplyr)
+```
 
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following object is masked from 'package:nlme':
+    ## 
+    ##     collapse
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 # Calculate the difference in TDProp1 between Drug and Placebo conditions
 df_diff <- mergedDf_clean %>%
   group_by(Subjects) %>%
@@ -363,8 +433,10 @@ max_diff_subject <- df_diff %>%
 print(max_diff_subject)
 ```
 
+    ## [1] sub-MDMA017
+    ## 14 Levels: sub-MDMA001 sub-MDMA002 sub-MDMA003 sub-MDMA005 ... sub-MDMA017
 
-```{r}
+``` r
 # added chunk to code which sessions are post-mdma in macro timeline of study
 
 # initialize new column in mergedDf
@@ -398,7 +470,27 @@ for (i in 1:nrow(subjSeshDoseCorrep)) {
       mergedDf$PostMDMASession[placeboRows] <- 1
     }
 }
+```
 
+    ## [1] 3
+    ## [1] 2
+    ## [1] 3
+    ## [1] 2
+    ## [1] 4
+    ## [1] 3
+    ## [1] 3
+    ## [1] 2
+    ## [1] 2
+    ## [1] 4
+    ## [1] 2
+    ## [1] 3
+    ## [1] 4
+    ## [1] 4
+    ## [1] 2
+    ## [1] 3
+    ## [1] 2
+
+``` r
 # make post drug a separate placebo condition
 mergedDf$Drug2<-as.numeric(mergedDf$Drug)
 mergedDf$Drug2[mergedDf$PostMDMASession==1]=3
@@ -414,8 +506,7 @@ mergedDf$PostMDMASession[mergedDf$Drug==1]=1
 model <- lme(TDProp1 ~ MeanFD +Drug2+ RemTRs, random = ~ 1 | Subjects, data = mergedDf)
 ```
 
-
-```{r}
+``` r
 #meltedDf <- melt(mergedDf, id.vars = c("Subjects", "Task", "Dosage", "Session", "SpikesPercent", "MeanFD", "RemTRs", "Drug"))
 #meltedDf <- within(meltedDf, variable <- relevel(variable, ref = 3))
 #model <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+MeanFD*variable+RemTRs*variable, random = ~ 1 | Subjects/variable, data = meltedDf)
@@ -439,13 +530,13 @@ model <- lme(TDProp1 ~ MeanFD +Drug2+ RemTRs, random = ~ 1 | Subjects, data = me
 #set.seed(420)
 #for (i in 1:num_bootstrap_samples){
 #  # resample subjects instead of observations to be conserative
-#	BootSubjs=sample(unique(mergedDf$Subjects),14,replace=T)
-#	# Create an empty dataframe to store the resampled observations
-#	bootSamp <- data.frame()
-#	for (j in 1:length(BootSubjs)){
-#		subject_obs <- meltedDf[meltedDf$Subjects == BootSubjs[j], ]
-#		bootSamp <- rbind(bootSamp, subject_obs)
-#	}
+#   BootSubjs=sample(unique(mergedDf$Subjects),14,replace=T)
+#   # Create an empty dataframe to store the resampled observations
+#   bootSamp <- data.frame()
+#   for (j in 1:length(BootSubjs)){
+#       subject_obs <- meltedDf[meltedDf$Subjects == BootSubjs[j], ]
+#       bootSamp <- rbind(bootSamp, subject_obs)
+#   }
 #  # fit model
 #  model_i <- lme(value ~ MeanFD + Drug + RemTRs+variable+variable*Drug+variable*MeanFD, random = ~ 1 | Subjects/variable, data = bootSamp)
 #  # get t-values
@@ -468,7 +559,7 @@ model <- lme(TDProp1 ~ MeanFD +Drug2+ RemTRs, random = ~ 1 | Subjects, data = me
 #  theme_minimal(base_size = 16)+scale_fill_manual(values=c('blue','red'))
 ```
 
-```{r}
+``` r
 # autocorrelation
 rs1=read.csv('~/Downloads/rs1_TAutoCorMerged.csv',header=F)
 rs2=read.csv('~/Downloads/rs2_TAutoCorMerged.csv',header=F)
@@ -635,12 +726,12 @@ mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
 mergedDf$Drug=as.factor(mergedDf$Drug)
 ```
 
-```{r}
+``` r
 # combine complexity and props and autocor
 mergedDfPropsComplAutoC=merge(mergedDfProps,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 ```
 
-```{r}
+``` r
 # DMN seg
 rs1=read.csv('~/Downloads/rs1_DMNSegMerged.csv',header=F)
 rs2=read.csv('~/Downloads/rs2_DMNSegMerged.csv',header=F)
@@ -805,15 +896,14 @@ mergedDf$Drug=0
 mergedDf$Drug[mergedDf$Dosage=="120mg"]=1
 mergedDf$Drug[mergedDf$Dosage=="80mg"]=1
 mergedDf$Drug=as.factor(mergedDf$Drug)
-
 ```
 
-```{r}
+``` r
 # combine complexity and props and autocor
 mergedDfPropsComplAutoCdmnFC=merge(mergedDfPropsComplAutoC,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 ```
 
-```{r}
+``` r
 # DMN mag
 rs1=read.csv('~/Downloads/rs1_DMNMagMerged(4).csv',header=F)
 rs2=read.csv('~/Downloads/rs2_DMNMagMerged(4).csv',header=F)
@@ -984,10 +1074,9 @@ mergedDfBVincl$Drug=0
 mergedDfBVincl$Drug[mergedDfBVincl$Dosage=="120mg"]=1
 mergedDfBVincl$Drug[mergedDfBVincl$Dosage=="80mg"]=1
 mergedDfBVincl$Drug=as.factor(mergedDfBVincl$Drug)
-
 ```
 
-```{r}
+``` r
 # combine complexity and props and autocor
 mergedDfPropsComplAutoCdmnFCdmnMag=merge(mergedDfPropsComplAutoCdmnFC,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 # version with baseline included
@@ -1019,9 +1108,7 @@ mergedDfPropsComplAutoCdmnFCdmnMagbv$Task=as.factor(mergedDfPropsComplAutoCdmnFC
 mergedDfPropsComplAutoCdmnFCdmnMagbv <- within(mergedDfPropsComplAutoCdmnFCdmnMagbv, Task <- relevel(Task, ref = 2))
 ```
 
-```{r}
-
-
+``` r
 # model
 td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 ta_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
@@ -1043,11 +1130,25 @@ forCormat=data.frame(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1,mergedDfPropsCom
 colnames(forCormat)=c('TDProp1','AutoCor','DMNFC','MeanFD','RemTRs','DMNMag')
 
 library(corrplot)
+```
+
+    ## corrplot 0.92 loaded
+
+``` r
 source("http://www.sthda.com/upload/rquery_cormat.r")
 
 corrmatrix=rquery.cormat(forCormat,type="full")
-corrplot(as.matrix(corrmatrix$r),method='number')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+corrplot(as.matrix(corrmatrix$r),method='number')
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
 # need to establish which DMN metrics are associated above and beyond drug effect
 # DMN FC
 dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task+TDProp1+AutoCor+DMNMag, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
@@ -1059,7 +1160,29 @@ dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+DMNFC+AutoCor+TDProp1, ra
 dmnAC_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task+DMNFC+DMNMag+TDProp1, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 
 library(pROC)
+```
+
+    ## Type 'citation("pROC")' for a citation.
+
+    ## 
+    ## Attaching package: 'pROC'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     cov, smooth, var
+
+``` r
 library(plotROC)
+```
+
+    ## 
+    ## Attaching package: 'plotROC'
+
+    ## The following object is masked from 'package:pROC':
+    ## 
+    ##     ggroc
+
+``` r
 mergedDfPropsComplAutoCdmnFCdmnMag_notask=mergedDfPropsComplAutoCdmnFCdmnMag[mergedDfPropsComplAutoCdmnFCdmnMag$Task=='rs',]
 
 # Fit logistic regression models
@@ -1086,25 +1209,51 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
+```
 
+    ## Warning in verify_d(data$d): D not labeled 0/1, assuming 1 = 0 and 2 = 1!
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
 # Calculate AUC for each model
 roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob1)
-roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
+```
 
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+``` r
+roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
+```
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+``` r
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
 
 
 print(paste("AUC for DMN Correlations:", auc1))
-print(paste("AUC for Full Model:", auc2))
+```
 
+    ## [1] "AUC for DMN Correlations: 0.806481481481482"
+
+``` r
+print(paste("AUC for Full Model:", auc2))
+```
+
+    ## [1] "AUC for Full Model: 0.881481481481482"
+
+``` r
 # Calculate AUC difference between full and reduced models
 auc_diff <- auc2 - auc1
 ```
 
-```{r}
+``` r
 # Temporary comment out: output is making rstudio wonky
 
 
@@ -1126,7 +1275,7 @@ auc_diff <- auc2 - auc1
 #  # Fit logistic regression models
 #  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = #binomial)
 #  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = #mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
-#	
+#   
 #  # 3. calculate AUC difference between full and reduced models with permuted data
 #  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
 #  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
@@ -1145,7 +1294,7 @@ auc_diff <- auc2 - auc1
 # 0 indicates p <0.001
 ```
 
-```{r}
+``` r
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
 num_bootstrap_samples <- 1000
@@ -1263,9 +1412,11 @@ ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
     # just to prevent extra x-axis expansion
     coord_cartesian(xlim = c(.8, length(unique(bootstrap_results_Drug$Model))))+
     theme(legend.position = "none")
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-
+``` r
 # Calculate the average t-value for each Model category
 average_t_values <- bootstrap_results_Drug %>%
   group_by(Model) %>%
@@ -1304,11 +1455,11 @@ ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     # just to prevent extra x-axis expansion
     coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
     theme(legend.position = "none")+ylim(c(-10.5,10.5))
-
 ```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-16-2.png)<!-- -->
 
-```{r}
+``` r
 # now compare with VAS
 vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
 # correct subject naming
@@ -1316,7 +1467,7 @@ vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
 VASmerge=merge(vas,mergedDfPropsComplAutoCdmnFCdmnMag,by=c("Subjects","Dosage"))
 ```
 
-```{r}
+``` r
 ###### spin tests
 # load in y7 alignment left
 y7align_L=read.csv('~/Downloads/perm_vs_obs_DMN_Y7_L.csv')
@@ -1339,10 +1490,24 @@ ObsR=y7align_R[10001,]
   
 # left hemi
 ggplot(spunL,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsL$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Yeo7 Boundary: Left hemisphere')
+```
 
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+``` r
 # right hemi
 ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Yeo7 Boundary: Right hemisphere')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+
+``` r
 # now for biol psych rois
 bpalign_L=read.csv('~/Downloads/perm_vs_obs_DMN_BiolPsych_L.csv')
 bpalign_R=read.csv('~/Downloads/perm_vs_obs_DMN_BiolPsych_R.csv')
@@ -1363,14 +1528,18 @@ ObsR=bpalign_R[10001,]
   
 # left hemi
 ggplot(spunL,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsL$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Biol. Psych. ROIs: Left hemisphere')
-
-# right hemi
-ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Biol. Psych. ROIs: Right hemisphere')
-
-
 ```
 
-```{r}
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-18-3.png)<!-- -->
+
+``` r
+# right hemi
+ggplot(spunR,aes(x=Var1))+geom_density(size=1.5)+geom_vline(xintercept = ObsR$Var1,size=2,color='#BC3754')+theme_classic(base_size=23)+ylab('')+xlab('T-Statistics')+guides(y="none")+theme(axis.text = element_text(size=22))+ggtitle('DMN localization to Biol. Psych. ROIs: Right hemisphere')
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-18-4.png)<!-- -->
+
+``` r
 # calculate change in DAS to investigate inter-psychedelic-session variability
 # initialize change columns
 DAS_Change_Subject=c('')
@@ -1464,16 +1633,19 @@ for (i in 41:57){
   colNameVec[counter]=colnames(DAS_changeDF)[i]
   counter=counter+1
 }
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-2.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-3.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-4.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-5.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-6.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-7.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-8.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-9.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-10.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-11.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-12.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-13.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-14.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-15.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-16.png)<!-- -->![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-19-17.png)<!-- -->
+
+``` r
 # set some colorations to be consistent in new df by subject
 DAS_changeDF$Subjects<-as.factor(DAS_changeDF$Subjects)
 DAS_changeDF$Colors <- generated_colors[DAS_changeDF$Subjects]
 DAS_changeDF_people <- merge(DAS_changeDF, unique_pairs, by = 'Subjects', all.x = TRUE)
 DAS_changeDF_people$SubjectsCols <- factor(DAS_changeDF_people$Subjects, levels = names(generated_colors))
-
 ```
 
-```{r}
+``` r
 ### figure 3B - coarse
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames <- c(
@@ -1583,7 +1755,11 @@ ggplot(df, aes(x = Values, y = dascNames,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Integration")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+
+``` r
 # DMN AUTOCOTR
 # Create a dataframe with the values and column names
 df <- data.frame(Values = TA_corvec, pvals=TA_pvec)
@@ -1602,7 +1778,11 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Autocorrelation")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+
+``` r
 # DMN BUP
 # Create a dataframe with the values and column names
 df <- data.frame(Values = BUP_corvec, pvals=BUP_pvec)
@@ -1621,7 +1801,11 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->
+
+``` r
 # DMN Mag
 # Create a dataframe with the values and column names
 df <- data.frame(Values = M_corvec, pvals=M_pvec)
@@ -1640,16 +1824,38 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Magnitudes")+theme_minimal(base_size=17)+xlim(c(-.4,.9))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->
+
+``` r
 # pull out BUP~DED correlation
 ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=BUP_Decrease))+
   geom_point(size=4,aes(color = People))+
   labs(x = "Decrease in Bottom-up %", y = "Increase in Dread of Ego Dissolution", color = "People") +
   scale_color_manual(values = generated_colors) +
   theme_minimal(base_size = 16)
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->
+
+``` r
 cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$BUP_Decrease)
 ```
-```{r}
+
+    ## 
+    ##  Pearson's product-moment correlation
+    ## 
+    ## data:  DAS_changeDF_people$dascscore_ded and DAS_changeDF_people$BUP_Decrease
+    ## t = 4.5982, df = 20, p-value = 0.0001741
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.4231442 0.8742441
+    ## sample estimates:
+    ##       cor 
+    ## 0.7168634
+
+``` r
 ### figure 3B - granular
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames=c('Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning\n of precepts')
@@ -1757,7 +1963,11 @@ ggplot(df, aes(x = Values, y = dascNames,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Integration")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
 # DMN AUTOCOR
 # Create a dataframe with the values and column names
 df <- data.frame(Values = TA_corvec, pvals=TA_pvec)
@@ -1778,7 +1988,11 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Autocorrelation")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+
+``` r
 # DMN BUP
 # Create a dataframe with the values and column names
 df <- data.frame(Values = BUP_corvec, pvals=BUP_pvec)
@@ -1800,13 +2014,22 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-3.png)<!-- -->
+
+``` r
 # and one just for the legend
 df$Significant=df$Sig
 ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Significant)) +
   geom_bar(size=3,stat = "identity")+
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))
+```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-4.png)<!-- -->
+
+``` r
 # DMN Mag
 # Create a dataframe with the values and column names
 df <- data.frame(Values = M_corvec, pvals=M_pvec)
@@ -1825,14 +2048,36 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   scale_fill_manual(values = colors) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Magnitudes")+theme_minimal(base_size=17)+xlim(c(-.3,.8))+
   theme(legend.position='none')
+```
 
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_bar()`).
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-5.png)<!-- -->
+
+``` r
 # pull out BUP~Impaired Control correlation
 ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=BUP_Decrease))+
   geom_point(size=4,aes(color = People))+
   labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
   scale_color_manual(values = generated_colors) +
   theme_minimal(base_size = 16)
-cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$BUP_Decrease)
-
 ```
 
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-6.png)<!-- -->
+
+``` r
+cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$BUP_Decrease)
+```
+
+    ## 
+    ##  Pearson's product-moment correlation
+    ## 
+    ## data:  DAS_changeDF_people$dascscore_impair and DAS_changeDF_people$BUP_Decrease
+    ## t = 4.4524, df = 20, p-value = 0.0002444
+    ## alternative hypothesis: true correlation is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.4041507 0.8687335
+    ## sample estimates:
+    ##       cor 
+    ## 0.7055399

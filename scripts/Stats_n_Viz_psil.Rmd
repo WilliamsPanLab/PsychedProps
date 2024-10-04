@@ -1031,6 +1031,48 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
+```{r}
+# figure 3: load in all DMN measures
+BUP=readRDS('~/Downloads/Psil_BUP_Merged.rds')
+DMNSeg=readRDS('~/Downloads/Psil_DMNSeg_Merged.rds')
+Mag=readRDS('~/Downloads/Psil_MagMerged.rds')
+TA=readRDS('~/Downloads/Psil_TAuto_Merged.rds')
+# merge em all
+colnames(BUP)[1]<-'BUP'
+colnames(DMNSeg)[1]<-'DMNFC'
+colnames(Mag)[1]<-'Magnitudes'
+colnames(TA)[1]<-'TmpAutoCor'
+
+# merge em
+PsilMerged=merge(BUP,DMNSeg,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
+PsilMerged=merge(PsilMerged,Mag,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
+PsilMerged=merge(PsilMerged,TA,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
+
+### Psil vs. methyl version
+PsilMergedDrug=PsilMerged[PsilMerged$Drug!='none',]
+
+# inclusive models
+fit_BUP <- lme(BUP ~ Drug + RemTRs + FD + Magnitudes, random = ~ 1 | Subjects, data = PsilMergedDrug)
+fit_Mag <- lme(Magnitudes ~ Drug + RemTRs + FD + BUP, random = ~ 1 | Subjects, data = PsilMergedDrug)
+
+### Psil vs. no drug version
+# remove methylphenidate for ease of interpretation
+PsilMerged=PsilMerged[PsilMerged$Drug!='Methyl',]
+
+fit_BUP <- lme(BUP ~ Drug + RemTRs + FD + Magnitudes, random = ~ 1 | Subjects, data = PsilMerged)
+fit_Mag <- lme(Magnitudes ~ Drug + RemTRs + FD + BUP, random = ~ 1 | Subjects, data = PsilMerged)
+
+
+PsilMerged$DrugBinary=0
+PsilMerged$DrugBinary[PsilMerged$Drug=='Psilo']=1
+
+
+
+# AUC thangs
+library(pROC)
+library(plotROC)
+```
+
 
 ```{r}
 
@@ -1084,6 +1126,12 @@ for (i in 1:2){
 
 sum(auc_diffs>auc_diff)
 # 0 indicates p <0.001
+```
+
+```{r}
+# full data models
+ta_model <- lme(TmpAutoCor ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = PsilMerged)
+ds_model <- lme(DMNFC ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = PsilMerged)
 ```
 
 ```{r}
