@@ -20,14 +20,14 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		disp(s)
 	        % get session info NOTE K4 HAS ALL 4 VALUES, K1 has INTENDED VALUE AS WELL
 	        seshInfo=subSeshDose{s,2:5};
-	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_k4_Prop_Feats_verts.csv'];
+	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_k4_Prop_Feats_gro.csv'];
 	        bvFP=strjoin(bvFP,'');
 		% and grab reverse phase encoding direction nifti
-		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_k4_Prop_Feats_verts.csv'];
+		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_k4_Prop_Feats_gro.csv'];
 	        pFP=strjoin(pFP,'');
-	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_k4_Prop_Feats_verts.csv'];
+	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_k4_Prop_Feats_gro.csv'];
 	        m1FP=strjoin(m1FP,'');
-	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_k4_Prop_Feats_verts.csv'];
+	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_k4_Prop_Feats_gro.csv'];
 	        m2FP=strjoin(m2FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')

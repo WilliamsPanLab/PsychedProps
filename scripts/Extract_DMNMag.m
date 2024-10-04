@@ -126,9 +126,9 @@ for f=1:sum(DMN_bool_R);
         for tp=1:lengthOpFl
 		relVf_R=OpFl_R{tp};
                 % xyz components
-                xComp_R=relVf_L(f,1);
-                yComp_R=relVf_L(f,2);
-                zComp_R=relVf_L(f,3); 
+                xComp_R=relVf_R(f,1);
+                yComp_R=relVf_R(f,2);
+                zComp_R=relVf_R(f,3); 
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
 		azelrho=cart2sphvec(double([xComp_R;yComp_R;zComp_R]),azd_R(DMN_bool_R_inds(f)),eld_R(DMN_bool_R_inds(f)));
                 xy=azelrho(1:2);
