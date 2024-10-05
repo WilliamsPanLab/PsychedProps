@@ -232,7 +232,7 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 
   ### 4D. Bottom-Up Analysis
 - **4D.I** MDMA
-  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd).
+  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found in markdown format [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md).
 - **4D.II** Psilocybin
   The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.Rmd). Note this also has the lasting effects lil' chunk of code (just after line 1,000).
 - **4D.III** LSD
@@ -240,12 +240,14 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 
 
 ## 5. Bootstraps and AUC curves
-.rmd MDMA
+You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "library(pROC)" to find where this section stats. If instead look at the .Rmd, this starts at line 1061.
+
 .rmd psil
 .rmd mice
 
 ## 6. Self-Report: MDMA
-.rmd MDMA
+You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead look at the .Rmd, this starts at line 1374.
+
 ## 7. Brain Visualizations
   Viz DMN grad humans
   Viz DMN grad mice
