@@ -1,11 +1,8 @@
----
-title: "p50 psil"
-output: github_document
-date: "2024-02-03"
----
+p50 psil
+================
+2024-02-03
 
-
-```{r}
+``` r
 library(reshape2)
 library(ggplot2)
 library(visreg)
@@ -13,7 +10,22 @@ library(nlme)
 library(dplyr)
 ```
 
-```{r}
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following object is masked from 'package:nlme':
+    ## 
+    ##     collapse
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 # prop angles
 rs1=read.csv('~/Downloads/rs1_Psil_propsMerged(5).csv',header=F)
 rs2=read.csv('~/Downloads/rs2_Psil_propsMerged(5).csv',header=F)
@@ -164,10 +176,9 @@ rs6bv$Task='rs6'
 rs6p$Task='rs6'
 rs6m1$Task='rs6'
 rs6m2$Task='rs6'
-
 ```
 
-```{r}
+``` r
 # change to account for psy_pfm structure
 # add in dosage
 rs1bv$Dosage='none'
@@ -201,8 +212,7 @@ rs6m1$Dosage='none'
 rs6m2$Dosage='Drug'
 ```
 
-
-```{r}
+``` r
 # BEFORE/AFTER VERSION
 # change to account for psy_pfm structure
 # add in dosage
@@ -237,8 +247,7 @@ rs6m1$Dosage='after'
 rs6m2$Dosage='Drug'
 ```
 
-```{r}
-
+``` r
 # parse out only existing rows 
 rs1bv=rs1bv[rs1bv$TDProp1>0,]
 rs1p=rs1p[rs1p$TDProp1>0,]
@@ -271,10 +280,16 @@ rs6m1=rs6m1[rs6m1$TDProp1>0,]
 rs6m2=rs6m2[rs6m2$TDProp1>0,]
 ```
 
-
-```{r}
+``` r
 # decode Methylphenidate vs. psilocybin for each PT
 subjDoseCorresp=read.csv('~/subjSeshDoseCorresp_psilo.csv',header=F)
+```
+
+    ## Warning in read.table(file = file, header = header, sep = sep, quote = quote, :
+    ## incomplete final line found by readTableHeader on
+    ## '~/subjSeshDoseCorresp_psilo.csv'
+
+``` r
 subjDoseCorresp=data.frame(t(subjDoseCorresp))
 subjDoseCorresp$X2<-as.numeric(subjDoseCorresp$X2)
 # initialize new drug column in all dfs
@@ -368,6 +383,20 @@ for (s in 1:length(unique(rs1m2$Subjects))){
   rs1m2$Drug[rs1m2$OgRow==MethylRows[1]]='Methyl'
   rs1m2$Drug[rs1m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS03"
+    ## [1] "PS16"
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS21"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+    ## [1] "PS98"
+    ## [1] "PS99"
+
+``` r
 # for resting-state 2
 for (s in 1:length(unique(rs2m2$Subjects))){
   # this subject
@@ -409,6 +438,20 @@ for (s in 1:length(unique(rs2m2$Subjects))){
   rs2m2$Drug[rs2m2$OgRow==MethylRows[1]]='Methyl'
   rs2m2$Drug[rs2m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS03"
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS21"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+    ## [1] "PS98"
+    ## [1] "PS99"
+    ## [1] "PS16"
+
+``` r
 # for resting-state 3
 for (s in 1:length(unique(rs3m2$Subjects))){
   # this subject
@@ -450,6 +493,17 @@ for (s in 1:length(unique(rs3m2$Subjects))){
   rs3m2$Drug[rs3m2$OgRow==MethylRows[1]]='Methyl'
   rs3m2$Drug[rs3m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS21"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+    ## [1] "PS99"
+
+``` r
 # for resting-state 4
 for (s in 1:length(unique(rs4m2$Subjects))){
   # this subject
@@ -491,6 +545,13 @@ for (s in 1:length(unique(rs4m2$Subjects))){
   rs4m2$Drug[rs4m2$OgRow==MethylRows[1]]='Methyl'
   rs4m2$Drug[rs4m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS19"
+    ## [1] "PS24"
+    ## [1] "PS93"
+
+``` r
 # for resting-state 5
 for (s in 1:length(unique(rs5m2$Subjects))){
   # this subject
@@ -532,6 +593,11 @@ for (s in 1:length(unique(rs5m2$Subjects))){
   rs5m2$Drug[rs5m2$OgRow==MethylRows[1]]='Methyl'
   rs5m2$Drug[rs5m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS24"
+
+``` r
 # for resting-state 6
 for (s in 1:length(unique(rs6m2$Subjects))){
   # this subject
@@ -573,7 +639,11 @@ for (s in 1:length(unique(rs6m2$Subjects))){
   rs6m2$Drug[rs6m2$OgRow==MethylRows[1]]='Methyl'
   rs6m2$Drug[rs6m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
 
+    ## [1] "PS24"
+
+``` r
 # combine all
 allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,rs3bv,rs3p,rs3m1,rs3m2,rs4bv,rs4p,rs4m1,rs4m2,rs5bv,rs5p,rs5m1,rs5m2,rs6bv,rs6p,rs6m1,rs6m2)
 # before scans
@@ -587,7 +657,7 @@ B_A=rbind(Before,After)
 allScans$Drug[allScans$Dosage=='none']='none'
 ```
 
-```{r}
+``` r
 ### make chronological order column.
 allScans$TemporalOrder=0
 for (s in 1:length(unique(allScans$Subjects))){
@@ -617,7 +687,7 @@ for (s in 1:length(unique(allScans$Subjects))){
 }
 ```
 
-```{r}
+``` r
 # Now we need to place drug2 scans after all betweens. Subtract # of drug2 scans from between temporal order, plop drug2 in the integer sequence space between is translated down by.
 
 
@@ -681,10 +751,9 @@ for (s in 1:length(unique(allScans$Subject))) {
   }
 # end loop
 }
-
 ```
 
-```{r}
+``` r
 # need to add a session column with After1, After2, etc. to match vertexwise
 
 # Adding session column
@@ -728,10 +797,9 @@ for (subject in subjects) {
 allScans$Session <- gsub("before", "Baseline", allScans$Session)
 allScans$Session <- gsub("between", "Between", allScans$Session)
 allScans$Session <- gsub("after", "After", allScans$Session)
-
 ```
 
-```{r}
+``` r
 # remove data that needs to be removed (<250 TRs)
 allScans=allScans[allScans$RemTRs>250,]
 # saveout merged DF for vertexwise analyses on HPC
@@ -766,7 +834,9 @@ ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
   )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#EF9500","#002642","#840032"))
 ```
 
-```{r}
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
 ### match 99's to <9x ID's
 
 # temporal order of 99's has to be after 03 16 18 19!
@@ -792,26 +862,33 @@ allScans$Subjects[allScans$Subjects=='PS99']='PS19'
 allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
-```{r}
+``` r
 # model
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+```
 
+    ## [1] "one sided p (confirmatory of psil): 0.0162299631261041"
+
+``` r
 # methylphenidate vs. psilocybin
 drugScans=allScans[allScans$Drug!='none',]
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+```
+
+    ## [1] "one sided p (confirmatory of psil): 0.0413240200310478"
+
+``` r
 # save out this df for merging
 saveRDS(allScans,'~/Downloads/Psil_BUP_Merged.rds')
 ```
 
-
-
-```{r}
+``` r
 # alternative coding to above
 allScans$Condition=allScans$Dosage
 # correct betweens to after where psilo has already occurred
@@ -871,13 +948,12 @@ allScans$Condition2[allScans$Drug=='Methyl']='Methyl'
 allScans$Condition2[allScans$Drug=='Psilo']='Psilo'
 ```
 
-```{r}
+``` r
 # model it with non-drug as reference scans
 allScans <- within(allScans, Condition2 <- relevel(Condition2, ref = 6))
 ```
 
-
-```{r}
+``` r
 # figure 2 plots: drug vs. nondrug
 allScans$Psilo=0
 allScans$Psilo[allScans$Drug=='Psilo']=1
@@ -923,7 +999,11 @@ ggplot(allScansNoMeth, aes(x = JitteredPsilo, y = ResidualsReduced)) +
        y = "% Bottom-up") + 
   scale_x_continuous(breaks = 1:2, labels = c('No Drug','Psilocybin')) +
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)
+```
 
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+``` r
 # job application version - 350 x 600
 ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = People)) +  # Jittered points
@@ -934,16 +1014,21 @@ ggplot(allScansNoMeth, aes(x = Psilo, y = ResidualsReduced)) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)+
   theme(legend.position = "none",axis.text.x=element_text(angle=45))
+```
 
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Psilo + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-
 ```
 
-```{r}
+    ## [1] "one sided p (confirmatory of psil): 0.0202306673445177"
+
+``` r
 # figure 2 plots: methylphenidate vs. psilocybin
 
 # subset out sessions where participant received pill
@@ -965,7 +1050,11 @@ ggplot(drugScans, aes(x = JitteredDrug, y = ResidualsReduced)) +
        y = "% Bottom-up") + 
   scale_x_continuous(breaks = 1:2, labels = c('Methylphenidate','Psilocybin')) +
   theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)+theme(axis.text.x = element_text(size = 20))
+```
 
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
 summaryLME<-summary(fit_lme)
@@ -973,7 +1062,9 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
-```{r}
+    ## [1] "one sided p (confirmatory of psil): 0.0413240200310478"
+
+``` r
 # figure 2 plots: follow-up scans
 # get residuals
 reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
@@ -989,15 +1080,27 @@ ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
        x = "",
        y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
+```
 
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
+```
+
+    ## [1] "one sided p (confirmatory of psil): 0.00318557373815308"
+
+``` r
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
-```{r}
+
+    ## [1] "one sided p (confirmatory of post-psil): 0.0202128684948413"
+
+``` r
 # figure 3: load in all DMN measures
 BUP=readRDS('~/Downloads/Psil_BUP_Merged.rds')
 DMNSeg=readRDS('~/Downloads/Psil_DMNSeg_Merged.rds')
@@ -1013,7 +1116,13 @@ colnames(TA)[1]<-'TmpAutoCor'
 PsilMerged=merge(BUP,DMNSeg,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
 PsilMerged=merge(PsilMerged,Mag,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
 PsilMerged=merge(PsilMerged,TA,by=c('RemTRs','OgRow','FD','Subjects','Task','Dosage','TemporalOrder','Session','Drug'))
+```
 
+    ## Warning in merge.data.frame(PsilMerged, TA, by = c("RemTRs", "OgRow", "FD", :
+    ## column names 'TDProp2.x', 'TDProp3.x', 'TDProp4.x', 'TDProp2.y', 'TDProp3.y',
+    ## 'TDProp4.y' are duplicated in the result
+
+``` r
 ### Psil vs. methyl version
 PsilMergedDrug=PsilMerged[PsilMerged$Drug!='none',]
 
@@ -1036,7 +1145,29 @@ PsilMerged$DrugBinary[PsilMerged$Drug=='Psilo']=1
 
 # AUC thangs
 library(pROC)
+```
+
+    ## Type 'citation("pROC")' for a citation.
+
+    ## 
+    ## Attaching package: 'pROC'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     cov, smooth, var
+
+``` r
 library(plotROC)
+```
+
+    ## 
+    ## Attaching package: 'plotROC'
+
+    ## The following object is masked from 'package:pROC':
+    ## 
+    ##     ggroc
+
+``` r
 # Fit logistic regression models
 model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
 model2 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor+Magnitudes, data = PsilMerged, family = binomial)
@@ -1046,19 +1177,39 @@ prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
 ```
 
-
-```{r}
-
+``` r
 # Calculate AUC for each model
 roc1 <- roc(PsilMerged$DrugBinary, prob1)
-roc2 <- roc(PsilMerged$DrugBinary, prob2)
+```
 
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+``` r
+roc2 <- roc(PsilMerged$DrugBinary, prob2)
+```
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+``` r
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
 
 print(paste("AUC for DMN Correlations:", auc1))
+```
+
+    ## [1] "AUC for DMN Correlations: 0.767123287671234"
+
+``` r
 print(paste("AUC for DMN Propagations:", auc2))
+```
+
+    ## [1] "AUC for DMN Propagations: 0.888698630136984"
+
+``` r
 # Calculate AUC difference between full and reduced models
 auc_diff <- auc2 - auc1
 
@@ -1078,10 +1229,13 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
-
 ```
 
-```{r}
+    ## Warning in verify_d(data$d): D not labeled 0/1, assuming 1 = 0 and 3 = 1!
+
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
+
+``` r
 # make equivalent AUC calculations on permuted data
 
 #### commented out because it takes forecer to run, but does work when uncommented
@@ -1103,7 +1257,7 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
 #  # Fit logistic regression models
 #  model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
 #  model2_perm <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor+TDProp1_perm+DMNMag_perm, data = PsilMerged, family = binomial)
-#	
+#   
 #  # 3. calculate AUC difference between full and reduced models with permuted data
 #  roc1 <- roc(PsilMerged$DrugBinary, predict(model1, type = "response"))
 #  roc2_perm <- roc(PsilMerged$DrugBinary, predict(model2_perm, type = "response"))
@@ -1122,13 +1276,13 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
 # 0 indicates p <0.001
 ```
 
-```{r}
+``` r
 # full data models
 ta_model <- lme(TmpAutoCor ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = PsilMerged)
 ds_model <- lme(DMNFC ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = PsilMerged)
 ```
 
-```{r}
+``` r
 # and bootstrapping: also figure 3
 # Set the number of bootstrap samples
 num_bootstrap_samples <- 1000
@@ -1238,9 +1392,23 @@ ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
     # just to prevent extra x-axis expansion
     coord_cartesian(xlim = c(.8, length(unique(bootstrap_results_Drug$Model))))+
     theme(legend.position = "none")
+```
 
+    ## Warning: The provided binwidth will cause dots to overflow the boundaries of the
+    ## geometry.
+    ## → Set `binwidth = NA` to automatically determine a binwidth that ensures dots
+    ##   fit within the bounds,
+    ## → OR set `overflow = "compress"` to automatically reduce the spacing between
+    ##   dots to ensure the dots fit within the bounds,
+    ## → OR set `overflow = "keep"` to allow dots to overflow the bounds of the
+    ##   geometry without producing a warning.
+    ## ℹ For more information, see the documentation of the `binwidth` and `overflow`
+    ##   arguments of `?ggdist::geom_dots()` or the section on constraining dot sizes
+    ##   in vignette("dotsinterval") (`vignette(ggdist::dotsinterval)`).
 
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
+``` r
 # Calculate the average t-value for each Model category
 average_t_values <- bootstrap_results_Drug %>%
   group_by(Model) %>%
@@ -1278,8 +1446,6 @@ ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     # just to prevent extra x-axis expansion
     coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
     theme(legend.position = "none")+ylim(c(-10.5,10.5))
-
-
 ```
 
-
+![](Stats_n_Viz_psil_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
