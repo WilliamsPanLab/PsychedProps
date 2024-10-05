@@ -1,4 +1,4 @@
-# Guide to the code behind XXX
+# Guide to the code behind Psychedelics disrupt activity propagations in the default mode network of humans and mice
 
 This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally.
 
@@ -234,16 +234,17 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 - **4D.I** MDMA
   Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found in markdown format [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md).
 - **4D.II** Psilocybin
-  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.Rmd). Note this also has the lasting effects lil' chunk of code (just after line 1,000).
+  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md). Note this also has the lasting effects lil' chunk of code (just after line 1,000).
 - **4D.III** LSD
-  The equivalent script for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.Rmd).
+  The equivalent script for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md).
 
 
 ## 5. Bootstraps and AUC curves
-You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "library(pROC)" to find where this section stats. If instead look at the .Rmd, this starts at line 1061.
+You can find the bootstrap and AUC analyses for MDMA (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "library(pROC)" to find where this section stats. If instead look at the .Rmd, this starts at line 1061.
 
-.rmd psil
-.rmd mice
+Same goes for bootstrap and AUC/bootstraps for psilocybin. Check out the [same markdown as prior](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md)
+
+Aaaaand same goes for mice. Here's the [link](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md)
 
 ## 6. Self-Report: MDMA
 You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead look at the .Rmd, this starts at line 1374.
