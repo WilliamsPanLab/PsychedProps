@@ -249,10 +249,3 @@ Aaaaand same goes for mice. Here's the [link](https://github.com/WilliamsPanLab/
 ## 6. Self-Report: MDMA
 You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead look at the .Rmd, this starts at line 1374.
 
-## 7. Brain Visualizations
-  Viz DMN grad humans
-  Viz DMN grad mice
-  Viz Opfl vectors humans
-  Viz Opfl vectors mice
-  Connectome Workbench visualizations
-
