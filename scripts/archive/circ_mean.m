@@ -1,6 +1,4 @@
 function [mu ul ll] = circ_mean(alpha, w, dim)
-% from https://www.mathworks.com/matlabcentral/fileexchange/10676-circular-statistics-toolbox-directional-statistics
-% Berens et al.
 %
 % mu = circ_mean(alpha, w)
 %   Computes the mean direction for circular data.
