@@ -1,8 +1,6 @@
-# Guide to the code behind Psychedelics disrupt activity propagations in the default mode network of humans and mice
+# Guide to the code behind "Psychedelics disrupt activity propagations in the default mode network of humans and mice"
 
-This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally.
-
-Some scripts also leverage g_ls, which is a handy script written by [Zaixu Cui](https://cuilab.cibr.ac.cn/Team/index.htm) a [long time ago](https://github.com/ZaixuCui/PANDA/blob/e537467173cbc47f8492b1d724ec7900d98c8a19/PANDA-1.1.0_32/g_ls.m#L4). This script just allows us to list files via * wildcards in matlab like we would in a unix shell.
+This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table is available at the end of this markdown. 
 
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
@@ -248,4 +246,21 @@ Aaaaand same goes for mice. Here's the [link](https://github.com/WilliamsPanLab/
 
 ## 6. Self-Report: MDMA
 You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead look at the .Rmd, this starts at line 1374.
+
+## Appendix: code leveraged from other sources
+| Software | Citation | Use(s) in this project|
+|----------|----------|-----------------------|
+| Non negative matrix factorization adapted for brain data | Li, H. et al. (2017): Large-scale sparse functional networks from resting state fMRI. Neuroimage | NMF for human and mouse DMN delineation |
+| Freesurfer | Dale, A. et al. (1999): Cortical surface-baed analysis. I. Segmentation and surface reconstruction. Neuroimage | Cortical surface modeling |
+| g_ls.m   | Cui Z., et al. (2013): PANDA: a pipeline toolbox for analyzing brain diffusion images. Front Hum Neurosci | Listing files in a directory when in matlab |
+| fmriprep | Esteban, O., et al. (2018): fMRIPrep: a robust preprocessing pipeline for functional MRI. Nat Methods | Preprocessing of fmri data (prior to xcp-d) |
+| xcpd | Mehta, K., et al. (2024): XCP-D: A Robust Pipeline for the post-processing of fMRI data. Imaging Neurosci | Post-processing of fmri data |
+| Spherical Optical Flow | Kirisits, C., et al. (2013): Decomposition of optical flow on the sphere. International J. on Geomath | Optical flow on spherical surfaces (human data, inflated coritces) |
+| "flat" optical flow | Townsend, R. & Gong, P. (2018): Detection and analysis of spatiotemporal patterns in brain activity. PLoS Comp. Biol. | Optical flow on cortical window data (mice, Ca2+) |
+| ggplot | Wickham, H. (2016): ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York | Most figures made in R |
+| nlme | Pinheiro, J. & Bates, D (2000): Mixed-Effects Models in S and S-PLUS. Springer | Statistical testing in R |
+
+## Thank you x100 to these authors for distributing their code!
+
+
 
