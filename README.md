@@ -1,4 +1,4 @@
-# Guide to the code behind Psychedelics disrupt activity propagations in the default mode network of humans and mice
+# Guide to the code behind "Psychedelics disrupt activity propagations in the default mode network of humans and mice"
 
 This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table is available at the end of this markdown. 
 
