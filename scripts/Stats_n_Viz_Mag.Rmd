@@ -1301,7 +1301,7 @@ print(max_diff_subject)
 ```{r}
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
-num_bootstrap_samples <- 100
+num_bootstrap_samples <- 1000
 # initialize t vectors
 td_d<-rep(0,num_bootstrap_samples)
 td_fd<-rep(0,num_bootstrap_samples)

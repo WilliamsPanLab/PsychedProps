@@ -1,8 +1,6 @@
-# Guide to the code behind XXX
+# Guide to the code behind "Psychedelics disrupt activity propagations in the default mode network of humans and mice"
 
-This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally.
-
-Some scripts also leverage g_ls, which is a handy script written by [Zaixu Cui](https://cuilab.cibr.ac.cn/Team/index.htm) a [long time ago](https://github.com/ZaixuCui/PANDA/blob/e537467173cbc47f8492b1d724ec7900d98c8a19/PANDA-1.1.0_32/g_ls.m#L4). This script just allows us to list files via * wildcards in matlab like we would in a unix shell.
+This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table is available at the end of this markdown. 
 
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
@@ -138,7 +136,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
   Extract Magnitudes MDMA: We'll run this for individual subjects and sessions once all optical flow runs for that subject have been completed. All it does is get the average magnitude of optical flow vectors within the DMN over the ascquisition. You can find the script for it [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag.m).
   
-  Extract Magnitudes Psil: Again, extremely similar to what we ran for study 1. It takes some extra code because study 2 included a variable number study visits per condition per participant. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Calc_AvgMagnitude_psil.m).
+  Extract Magnitudes Psil: Again, extremely similar to what we ran for study 1. Just differences in the filepath. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_DMNMag_psil.m).
 
   Extract Magnitudes Mice: As usual, the script takes some adaptation to fit with the data structure of the mouse data. It's extremely similar under the hood though. sqrt(x^2+y^2) averaged within the DMN over time for each mouse. That script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_DMNMag_mice.m).
   
@@ -196,53 +194,73 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   We're following the lead of [this](https://www.nature.com/articles/s41593-023-01299-3) paper because they put forward a direct case that a lot of effects can be simplified to changes in temporal autocorrelation. Thankfully that does not seem to be the case for this propagation stuff, but we should be thinking about this paper in network analyses broadly. The operationalization of autocorrelation essentially comes down to the correlation between signal and signal shifted "+1" in time. The script to calculate temporal autocorrelation in the DMN for MDMA is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TAutoCor.m), and for psilocybin it is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TAutoCor_psil.m). To aggregate the MDMA autocor values, use [this](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TA_dif.m) script. To aggregate the psilocybin autocor values, use [this](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/Extract_TA_dif_psil.m) script.
 
 **3B.II** Mice
-  Extract_TAutoCor
-  Extract_TAutoCor_psil
-  Extract dif
+  [Extract_TAutoCor_mice](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_TAutoCor_mice.m) is pretty simple given the corr(timeseries,timeseries+1) approach, but has a few dozen lines of code just to handle the input filenames. Uses the same approach as in the human data and the same DMN masking as in all other scripts. Will return the average autocorrelation for each run.
+  
+  To aggregate the data across runs in mice (for autocorrelation), use [this script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_TAutoCor_dif_mice.m). Fairly straightforward given all other code ran by this point.
 
 ## 4. Main Effects
-### 4A. DMN integration
-- **4A.I** MDMA
-  .rmd
-- **4A.II** Psilocybin
-  .rmd (note this will also prep saveouts for unified DMN analyses)
-- **4A.III** LSD
-  .rmd
-### 4B. DMN Autocor
-- **4B.I** MDMA
-  .rmd
-- **4B.II** Psilocybin
-  .rmd (note this will also prep saveouts for unified DMN analyses)
-- **4B.III** LSD
-  .rmd
-### 4C. Magnitudes
-- **4C.I** MDMA
-  .rmd
-- **4C.II** Psilocybin
-  .rmd (note this will also prep saveouts for unified DMN analyses)
-- **4C.III** LSD
-  .rmd
 
-### 4D. Bottom-Up Analysis
+We are going to run DMN magnitude analyses first, then integration, then autocorrelation, and end with bottom-up because the first three print out metrics used for the AUC curves (ran in the bottom-up scripting). So for a small portion of the bottom-up scripts, magnitude integration and autocorrelation r scripts are a prerequisite. Note that all aggregation scripts should have been run by this point to organize .csvs for r to easily read.
+
+### 4A. Magnitudes
+- **4A.I** MDMA
+  After running the aggregation scripts, you should be able to download the aggregated files as .csvs to your local machine. I'd reccomend running the r code locally because rstudio is the bomb. The script used to calculate magnitude effects (decreases in DMN magnitude) for study 1 (MDMA) can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_Mag.Rmd). I'm going to leave the within-rmarkdown comments as standalone instructions because this readme is getting long. Note this script will also saveout magnitude for unified DMN analyses, i.e., the AUC curves in figure 4.
+  
+- **4A.II** Psilocybin
+  This is structured to be parallel to the study 1 (MDMA) analyses, but requires a little extra scripting just to organize all data in an equivalent fashion. The .rmd can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_Mag.Rmd). As prior, I'm going to leave the within-markdown comments as instructions.
+  
+- **4A.III** LSD
+  In what has become a pattern by this point, the mouse data will be easier to work with. This time it is because of the scan-session structure rather than the 2D vs. 3D data embedding. The markdown that calculates equivalent statistics for mouse LSD data is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice_Mag.Rmd).
+
+### 4B. DMN integration
+- **4B.I** MDMA
+  Post-aggregation DMN integration evaluation in study 1 is within the bottom-up analysis script (4D.I)
+- **4B.II** Psilocybin
+  Because the psilocybin scripts take a little more organizing code to get everything in stats-friendly format, the integration and autocorrelation scripts as separated out. You can find the script for evaluating DMN integration [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_DMNSeg.Rmd). Some variable names and comments are left as they were when copied over from Stats_n_Viz_psil.Rmd, as the script is equivalent but with different input .csvs.
+- **4B.III** LSD
+  Post-aggregation DMN integration evaluation in study 3 (mice/LSD) is within the bottom-up analysis script (4D.III).
+  
+### 4C. DMN Autocor
+- **4C.I** MDMA
+  Post-aggregation DMN autocorrelation evaluation in study 1 is within the bottom-up analysis script (4D.I)
+- **4C.II** Psilocybin
+  Because the psilocybin scripts take a little more organizing code to get everything in stats-friendly format, the integration and autocorrelation scripts as separated out. You can find the script for evaluating DMN integration [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_DMNTA.Rmd). Some variable names and comments are left as they were when copied over from Stats_n_Viz_psil.Rmd, as the script is equivalent but with different input .csvs.
+- **4C.III** LSD
+  Post-aggregation DMN autocorrelation evaluation in study 3 (mice/LSD) is within the bottom-up analysis script (4D.III).
+
+  ### 4D. Bottom-Up Analysis
 - **4D.I** MDMA
-  .rmd
+  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found in markdown format [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md).
 - **4D.II** Psilocybin
-  .rmd
-  .rmd of lasting effects
+  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md). Note this also has the lasting effects lil' chunk of code (just after line 1,000).
 - **4D.III** LSD
-  .rmd
+  The equivalent script for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md).
+
 
 ## 5. Bootstraps and AUC curves
-.rmd MDMA
-.rmd psil
-.rmd mice
+You can find the bootstrap and AUC analyses for MDMA (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "library(pROC)" to find where this section stats. If instead look at the .Rmd, this starts at line 1061.
+
+Same goes for bootstrap and AUC/bootstraps for psilocybin. Check out the [same markdown as prior](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md)
+
+Aaaaand same goes for mice. Here's the [link](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md)
 
 ## 6. Self-Report: MDMA
-.rmd MDMA
-## 7. Brain Visualizations
-  Viz DMN grad humans
-  Viz DMN grad mice
-  Viz Opfl vectors humans
-  Viz Opfl vectors mice
-  Connectome Workbench visualizations
+You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead look at the .Rmd, this starts at line 1374.
+
+## Appendix: code leveraged from other sources
+| Software | Citation | Use(s) in this project|
+|----------|----------|-----------------------|
+| Non negative matrix factorization adapted for brain data | Li, H. et al. (2017): Large-scale sparse functional networks from resting state fMRI. Neuroimage | NMF for human and mouse DMN delineation |
+| Freesurfer | Dale, A. et al. (1999): Cortical surface-baed analysis. I. Segmentation and surface reconstruction. Neuroimage | Cortical surface modeling |
+| g_ls.m   | Cui Z., et al. (2013): PANDA: a pipeline toolbox for analyzing brain diffusion images. Front Hum Neurosci | Listing files in a directory when in matlab |
+| fmriprep | Esteban, O., et al. (2018): fMRIPrep: a robust preprocessing pipeline for functional MRI. Nat Methods | Preprocessing of fmri data (prior to xcp-d) |
+| xcpd | Mehta, K., et al. (2024): XCP-D: A Robust Pipeline for the post-processing of fMRI data. Imaging Neurosci | Post-processing of fmri data |
+| Spherical Optical Flow | Kirisits, C., et al. (2013): Decomposition of optical flow on the sphere. International J. on Geomath | Optical flow on spherical surfaces (human data, inflated coritces) |
+| "flat" optical flow | Townsend, R. & Gong, P. (2018): Detection and analysis of spatiotemporal patterns in brain activity. PLoS Comp. Biol. | Optical flow on cortical window data (mice, Ca2+) |
+| ggplot | Wickham, H. (2016): ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York | Most figures made in R |
+| nlme | Pinheiro, J. & Bates, D (2000): Mixed-Effects Models in S and S-PLUS. Springer | Statistical testing in R |
+
+## Thank you x100 to these authors for distributing their code!
+
+
 

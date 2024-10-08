@@ -2,4 +2,5 @@
 slurm-*.out
 *.swp
 *.swo
+*xcpd.s*
 *logs/xcpd.s*

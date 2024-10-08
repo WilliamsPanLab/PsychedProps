@@ -1,15 +1,36 @@
----
-title: "stats_n_viz_mice"
-output: github_document
-date: "2024-05-15"
----
+stats_n\_viz_mice
+================
+2024-05-15
 
-```{r}
+``` r
 library(ggplot2)
 library(dplyr)
+```
+
+    ## 
+    ## Attaching package: 'dplyr'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     filter, lag
+
+    ## The following objects are masked from 'package:base':
+    ## 
+    ##     intersect, setdiff, setequal, union
+
+``` r
 library(ggdist)
 library(nlme)
+```
 
+    ## 
+    ## Attaching package: 'nlme'
+
+    ## The following object is masked from 'package:dplyr':
+    ## 
+    ##     collapse
+
+``` r
 # load in average DMN angles
 DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
 
@@ -38,7 +59,17 @@ ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
   scale_color_viridis_d(option = "plasma") +
   labs(x = "Timepoint", y = "% Bottom-up", color = "Variable",title='LSD') +
   theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+```
 
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+``` r
 # add drug value and test standalone
 DMNAngs_long$Drug=1
 DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
@@ -47,7 +78,34 @@ DMNAngs_long=na.omit(DMNAngs_long)
 
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##         AIC       BIC   logLik
+    ##   -174.4596 -168.4736 91.22982
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##          (Intercept)   Residual
+    ## StdDev: 5.044927e-07 0.01409907
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value   Std.Error DF  t-value p-value
+    ## (Intercept)  0.5501568 0.005755923 28 95.58099       0
+    ## Drug        -0.0362397 0.006323390 28 -5.73106       0
+    ##  Correlation: 
+    ##      (Intr)
+    ## Drug -0.91 
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##        Min         Q1        Med         Q3        Max 
+    ## -2.0901756 -0.6856360 -0.2060217  0.6769334  1.9060834 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 # sep. pre and post
 DMNAngs_long$TP=NULL
 DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
@@ -60,10 +118,9 @@ DMNAngs_longOG=DMNAngs_long
 
 # save df for eventual merge
 DMN_angles_long=DMNAngs_longOG
-
 ```
 
-```{r}
+``` r
 library(ggplot2)
 library(dplyr)
 # load in average DMN magnitudes
@@ -94,7 +151,17 @@ ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
   scale_color_viridis_d(option = "plasma") +
   labs(x = "Timepoint", y = "Magnitude", color = "Variable",title='LSD') +
   theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+```
 
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
 # add drug value and test standalone
 DMNAngs_long$Drug=1
 DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
@@ -103,7 +170,34 @@ DMNAngs_long=na.omit(DMNAngs_long)
 
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##        AIC      BIC    logLik
+    ##   7.412891 13.39892 0.2935546
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:   0.1706474 0.1950472
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value  Std.Error DF   t-value p-value
+    ## (Intercept)  2.4312277 0.10580166 28 22.979107       0
+    ## Drug        -0.5837643 0.08751149 28 -6.670716       0
+    ##  Correlation: 
+    ##      (Intr)
+    ## Drug -0.685
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -2.79123670 -0.63247684  0.04840861  0.58060200  1.70855564 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 ### and make plain figure version without longitudinal lines (Fig 2A)
 # sep. pre and post
 DMNAngs_long$TP=NULL
@@ -114,10 +208,9 @@ DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
 
 # save df for eventual merge
 DMN_Mags_long=DMNAngs_longOG
-
 ```
 
-```{r}
+``` r
 # load in average DMN FC
 DMNAngs=read.csv('~/Downloads/mice_DMNSeg_Merged_mice_LSD(1).csv',header=F)
 
@@ -145,7 +238,17 @@ ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
   scale_color_viridis_d(option = "plasma") +
   labs(x = "Timepoint", y = "DMN FC", color = "Variable",title='LSD') +
   theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+```
 
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
 # add drug value and test standalone
 DMNAngs_long$Drug=1
 DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
@@ -154,7 +257,34 @@ DMNAngs_long=na.omit(DMNAngs_long)
 
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##         AIC       BIC logLik
+    ##   -69.54599 -63.55996 38.773
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##          (Intercept)   Residual
+    ## StdDev: 1.602407e-06 0.06911073
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value  Std.Error DF   t-value p-value
+    ## (Intercept)  0.5706452 0.02821434 28 20.225364  0.0000
+    ## Drug        -0.0320732 0.03099594 28 -1.034755  0.3096
+    ##  Correlation: 
+    ##      (Intr)
+    ## Drug -0.91 
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -2.01896561 -0.76207291  0.06679519  0.76726463  1.68630645 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 ### and make plain figure version without longitudinal lines (Fig 2A)
 # sep. pre and post
 DMNAngs_long$TP=NULL
@@ -169,9 +299,9 @@ DMNAngs_longOG=DMNAngs_long
 
 # save df for eventual merge
 DMN_Segs_long=DMNAngs_longOG
-
 ```
-```{r}
+
+``` r
 # load in average DMN temporal autocor
 DMNAngs=read.csv('~/Downloads/mice_av_AutoCor_Merged_mice_LSD(1).csv',header=F)
 
@@ -200,7 +330,17 @@ ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
   scale_color_viridis_d(option = "plasma") +
   labs(x = "Timepoint", y = "DMN TAutoCor", color = "Variable",title='LSD') +
   theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+```
 
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_line()`).
+
+    ## Warning: Removed 1 row containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+
+``` r
 # add drug value and test standalone
 DMNAngs_long$Drug=1
 DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
@@ -209,7 +349,34 @@ DMNAngs_long=na.omit(DMNAngs_long)
 
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##        AIC      BIC   logLik
+    ##   -107.162 -101.176 57.58102
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:  0.01718593 0.0367268
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value  Std.Error DF  t-value p-value
+    ## (Intercept)  0.6142235 0.01655402 28 37.10418  0.0000
+    ## Drug        -0.0399952 0.01647603 28 -2.42747  0.0219
+    ##  Correlation: 
+    ##      (Intr)
+    ## Drug -0.824
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -1.90515604 -0.57627085  0.01555121  0.53979863  2.79898743 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 ### and make plain figure version without longitudinal lines (Fig 2A)
 # sep. pre and post
 DMNAngs_long$TP=NULL
@@ -222,9 +389,9 @@ DMNAngs_longOG=DMNAngs_long
 
 # save df for eventual merge
 DMN_autoCors_long=DMNAngs_longOG
-
 ```
-```{r}
+
+``` r
 # set column names of organized datafames
 colnames(DMN_angles_long)[3]<-'BUP'
 colnames(DMN_autoCors_long)[3]<-'TA'
@@ -236,7 +403,29 @@ mergedMice_LSD=merge(mergedMice_LSD,DMN_Mags_long,by=c('V1','Timepoint','id','Dr
 mergedMice_LSD=merge(mergedMice_LSD,DMN_Segs_long,by=c('V1','Timepoint','id','Drug','TP'))
 
 library(pROC)
+```
+
+    ## Type 'citation("pROC")' for a citation.
+
+    ## 
+    ## Attaching package: 'pROC'
+
+    ## The following objects are masked from 'package:stats':
+    ## 
+    ##     cov, smooth, var
+
+``` r
 library(plotROC)
+```
+
+    ## 
+    ## Attaching package: 'plotROC'
+
+    ## The following object is masked from 'package:pROC':
+    ## 
+    ##     ggroc
+
+``` r
 # Fit logistic regression models
 model1 <- glm(Drug ~  Seg + TA, data = mergedMice_LSD, family = binomial)
 model2 <- glm(Drug ~  Seg + TA+ Mag + BUP, data = mergedMice_LSD, family = binomial)
@@ -261,23 +450,48 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   scale_color_manual(values = c("#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
+``` r
 # Calculate AUC for each model
 roc1 <- roc(mergedMice_LSD$Drug, prob1)
-roc2 <- roc(mergedMice_LSD$Drug, prob2)
+```
 
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+``` r
+roc2 <- roc(mergedMice_LSD$Drug, prob2)
+```
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+``` r
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
 
 
 print(paste("AUC for DMN Correlations:", auc1))
+```
+
+    ## [1] "AUC for DMN Correlations: 0.78735632183908"
+
+``` r
 print(paste("AUC for DMN Propagations:", auc2))
+```
+
+    ## [1] "AUC for DMN Propagations: 0.96551724137931"
+
+``` r
 auc_diff=auc2-auc1
 ```
 
-```{r}
+``` r
 # make equivalent AUC calculations on permuted data
 
 # as in other scripts, commented out for online .md but does run
@@ -297,7 +511,7 @@ auc_diff=auc2-auc1
 #  # Fit logistic regression models
 #  model1 <- glm(Drug ~ Seg+TA, data = mergedMice_LSD, family = binomial)
 #  model2_perm <- glm(Drug ~Seg+TA+TDProp1_perm+DMNMag_perm, data = mergedMice_LSD, family = binomial)
-#	
+#   
 #  # 3. calculate AUC difference between full and reduced models with permuted data
 #  roc1 <- roc(mergedMice_LSD$Drug, predict(model1, type = "response"))
 #  roc2_perm <- roc(mergedMice_LSD$Drug, predict(model2_perm, type = "response"))
@@ -316,7 +530,7 @@ auc_diff=auc2-auc1
 # 0 indicates p <0.001
 ```
 
-```{r}
+``` r
 # also figure 3: bootstraps
 # great, now let's bootstrap them
 # Set the number of bootstrap samples
@@ -421,8 +635,9 @@ ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
     theme(legend.position = "none")+ylim(c(-14.5,14.5))
 ```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
-```{r}
+``` r
 # let's merge in dex and diaz all into one set to test for any interactions
 ### LSD ###
 # load in average DMN angles
@@ -503,11 +718,45 @@ masterMousedf <- within(masterMousedf, WhichDrug <- relevel(WhichDrug, ref = 2))
 # mixed effect model
 fit_lme <- lme(BUP ~ Drug*WhichDrug, random = ~ 1 | mouse, data = masterMousedf)
 summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: masterMousedf 
+    ##         AIC       BIC   logLik
+    ##   -270.3363 -258.7454 141.1682
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | mouse
+    ##         (Intercept)   Residual
+    ## StdDev: 0.003270766 0.01354526
+    ## 
+    ## Fixed effects:  BUP ~ Drug * WhichDrug 
+    ##                          Value   Std.Error DF  t-value p-value
+    ## (Intercept)          0.5507530 0.005682712 43 96.91728  0.0000
+    ## Drug1               -0.0361634 0.006075674 43 -5.95216  0.0000
+    ## WhichDrugDiaz       -0.0190838 0.008338099 43 -2.28875  0.0271
+    ## Drug1:WhichDrugDiaz  0.0238446 0.009265000 43  2.57362  0.0136
+    ##  Correlation: 
+    ##                     (Intr) Drug1  WhchDD
+    ## Drug1               -0.886              
+    ## WhichDrugDiaz       -0.666  0.604       
+    ## Drug1:WhichDrugDiaz  0.581 -0.656 -0.871
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -1.99710329 -0.67101318 -0.06431281  0.64931552  1.82622153 
+    ## 
+    ## Number of Observations: 55
+    ## Number of Groups: 9
+
+``` r
 library(sjPlot)
 plot_model(fit_lme,type='int',title='% bottom-up by Drug')
 ```
 
-```{r}
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+``` r
 # plot out distribution of scans
 masterMouseAll=rbind(DMNAngsLSD_long,DMNAngsDiaz_long,DMNAngsDex_long)
 masterMouseAll$WhichDrug2=NULL
@@ -547,11 +796,11 @@ ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
     axis.ticks = element_blank(),
     axis.line = element_blank()
   )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#EF9500","#002642","#840032"))
-
-
 ```
 
-```{r}
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
+``` r
 ### and make a No-drug vs. LSD plot
 # remove NA rows
 masterMouseAll=masterMouseAll[!is.na(masterMouseAll$Value),]
@@ -576,7 +825,11 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
        x = "",
        y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','LSD'))+
   theme_minimal(base_size=25)
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
 # copy in color scheme
 library(ggplot2)
 library(grDevices)
@@ -614,6 +867,11 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   scale_x_discrete(labels = c('No Drug', 'LSD')) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)
+```
+
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-10-2.png)<!-- -->
+
+``` r
 # job application version with reduced labels - 350 x 600
 ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 2, aes(color = Mice)) +  # Jittered points
@@ -624,7 +882,11 @@ ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)+
   theme(legend.position = "none",axis.text.x=element_text(angle=45))
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-10-3.png)<!-- -->
+
+``` r
 # plotting against active controls: figure 2: middle
 ggplot(masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',], aes(x = WhichDrug, y = Value)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 4, aes(color = V1)) +  # Jittered points
@@ -635,21 +897,20 @@ ggplot(masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',], aes(x = WhichDrug,
   #scale_x_discrete(labels = c('No Drug', 'LSD')) +
   scale_color_manual(values = generated_colors) +  # Custom generated color palette
   theme_minimal(base_size = 28)
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-10-4.png)<!-- -->
+
+``` r
 # model it
 actContrDf=masterMouseAll[masterMouseAll$WhichDrug2!='No Drug',]
 actContrDf$WhichDrug<-as.factor(actContrDf$WhichDrug)
 actContrDf <- within(actContrDf, WhichDrug <- relevel(WhichDrug, ref = 3))
 
 s <- lme(Value ~ WhichDrug, random = ~ 1 | V1, data = actContrDf)
-
-
 ```
 
-
-
-
-```{r}
+``` r
 # plot LSD time series
 # extract LSD
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='LSD',]
@@ -661,19 +922,21 @@ ggplot(DMNAngs_long, aes(x = Minutes, y = Value,  group = V1)) +
   scale_color_viridis_d(option = "plasma") +
   labs(x = "Minutes", y = "% Bottom-up", color = "Variable",title='LSD') +
   theme_minimal(base_size=25)+geom_vline(xintercept=0,linetype='dashed')+scale_color_manual(values = generated_colors)
-
-
-
-
 ```
 
+    ## Scale for colour is already present.
+    ## Adding another scale for colour, which will replace the existing scale.
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
-
-```{r}
+``` r
 library(ggplot2)
 library(viridis)
+```
 
+    ## Loading required package: viridisLite
+
+``` r
 # Define the extended custom palette function
 extended_palette <- colorRampPalette(rev(c("#FFEE00", "#EF9500", "#002642", "#c1004f", "#000000")))
 
@@ -703,7 +966,11 @@ DMNAngs_long_LSD$Minutes <- (DMNAngs_long_LSD$Timepoint - 1.5) * 5
 # Plot LSD data
 plot_lsd <- plot_data(DMNAngs_long_LSD, 'LSD')
 print(plot_lsd)
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+``` r
 # Extract Dex data
 DMNAngs_long_Dex <- masterMouseAll[masterMouseAll$WhichDrug == 'Dex',]
 # Create minutes column
@@ -711,28 +978,17 @@ DMNAngs_long_Dex$Minutes <- (DMNAngs_long_Dex$Timepoint - 1.5) * 5
 # Plot Dex data
 plot_dex <- plot_data(DMNAngs_long_Dex, 'Dexmedetomidine')
 print(plot_dex)
+```
 
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
+
+``` r
 # extract Diaz
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='Diaz',]
 # create minutes column
 DMNAngs_long$Minutes=(DMNAngs_long$Timepoint-1.5)*5
 plot_diaz <- plot_data(DMNAngs_long, 'Diazepam')
 print(plot_diaz)
-
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
