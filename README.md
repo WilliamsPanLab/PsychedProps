@@ -4,6 +4,8 @@ This document outlines the steps and methods used in the project. Below is a str
 
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
+If you want to find the code behind specific figures, I would use cntrl-f (apple-f for some of us) for "2A", "3C", etc. within this README.md. It should point you to the script that actually generates the figure from the processed data.
+
 This is non-comprehensive, but you might find [sbatch_OpFl.sh](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) (a parent script that sequentially launches individual processing scripts on scan sessions) useful for further orienting yourself to order-of-operations. If you are interested in cortical propagations broadly, you might also find [the replication guide](https://github.com/PennLINC/DevProps) from our previous [paper](https://www.sciencedirect.com/science/article/pii/S0896627323000387?via%3Dihub) useful. 
 
 ## 1. Preprocessing
@@ -211,13 +213,13 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 
 ### 4A. Magnitudes
 - **4A.I** MDMA
-  After running the aggregation scripts, you should be able to download the aggregated files as .csvs to your local machine. I'd reccomend running the r code locally because rstudio is the bomb. The script used to calculate magnitude effects (decreases in DMN magnitude) for study 1 (MDMA) can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_Mag.Rmd). I'm going to leave the within-rmarkdown comments as standalone instructions because this readme is getting long. Note this script will also saveout magnitude for unified DMN analyses, i.e., the AUC curves in figure 4.
+  After running the aggregation scripts, you should be able to download the aggregated files as .csvs to your local machine. I'd reccomend running the r code locally because rstudio is the bomb. The script used to calculate magnitude effects (decreases in DMN magnitude) for study 1 (MDMA) can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_Mag.Rmd). There's also a markdown version of the same script available [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_Mag.md).I'm going to leave the within-rmarkdown comments as standalone instructions because this readme is getting long. Note this script will also saveout magnitude for unified DMN analyses, i.e., the AUC curves in figure 4. Within this script, *Figures for 1A, 2B, and 2F are generated within* 
   
 - **4A.II** Psilocybin
-  This is structured to be parallel to the study 1 (MDMA) analyses, but requires a little extra scripting just to organize all data in an equivalent fashion. The .rmd can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_Mag.Rmd). As prior, I'm going to leave the within-markdown comments as instructions.
+  This is structured to be parallel to the study 1 (MDMA) analyses, but requires a little extra scripting just to organize all data in an equivalent fashion. The .rmd can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_Mag.Rmd). There's also a markdown (.md) version of the same file [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil_Mag.md) As prior, I'm going to leave the within-markdown comments as instructions. *Figures for 1A, 2C, and 2G are generated within* 
   
 - **4A.III** LSD
-  In what has become a pattern by this point, the mouse data will be easier to work with. This time it is because of the scan-session structure rather than the 2D vs. 3D data embedding. The markdown that calculates equivalent statistics for mouse LSD data is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice_Mag.Rmd).
+  In what has become a pattern by this point, the mouse data will be easier to work with. This time it is because of the scan-session structure rather than the 2D vs. 3D data embedding. The script that calculates equivalent statistics for mouse LSD data is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice_Mag.Rmd). Markdown available [here]. *Figures for 1A, 2J, 2K, 2L, and 2N are generated within* (https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice_Mag.md).
 
 ### 4B. DMN integration
 - **4B.I** MDMA
@@ -237,11 +239,11 @@ We are going to run DMN magnitude analyses first, then integration, then autocor
 
   ### 4D. Bottom-Up Analysis
 - **4D.I** MDMA
-  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found in markdown format [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md), or as an .rmd [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd).
+  Remember this script encapsulates DMN integration/segregation and autocorrelation scripting. It can be found in markdown format [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md), or as an .rmd [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd). *Figures for 1A, 3B, 3F, 4A, 4B, 4C, and 4D are generated within. Figures S4 and S8 are also generated in this script* 
 - **4D.II** Psilocybin
-  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md). Note this also has the lasting effects lil' chunk of code (just after line 1,000). The .rmd version is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.Rmd)
+  The equivalent script for psilocybin can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.md). Note this also has the lasting effects lil' chunk of code (just after line 1,000). The .rmd version is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz_psil.Rmd). *Figures for 1A, 3C, 3G, 4A, 4B and Figure S7 are generated within* 
 - **4D.III** LSD
-  The equivalent knit markdown for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md). The .rmd version can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.Rmd)
+  The equivalent knit markdown for mice can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md). The .rmd version can be found [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.Rmd). *Figures for 1A, 3J, 3K, 3L, 3N, 4A, and 4B are generated within*
 
 
 ## 5. Bootstraps and AUC curves
