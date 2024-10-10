@@ -50,7 +50,7 @@ This is non-comprehensive, but you might find [sbatch_OpFl.sh](https://github.co
 
   *Downsample by factor of 2 for NMF* - [BP_Smooth_oneHalf.py](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py)
 
-  *Downsample by factor of 6 for Optical flow* - [DS_Smooth_oneSixth_Drug.py](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/BP_Smooth_oneHalf.py) (adapted for each drug with file path and extensions)
+  *Downsample by factor of 6 for Optical flow* - [DS_Smooth_oneSixth_Drug.py](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/DS_Smooth_oneSixth_Drug.py) (adapted for each drug with file path and extensions)
 
    By the end of this section, you might notice that the mouse data is generally a little less cumbersome to process. That pattern will continue. 
 
