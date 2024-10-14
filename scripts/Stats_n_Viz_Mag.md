@@ -1,17 +1,15 @@
----
-title: "MDMA magnitude standalone"
-output: github_document
-date: "2023-07-13"
----
+MDMA magnitude standalone
+================
+2023-07-13
 
-```{r}
+``` r
 library(reshape2)
 library(ggplot2)
 library(visreg)
 library(nlme)
 ```
 
-```{r}
+``` r
 # prop angles
 rs1=read.csv('~/Downloads/rs1_DMNMagMerged(4).csv',header=F)
 rs2=read.csv('~/Downloads/rs2_DMNMagMerged(4).csv',header=F)
@@ -178,17 +176,16 @@ mergedDf$Drug=as.factor(mergedDf$Drug)
 mergedDf$Subjects<-as.factor(mergedDf$Subjects)
 mergedDf$Dosage<-as.factor(mergedDf$Dosage)
 mergedDfProps=mergedDf
-
 ```
 
-```{r}
+``` r
 # remove data that needs to be removed (subs 6 and 10, <250 TRs)
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
 mergedDf=mergedDf[mergedDf$RemTRs>250,]
 ```
 
-```{r}
+``` r
 # assign clearer subject labels
 # get unique subj names
 mergedDf$Subjects <- droplevels(mergedDf$Subjects)
@@ -241,8 +238,11 @@ ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
     axis.ticks = element_blank(),
     axis.line = element_blank()
   )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#EF9500","#002642","#840032"))
+```
 
+![](Stats_n_Viz_Mag_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
+``` r
 # generate extended color pal for subject plotting
 library(grDevices)
 # Define the extended custom palette function
@@ -270,17 +270,88 @@ ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals)) +
   scale_x_continuous(breaks = 1:2, labels = c('Placebo', 'MDMA')) +
   scale_color_manual(values = generated_colors)+
   theme_minimal(base_size=28)
+```
 
-    
-    
+![](Stats_n_Viz_Mag_files/figure-gfm/unnamed-chunk-4-2.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf_clean)
 summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: mergedDf_clean 
+    ##         AIC       BIC   logLik
+    ##   -1079.257 -1057.368 547.6287
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | Subjects
+    ##         (Intercept)    Residual
+    ## StdDev: 0.001649035 0.001588973
+    ## 
+    ## Fixed effects:  TDProp1 ~ Drug + RemTRs + MeanFD + Task 
+    ##                    Value   Std.Error  DF   t-value p-value
+    ## (Intercept)  0.008235748 0.003022477 101  2.724834  0.0076
+    ## Drug1       -0.002078404 0.000320057 101 -6.493863  0.0000
+    ## RemTRs      -0.000005481 0.000007165 101 -0.764958  0.4461
+    ## MeanFD       0.000998354 0.013102926 101  0.076193  0.9394
+    ## Taskrs       0.002642710 0.000909061 101  2.907078  0.0045
+    ## Taskwm       0.000712354 0.000851392 101  0.836693  0.4047
+    ##  Correlation: 
+    ##        (Intr) Drug1  RemTRs MeanFD Taskrs
+    ## Drug1   0.031                            
+    ## RemTRs -0.955 -0.022                     
+    ## MeanFD -0.891 -0.188  0.787              
+    ## Taskrs  0.839  0.029 -0.904 -0.752       
+    ## Taskwm  0.794  0.048 -0.850 -0.733  0.913
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -1.67031162 -0.63171111 -0.06836859  0.38128693  4.12671947 
+    ## 
+    ## Number of Observations: 120
+    ## Number of Groups: 14
+
+``` r
 # testing lme4 for robustness
 library(lme4)
+```
+
+    ## Loading required package: Matrix
+
+    ## 
+    ## Attaching package: 'lme4'
+
+    ## The following object is masked from 'package:nlme':
+    ## 
+    ##     lmList
+
+``` r
 library(lmerTest)
+```
+
+    ## 
+    ## Attaching package: 'lmerTest'
+
+    ## The following object is masked from 'package:lme4':
+    ## 
+    ##     lmer
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     step
+
+``` r
 fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf_clean)
+```
+
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+
+``` r
 # checks out
 
 #####
@@ -305,16 +376,59 @@ ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals)) +
        y = "Avg. Magnitude in DMN") + 
   scale_x_continuous(breaks = 1:2, labels = c('No Drug','MDMA')) +
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
-  
-  
+```
+
+![](Stats_n_Viz_Mag_files/figure-gfm/unnamed-chunk-4-3.png)<!-- -->
+
+``` r
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + MeanFD+Task, random = ~ 1 | Subjects, data = mergedDf)
 summary(fit_lme)
-
-# lme4 test for robustness
-fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf)
-# checks out
 ```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: mergedDf 
+    ##         AIC       BIC   logLik
+    ##   -1570.221 -1545.471 793.1106
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | Subjects
+    ##         (Intercept)    Residual
+    ## StdDev: 0.001457932 0.001579285
+    ## 
+    ## Fixed effects:  TDProp1 ~ Drug + RemTRs + MeanFD + Task 
+    ##                    Value   Std.Error  DF   t-value p-value
+    ## (Intercept)  0.008698962 0.002515142 150  3.458636  0.0007
+    ## Drug1       -0.001494817 0.000264161 150 -5.658739  0.0000
+    ## RemTRs      -0.000009030 0.000006078 150 -1.485735  0.1394
+    ## MeanFD      -0.002656836 0.010505804 150 -0.252892  0.8007
+    ## Taskrs       0.003398607 0.000764625 150  4.444801  0.0000
+    ## Taskwm       0.000952150 0.000713765 150  1.333983  0.1842
+    ##  Correlation: 
+    ##        (Intr) Drug1  RemTRs MeanFD Taskrs
+    ## Drug1  -0.039                            
+    ## RemTRs -0.953  0.072                     
+    ## MeanFD -0.871 -0.126  0.754              
+    ## Taskrs  0.844 -0.071 -0.910 -0.722       
+    ## Taskwm  0.804 -0.038 -0.857 -0.719  0.913
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##        Min         Q1        Med         Q3        Max 
+    ## -2.2340325 -0.6463812 -0.1275661  0.4939345  4.0972945 
+    ## 
+    ## Number of Observations: 169
+    ## Number of Groups: 14
 
+``` r
+# lme4 test for robustness
+fit_lmer <- lmer(TDProp1 ~ Drug + RemTRs + MeanFD+Task + (1 | Subjects), data = mergedDf)
+```
 
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+    ## Warning: Some predictor variables are on very different scales: consider
+    ## rescaling
+
+``` r
+# checks out
+```
