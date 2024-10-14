@@ -165,9 +165,9 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
   Again, this uses a parallel structure to what we used for aggregating magnitudes. The script for combining acquisition level measurements of bottom-up percentages for MDMA is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_ang_dif.m), with a parallel script for psilocybin [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Extract_ang_dif_psil.m). Note it's more complicated for psilocybin because of the non-fixed # of sessions and conditions per participant. For mice, the equivalent script is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/mice/Extract_ang_dif_mice.m)
 
     
-### 2C. Contrast Maps
+### 2D. Contrast Maps
 
-**2C.I** Humans
+**2D.I** Humans
 
 *Xue, I'm considering re-doing these magnitude ones in particular to make the plotting fully equivalent across all fMRI scripts (on faces rather than vertices). Won't change results, but maybe you can skip these magnitude contrast maps?*
 
@@ -177,7 +177,7 @@ Once we have our resulant vector fields, which describe the movement of BOLD/Ca2
 
   The same procecdure can be applied to generate contrasts maps for % bottom-up. Extract relative angles provides the output needed for [Calc_AvgBup](https://github.com/WilliamsPanLab/PsychedProps/blob/a95be2b4c4c29cbbb93ae411fc31911cdba23ab0/scripts/Calc_AvgBup.m) (MDMA) and [Calc_AvgBup_psil](https://github.com/WilliamsPanLab/PsychedProps/blob/a95be2b4c4c29cbbb93ae411fc31911cdba23ab0/scripts/Calc_AvgBup_psil.m). After calculating these values, we can use scripts equivalent to aggregate_avgMags to produce the same visualizations. The script for doing so is [here](https://github.com/WilliamsPanLab/PsychedProps/blob/a95be2b4c4c29cbbb93ae411fc31911cdba23ab0/scripts/Aggregate_AvgBup.m) for MDMA, and [here](https://github.com/WilliamsPanLab/PsychedProps/blob/a95be2b4c4c29cbbb93ae411fc31911cdba23ab0/scripts/Aggregate_AvgBup_psil.m) for psilocybin. 
 
-**2C.II** Mice
+**2D.II** Mice
 
   The scripts are a little simpler for mice because the data is more homogenous, 2d, etc. All aggregation and plotting of average magnitudes in LSD vs nodrug contrasts is in a script called [Aggregate_AvgMag_LSD.m](https://github.com/WilliamsPanLab/PsychedProps/blob/ccac39b7736991f33c2027a2964eb9d968369a55/scripts/mice/Aggregate_AvgMag_LSD.m).
   
