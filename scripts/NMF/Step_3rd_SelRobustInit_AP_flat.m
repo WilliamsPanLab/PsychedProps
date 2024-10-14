@@ -12,7 +12,7 @@ resultantFolder = [ProjectFolder '/RobustInitialization'];
 %mkdir(resultantFolder);
 inFile = [resultantFolder '/ParcelInit_List.txt'];
 system(['rm ' inFile]);
-% comp14_S1_5957_L_4964_ instead of just *comp14* selects just the newer/RS-only/motion-masked/dcan-matched run
+% select output files
 AllFiles = g_ls([ProjectFolder '/SingleParcellation/FlatMice_Initialization/*/Initialization_num30_comp13_S1_4122_L_2576_spaR_1_vxInfo_1_ard_0/*.mat']);
 for i = 1:length(AllFiles)
   cmd = ['echo ' AllFiles{i} ' >> ' inFile];

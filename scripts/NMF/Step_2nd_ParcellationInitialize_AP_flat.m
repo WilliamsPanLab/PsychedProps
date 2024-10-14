@@ -30,7 +30,7 @@ K = 13;
 % Repeat 50 times
 for i = 1:50
   disp(num2str(i));
-  % john cena'd (this is a bad joke, all it means is I set the file to find to a nonexistant file so it always passes this check)
+  % To force a run, this is intentionally set to a file that matlab "can't see" (because it doesn't exist). But is easily changed to a derivative so that this won't run if the file already exists
   ResultFile_check = dir([InitializationFolder, '/InitializationCANTSEEMERes_', num2str(i), '/*num', num2str(SubjectsQuantity),'_comp' num2str(K) '*/ini*.mat']);
   if isempty(ResultFile_check)
     SubjectsIDs = randperm(length(CiftiCell), SubjectsQuantity);
