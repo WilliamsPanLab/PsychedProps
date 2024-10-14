@@ -2,7 +2,7 @@
 #
 #SBATCH --job-name=OpFl
 #SBATCH --time=12:00:00
-#SBATCH -n 1
+#SBATCH -n 4
 #SBATCH --mem=25G
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
