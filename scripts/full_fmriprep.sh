@@ -17,7 +17,7 @@
 
 # NOTE: logs folder must exist!
 #STUDY="/scratch/users/apines/data/engage/data"
-STUDY="/oak/stanford/groups/leanew1/SHARED_DATASETS/private/connectome/bids/data"
+STUDY="/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data"
 BIDS_DIR="${STUDY}/bids-input"
 DERIVS_DIR="${STUDY}/derivatives/fmriprep-20.2.3"
 WF_DIR="${SCRATCH}/tmp"
