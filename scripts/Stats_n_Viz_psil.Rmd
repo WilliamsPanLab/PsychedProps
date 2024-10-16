@@ -1073,7 +1073,7 @@ df <- data.frame(
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
   geom_roc(n.cuts = 0, labels = FALSE) + 
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting Psilocybin") + 
+  ggtitle("ROC Curves for Classifying Psilocybin") + 
   theme_minimal(base_size=18) + 
   scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+

@@ -14,12 +14,12 @@ library(nlme)
 
 ```{r}
 # prop angles
-rs1=read.csv('~/Downloads/rs1_Psil_DMNMagMerged.csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_DMNMagMerged.csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_DMNMagMerged.csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_DMNMagMerged.csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_DMNMagMerged.csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_DMNMagMerged.csv',header=F)
+rs1=read.csv('~/Downloads/rs1_Psil_DMNMagMerged(2).csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_DMNMagMerged(2).csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_DMNMagMerged(2).csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_DMNMagMerged(2).csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_DMNMagMerged(2).csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_DMNMagMerged(2).csv',header=F)
 # set colnames
 #colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 #colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
