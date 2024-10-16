@@ -5,7 +5,6 @@ subSeshDose=readtable('~/subjSeshDoseCorresp.csv');
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 addpath('/oak/stanford/groups/leanew1/users/apines/scripts/')
-% get spherical coordinates of each vertex
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];

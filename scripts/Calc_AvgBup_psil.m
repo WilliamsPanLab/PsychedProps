@@ -10,7 +10,6 @@ addpath('/oak/stanford/groups/leanew1/users/apines/scripts/')
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
-% get spherical coordinates of each vertex
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];

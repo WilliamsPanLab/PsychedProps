@@ -7,10 +7,8 @@ subSeshDose=readtable('~/subjSeshDoseCorresp_psilo.csv');
 % add paths
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 addpath('/oak/stanford/groups/leanew1/users/apines/scripts/')
-ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
-addpath(genpath(ToolFolder));
+addpath('/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder/PANDA_1.3.1_64')
 
-% get spherical coordinates of each vertex
 % Load in surface data
 surfL = ['/oak/stanford/groups/leanew1/users/apines/surf/lh.sphere'];
 surfR = ['/oak/stanford/groups/leanew1/users/apines/surf/rh.sphere'];
@@ -28,13 +26,11 @@ V_L=vx_l;
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
-%%% need this to get more surface geometry information
-% get incenters of triangles
+% get mesh triangles
 TR_L = TriRep(F_L,V_L);
-% note X returns vertices rather than incenters of faces
-P_L = TR_L.X;
+P_L = TR_L;
 TR_R = TriRep(F_R,V_R);
-P_R = TR_R.X;
+P_R = TR_R;
 % translate xyz spherical coordinates to az/el/r
 [az_L,el_L,r_L]=cart2sph(P_L(:,1),P_L(:,2),P_L(:,3));
 [az_R,el_R,r_R]=cart2sph(P_R(:,1),P_R(:,2),P_R(:,3));
@@ -44,18 +40,6 @@ eld_L=rad2deg(el_L);
 azd_R=rad2deg(az_R);
 eld_R=rad2deg(el_R);
 
-% load in medial wall + SNR so we don't have to loop over every single vertex and then mask out later
-mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
-mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
-mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
-mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
-% note this is indexing for VALID vertices as opposed to some other scripts with 1 at INVALID vertices
-mw_L=ones(1,2562);
-mw_L(mwAndTSNR_L>0)=0;
-mw_R=ones(1,2562);
-mw_R(mwAndTSNR_R>0)=0;
-mw_L=logical(mw_L);
-mw_R=logical(mw_R);
 
 % get subj list
 subjPrefix=repmat('PS',10,1);
@@ -77,58 +61,50 @@ OpFl_rs_bv = struct();
 
 %%%% now loop over each condition to load in each and concatenate resting-state angular time series
 % get all baseline scans
-baselineStrSearch_L=strjoin([commonFP '/' subj '/Baseline*/*_p2mm_masked_Vert_Angles_L.mat'],'');
-baselineStrSearch_R=strjoin([commonFP '/' subj '/Baseline*/*_p2mm_masked_Vert_Angles_R.mat'],'');
-bvscans_L=g_ls(char(baselineStrSearch_L));
-bvscans_R=g_ls(char(baselineStrSearch_R));
+baselineStrSearch=strjoin([commonFP '/' subj '/Baseline*/*_OpFl.mat'],'');
+bvscans=g_ls(char(baselineStrSearch));
 % loop over all baseline %%
-for c=1:length(bvscans_L);
+for c=1:length(bvscans);
 	% extract Baseline # and task (rs1-rs6) from filename
-	info=strsplit(bvscans_L{c},'/');
+	info=strsplit(bvscans{c},'/');
 	sesh=info{8};
 	filename=info{9};
 	fileinfo=strsplit(filename,'_');
 	task=fileinfo{3};
 	% use extracted info to pull in number of remaining TRs
-	survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
+	survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
 	survivingTrs=load(survivingTrsFP);
 	% if remaining TRs > 250, concatenate it onto struct
 	if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;	
 		OpFl_rs_bv.(['f' num2str(c)])=struct();
-		% LOAD IN ANGULAR TIME SERIES instead (and facewise)
-		fpl=bvscans_L{c};
-		fpr=bvscans_R{c};
-		OpFl_rs_bv.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
-		OpFl_rs_bv.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
+		% load in optical flow output
+		OpFl_rs_bv.(['f' num2str(c)]).L=load(bvscans{c}).us.vf_left;
+		OpFl_rs_bv.(['f' num2str(c)]).R=load(bvscans{c}).us.vf_right;
 	end
 end
 
 % initialize opfl structure to hold each condition/hemisphere
 OpFl_rs_bw = struct();
 % get all between scans
-betweenStrSearch_L=strjoin([commonFP '/' subj '/Between*/*_p2mm_masked_Vert_Angles_L.mat'],'');
-betweenStrSearch_R=strjoin([commonFP '/' subj '/Between*/*_p2mm_masked_Vert_Angles_R.mat'],'');
-bwscans_L=g_ls(char(betweenStrSearch_L));
-bwscans_R=g_ls(char(betweenStrSearch_R));
+betweenStrSearch=strjoin([commonFP '/' subj '/Between*/*_OpFl.mat'],'');
+bwscans=g_ls(char(betweenStrSearch));
 % loop over all between %%
-for c=1:length(bwscans_L);
+for c=1:length(bwscans);
         % extract between # and task (rs1-rs6) from filename
-        info=strsplit(bwscans_L{c},'/');
+        info=strsplit(bwscans{c},'/');
         sesh=info{8};
         filename=info{9};
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
+	survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
         % if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250; 
                 OpFl_rs_bw.(['f' num2str(c)])=struct();
-                % LOAD IN ANGULAR TIME SERIES instead (and facewise)
-                fpl=bwscans_L{c};
-                fpr=bwscans_R{c};
-                OpFl_rs_bw.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
-                OpFl_rs_bw.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
+                % load in optical flow output
+                OpFl_rs_bw.(['f' num2str(c)]).L=load(bwscans{c}).us.vf_left;
+                OpFl_rs_bw.(['f' num2str(c)]).R=load(bwscans{c}).us.vf_right;
         end
 end
 
@@ -136,29 +112,25 @@ end
 % initialize opfl structure to hold each condition/hemisphere
 OpFl_rs_af = struct();
 % get all after scans
-afterStrSearch_L=strjoin([commonFP '/' subj '/After*/*_p2mm_masked_Vert_Angles_L.mat'],'');
-afterStrSearch_R=strjoin([commonFP '/' subj '/After*/*_p2mm_masked_Vert_Angles_R.mat'],'');
-afscans_L=g_ls(char(afterStrSearch_L));
-afscans_R=g_ls(char(afterStrSearch_R));
+afterStrSearch=strjoin([commonFP '/' subj '/After*/*_OpFl.mat'],'');
+afscans=g_ls(char(afterStrSearch));
 % loop over all after %%
-for c=1:length(afscans_L);
+for c=1:length(afscans);
         % extract after # and task (rs1-rs6) from filename
-        info=strsplit(afscans_L{c},'/');
+        info=strsplit(afscans{c},'/');
         sesh=info{8};
         filename=info{9};
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        % if remaining TRs > 250, concatenate it onto struct
+	% if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
                 OpFl_rs_af.(['f' num2str(c)])=struct();
-                % LOAD IN ANGULAR TIME SERIES instead (and facewise)
-                fpl=afscans_L{c};
-                fpr=afscans_R{c};
-                OpFl_rs_af.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
-                OpFl_rs_af.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
+                % load in optical flow output
+                OpFl_rs_af.(['f' num2str(c)]).L=load(afscans{c}).us.vf_left;
+                OpFl_rs_af.(['f' num2str(c)]).R=load(afscans{c}).us.vf_right;
         end
 end
 
@@ -168,29 +140,25 @@ OpFl_rs_p = struct();
 % figure out which is psil and which is methyl for this PT
 psilNum=subSeshDose{1,s};
 % get all psil scans
-psilStrSearch_L=strjoin([commonFP '/' subj '/Drug' num2str(psilNum) '/*_p2mm_masked_Vert_Angles_L.mat'],'');
-psilStrSearch_R=strjoin([commonFP '/' subj '/Drug' num2str(psilNum) '/*_p2mm_masked_Vert_Angles_R.mat'],'');
-pscans_L=g_ls(char(psilStrSearch_L));
-pscans_R=g_ls(char(psilStrSearch_R));
-% loop over all between %%
-for c=1:length(pscans_L);
+psilStrSearch=strjoin([commonFP '/' subj '/Drug' num2str(psilNum) '/*_OpFl.mat'],'');
+pscans=g_ls(char(psilStrSearch));
+% loop over all psil %%
+for c=1:length(pscans);
         % extract drug # and task (rs1-rs6) from filename
-        info=strsplit(pscans_L{c},'/');
+        info=strsplit(pscans{c},'/');
         sesh=info{8};
         filename=info{9};
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        % if remaining TRs > 250, concatenate it onto struct
+	% if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
                 OpFl_rs_p.(['f' num2str(c)])=struct();
-                % LOAD IN ANGULAR TIME SERIES instead (and facewise)
-                fpl=pscans_L{c};
-                fpr=pscans_R{c};
-                OpFl_rs_p.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
-                OpFl_rs_p.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
+                % load in optical flow output
+                OpFl_rs_p.(['f' num2str(c)]).L=load(pscans{c}).us.vf_left;
+                OpFl_rs_p.(['f' num2str(c)]).R=load(pscans{c}).us.vf_right;
         end
 end
 
@@ -200,50 +168,130 @@ OpFl_rs_m = struct();
 methyNum=setdiff([1 2],psilNum);
 
 % get all methyl scans
-methStrSearch_L=strjoin([commonFP '/' subj '/Drug' num2str(methyNum) '/*_p2mm_masked_Vert_Angles_L.mat'],'');
-methStrSearch_R=strjoin([commonFP '/' subj '/Drug' num2str(methyNum) '/*_p2mm_masked_Vert_Angles_R.mat'],'');
-mscans_L=g_ls(char(methStrSearch_L));
-mscans_R=g_ls(char(methStrSearch_R));
-% loop over all between %%
-for c=1:length(mscans_L);
+methStrSearch=strjoin([commonFP '/' subj '/Drug' num2str(methyNum) '/*_OpFl.mat'],'');
+mscans=g_ls(char(methStrSearch));
+% loop over all meth %%
+for c=1:length(mscans);
         % extract drug # and task (rs1-rs6) from filename
-        info=strsplit(mscans_L{c},'/');
+        info=strsplit(mscans{c},'/');
         sesh=info{8};
         filename=info{9};
         fileinfo=strsplit(filename,'_');
         task=fileinfo{3};
         % use extracted info to pull in number of remaining TRs
-        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_ValidSegments_Trunc.txt'],'');
+        survivingTrsFP=strjoin([commonFP '/' subj '/' sesh '/' subj '_' sesh '_task-' task '_ValidSegments_Trunc.txt'],'');
         survivingTrs=load(survivingTrsFP);
-        % if remaining TRs > 250, concatenate it onto struct
+	% if remaining TRs > 250, concatenate it onto struct
         if size(survivingTrs, 2) > 1 && sum(survivingTrs(:,2))>250;
                 OpFl_rs_m.(['f' num2str(c)])=struct();
-                % LOAD IN ANGULAR TIME SERIES instead (and facewise)
-                fpl=mscans_L{c};
-                fpr=mscans_R{c};
-                OpFl_rs_m.(['f' num2str(c)]).L=load(fpl).vertWise_Vecs_l(mw_L,:,:);
-                OpFl_rs_m.(['f' num2str(c)]).R=load(fpr).vertWise_Vecs_r(mw_R,:,:);
+		% load in optical flow output
+                OpFl_rs_m.(['f' num2str(c)]).L=load(mscans{c}).us.vf_left;
+                OpFl_rs_m.(['f' num2str(c)]).R=load(mscans{c}).us.vf_right;                
         end
 end
 
 % saveout filepath
 outFP=['/scratch/users/apines/data/psil/' subj];
 
-% create valid verts of surface geometry
-valid_verts_L=find(mw_L);
-valid_verts_R=find(mw_R);
-
 % initialize 2d vector arrays
-bv_L=zeros(sum(mw_L),1);
-bv_R=zeros(sum(mw_R),1);
-bw_L=zeros(sum(mw_L),1);
-bw_R=zeros(sum(mw_R),1);
-af_L=zeros(sum(mw_L),1);
-af_R=zeros(sum(mw_R),1);
-m_L=zeros(sum(mw_L),1);
-m_R=zeros(sum(mw_R),1);
-p_L=zeros(sum(mw_L),1);
-p_R=zeros(sum(mw_R),1);
+bv_L=zeros(5120,1);
+bv_R=zeros(5120,1);
+bw_L=zeros(5120,1);
+bw_R=zeros(5120,1);
+af_L=zeros(5120,1);
+af_R=zeros(5120,1);
+m_L=zeros(5120,1);
+m_R=zeros(5120,1);
+p_L=zeros(5120,1);
+p_R=zeros(5120,1);
+
+% remove cell structure for more straightforward array
+% Loop through each field in OpFl_rs_bv
+for field = fieldnames(OpFl_rs_bv)'
+    f = field{1}; 
+    % Get the number of cells
+    num_cells = numel(OpFl_rs_bv.(f).L);
+    % Preallocate arrays for L and R with the correct size
+    L_array = zeros(5120, num_cells, 3);
+    R_array = zeros(5120, num_cells, 3);
+    % Populate the arrays by preserving the original correspondence
+    for j = 1:num_cells
+        L_array(:, j, :) = OpFl_rs_bv.(f).L{j};
+        R_array(:, j, :) = OpFl_rs_bv.(f).R{j};
+    end
+    % Update the struct with the new arrays
+    OpFl_rs_bv.(f).L = L_array;
+    OpFl_rs_bv.(f).R = R_array;
+end
+% Loop through each field in OpFl_rs_bw
+for field = fieldnames(OpFl_rs_bw)'
+    f = field{1};
+    % Get the number of cells
+    num_cells = numel(OpFl_rs_bw.(f).L);
+    % Preallocate arrays for L and R with the correct size
+    L_array = zeros(5120, num_cells, 3);
+    R_array = zeros(5120, num_cells, 3);
+    % Populate the arrays by preserving the original correspondence
+    for j = 1:num_cells
+        L_array(:, j, :) = OpFl_rs_bw.(f).L{j};
+        R_array(:, j, :) = OpFl_rs_bw.(f).R{j};
+    end
+    % Update the struct with the new arrays
+    OpFl_rs_bw.(f).L = L_array;
+    OpFl_rs_bw.(f).R = R_array;
+end
+% Loop through each field in OpFl_rs_af
+for field = fieldnames(OpFl_rs_af)'
+    f = field{1};
+    % Get the number of cells
+    num_cells = numel(OpFl_rs_af.(f).L);
+    % Preallocate arrays for L and R with the correct size
+    L_array = zeros(5120, num_cells, 3);
+    R_array = zeros(5120, num_cells, 3);
+    % Populate the arrays by preserving the original correspondence
+    for j = 1:num_cells
+        L_array(:, j, :) = OpFl_rs_af.(f).L{j};
+        R_array(:, j, :) = OpFl_rs_af.(f).R{j};
+    end
+    % Update the struct with the new arrays
+    OpFl_rs_af.(f).L = L_array;
+    OpFl_rs_af.(f).R = R_array;
+end
+% Loop through each field in OpFl_rs_p
+for field = fieldnames(OpFl_rs_p)'
+    f = field{1};
+    % Get the number of cells
+    num_cells = numel(OpFl_rs_p.(f).L);
+    % Preallocate arrays for L and R with the correct size
+    L_array = zeros(5120, num_cells, 3);
+    R_array = zeros(5120, num_cells, 3);
+    % Populate the arrays by preserving the original correspondence
+    for j = 1:num_cells
+        L_array(:, j, :) = OpFl_rs_p.(f).L{j};
+        R_array(:, j, :) = OpFl_rs_p.(f).R{j};
+    end
+    % Update the struct with the new arrays
+    OpFl_rs_p.(f).L = L_array;
+    OpFl_rs_p.(f).R = R_array;
+end
+% Loop through each field in OpFl_rs_m
+for field = fieldnames(OpFl_rs_m)'
+    f = field{1};
+    % Get the number of cells
+    num_cells = numel(OpFl_rs_m.(f).L);
+    % Preallocate arrays for L and R with the correct size
+    L_array = zeros(5120, num_cells, 3);
+    R_array = zeros(5120, num_cells, 3);
+    % Populate the arrays by preserving the original correspondence
+    for j = 1:num_cells
+        L_array(:, j, :) = OpFl_rs_m.(f).L{j};
+        R_array(:, j, :) = OpFl_rs_m.(f).R{j};
+    end
+    % Update the struct with the new arrays
+    OpFl_rs_m.(f).L = L_array;
+    OpFl_rs_m.(f).R = R_array;
+end
+
 
 % aggregate before scans
 % Get the list of fields in the struct
@@ -251,58 +299,58 @@ fields = fieldnames(OpFl_rs_bv);
 % Loop over each field
 for i = 1:length(fields)
    fieldName = fields{i};
-   % initialize vertexwise vector for this field
-   vwise_vec_L=zeros(sum(mw_L),1);
-   vwise_vec_R=zeros(sum(mw_R),1);
+   % initialize facewise vector for this field
+   fwise_vec_L=zeros(5120,1);
+   fwise_vec_R=zeros(5120,1);
    % loop over each vertex: left hemisphere
-   for v=1:sum(mw_L)
+   for f=1:5120
    	% Extract the L and R matrices
    	bv_vecs_L = OpFl_rs_bv.(fieldName).L;
    	% get the average magnitude per vertex
-   	x_comps_L = bv_vecs_L(v,:,1);
-	y_comps_L = bv_vecs_L(v,:,2);
-	z_comps_L = bv_vecs_L(v,:,3);
+   	x_comps_L = bv_vecs_L(f,:,1);
+	y_comps_L = bv_vecs_L(f,:,2);
+	z_comps_L = bv_vecs_L(f,:,3);
 	% for each timepoint
 	for tp=1:size(bv_vecs_L,2);
 		x_comp_L=x_comps_L(tp);
 		y_comp_L=y_comps_L(tp);
 		z_comp_L=z_comps_L(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(f),eld_L(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+		fwise_vec_L(f)=fwise_vec_L(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_L=vwise_vec_L./(size(bv_vecs_L,2));
+    fwise_vec_L=fwise_vec_L./(size(bv_vecs_L,2));
     % right hemisphere
-    for v=1:sum(mw_R)
+    for f=1:5120
 	% Extract the L and R matrices
 	bv_vecs_R = OpFl_rs_bv.(fieldName).R;
 	% get the average magnitude per vertex
-	x_comps_R = bv_vecs_R(v,:,1);
-	y_comps_R = bv_vecs_R(v,:,2);
-	z_comps_R = bv_vecs_R(v,:,3);
+	x_comps_R = bv_vecs_R(f,:,1);
+	y_comps_R = bv_vecs_R(f,:,2);
+	z_comps_R = bv_vecs_R(f,:,3);
 	% for each timepoint
 	for tp=1:size(bv_vecs_R,2);
 		x_comp_R=x_comps_R(tp);
 		y_comp_R=y_comps_R(tp);
 		z_comp_R=z_comps_R(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(f),eld_R(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+		fwise_vec_R(f)=fwise_vec_R(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_R=vwise_vec_R./(size(bv_vecs_R,2));
+    fwise_vec_R=fwise_vec_R./(size(bv_vecs_R,2));
     % add in vwise vecs to bv_L and bv_R
-    bv_L=bv_L+vwise_vec_L;
-    bv_R=bv_R+vwise_vec_R;
+    bv_L=bv_L+fwise_vec_L;
+    bv_R=bv_R+fwise_vec_R;
 end
 % average across each scan
 avg_L = bv_L / length(fields);
@@ -321,57 +369,57 @@ fields = fieldnames(OpFl_rs_bw);
 for i = 1:length(fields)
     fieldName = fields{i};
     % initialize vertexwise vector for this field
-    vwise_vec_L=zeros(sum(mw_L),1);
-    vwise_vec_R=zeros(sum(mw_R),1);
+    fwise_vec_L=zeros(5120,1);
+    fwise_vec_R=zeros(5120,1);
     % loop over each vertex: left hemisphere
-    for v=1:sum(mw_L)
+    for f=1:5120
 	% Extract the L and R matrices
 	bw_vecs_L = OpFl_rs_bw.(fieldName).L;
 	% get the average magnitude per vertex
-	x_comps_L = bw_vecs_L(v,:,1);
-	y_comps_L = bw_vecs_L(v,:,2);
-	z_comps_L = bw_vecs_L(v,:,3);
+	x_comps_L = bw_vecs_L(f,:,1);
+	y_comps_L = bw_vecs_L(f,:,2);
+	z_comps_L = bw_vecs_L(f,:,3);
 	% for each timepoint
 	for tp=1:size(bw_vecs_L,2);
 		x_comp_L=x_comps_L(tp);
 		y_comp_L=y_comps_L(tp);
 		z_comp_L=z_comps_L(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(f),eld_L(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+		fwise_vec_L(f)=fwise_vec_L(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_L=vwise_vec_L./(size(bw_vecs_L,2));
+    fwise_vec_L=fwise_vec_L./(size(bw_vecs_L,2));
     % right hemisphere
-    for v=1:sum(mw_R)
+    for f=1:5120
 	% Extract the L and R matrices
 	bw_vecs_R = OpFl_rs_bw.(fieldName).R;
 	% get the average magnitude per vertex
-	x_comps_R = bw_vecs_R(v,:,1);
-	y_comps_R = bw_vecs_R(v,:,2);
-	z_comps_R = bw_vecs_R(v,:,3);
+	x_comps_R = bw_vecs_R(f,:,1);
+	y_comps_R = bw_vecs_R(f,:,2);
+	z_comps_R = bw_vecs_R(f,:,3);
 	% for each timepoint
 	for tp=1:size(bw_vecs_R,2);
 		x_comp_R=x_comps_R(tp);
 		y_comp_R=y_comps_R(tp);
 		z_comp_R=z_comps_R(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(f),eld_R(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+		fwise_vec_R(f)=fwise_vec_R(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_R=vwise_vec_R./(size(bw_vecs_R,2));
+    fwise_vec_R=fwise_vec_R./(size(bw_vecs_R,2));
     % add in vwise vecs to bw_L and bw_R
-    bw_L=bw_L+vwise_vec_L;
-    bw_R=bw_R+vwise_vec_R;
+    bw_L=bw_L+fwise_vec_L;
+    bw_R=bw_R+fwise_vec_R;
 end
 % average across each scan
 avg_L = bw_L / length(fields);
@@ -390,57 +438,57 @@ fields = fieldnames(OpFl_rs_af);
 for i = 1:length(fields)
     fieldName = fields{i};
     % initialize vertexwise vector for this field
-    vwise_vec_L=zeros(sum(mw_L),1);
-    vwise_vec_R=zeros(sum(mw_R),1);
+    fwise_vec_L=zeros(5120,1);
+    fwise_vec_R=zeros(5120,1);
     % loop over each vertex: left hemisphere
-    for v=1:sum(mw_L)
+    for f=1:5120
 	% Extract the L and R matrices
 	af_vecs_L = OpFl_rs_af.(fieldName).L;
 	% get the average magnitude per vertex
-	x_comps_L = af_vecs_L(v,:,1);
-	y_comps_L = af_vecs_L(v,:,2);
-	z_comps_L = af_vecs_L(v,:,3);
+	x_comps_L = af_vecs_L(f,:,1);
+	y_comps_L = af_vecs_L(f,:,2);
+	z_comps_L = af_vecs_L(f,:,3);
 	% for each timepoint
 	for tp=1:size(af_vecs_L,2);
 		x_comp_L=x_comps_L(tp);
 		y_comp_L=y_comps_L(tp);
 		z_comp_L=z_comps_L(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(f),eld_L(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+		fwise_vec_L(f)=fwise_vec_L(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_L=vwise_vec_L./(size(af_vecs_L,2));
+    fwise_vec_L=fwise_vec_L./(size(af_vecs_L,2));
     % right hemisphere
-    for v=1:sum(mw_R)
+    for f=1:5120
 	% Extract the L and R matrices
 	af_vecs_R = OpFl_rs_af.(fieldName).R;
 	% get the average magnitude per vertex
-	x_comps_R = af_vecs_R(v,:,1);
-	y_comps_R = af_vecs_R(v,:,2);
-	z_comps_R = af_vecs_R(v,:,3);
+	x_comps_R = af_vecs_R(f,:,1);
+	y_comps_R = af_vecs_R(f,:,2);
+	z_comps_R = af_vecs_R(f,:,3);
 	% for each timepoint
 	for tp=1:size(af_vecs_R,2);
 		x_comp_R=x_comps_R(tp);
 		y_comp_R=y_comps_R(tp);
 		z_comp_R=z_comps_R(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(f),eld_R(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+		fwise_vec_R(f)=fwise_vec_R(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_R=vwise_vec_R./(size(af_vecs_R,2));
+    fwise_vec_R=fwise_vec_R./(size(af_vecs_R,2));
     % add in vwise vecs to af_L and af_R
-    af_L=af_L+vwise_vec_L;
-    af_R=af_R+vwise_vec_R;
+    af_L=af_L+fwise_vec_L;
+    af_R=af_R+fwise_vec_R;
 end
 
 % average across each scan
@@ -458,57 +506,57 @@ fields = fieldnames(OpFl_rs_p);
 for i = 1:length(fields)
     fieldName = fields{i};
     % initialize vertexwise vector for this field
-    vwise_vec_L=zeros(sum(mw_L),1);
-    vwise_vec_R=zeros(sum(mw_R),1);
+    fwise_vec_L=zeros(5120,1);
+    fwise_vec_R=zeros(5120,1);
     % loop over each vertex: left hemisphere
-    for v=1:sum(mw_L)
+    for f=1:5120
 	% Extract the L and R matrices
 	p_vecs_L = OpFl_rs_p.(fieldName).L;
 	% get the average magnitude per vertex
-	x_comps_L = p_vecs_L(v,:,1);
-	y_comps_L = p_vecs_L(v,:,2);
-	z_comps_L = p_vecs_L(v,:,3);
+	x_comps_L = p_vecs_L(f,:,1);
+	y_comps_L = p_vecs_L(f,:,2);
+	z_comps_L = p_vecs_L(f,:,3);
 	% for each timepoint
 	for tp=1:size(p_vecs_L,2);
 		x_comp_L=x_comps_L(tp);
 		y_comp_L=y_comps_L(tp);
 		z_comp_L=z_comps_L(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(f),eld_L(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+		fwise_vec_L(f)=fwise_vec_L(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_L=vwise_vec_L./(size(p_vecs_L,2));
+    fwise_vec_L=fwise_vec_L./(size(p_vecs_L,2));
     % right hemisphere
-    for v=1:sum(mw_R)
+    for f=1:5120
 	% Extract the L and R matrices
 	p_vecs_R = OpFl_rs_p.(fieldName).R;
 	% get the average magnitude per vertex
-	x_comps_R = p_vecs_R(v,:,1);
-	y_comps_R = p_vecs_R(v,:,2);
-	z_comps_R = p_vecs_R(v,:,3);
+	x_comps_R = p_vecs_R(f,:,1);
+	y_comps_R = p_vecs_R(f,:,2);
+	z_comps_R = p_vecs_R(f,:,3);
 	% for each timepoint
 	for tp=1:size(p_vecs_R,2);
 		x_comp_R=x_comps_R(tp);
 		y_comp_R=y_comps_R(tp);
 		z_comp_R=z_comps_R(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(f),eld_R(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+		fwise_vec_R(f)=fwise_vec_R(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_R=vwise_vec_R./(size(p_vecs_R,2));
+    fwise_vec_R=fwise_vec_R./(size(p_vecs_R,2));
     % add in vwise vecs to p_L and p_R
-    p_L=p_L+vwise_vec_L;
-    p_R=p_R+vwise_vec_R;
+    p_L=p_L+fwise_vec_L;
+    p_R=p_R+fwise_vec_R;
 end
 % average across each scan
 avg_L = p_L / length(fields);
@@ -526,57 +574,57 @@ fields = fieldnames(OpFl_rs_m);
 for i = 1:length(fields)
     fieldName = fields{i};
     % initialize vertexwise vector for this field
-    vwise_vec_L=zeros(sum(mw_L),1);
-    vwise_vec_R=zeros(sum(mw_R),1);
+    fwise_vec_L=zeros(5120,1);
+    fwise_vec_R=zeros(5120,1);
     % loop over each vertex: left hemisphere
-    for v=1:sum(mw_L)
+    for f=1:5120
 	% Extract the L and R matrices
 	m_vecs_L = OpFl_rs_m.(fieldName).L;
 	% get the average magnitude per vertex
-	x_comps_L = m_vecs_L(v,:,1);
-	y_comps_L = m_vecs_L(v,:,2);
-	z_comps_L = m_vecs_L(v,:,3);
+	x_comps_L = m_vecs_L(f,:,1);
+	y_comps_L = m_vecs_L(f,:,2);
+	z_comps_L = m_vecs_L(f,:,3);
 	% for each timepoint
 	for tp=1:size(m_vecs_L,2);
 		x_comp_L=x_comps_L(tp);
 		y_comp_L=y_comps_L(tp);
 		z_comp_L=z_comps_L(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(valid_verts_L(v)),eld_L(valid_verts_L(v)));
+		azelrho=cart2sphvec(double([x_comp_L;y_comp_L;z_comp_L]),azd_L(f),eld_L(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_L(v)=vwise_vec_L(v)+magnitude;
+		fwise_vec_L(f)=fwise_vec_L(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_L=vwise_vec_L./(size(m_vecs_L,2));
+    fwise_vec_L=fwise_vec_L./(size(m_vecs_L,2));
     % right hemisphere
-    for v=1:sum(mw_R)
+    for f=1:5120
 	% Extract the L and R matrices
 	m_vecs_R = OpFl_rs_m.(fieldName).R;
 	% get the average magnitude per vertex
-	x_comps_R = m_vecs_R(v,:,1);
-	y_comps_R = m_vecs_R(v,:,2);
-	z_comps_R = m_vecs_R(v,:,3);
+	x_comps_R = m_vecs_R(f,:,1);
+	y_comps_R = m_vecs_R(f,:,2);
+	z_comps_R = m_vecs_R(f,:,3);
 	% for each timepoint
 	for tp=1:size(m_vecs_R,2);
 		x_comp_R=x_comps_R(tp);
 		y_comp_R=y_comps_R(tp);
 		z_comp_R=z_comps_R(tp);
 		% convert them to x y tangent coordinates (measured in a 2D tangent plane to each point on the 3D sphere)
-		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(valid_verts_R(v)),eld_R(valid_verts_R(v)));
+		azelrho=cart2sphvec(double([x_comp_R;y_comp_R;z_comp_R]),azd_R(f),eld_R(f));
 		% convert now x-y equivalent vectors to magnitude
 		xy=azelrho(1:2);
 		magnitude = sqrt(sum(xy .^ 2));
-		vwise_vec_R(v)=vwise_vec_R(v)+magnitude;
+		fwise_vec_R(f)=fwise_vec_R(f)+magnitude;
 	end
     end
     % correct magnitude by length of time series to get average
-    vwise_vec_R=vwise_vec_R./(size(m_vecs_R,2));
+    fwise_vec_R=fwise_vec_R./(size(m_vecs_R,2));
     % add in vwise vecs to m_L and m_R
-    m_L=m_L+vwise_vec_L;
-    m_R=m_R+vwise_vec_R;
+    m_L=m_L+fwise_vec_L;
+    m_R=m_R+fwise_vec_R;
 end
 % average across each scan
 avg_L = m_L / length(fields);

@@ -246,9 +246,6 @@ for k=1:4
         % initialize angular distance vector for each network (l and r) above
         NangDs_L=zeros(length(InclLeft),lenOpFl);
         NangDs_R=zeros(length(InclRight),lenOpFl);
-	% initialize circ SD vectors
-	SD_L=zeros(1,length(InclLeft));
-	SD_R=zeros(1,length(InclRight));
 	Thetas_L=zeros(1,lenOpFl);
 	Thetas_R=zeros(1,lenOpFl);
 	% get angular distance for each face for each timepoint
@@ -269,10 +266,6 @@ for k=1:4
                         NangDs_L(F,fr)=a;
                 % end tp loop
                 end
-		% get circ SD
-		L_CSD=circ_std(Thetas_L');
-        	% plop into outut vector for left hemi
-		SD_L(F)=L_CSD;
 	% end each face loop
         end
         for F=1:length(InclRight);
@@ -292,10 +285,6 @@ for k=1:4
                         NangDs_R(F,fr)=a;
                 % end tp loop
                 end
-		% get circ SD
-                R_CSD=circ_std(Thetas_R');
-                % plop into outut vector for left hemi
-                SD_R(F)=R_CSD;
         % end each face loop
         end
         % average for this network before proceeding to next network loop

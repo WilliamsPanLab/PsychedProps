@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=12:00:00
-#SBATCH -n 4
-#SBATCH --mem=25G
+#SBATCH --time=1:00:00 # need >1 (try 10-12 to be safe) if running opfl
+#SBATCH -n 1 # try 4 if running opfl
+#SBATCH --mem=12G # up to 25 if running opfl
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -49,22 +49,22 @@ subj=$1
 sesh=$2
 
 # mask resting-state out from aggregate cifti
-matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
+###matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
 
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
-sleep 20
+###/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
+###sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 6+ continuous frames only
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs6')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
+###matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs6')"
 
 ############################
 #### module II: Optical Flow
@@ -73,15 +73,13 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs1')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs2')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs3')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs4')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
+###matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
 
-# RS filepaths
-childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
 
 #############################
 #### module III: Calc. Angles
@@ -90,16 +88,24 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # make output directory outside scratch
-#mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
+mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-# group
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+###matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+
+# and magnitudes
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
+
 
 #################
 echo "OpFl complete"
