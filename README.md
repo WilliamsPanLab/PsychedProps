@@ -59,7 +59,7 @@ This is non-comprehensive, but you might find [sbatch_OpFl.sh](https://github.co
    By the end of this section, you might notice that the mouse data is generally a little less cumbersome to process. That pattern will continue. 
 
 ### 1C. DMN Derivation - humans
-Before evaluating how DMN function is altered, we have to derive our DMN definition. This is done with regularized non negative matrix factorization. See [this link](https://www.sciencedirect.com/science/article/pii/S1053811917303944?via%3Dihub) for the original paper. In case it's useful context, we've used this approach fairly regularly across half a dozen publications/preprints now: [Cui et al., 2020](https://pubmed.ncbi.nlm.nih.gov/32078800/) [Pines et al. 2022](https://www.nature.com/articles/s41467-022-30244-4) [Shanmugan et al., 2022](https://www.pnas.org/doi/10.1073/pnas.2110416119) [Keller et al., 2023](https://www.nature.com/articles/s41467-023-44087-0) [Hermosillo et al., 2024](https://www.nature.com/articles/s41593-024-01596-5), etc. etc.
+Before evaluating how DMN function is altered, we have to derive our DMN definition. This is done with regularized non-negative matrix factorization (NMF). See [this link](https://www.sciencedirect.com/science/article/pii/S1053811917303944?via%3Dihub) for the original paper. In case it's useful context, we've used this approach fairly regularly across half a dozen publications/preprints now: [Cui et al., 2020](https://pubmed.ncbi.nlm.nih.gov/32078800/) [Pines et al. 2022](https://www.nature.com/articles/s41467-022-30244-4) [Shanmugan et al., 2022](https://www.pnas.org/doi/10.1073/pnas.2110416119) [Keller et al., 2023](https://www.nature.com/articles/s41467-023-44087-0) [Hermosillo et al., 2024](https://www.nature.com/articles/s41593-024-01596-5), etc. etc.
 
 *Downsampling to fs5*
   First, the ciftis are downsampled to fsaverage5 to play nicely with NMF. That downsample script, DS_surf_ts_mdma_fs5.sh, is available [here](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/DS_surf_ts_mdma_fs5.sh)
@@ -261,7 +261,7 @@ You can find the bootstrap and AUC analyses (figure 4) further down the [same ma
 ## Appendix: code leveraged from other sources
 | Software | Citation | Use(s) in this project|
 |----------|----------|-----------------------|
-| Non negative matrix factorization adapted for brain data | Li, H. et al. (2017): Large-scale sparse functional networks from resting state fMRI. Neuroimage | NMF for human and mouse DMN delineation |
+| Non-negative matrix factorization adapted for brain data | Li, H. et al. (2017): Large-scale sparse functional networks from resting state fMRI. Neuroimage | NMF for human and mouse DMN delineation |
 | Freesurfer | Dale, A. et al. (1999): Cortical surface-baed analysis. I. Segmentation and surface reconstruction. Neuroimage | Cortical surface modeling |
 | Connectome Workbench | Marcus, D. et al., (2011) Informatics and data mining tools and strategies for the Human Connectome Project. Front. Neuroinformatics | Image transformation and visualization |
 | g_ls.m   | Cui Z., et al. (2013): PANDA: a pipeline toolbox for analyzing brain diffusion images. Front Hum Neurosci | Listing files in a directory when in matlab |
