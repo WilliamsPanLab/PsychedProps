@@ -1,4 +1,4 @@
-p50
+MDMA main
 ================
 2023-07-13
 
@@ -11,17 +11,12 @@ library(nlme)
 
 ``` r
 # prop angles
-rs1=read.csv('~/Downloads/rs1_propsMerged(4).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_propsMerged(4).csv',header=F)
-emo=read.csv('~/Downloads/emotion_propsMerged(4).csv',header=F)
-gambling=read.csv('~/Downloads/gambling_propsMerged(4).csv',header=F)
-wm=read.csv('~/Downloads/wm_propsMerged(4).csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1=read.csv('~/Downloads/rs1_propsMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_propsMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_propsMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_propsMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_propsMerged.csv',header=F)
+
 rs1$Task='rs'
 rs2$Task='rs2'
 emo$Task='emotion'
@@ -176,10 +171,6 @@ mergedDf$Drug=as.factor(mergedDf$Drug)
 mergedDf$Subjects<-as.factor(mergedDf$Subjects)
 mergedDf$Dosage<-as.factor(mergedDf$Dosage)
 mergedDfProps=mergedDf
-
-
-# saveout merged DF for facewise analyses on HPC
-#saveRDS(mergedDf,'~/P50_cleaned_df.rds')
 ```
 
 ``` r
@@ -187,9 +178,6 @@ mergedDfProps=mergedDf
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
 mergedDf=mergedDf[mergedDf$RemTRs>250,]
-
-# save out version for implementing in vertex-wise analyses
-#saveRDS(mergedDf,'~/forVertexwise_MDMA.rds')
 ```
 
 ``` r
@@ -566,12 +554,7 @@ rs2=read.csv('~/Downloads/rs2_TAutoCorMerged.csv',header=F)
 emo=read.csv('~/Downloads/emotion_TAutoCorMerged.csv',header=F)
 gambling=read.csv('~/Downloads/gambling_TAutoCorMerged.csv',header=F)
 wm=read.csv('~/Downloads/wm_TAutoCorMerged.csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+
 rs1$Task='rs'
 rs2$Task='rs2'
 emo$Task='emotion'

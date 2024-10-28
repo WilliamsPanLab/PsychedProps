@@ -1,4 +1,4 @@
-p50 psil
+Psilocybin magnitudes
 ================
 2024-02-03
 
@@ -10,19 +10,14 @@ library(nlme)
 ```
 
 ``` r
-# prop angles
+# prop magnitudes - note shared variable naming scheme as BUP for equivalence, but refers to magnitudes
 rs1=read.csv('~/Downloads/rs1_Psil_DMNMagMerged.csv',header=F)
 rs2=read.csv('~/Downloads/rs2_Psil_DMNMagMerged.csv',header=F)
 rs3=read.csv('~/Downloads/rs3_Psil_DMNMagMerged.csv',header=F)
 rs4=read.csv('~/Downloads/rs4_Psil_DMNMagMerged.csv',header=F)
 rs5=read.csv('~/Downloads/rs5_Psil_DMNMagMerged.csv',header=F)
 rs6=read.csv('~/Downloads/rs6_Psil_DMNMagMerged.csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+
 rs1$Task='rs'
 rs2$Task='rs2'
 rs3$Task='rs3'
@@ -847,14 +842,14 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ``` r
-# model
+# model - note this is all scans, including methylphenidate
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 5.43615180819208e-06"
+    ## [1] "one sided p (confirmatory of psil): 4.20307253125026e-06"
 
 ``` r
 # methylphenidate vs. psilocybin
@@ -865,7 +860,7 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 0.0182413517681877"
+    ## [1] "one sided p (confirmatory of psil): 0.0134700852646211"
 
 ``` r
 # save out this df for merging
@@ -996,7 +991,7 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 8.68372333496789e-06"
+    ## [1] "one sided p (confirmatory of psil): 7.80825008389352e-06"
 
 ``` r
 # figure 2 plots: methylphenidate vs. psilocybin
@@ -1032,7 +1027,7 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 0.0182413517681877"
+    ## [1] "one sided p (confirmatory of psil): 0.0134700852646211"
 
 ``` r
 # figure 2 plots: follow-up scans
@@ -1062,10 +1057,10 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 3.51673933268764e-06"
+    ## [1] "one sided p (confirmatory of psil): 2.88968832790523e-06"
 
 ``` r
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of post-psil): 0.124148634654986"
+    ## [1] "one sided p (confirmatory of post-psil): 0.0738772365396225"

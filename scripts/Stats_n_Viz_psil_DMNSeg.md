@@ -1,26 +1,28 @@
----
-title: "Psilocybin DMN Temporal Autocorrelation"
-output: github_document
-date: "2024-02-03"
----
+Psilocybin DMN FC
+================
+2024-02-03
 
-
-```{r}
+``` r
 library(reshape2)
 library(ggplot2)
 library(visreg)
 library(nlme)
 ```
 
-```{r}
-# autocorrelation measurements. Note that variable names are the SAME as in the main psil.rmd for equivalence, but refer to temporal autocorrelation in this markdown.
-rs1=read.csv('~/Downloads/rs1_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_DMNTemporalAutoCor_Merged.csv',header=F)
-
+``` r
+# FC measurements. Note that variable names are the SAME as in the main psil.rmd for equivalence, but refer to DMN segregation in this markdown.
+rs1=read.csv('~/Downloads/rs1_Psil_DMNSegMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_DMNSegMerged.csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_DMNSegMerged.csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_DMNSegMerged.csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_DMNSegMerged.csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_DMNSegMerged.csv',header=F)
+# set colnames
+#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
 rs1$Task='rs'
 rs2$Task='rs2'
 rs3$Task='rs3'
@@ -158,10 +160,9 @@ rs6bv$Task='rs6'
 rs6p$Task='rs6'
 rs6m1$Task='rs6'
 rs6m2$Task='rs6'
-
 ```
 
-```{r}
+``` r
 # change to account for psy_pfm structure
 # add in dosage
 rs1bv$Dosage='none'
@@ -195,8 +196,7 @@ rs6m1$Dosage='none'
 rs6m2$Dosage='Drug'
 ```
 
-
-```{r}
+``` r
 # BEFORE/AFTER VERSION
 # change to account for psy_pfm structure
 # add in dosage
@@ -231,8 +231,7 @@ rs6m1$Dosage='after'
 rs6m2$Dosage='Drug'
 ```
 
-```{r}
-
+``` r
 # parse out only existing rows 
 rs1bv=rs1bv[rs1bv$TDProp1>0,]
 rs1p=rs1p[rs1p$TDProp1>0,]
@@ -265,10 +264,16 @@ rs6m1=rs6m1[rs6m1$TDProp1>0,]
 rs6m2=rs6m2[rs6m2$TDProp1>0,]
 ```
 
-
-```{r}
+``` r
 # decode Methylphenidate vs. psilocybin for each PT
 subjDoseCorresp=read.csv('~/subjSeshDoseCorresp_psilo.csv',header=F)
+```
+
+    ## Warning in read.table(file = file, header = header, sep = sep, quote = quote, :
+    ## incomplete final line found by readTableHeader on
+    ## '~/subjSeshDoseCorresp_psilo.csv'
+
+``` r
 subjDoseCorresp=data.frame(t(subjDoseCorresp))
 subjDoseCorresp$X2<-as.numeric(subjDoseCorresp$X2)
 # initialize new drug column in all dfs
@@ -362,6 +367,19 @@ for (s in 1:length(unique(rs1m2$Subjects))){
   rs1m2$Drug[rs1m2$OgRow==MethylRows[1]]='Methyl'
   rs1m2$Drug[rs1m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS03"
+    ## [1] "PS16"
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+    ## [1] "PS98"
+    ## [1] "PS21"
+
+``` r
 # for resting-state 2
 for (s in 1:length(unique(rs2m2$Subjects))){
   # this subject
@@ -403,6 +421,19 @@ for (s in 1:length(unique(rs2m2$Subjects))){
   rs2m2$Drug[rs2m2$OgRow==MethylRows[1]]='Methyl'
   rs2m2$Drug[rs2m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS03"
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+    ## [1] "PS98"
+    ## [1] "PS16"
+    ## [1] "PS21"
+
+``` r
 # for resting-state 3
 for (s in 1:length(unique(rs3m2$Subjects))){
   # this subject
@@ -444,6 +475,16 @@ for (s in 1:length(unique(rs3m2$Subjects))){
   rs3m2$Drug[rs3m2$OgRow==MethylRows[1]]='Methyl'
   rs3m2$Drug[rs3m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS18"
+    ## [1] "PS19"
+    ## [1] "PS21"
+    ## [1] "PS24"
+    ## [1] "PS93"
+    ## [1] "PS96"
+
+``` r
 # for resting-state 4
 for (s in 1:length(unique(rs4m2$Subjects))){
   # this subject
@@ -485,6 +526,13 @@ for (s in 1:length(unique(rs4m2$Subjects))){
   rs4m2$Drug[rs4m2$OgRow==MethylRows[1]]='Methyl'
   rs4m2$Drug[rs4m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS19"
+    ## [1] "PS24"
+    ## [1] "PS93"
+
+``` r
 # for resting-state 5
 for (s in 1:length(unique(rs5m2$Subjects))){
   # this subject
@@ -526,6 +574,11 @@ for (s in 1:length(unique(rs5m2$Subjects))){
   rs5m2$Drug[rs5m2$OgRow==MethylRows[1]]='Methyl'
   rs5m2$Drug[rs5m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
+
+    ## [1] "PS24"
+
+``` r
 # for resting-state 6
 for (s in 1:length(unique(rs6m2$Subjects))){
   # this subject
@@ -567,7 +620,11 @@ for (s in 1:length(unique(rs6m2$Subjects))){
   rs6m2$Drug[rs6m2$OgRow==MethylRows[1]]='Methyl'
   rs6m2$Drug[rs6m2$OgRow==PsiloRows[1]]='Psilo'
 }
+```
 
+    ## [1] "PS24"
+
+``` r
 # combine all
 allScans=rbind(rs1bv,rs1p,rs1m1,rs1m2,rs2bv,rs2p,rs2m1,rs2m2,rs3bv,rs3p,rs3m1,rs3m2,rs4bv,rs4p,rs4m1,rs4m2,rs5bv,rs5p,rs5m1,rs5m2,rs6bv,rs6p,rs6m1,rs6m2)
 # before scans
@@ -581,7 +638,7 @@ B_A=rbind(Before,After)
 allScans$Drug[allScans$Dosage=='none']='none'
 ```
 
-```{r}
+``` r
 ### make chronological order column.
 allScans$TemporalOrder=0
 for (s in 1:length(unique(allScans$Subjects))){
@@ -611,7 +668,7 @@ for (s in 1:length(unique(allScans$Subjects))){
 }
 ```
 
-```{r}
+``` r
 # Now we need to place drug2 scans after all betweens. Subtract # of drug2 scans from between temporal order, plop drug2 in the integer sequence space between is translated down by.
 
 
@@ -675,10 +732,9 @@ for (s in 1:length(unique(allScans$Subject))) {
   }
 # end loop
 }
-
 ```
 
-```{r}
+``` r
 # need to add a session column with After1, After2, etc. to match vertexwise
 
 # Adding session column
@@ -722,10 +778,9 @@ for (subject in subjects) {
 allScans$Session <- gsub("before", "Baseline", allScans$Session)
 allScans$Session <- gsub("between", "Between", allScans$Session)
 allScans$Session <- gsub("after", "After", allScans$Session)
-
 ```
 
-```{r}
+``` r
 # remove data that needs to be removed (<250 TRs)
 allScans=allScans[allScans$RemTRs>250,]
 
@@ -758,7 +813,9 @@ ggplot(donutData, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=Category)) +
   )+guides(fill = guide_legend(title = NULL))+scale_fill_manual(values = c("#EF9500","#002642","#840032"))
 ```
 
-```{r}
+![](Stats_n_Viz_psil_DMNSeg_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
 ### match 99's to <9x ID's
 
 # temporal order of 99's has to be after 03 16 18 19!
@@ -784,22 +841,28 @@ allScans$Subjects[allScans$Subjects=='PS99']='PS19'
 allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
-```{r}
+``` r
 # model
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=FALSE))
+```
 
+    ## [1] "one sided p (confirmatory of psil): 3.66529942033336e-07"
+
+``` r
 # methylphenidate vs. psilocybin
 drugScans=allScans[allScans$Drug!='none',]
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-# save out this df for merging
-saveRDS(allScans,'~/Downloads/Psil_TAuto_Merged.rds')
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=FALSE))
 ```
 
+    ## [1] "one sided p (confirmatory of psil): 0.00318920953970199"
 
-
+``` r
+# save out this df for merging
+saveRDS(allScans,'~/Downloads/Psil_DMNSeg_Merged.rds')
+```

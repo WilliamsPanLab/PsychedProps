@@ -1,4 +1,4 @@
-stats_n\_viz_mice
+All mouse stats: LSD, Diazepam, Dexmedetomidine
 ================
 2024-05-15
 
@@ -32,7 +32,7 @@ library(nlme)
 
 ``` r
 # load in average DMN angles
-DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_propsMerged_mice_LSD.csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -212,7 +212,7 @@ DMN_Mags_long=DMNAngs_longOG
 
 ``` r
 # load in average DMN FC
-DMNAngs=read.csv('~/Downloads/mice_DMNSeg_Merged_mice_LSD(1).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_DMNSeg_Merged_mice_LSD.csv',header=F)
 
 # Rename the columns for easier reference
 colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
@@ -303,7 +303,7 @@ DMN_Segs_long=DMNAngs_longOG
 
 ``` r
 # load in average DMN temporal autocor
-DMNAngs=read.csv('~/Downloads/mice_av_AutoCor_Merged_mice_LSD(1).csv',header=F)
+DMNAngs=read.csv('~/Downloads/mice_av_AutoCor_Merged_mice_LSD.csv',header=F)
 
 
 # Rename the columns for easier reference
@@ -641,7 +641,7 @@ ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
 # let's merge in dex and diaz all into one set to test for any interactions
 ### LSD ###
 # load in average DMN angles
-DMNAngsLSD=read.csv('~/Downloads/mice_propsMerged_mice_LSD(3).csv',header=F)
+DMNAngsLSD=read.csv('~/Downloads/mice_propsMerged_mice_LSD.csv',header=F)
 # Rename the columns for easier reference
 colnames(DMNAngsLSD) <- c("V1", paste0("V", 2:ncol(DMNAngsLSD)))
 # Reshape the data to long format using base R

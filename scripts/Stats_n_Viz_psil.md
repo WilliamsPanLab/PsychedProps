@@ -1,4 +1,4 @@
-p50 psil
+p50 psil main
 ================
 2024-02-03
 
@@ -27,18 +27,13 @@ library(dplyr)
 
 ``` r
 # prop angles
-rs1=read.csv('~/Downloads/rs1_Psil_propsMerged(5).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_propsMerged(5).csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_propsMerged(5).csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_propsMerged(5).csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_propsMerged(5).csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_propsMerged(5).csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1=read.csv('~/Downloads/rs1_Psil_propsMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_propsMerged.csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_propsMerged.csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_propsMerged.csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_propsMerged.csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_propsMerged.csv',header=F)
+
 rs1$Task='rs'
 rs2$Task='rs2'
 rs3$Task='rs3'
@@ -802,8 +797,6 @@ allScans$Session <- gsub("after", "After", allScans$Session)
 ``` r
 # remove data that needs to be removed (<250 TRs)
 allScans=allScans[allScans$RemTRs>250,]
-# saveout merged DF for vertexwise analyses on HPC
-saveRDS(allScans,'~/forVertexwise_psil.rds')
 
 # make donut plot)
 donutData<- data.frame(
@@ -863,7 +856,7 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ``` r
-# model
+# model - note this is all scans, including methylphenidate
 fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
@@ -1207,7 +1200,7 @@ print(paste("AUC for DMN Correlations:", auc1))
 print(paste("AUC for DMN Propagations:", auc2))
 ```
 
-    ## [1] "AUC for DMN Propagations: 0.888698630136984"
+    ## [1] "AUC for DMN Propagations: 0.870890410958903"
 
 ``` r
 # Calculate AUC difference between full and reduced models
@@ -1224,7 +1217,7 @@ df <- data.frame(
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
   geom_roc(n.cuts = 0, labels = FALSE) + 
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
-  ggtitle("ROC Curves for Predicting Psilocybin") + 
+  ggtitle("ROC Curves for Classifying Psilocybin") + 
   theme_minimal(base_size=18) + 
   scale_color_manual(values = c("#09416b","#c12139"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
