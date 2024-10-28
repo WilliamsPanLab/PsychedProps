@@ -1,4 +1,4 @@
-function Extract_NGSC_mice(subj,run)
+function Extract_DMNSeg_mice(subj,run)
 % set parent directoryP load in data: pre LSD
 basefp='/scratch/users/apines/p50_mice/proc/20200228/'
 % load in specified scan
