@@ -786,11 +786,13 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ```{r}
-# model - note this is all scans, including methylphenidate
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+# exclude methylphenidate
+allScansNoMeth=allScans[allScans$Drug!='Methyl',]
+# model - note this is all scans, excluding methylphenidate
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 
 # methylphenidate vs. psilocybin
 drugScans=allScans[allScans$Drug!='none',]
@@ -984,12 +986,13 @@ ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
-fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScans)
+fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[4,4],summaryLME$tTable[4,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
+
 ```{r}
 # figure 3: load in all DMN measures
 BUP=readRDS('~/Downloads/Psil_BUP_Merged.rds')
@@ -1080,38 +1083,38 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
 #### commented out because it takes forecer to run, but does work when uncommented
 
 ## initialize AUC difference vectors
-#auc_diffs <- rep(NA, 1000)
-#
-## 1. permute each DMN variable (and FD)
-#set.seed(1)
-## temp to allow this to run quick, analysis ran on 1000
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+# temp to allow this to run quick, analysis ran on 1000
 #for (i in 1:2){
-##for (i in 1:1000){
-#  print(i)
-#  # permute DMNMag
-#  PsilMerged$DMNMag_perm <- sample(PsilMerged$Magnitudes)
-#  # permute TDProp1
-#  PsilMerged$TDProp1_perm <- sample(PsilMerged$BUP)
-# 
-#  # Fit logistic regression models
-#  model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
-#  model2_perm <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor+TDProp1_perm+DMNMag_perm, data = PsilMerged, family = binomial)
-#	
-#  # 3. calculate AUC difference between full and reduced models with permuted data
-#  roc1 <- roc(PsilMerged$DrugBinary, predict(model1, type = "response"))
-#  roc2_perm <- roc(PsilMerged$DrugBinary, predict(model2_perm, type = "response"))
-#  
-#  # Print AUC values
-#  auc1 <- auc(roc1)
-#  auc2_perm <-auc(roc2_perm)
-#
-#  # populate auc_diff vectors
-#  # DMN correlations vs. full (permuted props) model
-#  auc_diffs[i] <- auc1 - auc2_perm
-#}
-## 4. Compare true AUC differences to permuted AUC differences
-#
-#sum(auc_diffs>auc_diff)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  PsilMerged$DMNMag_perm <- sample(PsilMerged$Magnitudes)
+  # permute TDProp1
+  PsilMerged$TDProp1_perm <- sample(PsilMerged$BUP)
+ 
+  # Fit logistic regression models
+  model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
+  model2_perm <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor+TDProp1_perm+DMNMag_perm, data = PsilMerged, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(PsilMerged$DrugBinary, predict(model1, type = "response"))
+  roc2_perm <- roc(PsilMerged$DrugBinary, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc2_perm - auc1
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
 # 0 indicates p <0.001
 ```
 

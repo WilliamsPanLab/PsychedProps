@@ -151,6 +151,7 @@ masterMouseDnD=masterMouseAll[!is.na(masterMouseAll$TP),]
 
 # model it
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = masterMouseDnD)
+summary(fit_lme)
 
 # reorder it
 masterMouseDnD$TP <- factor(masterMouseDnD$TP, levels = c('No Drug', 'LSD'))
@@ -220,8 +221,9 @@ ggplot(DMNAngs_long, aes(x = Minutes, y = Value,  group = V1)) +
   theme_minimal(base_size=25)+geom_vline(xintercept=0,linetype='dashed')+scale_color_manual(values = generated_colors)+
   theme(axis.title.y = element_text(size = 22))
 
-
-
+# model
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
 
 ```
 
@@ -270,11 +272,18 @@ DMNAngs_long_Dex$Minutes <- (DMNAngs_long_Dex$Timepoint - 1.5) * 5
 plot_dex <- plot_data(DMNAngs_long_Dex, 'Dexmedetomidine')
 print(plot_dex)
 
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_Dex)
+summary(fit_lme)
+
+
 # extract Diaz
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='Diaz',]
 # create minutes column
 DMNAngs_long$Minutes=(DMNAngs_long$Timepoint-1.5)*5
 plot_diaz <- plot_data(DMNAngs_long, 'Diazepam')
 print(plot_diaz)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
 
 ```

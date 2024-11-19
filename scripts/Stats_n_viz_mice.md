@@ -971,6 +971,36 @@ print(plot_lsd)
 ![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 ``` r
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_LSD)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long_LSD 
+    ##         AIC       BIC   logLik
+    ##   -174.4596 -168.4736 91.22982
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##          (Intercept)   Residual
+    ## StdDev: 5.044927e-07 0.01409907
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                      Value   Std.Error DF  t-value p-value
+    ## (Intercept)      0.5501568 0.005755923 28 95.58099       0
+    ## DrugPsychedelic -0.0362397 0.006323390 28 -5.73106       0
+    ##  Correlation: 
+    ##                 (Intr)
+    ## DrugPsychedelic -0.91 
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##        Min         Q1        Med         Q3        Max 
+    ## -2.0901756 -0.6856360 -0.2060217  0.6769334  1.9060834 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 # Extract Dex data
 DMNAngs_long_Dex <- masterMouseAll[masterMouseAll$WhichDrug == 'Dex',]
 # Create minutes column
@@ -983,6 +1013,36 @@ print(plot_dex)
 ![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-2.png)<!-- -->
 
 ``` r
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_Dex)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long_Dex 
+    ##         AIC       BIC   logLik
+    ##   -59.93582 -55.39384 33.96791
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)   Residual
+    ## StdDev: 9.91705e-07 0.04999079
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                   Value  Std.Error DF  t-value p-value
+    ## (Intercept)   0.5909345 0.01117828 19 52.86453  0.0000
+    ## DrugBaseline -0.0890129 0.02499539 19 -3.56117  0.0021
+    ##  Correlation: 
+    ##              (Intr)
+    ## DrugBaseline -0.447
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -1.94501953 -0.72949575  0.04760928  0.73740999  1.38472233 
+    ## 
+    ## Number of Observations: 25
+    ## Number of Groups: 5
+
+``` r
 # extract Diaz
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='Diaz',]
 # create minutes column
@@ -992,3 +1052,33 @@ print(plot_diaz)
 ```
 
 ![](Stats_n_viz_mice_files/figure-gfm/unnamed-chunk-12-3.png)<!-- -->
+
+``` r
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##         AIC       BIC   logLik
+    ##   -96.23952 -92.67804 52.11976
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)    Residual
+    ## StdDev: 0.009671493 0.009973725
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value   Std.Error DF  t-value p-value
+    ## (Intercept)  0.5192033 0.005033809 14 103.1432  0.0000
+    ## DrugBaseline 0.0123188 0.005150409 14   2.3918  0.0314
+    ##  Correlation: 
+    ##              (Intr)
+    ## DrugBaseline -0.256
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -1.81523403 -0.58489130  0.07299728  0.54406292  1.51300384 
+    ## 
+    ## Number of Observations: 20
+    ## Number of Groups: 5

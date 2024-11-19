@@ -283,36 +283,36 @@ auc_diff=auc2-auc1
 # as in other scripts, commented out for online .md but does run
 
 # initialize AUC difference vectors
-#auc_diffs <- rep(NA, 1000)
-#
-## 1. permute each DMN variable (and FD)
-#set.seed(1)
-#for (i in 1:1000){
-#  print(i)
-#  # permute DMNMag
-#  mergedMice_LSD$DMNMag_perm <- sample(mergedMice_LSD$Mag)
-#  # permute TDProp1
-#  mergedMice_LSD$TDProp1_perm <- sample(mergedMice_LSD$BUP)
-# 
-#  # Fit logistic regression models
-#  model1 <- glm(Drug ~ Seg+TA, data = mergedMice_LSD, family = binomial)
-#  model2_perm <- glm(Drug ~Seg+TA+TDProp1_perm+DMNMag_perm, data = mergedMice_LSD, family = binomial)
-#	
-#  # 3. calculate AUC difference between full and reduced models with permuted data
-#  roc1 <- roc(mergedMice_LSD$Drug, predict(model1, type = "response"))
-#  roc2_perm <- roc(mergedMice_LSD$Drug, predict(model2_perm, type = "response"))
-#  
-#  # Print AUC values
-#  auc1 <- auc(roc1)
-#  auc2_perm <-auc(roc2_perm)
-#
-#  # populate auc_diff vectors
-#  # DMN correlations vs. full (permuted props) model
-#  auc_diffs[i] <- auc1 - auc2_perm
-#}
-## 4. Compare true AUC differences to permuted AUC differences
-#
-#sum(auc_diffs>auc_diff)
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  mergedMice_LSD$DMNMag_perm <- sample(mergedMice_LSD$Mag)
+  # permute TDProp1
+  mergedMice_LSD$TDProp1_perm <- sample(mergedMice_LSD$BUP)
+ 
+  # Fit logistic regression models
+  model1 <- glm(Drug ~ Seg+TA, data = mergedMice_LSD, family = binomial)
+  model2_perm <- glm(Drug ~Seg+TA+TDProp1_perm+DMNMag_perm, data = mergedMice_LSD, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(mergedMice_LSD$Drug, predict(model1, type = "response"))
+  roc2_perm <- roc(mergedMice_LSD$Drug, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc2_perm - auc1
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
 # 0 indicates p <0.001
 ```
 
@@ -704,6 +704,9 @@ DMNAngs_long_LSD$Minutes <- (DMNAngs_long_LSD$Timepoint - 1.5) * 5
 plot_lsd <- plot_data(DMNAngs_long_LSD, 'LSD')
 print(plot_lsd)
 
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_LSD)
+summary(fit_lme)
+
 # Extract Dex data
 DMNAngs_long_Dex <- masterMouseAll[masterMouseAll$WhichDrug == 'Dex',]
 # Create minutes column
@@ -712,6 +715,9 @@ DMNAngs_long_Dex$Minutes <- (DMNAngs_long_Dex$Timepoint - 1.5) * 5
 plot_dex <- plot_data(DMNAngs_long_Dex, 'Dexmedetomidine')
 print(plot_dex)
 
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_Dex)
+summary(fit_lme)
+
 # extract Diaz
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='Diaz',]
 # create minutes column
@@ -719,6 +725,8 @@ DMNAngs_long$Minutes=(DMNAngs_long$Timepoint-1.5)*5
 plot_diaz <- plot_data(DMNAngs_long, 'Diazepam')
 print(plot_diaz)
 
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
 ```
 
 

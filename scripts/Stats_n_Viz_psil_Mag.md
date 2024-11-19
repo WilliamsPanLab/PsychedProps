@@ -842,14 +842,16 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ``` r
-# model - note this is all scans, including methylphenidate
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+# exclude methylphenidate
+allScansNoMeth=allScans[allScans$Drug!='Methyl',]
+# model - note this is all scans excluding methylphenidate
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 ```
 
-    ## [1] "one sided p (confirmatory of psil): 4.20307253125026e-06"
+    ## [1] "one sided p (confirmatory of psil): 0.765229430524273"
 
 ``` r
 # methylphenidate vs. psilocybin

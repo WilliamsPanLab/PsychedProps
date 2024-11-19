@@ -1088,36 +1088,36 @@ auc_diff <- auc2 - auc1
 
 # make equivalent AUC calculations on permuted data
 # initialize AUC difference vectors
-#auc_diffs <- rep(NA, 1000)
-#
-## 1. permute each DMN variable (and FD)
-#set.seed(1)
-#for (i in 1:1000){
-#  print(i)
-#  # permute DMNMag
-#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag)
-#  # permute TDProp1
-#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1)
-# 
-#  # Fit logistic regression models
-#  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = #binomial)
-#  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = #mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
-#	
-#  # 3. calculate AUC difference between full and reduced models with permuted data
-#  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
-#  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
-#  
-#  # Print AUC values
-#  auc1 <- auc(roc1)
-#  auc2_perm <-auc(roc2_perm)
-#
-#  # populate auc_diff vectors
-#  # DMN correlations vs. full (permuted props) model
-#  auc_diffs[i] <- auc1 - auc2_perm
-#}
-## 4. Compare true AUC differences to permuted AUC differences
-#
-#sum(auc_diffs>auc_diff)
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag)
+  # permute TDProp1
+  mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1)
+ 
+  # Fit logistic regression models
+  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+	
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
+  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc2_perm - auc1
+}
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
 # 0 indicates p <0.001
 ```
 

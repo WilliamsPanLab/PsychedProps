@@ -22,7 +22,7 @@ library(dplyr)
 library(sjPlot)
 ```
 
-    ## Learn more about sjPlot with 'browseVignettes("sjPlot")'.
+    ## #refugeeswelcome
 
 ``` r
 library(nlme)
@@ -211,7 +211,35 @@ masterMouseDnD=masterMouseAll[!is.na(masterMouseAll$TP),]
 
 # model it
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = masterMouseDnD)
+summary(fit_lme)
+```
 
+    ## Linear mixed-effects model fit by REML
+    ##   Data: masterMouseDnD 
+    ##        AIC      BIC    logLik
+    ##   16.58077 23.62557 -4.290386
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:    0.262345 0.1955537
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                      Value  Std.Error DF   t-value p-value
+    ## (Intercept)      2.1209779 0.08580469 30 24.718670       0
+    ## DrugPsychedelic -0.4561921 0.07348211 30 -6.208206       0
+    ##  Correlation: 
+    ##                 (Intr)
+    ## DrugPsychedelic -0.349
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -2.71997096 -0.48153869 -0.03704634  0.48927071  2.42053155 
+    ## 
+    ## Number of Observations: 45
+    ## Number of Groups: 14
+
+``` r
 # reorder it
 masterMouseDnD$TP <- factor(masterMouseDnD$TP, levels = c('No Drug', 'LSD'))
 ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
@@ -288,6 +316,37 @@ ggplot(DMNAngs_long, aes(x = Minutes, y = Value,  group = V1)) +
 ![](Stats_n_viz_mice_Mag_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
 
 ``` r
+# model
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##        AIC      BIC    logLik
+    ##   7.412891 13.39892 0.2935546
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:   0.1706474 0.1950472
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                      Value  Std.Error DF   t-value p-value
+    ## (Intercept)      2.4312277 0.10580166 28 22.979107       0
+    ## DrugPsychedelic -0.5837643 0.08751149 28 -6.670716       0
+    ##  Correlation: 
+    ##                 (Intr)
+    ## DrugPsychedelic -0.685
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -2.79123670 -0.63247684  0.04840861  0.58060200  1.70855564 
+    ## 
+    ## Number of Observations: 35
+    ## Number of Groups: 6
+
+``` r
 library(ggplot2)
 library(viridis)
 ```
@@ -341,6 +400,36 @@ print(plot_dex)
 ![](Stats_n_viz_mice_Mag_files/figure-gfm/unnamed-chunk-5-2.png)<!-- -->
 
 ``` r
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long_Dex)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long_Dex 
+    ##       AIC      BIC    logLik
+    ##   41.9319 46.47388 -16.96595
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:   0.0756346 0.4525907
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                 Value Std.Error DF   t-value p-value
+    ## (Intercept)  2.830139 0.1067054 19 26.522932   0e+00
+    ## DrugNo Drug -1.038313 0.2262954 19 -4.588309   2e-04
+    ##  Correlation: 
+    ##             (Intr)
+    ## DrugNo Drug -0.424
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##        Min         Q1        Med         Q3        Max 
+    ## -2.2508605 -0.5402444  0.2068718  0.5913533  1.7508890 
+    ## 
+    ## Number of Observations: 25
+    ## Number of Groups: 5
+
+``` r
 # extract Diaz
 DMNAngs_long=masterMouseAll[masterMouseAll$WhichDrug=='Diaz',]
 # create minutes column
@@ -350,3 +439,33 @@ print(plot_diaz)
 ```
 
 ![](Stats_n_viz_mice_Mag_files/figure-gfm/unnamed-chunk-5-3.png)<!-- -->
+
+``` r
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+```
+
+    ## Linear mixed-effects model fit by REML
+    ##   Data: DMNAngs_long 
+    ##         AIC       BIC   logLik
+    ##   -7.228753 -3.667266 7.614377
+    ## 
+    ## Random effects:
+    ##  Formula: ~1 | V1
+    ##         (Intercept)  Residual
+    ## StdDev:  0.09339993 0.1231174
+    ## 
+    ## Fixed effects:  Value ~ Drug 
+    ##                  Value  Std.Error DF  t-value p-value
+    ## (Intercept)  2.2998813 0.05249035 14 43.81532  0.0000
+    ## DrugNo Drug -0.1778811 0.06357757 14 -2.79786  0.0142
+    ##  Correlation: 
+    ##             (Intr)
+    ## DrugNo Drug -0.303
+    ## 
+    ## Standardized Within-Group Residuals:
+    ##         Min          Q1         Med          Q3         Max 
+    ## -2.02136927 -0.49740034  0.07142385  0.73047633  1.43817581 
+    ## 
+    ## Number of Observations: 20
+    ## Number of Groups: 5

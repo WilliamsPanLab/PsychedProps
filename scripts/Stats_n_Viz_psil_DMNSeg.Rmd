@@ -20,7 +20,6 @@ rs3=read.csv('~/Downloads/rs3_Psil_DMNSegMerged.csv',header=F)
 rs4=read.csv('~/Downloads/rs4_Psil_DMNSegMerged.csv',header=F)
 rs5=read.csv('~/Downloads/rs5_Psil_DMNSegMerged.csv',header=F)
 rs6=read.csv('~/Downloads/rs6_Psil_DMNSegMerged.csv',header=F)
-
 rs1$Task='rs'
 rs2$Task='rs2'
 rs3$Task='rs3'
@@ -234,35 +233,35 @@ rs6m2$Dosage='Drug'
 ```{r}
 
 # parse out only existing rows 
-rs1bv=rs1bv[rs1bv$TDProp1>0,]
-rs1p=rs1p[rs1p$TDProp1>0,]
-rs1m1=rs1m1[rs1m1$TDProp1>0,]
-rs1m2=rs1m2[rs1m2$TDProp1>0,]
+rs1bv=rs1bv[rs1bv$TDProp1!=0,]
+rs1p=rs1p[rs1p$TDProp1!=0,]
+rs1m1=rs1m1[rs1m1$TDProp1!=0,]
+rs1m2=rs1m2[rs1m2$TDProp1!=0,]
 
-rs2bv=rs2bv[rs2bv$TDProp1>0,]
-rs2p=rs2p[rs2p$TDProp1>0,]
-rs2m1=rs2m1[rs2m1$TDProp1>0,]
-rs2m2=rs2m2[rs2m2$TDProp1>0,]
+rs2bv=rs2bv[rs2bv$TDProp1!=0,]
+rs2p=rs2p[rs2p$TDProp1!=0,]
+rs2m1=rs2m1[rs2m1$TDProp1!=0,]
+rs2m2=rs2m2[rs2m2$TDProp1!=0,]
 
-rs3bv=rs3bv[rs3bv$TDProp1>0,]
-rs3p=rs3p[rs3p$TDProp1>0,]
-rs3m1=rs3m1[rs3m1$TDProp1>0,]
-rs3m2=rs3m2[rs3m2$TDProp1>0,]
+rs3bv=rs3bv[rs3bv$TDProp1!=0,]
+rs3p=rs3p[rs3p$TDProp1!=0,]
+rs3m1=rs3m1[rs3m1$TDProp1!=0,]
+rs3m2=rs3m2[rs3m2$TDProp1!=0,]
 
-rs4bv=rs4bv[rs4bv$TDProp1>0,]
-rs4p=rs4p[rs4p$TDProp1>0,]
-rs4m1=rs4m1[rs4m1$TDProp1>0,]
-rs4m2=rs4m2[rs4m2$TDProp1>0,]
+rs4bv=rs4bv[rs4bv$TDProp1!=0,]
+rs4p=rs4p[rs4p$TDProp1!=0,]
+rs4m1=rs4m1[rs4m1$TDProp1!=0,]
+rs4m2=rs4m2[rs4m2$TDProp1!=0,]
 
-rs5bv=rs5bv[rs5bv$TDProp1>0,]
-rs5p=rs5p[rs5p$TDProp1>0,]
-rs5m1=rs5m1[rs5m1$TDProp1>0,]
-rs5m2=rs5m2[rs5m2$TDProp1>0,]
+rs5bv=rs5bv[rs5bv$TDProp1!=0,]
+rs5p=rs5p[rs5p$TDProp1!=0,]
+rs5m1=rs5m1[rs5m1$TDProp1!=0,]
+rs5m2=rs5m2[rs5m2$TDProp1!=0,]
 
-rs6bv=rs6bv[rs6bv$TDProp1>0,]
-rs6p=rs6p[rs6p$TDProp1>0,]
-rs6m1=rs6m1[rs6m1$TDProp1>0,]
-rs6m2=rs6m2[rs6m2$TDProp1>0,]
+rs6bv=rs6bv[rs6bv$TDProp1!=0,]
+rs6p=rs6p[rs6p$TDProp1!=0,]
+rs6m1=rs6m1[rs6m1$TDProp1!=0,]
+rs6m2=rs6m2[rs6m2$TDProp1!=0,]
 ```
 
 

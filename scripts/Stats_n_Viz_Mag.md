@@ -11,17 +11,12 @@ library(nlme)
 
 ``` r
 # prop angles
-rs1=read.csv('~/Downloads/rs1_DMNMagMerged(4).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_DMNMagMerged(4).csv',header=F)
-emo=read.csv('~/Downloads/emotion_DMNMagMerged(4).csv',header=F)
-gambling=read.csv('~/Downloads/gambling_DMNMagMerged(4).csv',header=F)
-wm=read.csv('~/Downloads/wm_DMNMagMerged(4).csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1=read.csv('~/Downloads/rs1_DMNMagMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_DMNMagMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_DMNMagMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_DMNMagMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_DMNMagMerged.csv',header=F)
+
 rs1$Task='rs'
 rs2$Task='rs2'
 emo$Task='emotion'
