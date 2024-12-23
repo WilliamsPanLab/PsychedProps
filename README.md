@@ -256,7 +256,7 @@ Same goes for bootstrap and AUC/bootstraps for psilocybin. Check out the [same m
 Aaaaand same goes for mice. Here's the [link](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.md). [.rmd link](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_viz_mice.Rmd). AUC stuff starts at line 238.
 
 ## 6. Self-Report: MDMA
-You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section stats. If instead looking at the [.Rmd](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd), this starts at line 1374.
+You can find the bootstrap and AUC analyses (figure 4) further down the [same markdown file used above](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.md). The .md file doesn't have line numbers, but you can cntrl-F to "inter-psychedelic-session to find where this section starts. If instead looking at the [.Rmd](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Stats_n_Viz.Rmd), this starts at line 1374.
 
 ## Appendix: code leveraged from other sources
 | Software | Citation | Use(s) in this project|
