@@ -1398,7 +1398,7 @@ for (i in 1:length(eachSubj)){
   SubjChange_Mag_80=Mag_Plac-Mag_80
   SubjChange_Mag_120=Mag_Plac-Mag_120
   
-  # put into VAS_change, 80mg
+  # put into DAS_change, 80mg
   DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
   DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
   DAS_Change_ChangeFC<-c(DAS_Change_ChangeFC,SubjChange_TA_80)
@@ -1450,10 +1450,10 @@ DAS_changeDF_people$SubjectsCols <- factor(DAS_changeDF_people$Subjects, levels 
 ```
 
 ```{r}
-### figure 3B - coarse
+### figure 4C prep - coarse
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames <- c(
-  'Oceaninc\nBoundlessness',
+  'Oceanic\nBoundlessness',
   'Dread of Ego\nDissolution',
   'Visionary\nRestructuralization',
   'Auditory\nAlterations',
@@ -1625,8 +1625,57 @@ ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=BUP_Decrease))+
   theme_minimal(base_size = 16)
 cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$BUP_Decrease)
 ```
+
 ```{r}
-### figure 3B - granular
+### they won't take barplots. Here's a geom_tile version of coarse DASC for figure 4
+# combine all metrics into a single dataframe
+DMN_metrics <- data.frame(
+  Metric = rep(c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"), each = length(dascNames)),
+  DASCName = rep(dascNames, times = 4),
+  Correlation = c(S_corvec, TA_corvec, BUP_corvec, M_corvec),
+  PValue = c(S_pvec, TA_pvec, BUP_pvec, M_pvec),
+  PValue_MC = c(S_pvec_mc, TA_pvec_mc, BUP_pvec_mc, M_pvec_mc)
+)
+
+# define significance categories
+DMN_metrics$Sig <- "N.S."
+DMN_metrics$Sig[DMN_metrics$PValue < 0.05] <- "Uncorrected"
+DMN_metrics$Sig[DMN_metrics$PValue_MC < 0.05] <- "FDR"
+
+# set up colors for the significance categories
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
+
+# update column names and order
+DMN_metrics$Metric <- factor(DMN_metrics$Metric,
+                             levels = c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"),
+                             labels = c("Δ Integration", "Δ Autocorrelation", "Δ Prop. Directionality", "Δ Prop. Magnitudes"))
+
+# define significance categories with a custom order
+DMN_metrics$Sig <- factor(DMN_metrics$Sig, levels = c("N.S.", "Uncorrected", "FDR"))
+
+# 4c coarse
+ggplot(DMN_metrics, aes(x = Metric, y = DASCName, fill = Sig)) +
+  geom_tile(color = "white", size = 0.5) + # Add borders for clarity
+  geom_text(aes(label = round(Correlation, 2)), color = "white", size = 12) + # Correlation values
+  scale_fill_manual(
+    values = colors,
+    labels = c("N.S.", "Uncorrected", "FDR") 
+  ) +
+  labs(
+    x = "Placebo vs. MDMA Difference in DMN Metrics",
+    y = "ASC Factors (Coarse)",
+    fill = "Significance",
+    title = "DMN Metric-Self Report Correlations"
+  ) +
+  theme_minimal(base_size = 30) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+```{r}
+### figure 4D - granular
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames=c('Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning\n of precepts')
 
@@ -1765,7 +1814,7 @@ colorvec[BUP_pvec<.05]='Uncr'
 colorvec[BUP_pvec_mc<.05]='FDR'
 df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
 # extra step needs to be done to maintain same row ordering as previous plot
 df$ColumnNamesAcr<-c(dascNamesAcr)
 df$ColumnNamesAcr<-factor(df$ColumnNamesAcr,levels=c('Anx.','B.S.','C.M.O.P.','C.Im.','Disemb.','E.Im.','E.U.','I.C.','Ins.','S.E.','Syn.'))
@@ -1788,7 +1837,7 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Significant)) +
 df <- data.frame(Values = M_corvec, pvals=M_pvec)
 
 # make a color vector by significance
-colorvec=rep('NS',11)
+colorvec=rep('N.S.',11)
 colorvec[M_pvec<.05]='Uncr'
 colorvec[M_pvec_mc<.05]='FDR'
 df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
@@ -1812,3 +1861,50 @@ cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$BUP_Decrease)
 
 ```
 
+```{r}
+# 4D
+# combine all metrics into a single dataframe
+DMN_metrics <- data.frame(
+  Metric = rep(c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"), each = length(dascNames)),
+  DASCName = rep(dascNames, times = 4),
+  Correlation = c(S_corvec, TA_corvec, BUP_corvec, M_corvec),
+  PValue = c(S_pvec, TA_pvec, BUP_pvec, M_pvec),
+  PValue_MC = c(S_pvec_mc, TA_pvec_mc, BUP_pvec_mc, M_pvec_mc)
+)
+
+# define significance categories
+DMN_metrics$Sig <- "N.S."
+DMN_metrics$Sig[DMN_metrics$PValue < 0.05] <- "Uncorrected"
+DMN_metrics$Sig[DMN_metrics$PValue_MC < 0.05] <- "FDR"
+
+# set up colors for the significance categories
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
+
+# update column names and order
+DMN_metrics$Metric <- factor(DMN_metrics$Metric,
+                             levels = c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"),
+                             labels = c("Δ Integration", "Δ Autocorrelation", "Δ Prop. Directionality", "Δ Prop. Magnitudes"))
+
+# Define significance categories with a custom order
+DMN_metrics$Sig <- factor(DMN_metrics$Sig, levels = c("N.S.", "Uncorrected", "FDR"))
+
+# 4d granular
+ggplot(DMN_metrics, aes(x = Metric, y = DASCName, fill = Sig)) +
+  geom_tile(color = "white", size = 0.5) + # Add borders for clarity
+  geom_text(aes(label = round(Correlation, 2)), color = "white", size = 12) + # Correlation values
+  scale_fill_manual(
+    values = colors,
+    labels = c("N.S.", "Uncorrected", "FDR") 
+  ) +
+  labs(
+    x = "Placebo vs. MDMA Difference in DMN Metrics",
+    y = "ASC Factors (Granular)",
+    fill = "Significance",
+    title = "DMN Metric-Self Report Correlations"
+  ) +
+  theme_minimal(base_size = 30) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
