@@ -1,6 +1,6 @@
 # Guide to the code behind "Psychedelics disrupt activity propagations in the default mode network of humans and mice"
 
-This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table of prerequisite code/dependencies are available at the end of this markdown. 
+This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table of prerequisite code/dependencies are available at the end of this markdown, as is a short description of our [Demo script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Demo.m).
 
 I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
 
@@ -273,7 +273,13 @@ You can find the bootstrap and AUC analyses (figure 4) further down the [same ma
 | ggplot | Wickham, H. (2016): ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York | Most figures made in R |
 | nlme | Pinheiro, J. & Bates, D (2000): Mixed-Effects Models in S and S-PLUS. Springer | Statistical testing in R |
 
-## Thank you x100 to these authors for distributing their code!
+## Thank you x1000 to these authors for distributing their code!
+
+## "Installation" guide
+
+## Code Demo
+[Demo.m](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Demo.m) provides a short demonstration of spherical optical flow and includes generation of a test dataset: two “frames” of a gaussian wave traveling forward across a spherical projection of a cortical hemisphere (left). Part 1 of the demo creates the test dataset. Part 2 runs spherical optical flow to estimate signal directionality from the simulated data. Part 3 extracts angular distances between estimated signal directionality and the “gradient” (nabla) of anterior positioning as a reference direction (equivalent to nablaDMN). Part 4 extracts vector magnitudes from estimated signal movement. Part 5 evaluates derivatives of the test dataset. On our system, Demo.m only takes 36.22 seconds to run, but it's probably more useful to run each line individual rather than the script as a whole. Expected output is 1) the average vector magnitudes of optical flow vectors near the peak of the anterior->posterior wave and 2) the average magnitudes of optical flow vectors on the periphery of the "wave". A logical confirmation of the expected Crest>Periphery magnitude values (i.e., "1") is the 3rd output. Output 4) is the average angular distance between estimated signal flows and the gradient of anterior positioning, followed by a logical confirmation that this is <90 degrees. The 5th output is a demonstration of how the average angular distance is ~90 degrees in null circumstances. The final output is the elapsed time of the script running (i.e., tic/toc in Matlab)
+
 
 
 
