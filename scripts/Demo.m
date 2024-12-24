@@ -5,6 +5,9 @@
 % 3. Spherical optical flow: see https://github.com/lukaslang/ofd
 % 4. Cart2sphvec (Mathworks): see https://www.mathworks.com/products/phased-array.html
 
+% to record runtime
+tic
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part 1: simulate data
 % add path to load in required software 2: freesurfer read_surf for matlab 
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
@@ -190,6 +193,8 @@ for f=1:5120;
         AngDist(f) = acosd(min(1,max(-1, gradientVec(:).' * flowVec(:) / norm(gradientVec) / norm(flowVec) )));
 end
 mean(AngDist)
+% display runtime for whole script
+toc
 % end of demo
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
