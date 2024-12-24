@@ -1,5 +1,12 @@
+% SOFTWARE REQUIRED FOR THIS DEMO
+
+% 1. Matlab (tested on R2022b)
+% 2. Freesurfer "read_surf" command: see https://surfer.nmr.mgh.harvard.edu/fswiki/
+% 3. Spherical optical flow: see https://github.com/lukaslang/ofd
+% 4. Cart2sphvec (Mathworks): see https://www.mathworks.com/products/phased-array.html
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part 1: simulate data
-% add path to load in required software 1: freesurfer read_surf for matlab 
+% add path to load in required software 2: freesurfer read_surf for matlab 
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 
@@ -48,7 +55,7 @@ daspect([1 1 1]);
 print('~/AP_simulated.png','-dpng','-r600');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part 2: run spherical optical flow
-% add path to require software 2: spherical optical flow
+% add path to require software 3: spherical optical flow
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % and apply standard parameters to this optical flow run
 N = 10; % Vector spherical harmonics degree
@@ -77,6 +84,7 @@ daspect([1 1 1]);
 print('~/AP_simulatedVecs.png','-dpng','-r600');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Part 3: extract angular distance from a vector field pointing A->P
+% note Part 3 uses cart2sphvec from https://www.mathworks.com/products/phased-array.html
 % use y coordinates as AP values
 APValues=y_coords;
 % take gradient of these values on a sphere
