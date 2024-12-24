@@ -268,7 +268,7 @@ You can find the bootstrap and AUC analyses (figure 4) further down the [same ma
 | fmriprep(20.2.3) | Esteban, O., et al. (2018): fMRIPrep: a robust preprocessing pipeline for functional MRI. Nat Methods | Preprocessing of fmri data (prior to xcp-d) |
 | xcpd(0.3.0) | Mehta, K., et al. (2024): XCP-D: A Robust Pipeline for the post-processing of fMRI data. Imaging Neurosci | Post-processing of fmri data |
 | fsl(5.0.10) | S.M. Smith, et al. (2004): Advances in functional and structural MR image analysis and implementation as FSL. Neuroimage | Basic image manipulation |
-| Spherical Optical Flow | Kirisits, C., et al. (2013): Decomposition of optical flow on the sphere. International J. on Geomath | Optical flow on spherical surfaces (human data, inflated coritces) |
+| Spherical Optical Flow(1.0) | Kirisits, C., et al. (2013): Decomposition of optical flow on the sphere. International J. on Geomath | Optical flow on spherical surfaces (human data, inflated coritces) |
 | "flat" optical flow | Townsend, R. & Gong, P. (2018): Detection and analysis of spatiotemporal patterns in brain activity. PLoS Comp. Biol. | Optical flow on cortical window data (mice, Ca2+) |
 | ggplot(3.5.1) | Wickham, H. (2016): ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York | Most figures made in R |
 | nlme(3.1.164) | Pinheiro, J. & Bates, D (2000): Mixed-Effects Models in S and S-PLUS. Springer | Statistical testing in R |
@@ -286,8 +286,8 @@ You can find the bootstrap and AUC analyses (figure 4) further down the [same ma
 |Python(3.9)|
 |GNU Bash(4.2.46)|
 
-## "Installation" guide
-There is currently no formal installation command for this software suite. Please use git clone to copy the code from this repository to your local machine: external packages utilized are captured in the tables above, although most packages are not needed for most analyses. 
+## Installation guide
+There is currently no formal installation command for this software suite. Please use git clone to copy the code from this repository to your local machine: external packages utilized are captured in the tables above, although most packages are not needed for most analyses. Packages needed for core analyses include [Freesurfer](https://surfer.nmr.mgh.harvard.edu/fswiki/) and [Spherical Optical flow](https://github.com/lukaslang/ofd).
 
 ## Code Demo
 [Demo.m](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Demo.m) provides a short demonstration of spherical optical flow and includes generation of a test dataset: two “frames” of a gaussian wave traveling forward across a spherical projection of a cortical hemisphere (left). Part 1 of the demo creates the test dataset. Part 2 runs spherical optical flow to estimate signal directionality from the simulated data. Part 3 extracts angular distances between estimated signal directionality and the “gradient” (nabla) of anterior positioning as a reference direction (equivalent to nablaDMN). Part 4 extracts vector magnitudes from estimated signal movement. Part 5 evaluates derivatives of the test dataset. On our system, Demo.m only takes 36.22 seconds to run, but it's probably more useful to run each line individual rather than the script as a whole. Expected output is 1) the average vector magnitudes of optical flow vectors near the peak of the anterior->posterior wave and 2) the average magnitudes of optical flow vectors on the periphery of the "wave". A logical confirmation of the expected Crest>Periphery magnitude values (i.e., "1") is the 3rd output. Output 4) is the average angular distance between estimated signal flows and the gradient of anterior positioning, followed by a logical confirmation that this is <90 degrees. The 5th output is a demonstration of how the average angular distance is ~90 degrees in null circumstances. The final output is the elapsed time of the script running (i.e., tic/toc in Matlab)
