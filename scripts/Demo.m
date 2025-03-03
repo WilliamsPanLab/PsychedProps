@@ -22,7 +22,8 @@ faces_l=faces_l+1;
 TS=zeros(size(vx_l,1),2);
 % standard deviation for gaussian distribution
 SD = 20;
-
+% centers of distributions at tp1 and tp2
+centers = [-10,10];
 % pull out y-coordinates of points
 y_coords = vx_l(:, 2);
 
