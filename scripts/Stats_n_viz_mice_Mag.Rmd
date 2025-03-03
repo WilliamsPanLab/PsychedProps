@@ -151,14 +151,16 @@ masterMouseDnD=masterMouseAll[!is.na(masterMouseAll$TP),]
 
 # model it
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = masterMouseDnD)
-summary(fit_lme)
+summaryLME<-summary(fit_lme)
+paste('one sided p (confirmatory of LSD):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+
 
 # reorder it
 masterMouseDnD$TP <- factor(masterMouseDnD$TP, levels = c('No Drug', 'LSD'))
 ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=4,aes(color=V1)) +  # Jittered points
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
-  labs(title = "LSD vs. No-drug scans \n",
+  labs(title = "LSD vs. No-drug scans \n \n",
        x = "",
        y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','LSD'))+
   theme_minimal(base_size=25)
@@ -194,7 +196,7 @@ masterMouseDnD$Mice <- factor(masterMouseDnD$V1, levels = new_labels)
 ggplot(masterMouseDnD, aes(x = TP, y = Value)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8, size = 4, aes(color = Mice)) +  # Jittered points
   geom_boxplot(alpha = 0.2, outlier.shape = NA) +     # Boxplot
-  labs(title = "LSD vs. No-drug scans \n",
+  labs(title = "LSD vs. No-drug scans \n \n",
        x = "",
        y = "Avg. Magnitude in DMN") +
   scale_x_discrete(labels = c('No Drug', 'LSD')) +

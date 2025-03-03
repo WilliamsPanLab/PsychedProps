@@ -1,5 +1,5 @@
 ---
-title: "LSD Stats and Visualization: Study 3"
+title: "All mouse stats: LSD, Diazepam, Dexmedetomidine"
 output: github_document
 date: "2024-05-15"
 ---
@@ -225,33 +225,85 @@ DMN_autoCors_long=DMNAngs_longOG
 
 ```
 ```{r}
+# DMN within FC
+# load in average DMN temporal autocor
+DMNAngs=read.csv('~/Downloads/mice_DMNWin_Merged_mice_LSD.csv',header=F)
+
+
+# Rename the columns for easier reference
+colnames(DMNAngs) <- c("V1", paste0("V", 2:ncol(DMNAngs)))
+
+# Reshape the data to long format using base R
+DMNAngs_long <- reshape(DMNAngs, 
+                        varying = list(names(DMNAngs)[-1]), 
+                        v.names = "Value", 
+                        timevar = "Timepoint", 
+                        times = 2:ncol(DMNAngs), 
+                        direction = "long")
+
+# Adjust the timepoint to start from 1
+DMNAngs_long$Timepoint <- DMNAngs_long$Timepoint - 1
+
+# Reset row names
+rownames(DMNAngs_long) <- NULL
+
+# plot it out
+ggplot(DMNAngs_long, aes(x = Timepoint, y = Value, color = V1, group = V1)) +
+  geom_line() +
+  geom_point(size=4) +
+  scale_color_viridis_d(option = "plasma") +
+  labs(x = "Timepoint", y = "DMN TAutoCor", color = "Variable",title='LSD') +
+  theme_minimal(base_size=25)+geom_vline(xintercept=1.5,linetype='dashed')
+
+# add drug value and test standalone
+DMNAngs_long$Drug=1
+DMNAngs_long$Drug[DMNAngs_long$Timepoint==1]=0
+# remove any NA values
+DMNAngs_long=na.omit(DMNAngs_long)
+
+fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
+summary(fit_lme)
+
+### and make plain figure version without longitudinal lines (Fig 2A)
+# sep. pre and post
+DMNAngs_long$TP=NULL
+DMNAngs_long$TP[DMNAngs_long$Timepoint==1]='pre'
+DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
+# reorder it
+
+# retain original
+DMNAngs_longOG=DMNAngs_long
+
+# save df for eventual merge
+DMN_WinCors_long=DMNAngs_longOG
+
+```
+
+```{r}
 # set column names of organized datafames
 colnames(DMN_angles_long)[3]<-'BUP'
 colnames(DMN_autoCors_long)[3]<-'TA'
 colnames(DMN_Mags_long)[3]<-'Mag'
 colnames(DMN_Segs_long)[3]<-'Seg'
+colnames(DMN_WinCors_long)[3]<-'Win'
 # merge 
-mergedMice_LSD=merge(DMN_angles_long,DMN_autoCors_long,by=c('V1','Timepoint','id','Drug','TP'))
-mergedMice_LSD=merge(mergedMice_LSD,DMN_Mags_long,by=c('V1','Timepoint','id','Drug','TP'))
-mergedMice_LSD=merge(mergedMice_LSD,DMN_Segs_long,by=c('V1','Timepoint','id','Drug','TP'))
+mergedMice_LSD=merge(DMN_autoCors_long,DMN_WinCors_long,by=c('V1','Timepoint','id','Drug','TP'))
 
 library(pROC)
 library(plotROC)
 # Fit logistic regression models
-model1 <- glm(Drug ~  Seg + TA, data = mergedMice_LSD, family = binomial)
-model2 <- glm(Drug ~  Seg + TA+ Mag + BUP, data = mergedMice_LSD, family = binomial)
-model3 <- glm(Drug ~  Mag + BUP, data = mergedMice_LSD, family = binomial)
+model1 <- glm(Drug ~  TA, data = mergedMice_LSD, family = binomial)
+model2 <- glm(Drug ~  Win, data = mergedMice_LSD, family = binomial)
 
 # Predict probabilities
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedMice_LSD$Drug, 3)),
-  predictions = c(prob1, prob2,prob3),
-  model = factor(rep(c("DMN Correlations","+DMN Propagations","DMN Propagations"), each = nrow(mergedMice_LSD)))
+  labels = as.numeric(rep(mergedMice_LSD$Drug)),
+  predictions = c(prob1, prob2),
+  model = factor(rep(c("DMN Temporal Autocorrelation","Within DMN FC"), each = nrow(mergedMice_LSD)))
 )
 
 # Generate the ROC plot
@@ -260,7 +312,7 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Classifying LSD") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#EF9500","#c12139","#09416b"))+
+  scale_color_manual(values = c("blue","red"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 
@@ -268,16 +320,13 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
 # Calculate AUC for each model
 roc1 <- roc(mergedMice_LSD$Drug, prob1)
 roc2 <- roc(mergedMice_LSD$Drug, prob2)
-roc3 <- roc(mergedMice_LSD$Drug, prob3)
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
-auc3 <- auc(roc3)
 
 
-print(paste("AUC for DMN Correlations:", auc1))
-print(paste("AUC for +DMN Propagations:", auc2))
-print(paste("AUC for DMN Propagations:", auc3))
+print(paste("AUC for Temporal Autocorrelation:", auc1))
+print(paste("AUC for Within FC:", auc2))
 auc_diff=auc2-auc1
 ```
 

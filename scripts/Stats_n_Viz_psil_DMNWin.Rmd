@@ -1,5 +1,5 @@
 ---
-title: "Psilocybin magnitudes"
+title: "Psilocybin DMN Temporal Autocorrelation"
 output: github_document
 date: "2024-02-03"
 ---
@@ -13,13 +13,13 @@ library(nlme)
 ```
 
 ```{r}
-# prop magnitudes - note shared variable naming scheme as BUP for equivalence, but refers to magnitudes
-rs1=read.csv('~/Downloads/rs1_Psil_DMNMagMerged.csv',header=F)
-rs2=read.csv('~/Downloads/rs2_Psil_DMNMagMerged.csv',header=F)
-rs3=read.csv('~/Downloads/rs3_Psil_DMNMagMerged.csv',header=F)
-rs4=read.csv('~/Downloads/rs4_Psil_DMNMagMerged.csv',header=F)
-rs5=read.csv('~/Downloads/rs5_Psil_DMNMagMerged.csv',header=F)
-rs6=read.csv('~/Downloads/rs6_Psil_DMNMagMerged.csv',header=F)
+# autocorrelation measurements. Note that variable names are the SAME as in the main psil.rmd for equivalence, but refer to temporal autocorrelation in this markdown.
+rs1=read.csv('~/Downloads/rs1_Psil_DMNWINMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_Psil_DMNWINMerged.csv',header=F)
+rs3=read.csv('~/Downloads/rs3_Psil_DMNWINMerged.csv',header=F)
+rs4=read.csv('~/Downloads/rs4_Psil_DMNWINMerged.csv',header=F)
+rs5=read.csv('~/Downloads/rs5_Psil_DMNWINMerged.csv',header=F)
+rs6=read.csv('~/Downloads/rs6_Psil_DMNWINMerged.csv',header=F)
 
 rs1$Task='rs'
 rs2$Task='rs2'
@@ -495,9 +495,6 @@ for (s in 1:length(unique(rs4m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
-  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
   ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
   ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
   drug1Rows <- which(subjDrugRows$Session == 1)
@@ -736,7 +733,7 @@ for (s in 1:length(unique(allScans$Subject))) {
 ```
 
 ```{r}
-# retain original order column
+# need to add a session column with After1, After2, etc. to match vertexwise
 allScans$SessionOG<-allScans$Session
 
 # Adding session column
@@ -843,13 +840,11 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ```{r}
-# exclude methylphenidate
-allScansNoMeth=allScans[allScans$Drug!='Methyl',]
-# model - note this is all scans excluding methylphenidate
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
+# model
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 
 # methylphenidate vs. psilocybin
 drugScans=allScans[allScans$Drug!='none',]
@@ -858,184 +853,8 @@ summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 # save out this df for merging
-saveRDS(allScans,'~/Downloads/Psil_MagMerged.rds')
+saveRDS(allScans,'~/Downloads/Psil_Win_Merged.rds')
 ```
 
-```{r}
-# alternative coding to above
-allScans$Condition=allScans$Dosage
-# correct betweens to after where psilo has already occurred
-for (s in 1:length(unique(allScans$Subject))) {
-  # get subject ID
-  subject <- (unique(allScans$Subject))[s]
-  allScansSubj <- allScans[allScans$Subject == subject, ]
-  if (min(allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo'])<min(allScansSubj$TemporalOrder[allScansSubj$Dosage=='between'])){
-    allScansSubj$Dosage[allScansSubj$Dosage=='between']='after'
-    # alter between visits to after if this condition is met
-    allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Dosage
-  }
-}
-
-# correct betweens to before where psilo has not occurred
-allScans$Condition [allScans$Condition == 'between']<- 'before'
-
-# construe after scans in terms of how many scans after
-levels(allScans$Condition)<-c(levels(allScans$Condition),'immed_afterPsil','immed_afterMethyl')
-# for each subj
-for (s in 1:length(unique(allScans$Subject))) {
-  # get subject ID
-  subject <- (unique(allScans$Subject))[s]
-  allScansSubj <- allScans[allScans$Subject == subject, ]
-  TempOrdersubj=allScansSubj$TemporalOrder
-  # find psil scan
-  psilScanInds=TempOrdersubj[allScansSubj$Drug=='Psilo']
-  unqPsilScans=unique(psilScanInds)
-  for (unqPsilScans in 1:length(unqPsilScans)){
-      # psil scan temporal index
-      p_s_t_i=psilScanInds[unqPsilScans]
-      # mark after scan as immedafter in cond
-      allScansSubj$Condition[allScansSubj$TemporalOrder==(p_s_t_i+1)]='immed_afterPsil'
-      allScansSubj$Condition[allScansSubj$TemporalOrder==(p_s_t_i+2)]='immed_afterPsil'
-  }
-  # find methyl scan
-  methScanInds=TempOrdersubj[allScansSubj$Drug=='Methyl']
-  unqmethScans=unique(methScanInds)
-  for (unqmethScans in 1:length(unqmethScans)){
-      # meth scan temporal index
-      m_s_t_i=methScanInds[unqmethScans]
-      # mark after scan as immedafter in cond
-      allScansSubj$Condition[allScansSubj$TemporalOrder==(m_s_t_i+1)]='immed_afterMethyl'
-      allScansSubj$Condition[allScansSubj$TemporalOrder==(m_s_t_i+2)]='immed_afterMethyl'
-  }
-  # insert back into master dataframe
-  allScans[allScans$Subject == subject, ]$Condition <- allScansSubj$Condition
-}
-  
-
-# after condition no longer meaningfully distinct from before
-allScans$Condition2<-as.factor(allScans$Condition)
-allScans$Condition2[allScans$Condition2=='after']='before'
-levels(allScans$Condition2)=c(levels(allScans$Condition2),'Non-Drug','Psilo','Methyl')
-allScans$Condition2[allScans$Condition2=='before']='Non-Drug'
-allScans$Condition2[allScans$Drug=='Methyl']='Methyl'
-allScans$Condition2[allScans$Drug=='Psilo']='Psilo'
-```
-
-```{r}
-# model it with non-drug as reference scans
-allScans <- within(allScans, Condition2 <- relevel(Condition2, ref = 6))
-```
-
-
-```{r}
-# figure 2 plots: drug vs. nondrug
-allScans$Psilo=0
-allScans$Psilo[allScans$Drug=='Psilo']=1
-allScans$Psilo<-as.factor(allScans$Psilo)
-
-
-# generate extended color pal for subject plotting
-library(grDevices)
-# Define the extended custom palette function
-extended_palette <- colorRampPalette(rev(c("#FFEE00", "#EF9500", "#002642", "#c1004f", "#000000")))
-
-# Generate a palette with the number of unique levels in V1
-num_colors <- length(unique(allScans$Subjects))
-generated_colors <- extended_palette(num_colors)
-
-# get unique subj names
-allScans$Subjects <- droplevels(allScans$Subjects)
-unique_values <- unique(allScans$Subjects)
-new_labels <- paste0("PSIL", seq_along(unique_values))
-names(new_labels) <- unique_values
-
-# Replace the values in Subjects using the new labels
-allScans$People <- new_labels[allScans$Subjects]
-
-# final ordering
-allScans$People <- factor(allScans$People, levels = new_labels)
-
-# just non-drug for easier interpretability for this plot
-allScansNoMeth=allScans[allScans$Drug!='Methyl',]
-# plot residuals from reduced model: lme(TDProp1 ~ Drug + RemTRs + FD)
-reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
-allScansNoMeth$ResidualsReduced=resid(reducedModel)+mean(allScansNoMeth$TDProp1)
-
-
-# gaussian jitter, as.numeric - 1 because none is retained as factor level despite not being populated
-set.seed(1)
-allScansNoMeth$JitteredPsilo <- as.numeric(allScansNoMeth$Psilo) + rnorm(nrow(allScansNoMeth), mean = 0, sd = 0.1)
-
-ggplot(allScansNoMeth, aes(x = JitteredPsilo, y = ResidualsReduced)) +
-  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
-  geom_boxplot(aes(group = Psilo), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
-  labs(title = "Psilocybin vs. No-drug scans \n \n",
-       x = "",
-       y = "Avg. Magnitude in DMN") + 
-  scale_x_continuous(breaks = 1:2, labels = c('No Drug','Psilocybin')) +
-  theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)
-
-# full model for stats
-fit_lme <- lme(TDProp1 ~ Psilo + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
-summaryLME<-summary(fit_lme)
-# match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-
-```
-
-```{r}
-# figure 2 plots: methylphenidate vs. psilocybin
-
-# subset out sessions where participant received pill
-drugScans=allScans[allScans$Drug!='none',]
-
-# plot residuals from reduced model: lme(TDProp1 ~ Drug + RemTRs + FD)
-reducedModel=lme(TDProp1 ~  RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
-drugScans$ResidualsReduced=resid(reducedModel)+mean(drugScans$TDProp1)
-
-# gaussian jitter, as.numeric, -1 because none is retained as a possible factor level despite not being populated
-set.seed(1)
-drugScans$JitteredDrug <- as.numeric(drugScans$Drug)-1 + rnorm(nrow(drugScans), mean = 0, sd = 0.1)
-
-ggplot(drugScans, aes(x = JitteredDrug, y = ResidualsReduced)) +
-  geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
-  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
-  labs(title = "Psilocybin vs. Active Placebo \n \n",
-       x = "",
-       y = "Avg. Magnitude in DMN") + 
-  scale_x_continuous(breaks = 1:2, labels = c('Methylphenidate','Psilocybin')) +
-  theme_minimal(base_size=26)+scale_color_manual(values = generated_colors)+theme(axis.text.x = element_text(size = 20))
-
-# full model for stats
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = drugScans)
-summaryLME<-summary(fit_lme)
-# match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-```
-
-```{r}
-# figure 2 plots: follow-up scans
-# get residuals
-reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
-allScans$ResidualsReduced=resid(reducedModel)+mean(allScans$TDProp1)
-# plot one version without methyl conditions for main text
-allScansNoMeth=allScans[allScans$Condition2!='Methyl',]
-allScansNoMeth=allScansNoMeth[allScansNoMeth$Condition2!='immed_afterMethyl',]
-
-ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
-  geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=3,aes(color=People)) +  # Jittered points
-  geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
-  labs(title = "Psilocybin: Lasting effects \n",
-       x = "",
-       y = "Avg. Magnitude in DMN") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
-  theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
-
-# full model for stats
-fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScansNoMeth)
-summaryLME<-summary(fit_lme)
-# match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
-paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-```
 
 

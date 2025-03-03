@@ -1,4 +1,4 @@
-MDMA main
+MDMA Stats and Visualization: Study 1
 ================
 2023-07-13
 
@@ -178,6 +178,38 @@ mergedDfProps=mergedDf
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA006',]
 mergedDf=mergedDf[mergedDf$Subjects!='sub-MDMA010',]
 mergedDf=mergedDf[mergedDf$RemTRs>250,]
+
+# plot out missing frames by condition
+mergedDf$DrugCondition <- factor(ifelse(mergedDf$Dosage %in% c("80mg", "120mg"), 
+                                        "MDMA", 
+                                        as.character(mergedDf$Dosage)),
+                                 levels = c("baseline", "Placebo", "MDMA"))
+
+# rs for EZ comparison
+mergedDf2=mergedDf[mergedDf$Task!='wm',]
+#mergedDf2=mergedDf[mergedDf$Task!='rs',]
+#mergedDf2=mergedDf2[mergedDf2$Task!='rs2',]
+
+mergedDf2=mergedDf2[mergedDf2$Task!='gambling',]
+
+
+# reviewer fig: remaining TRs by condition
+ggplot(mergedDf2, aes(x = DrugCondition, y = 500-RemTRs, fill = DrugCondition)) +
+  geom_boxplot(outlier.shape = NA) +  # Boxplot without outliers
+  geom_jitter(width = 0.2, alpha = 0.4) +  # Add jitter for individual points
+  theme_minimal() +
+  scale_fill_manual(values = c("baseline" = "gray", "Placebo" = "blue", "MDMA" = "green")) +
+  scale_x_discrete(labels = c("baseline" = "No Drug", "Placebo" = "Placebo", "MDMA" = "MDMA"))+
+  labs(title = "Total Frames Omitted Across Conditions (Study 1, Resting State)",
+       x = "Drug",
+       y = "Total Frames Omitted due to Censoring")+theme(legend.position = "none")
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+# save out for  merging
+saveRDS(mergedDf,'~/mergedDf_study1_QCd.rds')
 ```
 
 ``` r
@@ -257,7 +289,7 @@ set.seed(2)
 mergedDf_clean$JitteredDrug <- as.numeric(mergedDf_clean$Drug) + rnorm(nrow(mergedDf_clean), mean = 0, sd = 0.1)
 
 # figure 2a
-ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals)) +
+ggplot(mergedDf_clean, aes(x = JitteredDrug, y = Residuals*100)) +
   geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
   geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. Placebo \n",
@@ -343,8 +375,8 @@ mergedDf$Residuals<-resid(model_to_reg)+mean(mergedDf$TDProp1)
 set.seed(1)
 mergedDf$JitteredDrug <- as.numeric(mergedDf$Drug) + rnorm(nrow(mergedDf), mean = 0, sd = 0.1)
 
-# figure 2a
-ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals)) +
+# figure 2a: * 100 for percentage scaling
+ggplot(mergedDf, aes(x = JitteredDrug, y = Residuals*100)) +
   geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
   geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "MDMA vs. No-drug scans \n",
@@ -710,7 +742,7 @@ mergedDf$Drug=as.factor(mergedDf$Drug)
 ```
 
 ``` r
-# combine complexity and props and autocor
+# combine props and autocor
 mergedDfPropsComplAutoC=merge(mergedDfProps,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 ```
 
@@ -721,12 +753,7 @@ rs2=read.csv('~/Downloads/rs2_DMNSegMerged.csv',header=F)
 emo=read.csv('~/Downloads/emotion_DMNSegMerged.csv',header=F)
 gambling=read.csv('~/Downloads/gambling_DMNSegMerged.csv',header=F)
 wm=read.csv('~/Downloads/wm_DMNSegMerged.csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+
 rs1$Task='rs'
 rs2$Task='rs2'
 emo$Task='emotion'
@@ -882,23 +909,18 @@ mergedDf$Drug=as.factor(mergedDf$Drug)
 ```
 
 ``` r
-# combine complexity and props and autocor
+# combine dmn fc and props and autocor
 mergedDfPropsComplAutoCdmnFC=merge(mergedDfPropsComplAutoC,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 ```
 
 ``` r
 # DMN mag
-rs1=read.csv('~/Downloads/rs1_DMNMagMerged(4).csv',header=F)
-rs2=read.csv('~/Downloads/rs2_DMNMagMerged(4).csv',header=F)
-emo=read.csv('~/Downloads/emotion_DMNMagMerged(4).csv',header=F)
-gambling=read.csv('~/Downloads/gambling_DMNMagMerged(4).csv',header=F)
-wm=read.csv('~/Downloads/wm_DMNMagMerged(4).csv',header=F)
-# set colnames
-#colnames(rs1)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(rs2)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(emo)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(gambling)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
-#colnames(wm)=c('bvProp','pProp','m1Prop','m2Prop','bvTRs','pTRs','m1TRs','m2TRs')
+rs1=read.csv('~/Downloads/rs1_DMNMagMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_DMNMagMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_DMNMagMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_DMNMagMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_DMNMagMerged.csv',header=F)
+
 rs1$Task='rs'
 rs2$Task='rs2'
 emo$Task='emotion'
@@ -1060,7 +1082,7 @@ mergedDfBVincl$Drug=as.factor(mergedDfBVincl$Drug)
 ```
 
 ``` r
-# combine complexity and props and autocor
+# combine dmn fc and props and autocor
 mergedDfPropsComplAutoCdmnFCdmnMag=merge(mergedDfPropsComplAutoCdmnFC,mergedDf,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
 # version with baseline included
 mergedDfPropsComplAutoCdmnFCdmnMagbv=merge(mergedDfPropsComplAutoCdmnFC,mergedDfBVincl,by=c("Subjects","Task","Dosage","Session","MeanFD","SpikesPercent","RemTRs","Drug"))
@@ -1171,16 +1193,18 @@ mergedDfPropsComplAutoCdmnFCdmnMag_notask=mergedDfPropsComplAutoCdmnFCdmnMag[mer
 # Fit logistic regression models
 model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
 model2 <- glm(Drug ~ MeanFD + RemTRs + DMNFC + AutoCor+DMNMag+TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+model3 <- glm(Drug ~ MeanFD + RemTRs +DMNMag+TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
 
 # Predict probabilities
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
+prob3 <- predict(model3, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, 2)),
-  predictions = c(prob1, prob2),
-  model = factor(rep(c("DMN Correlations", "+DMN Propagations"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag_notask)))
+  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, 3)),
+  predictions = c(prob1, prob2,prob3),
+  model = factor(rep(c("DMN Correlations", "+DMN Propagations","DMN Propagations"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag_notask)))
 )
 
 # Generate the ROC plot
@@ -1189,7 +1213,7 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Classifying MDMA") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#09416b","#c12139"))+
+  scale_color_manual(values = c("#EF9500","#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 ```
@@ -1215,10 +1239,17 @@ roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
     ## Setting direction: controls < cases
 
 ``` r
+roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob3)
+```
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+``` r
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
-
+auc3 <- auc(roc3)
 
 print(paste("AUC for DMN Correlations:", auc1))
 ```
@@ -1230,6 +1261,12 @@ print(paste("AUC for Full Model:", auc2))
 ```
 
     ## [1] "AUC for Full Model: 0.881481481481482"
+
+``` r
+print(paste("AUC for Prop Model:", auc3))
+```
+
+    ## [1] "AUC for Prop Model: 0.832407407407407"
 
 ``` r
 # Calculate AUC difference between full and reduced models
@@ -1244,36 +1281,9045 @@ auc_diff <- auc2 - auc1
 
 # make equivalent AUC calculations on permuted data
 # initialize AUC difference vectors
-#auc_diffs <- rep(NA, 1000)
-#
-## 1. permute each DMN variable (and FD)
-#set.seed(1)
-#for (i in 1:1000){
-#  print(i)
-#  # permute DMNMag
-#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag)
-#  # permute TDProp1
-#  mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1)
-# 
-#  # Fit logistic regression models
-#  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = #binomial)
-#  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = #mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
-#   
-#  # 3. calculate AUC difference between full and reduced models with permuted data
-#  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
-#  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
-#  
-#  # Print AUC values
-#  auc1 <- auc(roc1)
-#  auc2_perm <-auc(roc2_perm)
-#
-#  # populate auc_diff vectors
-#  # DMN correlations vs. full (permuted props) model
-#  auc_diffs[i] <- auc1 - auc2_perm
-#}
-## 4. Compare true AUC differences to permuted AUC differences
-#
-#sum(auc_diffs>auc_diff)
+auc_diffs <- rep(NA, 1000)
+
+# 1. permute each DMN variable (and FD)
+set.seed(1)
+for (i in 1:1000){
+  print(i)
+  # permute DMNMag
+  mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$DMNMag)
+  # permute TDProp1
+  mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1_perm <- sample(mergedDfPropsComplAutoCdmnFCdmnMag_notask$TDProp1)
+ 
+  # Fit logistic regression models
+  model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+  model2_perm <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor+TDProp1_perm+DMNMag_perm, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+    
+  # 3. calculate AUC difference between full and reduced models with permuted data
+  roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model1, type = "response"))
+  roc2_perm <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, predict(model2_perm, type = "response"))
+  
+  # Print AUC values
+  auc1 <- auc(roc1)
+  auc2_perm <-auc(roc2_perm)
+
+  # populate auc_diff vectors
+  # DMN correlations vs. full (permuted props) model
+  auc_diffs[i] <- auc2_perm - auc1
+}
+```
+
+    ## [1] 1
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 2
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 3
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 4
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 5
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 6
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 7
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 8
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 9
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 10
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 11
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 12
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 13
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 14
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 15
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 16
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 17
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 18
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 19
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 20
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 21
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 22
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 23
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 24
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 25
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 26
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 27
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 28
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 29
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 30
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 31
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 32
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 33
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 34
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 35
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 36
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 37
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 38
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 39
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 40
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 41
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 42
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 43
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 44
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 45
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 46
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 47
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 48
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 49
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 50
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 51
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 52
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 53
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 54
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 55
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 56
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 57
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 58
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 59
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 60
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 61
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 62
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 63
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 64
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 65
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 66
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 67
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 68
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 69
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 70
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 71
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 72
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 73
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 74
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 75
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 76
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 77
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 78
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 79
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 80
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 81
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 82
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 83
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 84
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 85
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 86
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 87
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 88
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 89
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 90
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 91
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 92
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 93
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 94
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 95
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 96
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 97
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 98
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 99
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 100
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 101
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 102
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 103
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 104
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 105
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 106
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 107
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 108
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 109
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 110
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 111
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 112
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 113
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 114
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 115
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 116
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 117
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 118
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 119
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 120
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 121
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 122
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 123
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 124
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 125
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 126
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 127
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 128
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 129
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 130
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 131
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 132
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 133
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 134
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 135
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 136
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 137
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 138
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 139
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 140
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 141
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 142
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 143
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 144
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 145
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 146
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 147
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 148
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 149
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 150
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 151
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 152
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 153
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 154
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 155
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 156
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 157
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 158
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 159
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 160
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 161
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 162
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 163
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 164
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 165
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 166
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 167
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 168
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 169
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 170
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 171
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 172
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 173
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 174
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 175
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 176
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 177
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 178
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 179
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 180
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 181
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 182
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 183
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 184
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 185
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 186
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 187
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 188
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 189
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 190
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 191
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 192
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 193
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 194
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 195
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 196
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 197
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 198
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 199
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 200
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 201
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 202
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 203
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 204
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 205
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 206
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 207
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 208
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 209
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 210
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 211
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 212
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 213
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 214
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 215
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 216
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 217
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 218
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 219
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 220
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 221
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 222
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 223
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 224
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 225
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 226
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 227
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 228
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 229
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 230
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 231
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 232
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 233
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 234
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 235
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 236
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 237
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 238
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 239
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 240
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 241
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 242
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 243
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 244
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 245
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 246
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 247
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 248
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 249
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 250
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 251
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 252
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 253
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 254
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 255
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 256
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 257
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 258
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 259
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 260
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 261
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 262
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 263
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 264
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 265
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 266
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 267
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 268
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 269
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 270
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 271
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 272
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 273
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 274
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 275
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 276
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 277
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 278
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 279
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 280
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 281
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 282
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 283
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 284
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 285
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 286
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 287
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 288
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 289
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 290
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 291
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 292
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 293
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 294
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 295
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 296
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 297
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 298
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 299
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 300
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 301
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 302
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 303
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 304
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 305
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 306
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 307
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 308
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 309
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 310
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 311
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 312
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 313
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 314
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 315
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 316
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 317
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 318
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 319
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 320
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 321
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 322
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 323
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 324
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 325
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 326
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 327
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 328
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 329
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 330
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 331
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 332
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 333
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 334
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 335
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 336
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 337
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 338
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 339
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 340
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 341
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 342
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 343
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 344
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 345
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 346
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 347
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 348
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 349
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 350
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 351
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 352
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 353
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 354
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 355
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 356
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 357
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 358
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 359
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 360
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 361
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 362
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 363
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 364
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 365
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 366
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 367
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 368
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 369
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 370
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 371
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 372
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 373
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 374
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 375
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 376
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 377
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 378
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 379
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 380
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 381
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 382
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 383
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 384
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 385
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 386
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 387
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 388
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 389
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 390
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 391
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 392
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 393
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 394
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 395
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 396
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 397
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 398
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 399
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 400
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 401
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 402
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 403
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 404
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 405
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 406
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 407
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 408
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 409
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 410
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 411
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 412
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 413
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 414
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 415
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 416
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 417
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 418
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 419
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 420
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 421
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 422
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 423
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 424
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 425
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 426
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 427
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 428
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 429
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 430
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 431
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 432
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 433
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 434
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 435
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 436
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 437
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 438
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 439
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 440
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 441
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 442
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 443
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 444
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 445
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 446
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 447
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 448
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 449
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 450
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 451
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 452
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 453
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 454
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 455
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 456
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 457
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 458
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 459
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 460
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 461
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 462
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 463
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 464
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 465
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 466
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 467
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 468
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 469
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 470
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 471
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 472
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 473
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 474
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 475
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 476
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 477
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 478
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 479
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 480
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 481
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 482
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 483
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 484
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 485
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 486
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 487
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 488
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 489
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 490
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 491
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 492
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 493
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 494
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 495
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 496
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 497
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 498
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 499
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 500
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 501
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 502
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 503
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 504
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 505
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 506
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 507
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 508
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 509
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 510
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 511
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 512
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 513
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 514
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 515
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 516
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 517
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 518
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 519
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 520
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 521
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 522
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 523
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 524
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 525
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 526
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 527
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 528
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 529
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 530
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 531
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 532
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 533
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 534
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 535
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 536
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 537
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 538
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 539
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 540
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 541
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 542
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 543
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 544
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 545
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 546
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 547
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 548
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 549
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 550
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 551
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 552
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 553
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 554
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 555
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 556
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 557
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 558
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 559
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 560
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 561
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 562
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 563
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 564
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 565
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 566
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 567
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 568
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 569
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 570
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 571
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 572
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 573
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 574
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 575
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 576
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 577
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 578
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 579
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 580
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 581
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 582
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 583
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 584
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 585
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 586
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 587
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 588
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 589
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 590
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 591
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 592
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 593
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 594
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 595
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 596
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 597
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 598
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 599
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 600
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 601
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 602
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 603
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 604
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 605
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 606
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 607
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 608
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 609
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 610
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 611
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 612
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 613
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 614
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 615
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 616
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 617
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 618
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 619
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 620
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 621
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 622
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 623
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 624
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 625
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 626
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 627
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 628
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 629
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 630
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 631
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 632
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 633
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 634
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 635
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 636
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 637
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 638
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 639
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 640
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 641
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 642
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 643
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 644
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 645
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 646
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 647
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 648
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 649
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 650
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 651
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 652
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 653
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 654
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 655
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 656
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 657
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 658
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 659
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 660
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 661
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 662
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 663
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 664
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 665
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 666
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 667
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 668
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 669
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 670
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 671
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 672
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 673
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 674
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 675
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 676
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 677
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 678
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 679
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 680
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 681
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 682
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 683
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 684
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 685
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 686
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 687
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 688
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 689
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 690
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 691
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 692
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 693
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 694
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 695
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 696
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 697
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 698
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 699
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 700
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 701
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 702
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 703
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 704
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 705
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 706
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 707
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 708
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 709
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 710
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 711
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 712
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 713
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 714
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 715
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 716
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 717
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 718
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 719
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 720
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 721
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 722
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 723
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 724
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 725
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 726
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 727
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 728
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 729
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 730
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 731
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 732
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 733
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 734
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 735
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 736
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 737
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 738
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 739
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 740
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 741
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 742
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 743
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 744
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 745
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 746
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 747
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 748
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 749
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 750
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 751
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 752
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 753
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 754
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 755
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 756
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 757
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 758
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 759
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 760
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 761
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 762
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 763
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 764
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 765
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 766
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 767
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 768
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 769
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 770
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 771
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 772
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 773
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 774
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 775
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 776
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 777
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 778
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 779
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 780
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 781
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 782
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 783
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 784
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 785
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 786
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 787
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 788
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 789
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 790
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 791
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 792
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 793
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 794
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 795
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 796
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 797
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 798
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 799
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 800
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 801
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 802
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 803
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 804
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 805
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 806
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 807
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 808
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 809
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 810
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 811
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 812
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 813
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 814
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 815
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 816
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 817
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 818
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 819
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 820
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 821
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 822
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 823
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 824
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 825
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 826
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 827
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 828
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 829
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 830
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 831
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 832
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 833
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 834
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 835
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 836
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 837
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 838
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 839
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 840
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 841
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 842
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 843
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 844
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 845
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 846
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 847
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 848
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 849
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 850
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 851
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 852
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 853
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 854
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 855
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 856
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 857
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 858
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 859
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 860
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 861
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 862
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 863
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 864
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 865
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 866
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 867
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 868
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 869
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 870
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 871
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 872
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 873
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 874
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 875
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 876
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 877
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 878
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 879
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 880
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 881
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 882
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 883
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 884
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 885
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 886
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 887
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 888
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 889
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 890
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 891
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 892
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 893
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 894
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 895
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 896
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 897
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 898
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 899
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 900
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 901
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 902
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 903
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 904
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 905
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 906
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 907
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 908
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 909
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 910
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 911
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 912
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 913
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 914
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 915
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 916
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 917
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 918
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 919
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 920
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 921
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 922
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 923
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 924
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 925
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 926
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 927
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 928
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 929
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 930
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 931
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 932
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 933
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 934
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 935
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 936
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 937
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 938
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 939
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 940
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 941
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 942
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 943
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 944
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 945
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 946
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 947
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 948
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 949
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 950
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 951
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 952
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 953
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 954
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 955
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 956
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 957
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 958
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 959
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 960
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 961
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 962
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 963
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 964
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 965
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 966
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 967
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 968
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 969
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 970
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 971
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 972
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 973
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 974
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 975
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 976
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 977
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 978
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 979
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 980
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 981
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 982
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 983
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 984
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 985
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 986
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 987
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 988
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 989
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 990
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 991
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 992
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 993
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 994
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 995
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 996
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 997
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 998
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 999
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+    ## [1] 1000
+
+    ## Setting levels: control = 0, case = 1
+    ## Setting direction: controls < cases
+
+    ## Setting levels: control = 0, case = 1
+
+    ## Setting direction: controls < cases
+
+``` r
+# 4. Compare true AUC differences to permuted AUC differences
+
+sum(auc_diffs>auc_diff)
+```
+
+    ## [1] 2
+
+``` r
 # 0 indicates p <0.001
 ```
 
@@ -1574,7 +10620,7 @@ for (i in 1:length(eachSubj)){
   SubjChange_Mag_80=Mag_Plac-Mag_80
   SubjChange_Mag_120=Mag_Plac-Mag_120
   
-  # put into VAS_change, 80mg
+  # put into DAS_change, 80mg
   DAS_Change_Subject<-c(DAS_Change_Subject,eachSubj[i])
   DAS_Change_Dosage<-c(DAS_Change_Dosage,'80mg')
   DAS_Change_ChangeFC<-c(DAS_Change_ChangeFC,SubjChange_TA_80)
@@ -1629,10 +10675,10 @@ DAS_changeDF_people$SubjectsCols <- factor(DAS_changeDF_people$Subjects, levels 
 ```
 
 ``` r
-### figure 3B - coarse
+### figure 4C prep - coarse
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames <- c(
-  'Oceaninc\nBoundlessness',
+  'Oceanic\nBoundlessness',
   'Dread of Ego\nDissolution',
   'Visionary\nRestructuralization',
   'Auditory\nAlterations',
@@ -1812,12 +10858,12 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
 ![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->
 
 ``` r
-# pull out BUP~DED correlation
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=BUP_Decrease))+
-  geom_point(size=4,aes(color = People))+
+# pull out BUP~DED correlation: *100 to convert to %
+ggplot(data=DAS_changeDF_people,aes(y=dascscore_ded,x=BUP_Decrease*100))+
+  geom_point(size=6,aes(color = People))+
   labs(x = "Decrease in Bottom-up %", y = "Increase in Dread of Ego Dissolution", color = "People") +
   scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 16)
+  theme_minimal(base_size = 30)
 ```
 
 ![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->
@@ -1839,7 +10885,57 @@ cor.test(DAS_changeDF_people$dascscore_ded,DAS_changeDF_people$BUP_Decrease)
     ## 0.7168634
 
 ``` r
-### figure 3B - granular
+### they won't take barplots. Here's a geom_tile version of coarse DASC for figure 4
+# combine all metrics into a single dataframe
+DMN_metrics <- data.frame(
+  Metric = rep(c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"), each = length(dascNames)),
+  DASCName = rep(dascNames, times = 4),
+  Correlation = c(S_corvec, TA_corvec, BUP_corvec, M_corvec),
+  PValue = c(S_pvec, TA_pvec, BUP_pvec, M_pvec),
+  PValue_MC = c(S_pvec_mc, TA_pvec_mc, BUP_pvec_mc, M_pvec_mc)
+)
+
+# define significance categories
+DMN_metrics$Sig <- "N.S."
+DMN_metrics$Sig[DMN_metrics$PValue < 0.05] <- "Uncorrected"
+DMN_metrics$Sig[DMN_metrics$PValue_MC < 0.05] <- "FDR"
+
+# set up colors for the significance categories
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
+
+# update column names and order
+DMN_metrics$Metric <- factor(DMN_metrics$Metric,
+                             levels = c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"),
+                             labels = c("Δ Integration", "Δ Autocorrelation", "Δ Prop. Directionality", "Δ Prop. Magnitudes"))
+
+# define significance categories with a custom order
+DMN_metrics$Sig <- factor(DMN_metrics$Sig, levels = c("N.S.", "Uncorrected", "FDR"))
+
+# 4c coarse
+ggplot(DMN_metrics, aes(x = Metric, y = DASCName, fill = Sig)) +
+  geom_tile(color = "white", size = 0.5) + # Add borders for clarity
+  geom_text(aes(label = round(Correlation, 2)), color = "white", size = 12) + # Correlation values
+  scale_fill_manual(
+    values = colors,
+    labels = c("N.S.", "Uncorrected", "FDR") 
+  ) +
+  labs(
+    x = "Placebo vs. MDMA Difference in DMN Metrics",
+    y = "ASC Factors (Coarse)",
+    fill = "Significance",
+    title = "DMN Metric-Self Report Correlations"
+  ) +
+  theme_minimal(base_size = 30) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+
+``` r
+### figure 4D - granular
 # make a vector of DAS scale names \n is a newline for the ggplots
 dascNames=c('Experience of Unity','Spirtual Experience','Blissful State','Insightfulness','Disembodiment','Impaired Control','Anxiety','Complex Imagery','Elementary Imagery','Synsthesia','Changed meaning\n of precepts')
 
@@ -1948,7 +11044,7 @@ ggplot(df, aes(x = Values, y = dascNames,fill=Sig)) +
   theme(legend.position='none')
 ```
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 # DMN AUTOCOR
@@ -1973,7 +11069,7 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   theme(legend.position='none')
 ```
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-2.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
 
 ``` r
 # DMN BUP
@@ -1986,7 +11082,7 @@ colorvec[BUP_pvec<.05]='Uncr'
 colorvec[BUP_pvec_mc<.05]='FDR'
 df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
 # Specify color scale manually
-colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
 # extra step needs to be done to maintain same row ordering as previous plot
 df$ColumnNamesAcr<-c(dascNamesAcr)
 df$ColumnNamesAcr<-factor(df$ColumnNamesAcr,levels=c('Anx.','B.S.','C.M.O.P.','C.Im.','Disemb.','E.Im.','E.U.','I.C.','Ins.','S.E.','Syn.'))
@@ -1999,7 +11095,7 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
   theme(legend.position='none')
 ```
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-3.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-3.png)<!-- -->
 
 ``` r
 # and one just for the legend
@@ -2010,7 +11106,7 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Significant)) +
   labs(y = "", x = "Subscale Correlation",title="Change in Prop. Direction")+theme_minimal(base_size=17)+xlim(c(-.3,.8))
 ```
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-4.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-4.png)<!-- -->
 
 ``` r
 # DMN Mag
@@ -2018,7 +11114,7 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Significant)) +
 df <- data.frame(Values = M_corvec, pvals=M_pvec)
 
 # make a color vector by significance
-colorvec=rep('NS',11)
+colorvec=rep('N.S.',11)
 colorvec[M_pvec<.05]='Uncr'
 colorvec[M_pvec_mc<.05]='FDR'
 df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
@@ -2036,18 +11132,18 @@ ggplot(df, aes(x = Values, y = ColumnNamesAcr,fill=Sig)) +
     ## Warning: Removed 1 row containing missing values or values outside the scale range
     ## (`geom_bar()`).
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-5.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-5.png)<!-- -->
 
 ``` r
-# pull out BUP~Impaired Control correlation
-ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=BUP_Decrease))+
-  geom_point(size=4,aes(color = People))+
+# pull out BUP~Impaired Control correlation, *100 to convert to %
+ggplot(data=DAS_changeDF_people,aes(y=dascscore_impair,x=BUP_Decrease*100))+
+  geom_point(size=6,aes(color = People))+
   labs(x = "Decrease in Bottom-up %", y = "Increase in Impaired Control", color = "People") +
   scale_color_manual(values = generated_colors) +
-  theme_minimal(base_size = 16)
+  theme_minimal(base_size = 30)
 ```
 
-![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-21-6.png)<!-- -->
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-22-6.png)<!-- -->
 
 ``` r
 cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$BUP_Decrease)
@@ -2064,3 +11160,165 @@ cor.test(DAS_changeDF_people$dascscore_impair,DAS_changeDF_people$BUP_Decrease)
     ## sample estimates:
     ##       cor 
     ## 0.7055399
+
+``` r
+# 4D
+# combine all metrics into a single dataframe
+DMN_metrics <- data.frame(
+  Metric = rep(c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"), each = length(dascNames)),
+  DASCName = rep(dascNames, times = 4),
+  Correlation = c(S_corvec, TA_corvec, BUP_corvec, M_corvec),
+  PValue = c(S_pvec, TA_pvec, BUP_pvec, M_pvec),
+  PValue_MC = c(S_pvec_mc, TA_pvec_mc, BUP_pvec_mc, M_pvec_mc)
+)
+
+# define significance categories
+DMN_metrics$Sig <- "N.S."
+DMN_metrics$Sig[DMN_metrics$PValue < 0.05] <- "Uncorrected"
+DMN_metrics$Sig[DMN_metrics$PValue_MC < 0.05] <- "FDR"
+
+# set up colors for the significance categories
+colors <- c('N.S.' = '#002642', 'Uncorrected' = '#EF9500', 'FDR' = '#840032')
+
+# update column names and order
+DMN_metrics$Metric <- factor(DMN_metrics$Metric,
+                             levels = c("Segregation", "Autocorrelation", "Bottom-Up Processing", "Magnitudes"),
+                             labels = c("Δ Integration", "Δ Autocorrelation", "Δ Prop. Directionality", "Δ Prop. Magnitudes"))
+
+# Define significance categories with a custom order
+DMN_metrics$Sig <- factor(DMN_metrics$Sig, levels = c("N.S.", "Uncorrected", "FDR"))
+
+# 4d granular
+ggplot(DMN_metrics, aes(x = Metric, y = DASCName, fill = Sig)) +
+  geom_tile(color = "white", size = 0.5) + # Add borders for clarity
+  geom_text(aes(label = round(Correlation, 2)), color = "white", size = 12) + # Correlation values
+  scale_fill_manual(
+    values = colors,
+    labels = c("N.S.", "Uncorrected", "FDR") 
+  ) +
+  labs(
+    x = "Placebo vs. MDMA Difference in DMN Metrics",
+    y = "ASC Factors (Granular)",
+    fill = "Significance",
+    title = "DMN Metric-Self Report Correlations"
+  ) +
+  theme_minimal(base_size = 30) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "top"
+  )
+```
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+``` r
+# tangent reviewer figure: dmn loadings and distance to primary cortices
+# Load data
+DistL <- read.csv('~/Downloads/Dist_to_PrimCort_Left.csv', header = FALSE)
+DistR <- read.csv('~/Downloads/Dist_to_PrimCort_Right.csv', header = FALSE)
+
+# Rename columns for clarity
+colnames(DistL) <- c("Dnet_LH", "geo_distances_L")
+colnames(DistR) <- c("Dnet_RH", "geo_distances_R")
+
+# Plot for Left Hemisphere
+ggplot(DistL, aes(x=Dnet_LH, y=geo_distances_L) ) +
+  geom_point(alpha=.2,size=.4)+theme_minimal()+geom_smooth(method='lm')+ylab('Distance From Primary Cortex')+xlab('DMN Loadings (Left Hemi.)')
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+``` r
+cor.test(DistL$Dnet_LH,DistL$geo_distances_L,method='spearman')
+```
+
+    ## Warning in cor.test.default(DistL$Dnet_LH, DistL$geo_distances_L, method =
+    ## "spearman"): Cannot compute exact p-value with ties
+
+    ## 
+    ##  Spearman's rank correlation rho
+    ## 
+    ## data:  DistL$Dnet_LH and DistL$geo_distances_L
+    ## S = 521272835, p-value < 2.2e-16
+    ## alternative hypothesis: true rho is not equal to 0
+    ## sample estimates:
+    ##       rho 
+    ## 0.6684737
+
+``` r
+# Right
+ggplot(DistR, aes(x=Dnet_RH, y=geo_distances_R) ) +
+  geom_point(alpha=.2,size=.4)+theme_minimal()+geom_smooth(method='lm')+ylab('Distance From Primary Cortex')+xlab('DMN Loadings (Right Hemi.)')
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-24-2.png)<!-- -->
+
+``` r
+cor.test(DistR$Dnet_RH,DistR$geo_distances_R,method='spearman')
+```
+
+    ## Warning in cor.test.default(DistR$Dnet_RH, DistR$geo_distances_R, method =
+    ## "spearman"): Cannot compute exact p-value with ties
+
+    ## 
+    ##  Spearman's rank correlation rho
+    ## 
+    ## data:  DistR$Dnet_RH and DistR$geo_distances_R
+    ## S = 448474008, p-value < 2.2e-16
+    ## alternative hypothesis: true rho is not equal to 0
+    ## sample estimates:
+    ##       rho 
+    ## 0.7195782
+
+``` r
+# now thresholded
+# Plot for Left Hemisphere
+ggplot(DistL[DistL$Dnet_LH>.3,], aes(x=Dnet_LH, y=geo_distances_L) ) +
+  geom_point(alpha=.2,size=.4)+theme_minimal()+geom_smooth(method='lm')+ylab('Distance From Primary Cortex')+xlab('DMN Loadings (Left Hemi., Thresholded)')
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-24-3.png)<!-- -->
+
+``` r
+cor.test(DistL$Dnet_LH[DistL$Dnet_LH>.3],DistL$geo_distances_L[DistL$Dnet_LH>.3],method='spearman')
+```
+
+    ## 
+    ##  Spearman's rank correlation rho
+    ## 
+    ## data:  DistL$Dnet_LH[DistL$Dnet_LH > 0.3] and DistL$geo_distances_L[DistL$Dnet_LH > 0.3]
+    ## S = 19018478, p-value = 4.543e-11
+    ## alternative hypothesis: true rho is not equal to 0
+    ## sample estimates:
+    ##       rho 
+    ## 0.2793296
+
+``` r
+# Right
+ggplot(DistR[DistR$Dnet_RH>.3,], aes(x=Dnet_RH, y=geo_distances_R) ) +
+  geom_point(alpha=.2,size=.4)+theme_minimal()+geom_smooth(method='lm')+ylab('Distance From Primary Cortex')+xlab('DMN Loadings (Right Hemi., Thresholded)')
+```
+
+    ## `geom_smooth()` using formula = 'y ~ x'
+
+![](Stats_n_Viz_files/figure-gfm/unnamed-chunk-24-4.png)<!-- -->
+
+``` r
+cor.test(DistR$Dnet_RH[DistR$Dnet_RH>.3],DistR$geo_distances_R[DistR$Dnet_RH>.3],method='spearman')
+```
+
+    ## 
+    ##  Spearman's rank correlation rho
+    ## 
+    ## data:  DistR$Dnet_RH[DistR$Dnet_RH > 0.3] and DistR$geo_distances_R[DistR$Dnet_RH > 0.3]
+    ## S = 12045670, p-value < 2.2e-16
+    ## alternative hypothesis: true rho is not equal to 0
+    ## sample estimates:
+    ##       rho 
+    ## 0.3625473
