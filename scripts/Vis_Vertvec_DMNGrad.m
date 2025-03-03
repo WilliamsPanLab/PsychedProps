@@ -10,8 +10,8 @@ surfR = [SubjectsFolder '/rh.sphere'];
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
 % +1 the faces: begins indexing at 0
-%faces_l = faces_l + 1;
-%faces_r = faces_r + 1;
+faces_l = faces_l + 1;
+faces_r = faces_r + 1;
 % faces_L
 %F_L=faces_l;
 % vertices V
@@ -42,6 +42,36 @@ mw_L(mwIndVec_l)=1;
 mw_R=zeros(1,2562);
 mw_R(mwIndVec_r)=1;
 
+
+% use DMN values to establish equivalent mask to used in relative angles
+% LOAD IN DMN STUFF
+network=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/gro_Nets_fs4.mat']);
+n_LH=network.nets.Lnets(:,1);
+n_RH=network.nets.Rnets(:,1);
+nets_LH=n_LH;
+nets_RH=n_RH;
+% equiv to extract angles script
+mw_L(nets_LH<.3)=0;
+mw_L(nets_LH<.3)=0;
+
+% face-wise
+DMN_bool_L=sum(nets_LH(faces_l),2)./3;
+DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+DMN_bool_L(DMN_bool_L>.3)=1;
+DMN_bool_R(DMN_bool_R>.3)=1;
+DMN_bool_L(DMN_bool_L<.3)=0;
+DMN_bool_R(DMN_bool_R<.3)=0;
+DMN_bool_L=logical(DMN_bool_L);
+DMN_bool_R=logical(DMN_bool_R);
+% combine with medial wall mask
+MasterMask_L=DMN_bool_L;
+MasterMask_R=DMN_bool_R;
+MasterMask_L(fmwIndVec_l)=0;
+MasterMask_R(fmwIndVec_r)=0;
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 data=VertVecL;
 data(mwIndVec_l)=0;
@@ -62,7 +92,6 @@ custommap=colormap(b2r(mincol,maxcol));
 % Add gray color to the colormap
 %custommap = [custommap; grayColor];
 %custommap(126,:)=[.5 .5 .5];
-custommap=colormap(jet);
 
 % blue-orange color scheme
 %BO_cm=inferno(9);
@@ -130,10 +159,6 @@ addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/lukaslang-ofd-61
 [vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
 F_L=faces;
 V_L=vertices;
-% LOAD IN DMN STUFF
-network=load(['/oak/stanford/groups/leanew1/users/apines/data/Atlas_Visualize/Smooth_Nets_fs4.mat']);
-n_LH=network.nets.Lnets(:,1);
-n_RH=network.nets.Rnets(:,1);
 % calculate network gradients on sphere
 ng_L = grad(F_L, V_L, n_LH);
 % convert both back to vertices for angular comparisons

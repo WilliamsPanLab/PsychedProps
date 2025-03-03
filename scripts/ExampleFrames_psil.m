@@ -1,28 +1,26 @@
-function ExampleFrames_MDMA(subj,sesh,task) 
+function ExampleFrames_psil(subj,sesh,task) 
 % add libraries
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
 % filepath to pull from
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-AngDistFP=[outFP '/' subj '_' sesh '_' task '_k1_AngDistMat.mat'];
-AngDist=load(AngDistFP).AngDist;
-% Load in Prop TS L
-PropsL=AngDist.Left;
-% Prop TS R
-PropsR=AngDist.Right;
+outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
+AngDistFPL=[outFP '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_L.csv'];
+AngDistFPR=[outFP '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_R.csv'];
+AngDistL=dlmread(AngDistFPL);
+AngDistR=dlmread(AngDistFPR);
 % combine them (Stack)
-Props = [PropsL; PropsR];
+Props = [AngDistL; AngDistR];
 % average at each timepoint
 colMeans = mean(Props, 1);
 % find columns with 3 highest average values (to be labeled prop 1, 2, 3 in output)
-[~, idx] = sort(colMeans, 'descend'); % Sort column means in descending order
+[~, idx] = sort(colMeans, 'ascend'); % Sort column means in descending order
 top3_cols = idx(1:3); % Get indices of the top 3 columns
 % print maximum full-brain value for TD prop angle
-disp('3 highest average values:');
+disp('3 lowest average values:');
 disp(colMeans(top3_cols));
 
 % pull in time series
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+childfp=['/scratch/users/apines/data/psil/' subj '/' sesh ];
 % load in time series
 fpL=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_L.mgh'];
 fpR=[childfp '/' subj '_' sesh '_task-' task '_p2mm_masked_R.mgh'];

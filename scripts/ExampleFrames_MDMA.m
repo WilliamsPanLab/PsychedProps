@@ -4,14 +4,12 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 % filepath to pull from
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-AngDistFP=[outFP '/' subj '_' sesh '_' task '_k1_AngDistMat.mat'];
-AngDist=load(AngDistFP).AngDist;
-% Load in Prop TS L
-PropsL=AngDist.Left;
-% Prop TS R
-PropsR=AngDist.Right;
+AngDistFPL=[outFP '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_L.csv'];
+AngDistFPR=[outFP '/' subj '_' sesh '_' task '_k1_Prop_TS_dmn_R.csv'];
+AngDistL=dlmread(AngDistFPL);
+AngDistR=dlmread(AngDistFPR);
 % combine them (Stack)
-Props = [PropsL; PropsR];
+Props = [AngDistL; AngDistR];
 % average at each timepoint
 colMeans = mean(Props, 1);
 % find columns with 3 highest average values (to be labeled prop 1, 2, 3 in output)
