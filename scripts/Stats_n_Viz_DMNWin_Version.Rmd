@@ -1,5 +1,5 @@
 ---
-title: "MDMA Stats and Visualization: Study 1"
+title: "MDMA main"
 output: github_document
 date: "2023-07-13"
 ---
@@ -823,12 +823,12 @@ mergedDfPropsComplAutoCdmnFC=merge(mergedDfPropsComplAutoC,mergedDf,by=c("Subjec
 ```
 
 ```{r}
-# DMN mag
-rs1=read.csv('~/Downloads/rs1_DMNMagMerged.csv',header=F)
-rs2=read.csv('~/Downloads/rs2_DMNMagMerged.csv',header=F)
-emo=read.csv('~/Downloads/emotion_DMNMagMerged.csv',header=F)
-gambling=read.csv('~/Downloads/gambling_DMNMagMerged.csv',header=F)
-wm=read.csv('~/Downloads/wm_DMNMagMerged.csv',header=F)
+# DMN within FC
+rs1=read.csv('~/Downloads/rs1_DMNWINMerged.csv',header=F)
+rs2=read.csv('~/Downloads/rs2_DMNWINMerged.csv',header=F)
+emo=read.csv('~/Downloads/emotion_DMNWINMerged.csv',header=F)
+gambling=read.csv('~/Downloads/gambling_DMNWINMerged.csv',header=F)
+wm=read.csv('~/Downloads/wm_DMNWINMerged.csv',header=F)
 
 rs1$Task='rs'
 rs2$Task='rs2'
@@ -1025,63 +1025,39 @@ mergedDfPropsComplAutoCdmnFCdmnMagbv <- within(mergedDfPropsComplAutoCdmnFCdmnMa
 
 ```{r}
 
-
-# model
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-ta_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-
-# inclusive model
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-
-# inclusive model, no drug
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
-
-
-# for correlation matrix
-forCormat=data.frame(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1,mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor,mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC,mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD,mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs,mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag)
-
-colnames(forCormat)=c('TDProp1','AutoCor','DMNFC','MeanFD','RemTRs','DMNMag')
-
-library(corrplot)
-source("http://www.sthda.com/upload/rquery_cormat.r")
-
-corrmatrix=rquery.cormat(forCormat,type="full")
-corrplot(as.matrix(corrmatrix$r),method='number')
-
-# need to establish which DMN metrics are associated above and beyond drug effect
-# DMN FC
-dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task+TDProp1+AutoCor+DMNMag, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN tdprops
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+DMNFC+AutoCor+DMNMag, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN Mag
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+DMNFC+AutoCor+TDProp1, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-# DMN autocor
-dmnAC_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task+DMNFC+DMNMag+TDProp1, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-
 library(pROC)
 library(plotROC)
 mergedDfPropsComplAutoCdmnFCdmnMag_notask=mergedDfPropsComplAutoCdmnFCdmnMag[mergedDfPropsComplAutoCdmnFCdmnMag$Task=='rs',]
 
 # Fit logistic regression models
-model1 <- glm(Drug ~ MeanFD + RemTRs + DMNFC+AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
-model2 <- glm(Drug ~ MeanFD + RemTRs + DMNFC + AutoCor+DMNMag+TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
-model3 <- glm(Drug ~ MeanFD + RemTRs +DMNMag+TDProp1, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+model1 <- glm(Drug ~ MeanFD + RemTRs + AutoCor, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
+model2 <- glm(Drug ~ MeanFD + RemTRs + DMNMag, data = mergedDfPropsComplAutoCdmnFCdmnMag_notask, family = binomial)
 
 # Predict probabilities
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
-prob3 <- predict(model3, type = "response")
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, 3)),
-  predictions = c(prob1, prob2,prob3),
-  model = factor(rep(c("DMN Correlations", "+DMN Propagations","DMN Propagations"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag_notask)))
+  labels = as.numeric(rep(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, 2)),
+  predictions = c(prob1, prob2),
+  model = factor(rep(c("DMN Temporal Autocorrelation","Within DMN FC"), each = nrow(mergedDfPropsComplAutoCdmnFCdmnMag_notask)))
 )
+
+
+# Calculate AUC for each model
+roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob1)
+roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
+
+# Print AUC values
+auc1 <- auc(roc1)
+auc2 <- auc(roc2)
+
+print(paste("AUC for DMN AutoCor:", auc1))
+print(paste("AUC for Within DMN FC:", auc2))
+
+# Calculate AUC difference between full and reduced models
+auc_diff <- auc2 - auc1
 
 # Generate the ROC plot
 ggplot(df, aes(m = predictions, d = labels, color = model)) + 
@@ -1089,27 +1065,10 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Classifying MDMA") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#EF9500","#c12139","#09416b"))+
+  scale_color_manual(values = c("blue","red"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
 
-
-# Calculate AUC for each model
-roc1 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob1)
-roc2 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob2)
-roc3 <- roc(mergedDfPropsComplAutoCdmnFCdmnMag_notask$Drug, prob3)
-
-# Print AUC values
-auc1 <- auc(roc1)
-auc2 <- auc(roc2)
-auc3 <- auc(roc3)
-
-print(paste("AUC for DMN Correlations:", auc1))
-print(paste("AUC for Full Model:", auc2))
-print(paste("AUC for Prop Model:", auc3))
-
-# Calculate AUC difference between full and reduced models
-auc_diff <- auc2 - auc1
 ```
 
 ```{r}

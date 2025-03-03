@@ -1,5 +1,5 @@
 ---
-title: "p50 psil main"
+title: "Psilocybin Stats and Visualization: Study 2"
 output: github_document
 date: "2024-02-03"
 ---
@@ -129,6 +129,34 @@ rs3m2$Subjects=subjOrder_rs3$SubjNameCol
 rs4m2$Subjects=subjOrder_rs4$SubjNameCol
 rs5m2$Subjects=subjOrder_rs5$SubjNameCol
 rs6m2$Subjects=subjOrder_rs6$SubjNameCol
+
+# add session straight from matlab readout
+subjOrder_rs_ws=read.delim('~/Downloads/rs_Psil_propsMerged_subjOrder_WithSesh.csv',blank.lines.skip = FALSE,sep=',')
+
+rs1bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6m2$Session=subjOrder_rs_ws$SubjNameCol_2
 # add in task (rs to be made equivalent after motion merge)
 rs1bv$Task='rs'
 rs1p$Task='rs'
@@ -332,21 +360,25 @@ for (s in 1:length(unique(rs1m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_CantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -373,21 +405,25 @@ for (s in 1:length(unique(rs2m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_CantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -413,22 +449,26 @@ for (s in 1:length(unique(rs3m2$Subjects))){
   subjRows <- rs3m2[rs3m2$Subjects == subj, ]
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
-  # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+    # Identify 'Drug1' and 'Drug2' based on 'OgRow'
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_cantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -455,21 +495,25 @@ for (s in 1:length(unique(rs4m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_CantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -496,21 +540,25 @@ for (s in 1:length(unique(rs5m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_CantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -537,21 +585,25 @@ for (s in 1:length(unique(rs6m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
-  if (subjDrugRows$Drug[1] == 'DrugOnly') {
+  if (subjDrugRows$Drug[1] == 'DrugOnly_CantSeeMe') {
     subjRows$Drug[subjRows$Drug == 'Drug'] <- 'Psilo'
   } else if (DoseCorresp$X2 == 1) {
     subjRows$Drug[subjRows$Drug == 'Drug1'] <- 'Psilo'
@@ -580,6 +632,8 @@ After$Chronology='After'
 B_A=rbind(Before,After)
 # set non-drug conditions to none
 allScans$Drug[allScans$Dosage=='none']='none'
+# retain a legacy subjects naming convention for MEQ use later
+allScans$LegacySubjs=allScans$Subjects
 ```
 
 ```{r}
@@ -595,8 +649,9 @@ for (s in 1:length(unique(allScans$Subjects))){
   # note drug1 vs drug 2 to be demarcated later, after this loop, using Drug column 
   allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
   allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=4000
-  # second logical temporal determination is OgRow column: lower og row number = earlier on
-  allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+  # second logical temporal determination is session # column: lower session = earlier on
+  #allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+  allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
   # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
   allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
   allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -614,7 +669,6 @@ for (s in 1:length(unique(allScans$Subjects))){
 
 ```{r}
 # Now we need to place drug2 scans after all betweens. Subtract # of drug2 scans from between temporal order, plop drug2 in the integer sequence space between is translated down by.
-
 
 # use subjDoseCorresp X2 to find where methyl is drug1 (X2=2 indicates methyl is drug1, X2=1 indicates psilo is drug1)
 
@@ -635,8 +689,8 @@ for (s in 1:length(unique(allScans$Subject))) {
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
         allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=4000
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
-        # second logical temporal determination is OgRow column: lower og row number = earlier on
-        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # second logical temporal determination is session # column: lower session = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
         # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
         allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
         allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -659,8 +713,8 @@ for (s in 1:length(unique(allScans$Subject))) {
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
         allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=4000
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
-        # second logical temporal determination is OgRow column: lower og row number = earlier on
-        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # second logical temporal determination is session # column: lower session = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
         # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
         allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
         allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -681,6 +735,10 @@ for (s in 1:length(unique(allScans$Subject))) {
 
 ```{r}
 # need to add a session column with After1, After2, etc. to match vertexwise
+
+
+# retain original order column
+allScans$SessionOG<-allScans$Session
 
 # Adding session column
 allScans$Session <- NA
@@ -729,6 +787,14 @@ allScans$Session <- gsub("after", "After", allScans$Session)
 ```{r}
 # remove data that needs to be removed (<250 TRs)
 allScans=allScans[allScans$RemTRs>250,]
+
+# note logic of "Session" numbering works between RDS's (TA, DMNMag, Seg, BUP), but not 100% corresponding to imaging filenames anymore due to temporal order logic (). Need to reconstruct so stuff like Baseline2 not existing for PS19 won't prevent merge
+allScans$SessionPrefix <- sub("[0-9]+$", "", allScans$Session)
+# Create a new string by combining the prefix with the Task number
+allScans$SessionNumbered <- paste0(allScans$SessionPrefix, allScans$SessionOG)
+
+# save out qc'd version for streams
+saveRDS(allScans,'~/mergedDf_study2_QCd.rds')
 
 # make donut plot)
 donutData<- data.frame(
@@ -869,6 +935,17 @@ allScans$Condition2[allScans$Drug=='Psilo']='Psilo'
 ```{r}
 # model it with non-drug as reference scans
 allScans <- within(allScans, Condition2 <- relevel(Condition2, ref = 6))
+
+# reviewer fig: remaining TRs by condition
+ggplot(allScans, aes(x = Drug, y = 500-RemTRs, fill = Drug)) +
+  geom_boxplot(outlier.shape = NA) +  # Boxplot without outliers
+  geom_jitter(width = 0.2, alpha = 0.4) +  # Add jitter for individual points
+  theme_minimal() +
+  scale_fill_manual(values = c("none" = "gray", "Methyl" = "blue", "Psilo" = "green")) +
+  scale_x_discrete(labels = c("none" = "No Drug", "Methyl" = "Methylphenidate", "Psilo" = "Psilocybin"))+
+  labs(title = "Total Frames Omitted Across Conditions (Study 2, Resting State)",
+       x = "Drug",
+       y = "Total Frames Omitted due to Censoring")+theme(legend.position = 'none')
 ```
 
 
@@ -910,7 +987,8 @@ allScansNoMeth$ResidualsReduced=resid(reducedModel)+mean(allScansNoMeth$TDProp1)
 set.seed(1)
 allScansNoMeth$JitteredPsilo <- as.numeric(allScansNoMeth$Psilo) + rnorm(nrow(allScansNoMeth), mean = 0, sd = 0.1)
 
-ggplot(allScansNoMeth, aes(x = JitteredPsilo, y = ResidualsReduced)) +
+# * 100 to get it back to percent
+ggplot(allScansNoMeth, aes(x = JitteredPsilo, y = ResidualsReduced*100)) +
   geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
   geom_boxplot(aes(group = Psilo), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "Psilocybin vs. No-drug scans \n",
@@ -952,7 +1030,8 @@ drugScans$ResidualsReduced=resid(reducedModel)+mean(drugScans$TDProp1)
 set.seed(1)
 drugScans$JitteredDrug <- as.numeric(drugScans$Drug)-1 + rnorm(nrow(drugScans), mean = 0, sd = 0.1)
 
-ggplot(drugScans, aes(x = JitteredDrug, y = ResidualsReduced)) +
+# * 100 to convert back to %
+ggplot(drugScans, aes(x = JitteredDrug, y = ResidualsReduced*100)) +
   geom_point(alpha = 0.8, size = 4, aes(color = People)) +  # Points with Gaussian jitter
   geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
   labs(title = "Psilocybin vs. Active Placebo \n \n",
@@ -977,10 +1056,11 @@ allScans$ResidualsReduced=resid(reducedModel)+mean(allScans$TDProp1)
 allScansNoMeth=allScans[allScans$Condition2!='Methyl',]
 allScansNoMeth=allScansNoMeth[allScansNoMeth$Condition2!='immed_afterMethyl',]
 
-ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
+# adjust *100 to reflect percentage
+ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced*100)) +
   geom_jitter(width = 0.25, height = 0, alpha = 0.8,size=3,aes(color=People)) +  # Jittered points
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
-  labs(title = "Psilocybin: Lasting effects \n",
+  labs(title = "Psilocybin: Lasting effects \n \n",
        x = "",
        y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
   theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
@@ -989,8 +1069,8 @@ ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced)) +
 fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
-paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
-paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
+paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
 
 ```{r}
@@ -1036,10 +1116,12 @@ library(plotROC)
 # Fit logistic regression models
 model1 <- glm(DrugBinary ~ FD + RemTRs + DMNFC+TmpAutoCor, data = PsilMerged, family = binomial)
 model2 <- glm(DrugBinary ~ FD + RemTRs + DMNFC + BUP + TmpAutoCor+Magnitudes, data = PsilMerged, family = binomial)
+model3 <- glm(DrugBinary ~ FD + RemTRs + BUP +Magnitudes, data = PsilMerged, family = binomial)
 
 # Predict probabilities
 prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
+prob3 <- predict(model3, type = "response")
 ```
 
 
@@ -1048,21 +1130,25 @@ prob2 <- predict(model2, type = "response")
 # Calculate AUC for each model
 roc1 <- roc(PsilMerged$DrugBinary, prob1)
 roc2 <- roc(PsilMerged$DrugBinary, prob2)
+roc3 <- roc(PsilMerged$DrugBinary, prob3)
 
 # Print AUC values
 auc1 <- auc(roc1)
 auc2 <- auc(roc2)
+auc3 <- auc(roc3)
 
 print(paste("AUC for DMN Correlations:", auc1))
-print(paste("AUC for DMN Propagations:", auc2))
+print(paste("AUC for +DMN Propagations:", auc2))
+print(paste("AUC for DMN Propagations:", auc3))
+
 # Calculate AUC difference between full and reduced models
 auc_diff <- auc2 - auc1
 
 # Create a combined data frame for all models
 df <- data.frame(
-  labels = as.numeric(rep(PsilMerged$Drug, 2)),
-  predictions = c(prob1, prob2),
-  model = factor(rep(c("DMN Correlations", "+DMN Propagations"), each = nrow(PsilMerged)))
+  labels = as.numeric(rep(PsilMerged$Drug, 3)),
+  predictions = c(prob1, prob2,prob3),
+  model = factor(rep(c("DMN Correlations", "+DMN Propagations","DMN Propagations"), each = nrow(PsilMerged)))
 )
 
 # Generate the ROC plot
@@ -1071,9 +1157,11 @@ ggplot(df, aes(m = predictions, d = labels, color = model)) +
   ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
   ggtitle("ROC Curves for Classifying Psilocybin") + 
   theme_minimal(base_size=18) + 
-  scale_color_manual(values = c("#09416b","#c12139"))+
+  scale_color_manual(values = c("#EF9500","#c12139","#09416b"))+
   geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
   theme(legend.position = "none")
+
+
 
 ```
 
@@ -1127,7 +1215,9 @@ ds_model <- lme(DMNFC ~ FD + Drug+RemTRs, random = ~ 1 | Subjects, data = PsilMe
 ```{r}
 # and bootstrapping: also figure 3
 # Set the number of bootstrap samples
+# tmp to reduce runtime
 num_bootstrap_samples <- 1000
+#num_bootstrap_samples <- 2
 # initialize t vectors
 td_d<-rep(0,num_bootstrap_samples)
 td_fd<-rep(0,num_bootstrap_samples)
@@ -1278,4 +1368,171 @@ ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
 
 ```
 
+```{r}
+# load in MEQ data
+MEQ=read.csv('~/Downloads/FCChange_LME_data_table_small.csv')
+MEQ=read.csv('~/Desktop/FCChange_LME_data_table.csv')
+
+MEQ$Subjects=MEQ$SubID
+# get baseline scans
+B_Scans=allScans[allScans$Dosage=='before',]
+DrugScans=allScans[allScans$Drug!='none',]
+
+# Get a list of unique subjects
+unique_subjects <- unique(DrugScans$Subjects)
+
+# initialize output structure for loop below
+results <- data.frame(SubID = character(), Bup_Dif = numeric(), Class = numeric() ,Replication = numeric(), people = character(), stringsAsFactors = FALSE)
+
+# need to get drug minus baseline
+for (subj in unique_subjects) {
+    print(subj)
+    # subset "baseline" data for current subject
+    SubjData_B <- B_Scans[B_Scans$Subjects == subj,]
+    avg_BUP_B <- mean(SubjData_B$TDProp1)
+    # Subset the drug data for the current subject
+    SubjData_D <- DrugScans[DrugScans$Subjects == subj,]
+    
+    # please excuse confusing naming convention, but dosage captures if it's initial dosage or after. both are "drug"
+    DosageDrug=SubjData_D[SubjData_D$Dosage=='Drug',]
+    DV_methyl=DosageDrug[DosageDrug$Drug=='Methyl',]
+    DV_psilo=DosageDrug[DosageDrug$Drug=='Psilo',]
+    # for replication visits (subjects with 9 prefix)
+    DosageAfter=SubjData_D[SubjData_D$Dosage=='after',]
+    Replication_psilo=DosageAfter[DosageAfter$Drug=='Psilo',]
+    # for methyl drug visit (original)
+    if (dim(DV_methyl)[1]>0){
+      print('found methyl')
+      avg_BUP_D=mean(DV_methyl$TDProp1)
+      # get difference from baseline
+      BupDif=avg_BUP_B-avg_BUP_D
+      # set drug class to 2 to match MEQ df
+      Drug_Class=2
+      # pull out legacy subject name
+      LegSubj=DV_methyl$LegacySubjs[1]
+      # pull out "person" name
+      Person=DV_methyl$People[1]
+      # make temp df to insert into full results structure
+      temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 0,People=Person)
+      # Append the temporary data frame to the results data frame
+      results <- rbind(results, temp)
+    }
+    # for psil drug visit (original)
+    if (dim(DV_psilo)[1]>0){
+      print('found psilo')
+      avg_BUP_D=mean(DV_psilo$TDProp1)
+      # get difference from baseline
+      BupDif=avg_BUP_B-avg_BUP_D
+      # set drug class to 2 to match MEQ df
+      Drug_Class=3
+      # pull out legacy subject name
+      LegSubj=DV_psilo$LegacySubjs[1]
+      # pull out "person" name
+      Person=DV_psilo$People[1]
+      # make temp df to insert into full results structure
+      temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 0,People=Person)
+      # Append the temporary data frame to the results data frame
+      results <- rbind(results, temp)
+    }
+    # for psil drug visit (replication)
+    if (dim(Replication_psilo)[1]>0){
+      print('found psilo repl.')
+      avg_BUP_D=mean(Replication_psilo$TDProp1)
+      # get difference from baseline
+      BupDif=avg_BUP_B-avg_BUP_D
+      # set drug class to 2 to match MEQ df
+      Drug_Class=3
+      # pull out legacy subject name
+      LegSubj=Replication_psilo$LegacySubjs[1]
+      # pull out "person" name
+      Person=Replication_psilo$People[1]
+      # make temp df to insert into full results structure
+      temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 1,People=Person)
+      # Append the temporary data frame to the results data frame
+      results <- rbind(results, temp)
+    }
+}
+
+MEQMerged=merge(results,MEQ,by=c('SubID','Replication','Class'))
+# match to other dataset for heterogeneity in psyched experiences
+MEQMerged=MEQMerged[MEQMerged$Class==3,]
+cor.test(MEQMerged$MEQ_PosMood,MEQMerged$Bup_Dif)
+
+```
+
+
+```{r}
+# initialize output structure for loop below
+results <- data.frame(SubID = character(), Bup_Dif = numeric(), Class = numeric() ,Replication = numeric(), stringsAsFactors = FALSE)
+# need to get drug minus baseline
+for (subj in unique_subjects) {
+print(subj)
+# subset "baseline" data for current subject
+SubjData_B <- B_Scans[B_Scans$Subjects == subj,]
+avg_BUP_B <- mean(SubjData_B$TDProp1)
+# Subset the drug data for the current subject
+SubjData_D <- DrugScans[DrugScans$Subjects == subj,]
+# please excuse confusing naming convention, but dosage captures if it's initial dosage or after. both are "drug"
+DosageDrug=SubjData_D[SubjData_D$Dosage=='Drug',]
+DV_methyl=DosageDrug[DosageDrug$Drug=='Methyl',]
+DV_psilo=DosageDrug[DosageDrug$Drug=='Psilo',]
+# for replication visits (subjects with 9 prefix)
+DosageAfter=SubjData_D[SubjData_D$Dosage=='after',]
+Replication_psilo=DosageAfter[DosageAfter$Drug=='Psilo',]
+# for methyl drug visit (original)
+if (dim(DV_methyl)[1]>0){
+avg_BUP_D=mean(DV_methyl$TDProp1)
+# get difference from baseline
+BupDif=avg_BUP_B-avg_BUP_D
+# set drug class to 2 to match MEQ df
+Drug_Class=2
+# pull out legacy subject name
+LegSubj=DV_methyl$LegacySubjs[1]
+# make temp df to insert into full results structure
+temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 0)
+# Append the temporary data frame to the results data frame
+results <- rbind(results, temp)
+}
+# for psil drug visit (original)
+if (dim(DV_psilo)[1]>0){
+avg_BUP_D=mean(DV_psilo$TDProp1)
+# get difference from baseline
+BupDif=avg_BUP_B-avg_BUP_D
+# set drug class to 2 to match MEQ df
+Drug_Class=3
+# pull out legacy subject name
+LegSubj=DV_psilo$LegacySubjs[1]
+# make temp df to insert into full results structure
+temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 0)
+# Append the temporary data frame to the results data frame
+results <- rbind(results, temp)
+}
+# for psil drug visit (replication)
+if (dim(Replication_psilo)[1]>0){
+  print('repl found')
+avg_BUP_D=mean(Replication_psilo$TDProp1)
+# get difference from baseline
+BupDif=avg_BUP_B-avg_BUP_D
+# set drug class to 2 to match MEQ df
+Drug_Class=3
+# pull out legacy subject name
+LegSubj=Replication_psilo$LegacySubjs[1]
+# make temp df to insert into full results structure
+temp <- data.frame(SubID = LegSubj, Bup_Dif=BupDif, Class = Drug_Class, Replication = 1)
+# Append the temporary data frame to the results data frame
+results <- rbind(results, temp)
+}
+}
+
+MEQMerged=merge(results,MEQ,by=c('SubID','Replication','Class'))
+MEQMerge=MEQMerged[MEQMerged$Class==3,]
+
+# closest match is PosMood (inverse)
+ggplot(data=MEQMerge,aes(y=MEQ_PosMood,x=Bup_Dif))+
+  geom_point(size=4)#,aes(color = People))+
+  labs(x = "Decrease in Bottom-up %", y = "MEQ Positive Mood", color = "People") +
+  scale_color_manual(values = generated_colors) +
+  theme_minimal(base_size = 16)
+
+```
 

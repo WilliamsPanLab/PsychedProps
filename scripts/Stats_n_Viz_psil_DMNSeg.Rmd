@@ -127,6 +127,35 @@ rs3m2$Subjects=subjOrder_rs3$SubjNameCol
 rs4m2$Subjects=subjOrder_rs4$SubjNameCol
 rs5m2$Subjects=subjOrder_rs5$SubjNameCol
 rs6m2$Subjects=subjOrder_rs6$SubjNameCol
+
+# add session order directly from filenames
+subjOrder_rs_ws=read.delim('~/Downloads/rs_Psil_propsMerged_subjOrder_WithSesh.csv',blank.lines.skip = FALSE,sep=',')
+
+rs1bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6bv$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6p$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6m1$Session=subjOrder_rs_ws$SubjNameCol_2
+rs1m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs2m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs3m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs4m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs5m2$Session=subjOrder_rs_ws$SubjNameCol_2
+rs6m2$Session=subjOrder_rs_ws$SubjNameCol_2
+
 # add in task (rs to be made equivalent after motion merge)
 rs1bv$Task='rs'
 rs1p$Task='rs'
@@ -330,17 +359,21 @@ for (s in 1:length(unique(rs1m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -371,17 +404,21 @@ for (s in 1:length(unique(rs2m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -412,17 +449,21 @@ for (s in 1:length(unique(rs3m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -453,17 +494,21 @@ for (s in 1:length(unique(rs4m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -494,17 +539,21 @@ for (s in 1:length(unique(rs5m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -535,17 +584,21 @@ for (s in 1:length(unique(rs6m2$Subjects))){
   # Subset rows for the 'Drug' dosage
   subjDrugRows <- subjRows[subjRows$Dosage == 'Drug', ]
   # Identify 'Drug1' and 'Drug2' based on 'OgRow'
-  drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
-  drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  ###drug1Rows <- subjDrugRows[subjDrugRows$OgRow == min(subjDrugRows$OgRow), ]
+  ###drug2Rows <- subjDrugRows[subjDrugRows$OgRow == max(subjDrugRows$OgRow), ]
+  drug1Rows <- which(subjDrugRows$Session == 1)
+  drug2Rows <- which(subjDrugRows$Session == 2)
   # if min=max, label only 1 drug
-  if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
-    subjDrugRows$Drug='DrugOnly'
-    subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
-  } else {
-    # Assign 'Drug' values to the original rows
-    subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
-    subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
-  }
+  ###if (min(subjDrugRows$OgRow)==max(subjDrugRows$OgRow)){
+  ###  subjDrugRows$Drug='DrugOnly'
+  ###  subjRows$Drug[subjDrugRows$OgRow==subjDrugRows$OgRow]='Drug'
+  ###} else {
+  #  # Assign 'Drug' values to the original rows
+    ###subjRows$Drug[subjRows$OgRow %in% drug1Rows$OgRow] <- 'Drug1'
+    ###subjRows$Drug[subjRows$OgRow %in% drug2Rows$OgRow] <- 'Drug2'
+    subjRows$Drug[drug1Rows] <- 'Drug1'
+    subjRows$Drug[drug2Rows] <- 'Drug2'
+  #}
   ### Now pull out methyl vs. psilo
   DoseCorresp=subjDoseCorresp[subjDoseCorresp$X1==subj,]
   # if Drug1 = 1 in key, Drug1 = psilo
@@ -593,8 +646,9 @@ for (s in 1:length(unique(allScans$Subjects))){
   # note drug1 vs drug 2 to be demarcated later, after this loop, using Drug column 
   allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
   allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=4000
-  # second logical temporal determination is OgRow column: lower og row number = earlier on
-  allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+  # second logical temporal determination is session # column: lower session = earlier on
+  #allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+  allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
   # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
   allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
   allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -633,8 +687,8 @@ for (s in 1:length(unique(allScans$Subject))) {
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
         allScansSubj$TemporalOrder[allScansSubj$Drug=='Methyl']=4000
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
-        # second logical temporal determination is OgRow column: lower og row number = earlier on
-        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # second logical temporal determination is session # column: lower session = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
         # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
         allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
         allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -657,8 +711,8 @@ for (s in 1:length(unique(allScans$Subject))) {
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='between']=3000
         allScansSubj$TemporalOrder[allScansSubj$Drug=='Psilo']=4000
         allScansSubj$TemporalOrder[allScansSubj$Dosage=='after']=5000
-        # second logical temporal determination is OgRow column: lower og row number = earlier on
-        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$OgRow
+        # second logical temporal determination is session # column: lower session = earlier on
+        allScansSubj$TemporalOrder <- allScansSubj$TemporalOrder + allScansSubj$Session
         # use both pieces of logic combined to get sequence for each subject of first to last scan (numbered 1 for first and x for last scan)
         allScansSubj$TemporalOrder <- rank(allScansSubj$TemporalOrder, ties.method = "min")
         allScansSubj_TemporalOrder<-as.numeric(allScansSubj$TemporalOrder)
@@ -678,7 +732,8 @@ for (s in 1:length(unique(allScans$Subject))) {
 ```
 
 ```{r}
-# need to add a session column with After1, After2, etc. to match vertexwise
+# retain original order column
+allScans$SessionOG<-allScans$Session
 
 # Adding session column
 allScans$Session <- NA
