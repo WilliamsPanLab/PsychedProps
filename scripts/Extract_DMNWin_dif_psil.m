@@ -1,4 +1,4 @@
-% extract network props from each session
+% extract DMN seg from each session
 
 %%% resultant csv to look like this:
 % ___________| Condition A 1:4 | Condition B 1:4 | Condition C 1:4 | Condition D 1:4 | Remaining Frames A:D | FD A:D
@@ -21,8 +21,8 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 	ctask=char(task);
 	% initialize output table: maximum of 8 observations per condition per subj (11 subjs x 8 possible, although much lower in most instances) 
 	outDF=zeros(88,24);
-	% extra columns just for subj name and session
-	SubjNameCol=cell(88,2);
+	% extra column just for subj name
+	SubjNameCol=cell(88,1);
 	% set common fp
 	commonFP=['/scratch/users/apines/data/psil/'];
 	% for each subj except 2
@@ -31,8 +31,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		% for up to 8 iterations
 		for i=1:8
 			% populate subject name column
-			SubjNameCol((s+(i*11))-11,1)=cellstr(subjList(s));
-			SubjNameCol((s+(i*11))-11,2)=cellstr(num2str(i));
+			SubjNameCol((s+(i*11))-11)=cellstr(subjList(s));
 	        	% grab baseline
 			bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_k1_Prop_Feats_gro.csv'];
 	        	bvFP=strjoin(bvFP,'')
@@ -47,7 +46,10 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 	        	m2FP=strjoin(m2FP,'');
 			% load in baseline csvs
 			if exist(bvFP,'file')
-				bv=readmatrix(bvFP);
+				% check using props, but load in Dseg
+                		bvFP=[commonFP subjList(s) '/Baseline' num2str(i) '/' subjList(s) '_Baseline' num2str(i) '_' task '_DMNWIN.csv'];
+                		bvFP=strjoin(bvFP,'');
+                		bv=readmatrix(bvFP);	
 				% s+i*11-11 to insert into subj-sesh row 
 				outDF(((s+(i*11))-11),1)=bv(1,2);
 				outDF(((s+(i*11))-11),2)=0;
@@ -74,7 +76,10 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			end
 			% load in Between csvs
 			if exist(pFP,'file')
-				p=readmatrix(pFP);
+				% check using props, but load in Dseg
+                                pFP=[commonFP subjList(s) '/Between' num2str(i) '/' subjList(s) '_Between' num2str(i) '_' task '_DMNWIN.csv'];
+                                pFP=strjoin(pFP,'');
+                                p=readmatrix(pFP);
 				% extract in group consensus atlas: placebo
 				outDF(((s+(i*11))-11),5)=p(1,2);
 				outDF(((s+(i*11))-11),6)=0;
@@ -98,7 +103,10 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                         end
 			% load After
 			if exist(m1FP,'file')
-				m1=readmatrix(m1FP);
+				% check using props, but load in Dseg
+                                m1FP=[commonFP subjList(s) '/After' num2str(i) '/' subjList(s) '_After' num2str(i) '_' task '_DMNWIN.csv'];
+                                m1FP=strjoin(m1FP,'');
+                                m1=readmatrix(m1FP);
 				% extact in group consensus atlas: mdma 1
 				outDF(((s+(i*11))-11),9)=m1(1,2);
 				outDF(((s+(i*11))-11),10)=0;
@@ -122,6 +130,9 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			end
 			% load Drug
 			if exist(m2FP,'file')
+				% check using props, but load in Dseg
+                                m2FP=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_' task '_DMNWIN.csv'];
+                                m2FP=strjoin(m2FP,'');
 				m2=readmatrix(m2FP);
 				% extract in group consensus atlas: mdma 2
 				outDF(((s+(i*11))-11),13)=m2(1,2);
@@ -131,9 +142,9 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
         		        m2CSIfp=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_task-' task '_ValidSegments_Trunc.txt'];
                 		m2CSIfp=strjoin(m2CSIfp,'');
               		 	CSI = importdata(m2CSIfp);
-				numTRsVS=sum(CSI(:,2));
+                		numTRsVS=sum(CSI(:,2));
                 		outDF(((s+(i*11))-11),20)=numTRsVS;
-				% load in FD
+                                % load in FD
                                 runNum=ctask(end);
                                 confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold' runNum '.fd'];
                                 conf1=load(strjoin(confFilePath,''));
@@ -147,7 +158,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_DMNWINMerged.csv'],''))
 	% and subject ID column
-	writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged_subjOrder.csv'],''))
+	writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_DMNWINMerged_subjOrder.csv'],''))
 end

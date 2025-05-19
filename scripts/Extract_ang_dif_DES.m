@@ -49,8 +49,8 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 			if task=="rs2"
 				fdfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subjList(s) '/ses-BL/func/' subjList(s) '_ses-BL_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_qc.csv'];
 			end
-			fd=load(strjoin(fdfp));
-			outDF(s,7)=fd;
+			fd=readtable(strjoin(fdfp,''));
+			outDF(s,7)=num2cell(fd.meanFD);
 		end
 	end
 	% save out matrix

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 # Change to the directory
-cd /scratch/users/apines/p50_mice/proc
-
+cd /oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc
 # Use find to search for 'masked_dff.h5' files in directories matching the pattern '*pre*_1'
 find . -type f -name "masked_dff.h5" -path "*/20200228/*postLSD*/masked_dff.h5" | while read filepath; do
 # Extract the date directory and the mouse directory from the path

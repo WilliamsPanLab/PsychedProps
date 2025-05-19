@@ -10,10 +10,11 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 # export not working on non-interactive jobs?
-export PATH="/scratch/users/apines/miniconda3/bin:$PATH"
-conda activate testpines
+#export PATH="/scratch/users/apines/miniconda3/bin:$PATH"
+#conda activate testpines
+ml python/3.9
 # probably cant patch up enough libraries with just sherlock's modules
 #ml py-numpy/1.26.3_py312
 # above just breaks the conda env pathing
 #python /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/Group_Mask_and_DS_oneHalf.py
-python /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/DS_Smooth_oneSixth_Drug_ExampleFrames.py
+python3 /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/mice/DS_Smooth_oneSixth_Drug_ExampleFrames.py

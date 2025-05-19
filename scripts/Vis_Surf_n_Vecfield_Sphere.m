@@ -1,12 +1,12 @@
-function Vis_Surf_n_Vecfield(surfl,surfr,vecl,vecr,Fn,Coloration) 
+function Vis_Surf_n_Vecfield_Sphere(surfl,surfr,vecl,vecr,Fn,Coloration) 
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs'))
 % designed for fsaverage4 surface
 VertVecL=surfl;
 VertVecR=surfr;
 %%% Load in surface data
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/surf';
-surfL = [SubjectsFolder '/lh.inflated'];
-surfR = [SubjectsFolder '/rh.inflated'];
+surfL = [SubjectsFolder '/lh.sphere'];
+surfR = [SubjectsFolder '/rh.sphere'];
 % surface topography
 [vx_l, faces_l] = read_surf(surfL);
 [vx_r, faces_r] = read_surf(surfR);
@@ -21,6 +21,12 @@ V_L=vx_l;
 F_R=faces_r;
 % vertices V
 V_R=vx_r;
+% incenters
+TR = TriRep(faces_l, vx_l);
+P = TR.incenters;
+TR = TriRep(faces_r, vx_r);
+Pr = TR.incenters;
+
 
 %%% load in medial wall and SNR mask (to zero out medial wall in trisurf and quvier3)
 mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
@@ -41,6 +47,31 @@ nonMW_R(mw_R)=0;
 nonMW_L=logical(nonMW_L);
 nonMW_R=logical(nonMW_R);
 
+% set MW for faces
+% add TSNR mask, includes medial wall
+mwAndTSNR_L='/oak/stanford/groups/leanew1/users/apines/fs4surf/lh.Mask_SNR.func.gii';
+mwAndTSNR_R='/oak/stanford/groups/leanew1/users/apines/fs4surf/rh.Mask_SNR.func.gii';
+mwAndTSNR_L=gifti(mwAndTSNR_L).cdata(:,1);
+mwAndTSNR_R=gifti(mwAndTSNR_R).cdata(:,1);
+mw_L=zeros(1,2562);
+mw_L(mwAndTSNR_L==1)=1;
+mw_R=zeros(1,2562);
+mw_R(mwAndTSNR_R==1)=1;
+% convert to faces
+F_MW_L=sum(mw_L(faces_l),2)./3;
+F_MW_R=sum(mw_R(faces_r),2)./3;
+% convert "partial" medial wall to medial wall
+F_MW_L=ceil(F_MW_L);
+F_MW_R=ceil(F_MW_R);
+% face mask indices
+fmwIndVec_l=find(F_MW_L);
+fmwIndVec_r=find(F_MW_R);
+% make medial wall vector
+g_noMW_combined_L=setdiff([1:5120],fmwIndVec_l);
+g_noMW_combined_R=setdiff([1:5120],fmwIndVec_r);
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 % set data in the plotting script's terms
 data=VertVecL;
@@ -49,7 +80,7 @@ ret=vecl;
 %data(mw_L)=0;
 %ret(mw_L,:)=0;
 % vector scaling factor
-scalingfactor=1;
+scalingfactor=2.5;
 % colors
 mincol=0;
 if strcmp(Coloration,'Directional')
@@ -128,12 +159,12 @@ elseif strcmp(Coloration,'BOLD')
 	custommap=roybigbl_cm(15:240,:);
 end
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.inflated']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/lh.sphere']);
 % begin figure
 figure
 asub = subaxis(2,2,1, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 if strcmp(Coloration,'Directional')
-	aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+	aplot = trisurf(faces, vertices(:,1)*.99, vertices(:,2)*.99, vertices(:,3)*.99)
 	set(aplot, 'EdgeColor', 'none');
 	set(aplot, 'FaceColor', 'w');
 	set(aplot, 'LineStyle', 'none');
@@ -144,7 +175,7 @@ end
 hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
-	quiver3D(vertices(nonMW_L,1),vertices(nonMW_L,2),vertices(nonMW_L,3),ret(nonMW_L,1), ret(nonMW_L,2), ret(nonMW_L,3),[.7 .7 .7],scalingfactor)
+	quiver3D(P(g_noMW_combined_L,1),P(g_noMW_combined_L,2),P(g_noMW_combined_L,3),ret(g_noMW_combined_L,1), ret(g_noMW_combined_L,2), ret(g_noMW_combined_L,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
 	quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -159,12 +190,12 @@ set(gca,'CLim',[mincol,maxcol]);
 % other view of left hemisphere (lateral)
 asub = subaxis(2,2,4, 'sh', 0.00, 'sv', 0.00, 'padding', 0, 'margin', 0);
 if strcmp(Coloration,'Directional')
-        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot = trisurf(faces, vertices(:,1)*.99, vertices(:,2)*.99, vertices(:,3)*.99)
 	set(aplot, 'EdgeColor', 'none');
 	set(aplot, 'FaceColor', 'w');
 	set(aplot, 'LineStyle', 'none');
 elseif strcmp(Coloration,'BOLD')
-        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot = trisurf(faces, vertices(:,1)*.99, vertices(:,2)*.99, vertices(:,3)*.99)
         aplot.FaceVertexCData=data;
 end
 view([90 0]);
@@ -173,7 +204,7 @@ colormap(custommap);
 caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
-	bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.7 .7 .7],scalingfactor)
+	bplot=quiver3D(P(:,1),P(:,2),P(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -194,7 +225,7 @@ ret=vecr;
 %data(mw_R)=0;
 %ret(mw_R,:)=0;
 % medial left hemisphere
-[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.inflated']);
+[vertices, faces] = freesurfer_read_surf([SubjectsFolder '/rh.sphere']);
 % begin figure
 asub = subaxis(2,2,2, 'sh', 0, 'sv', 0, 'padding', 0, 'margin', 0);
 if strcmp(Coloration,'Directional') % trying *.99 so arrows get less cut off
@@ -203,13 +234,13 @@ if strcmp(Coloration,'Directional') % trying *.99 so arrows get less cut off
         set(aplot, 'FaceColor', 'w');
         set(aplot, 'LineStyle', 'none');
 elseif strcmp(Coloration,'BOLD')
-        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot = trisurf(faces, vertices(:,1)*.99, vertices(:,2)*.99, vertices(:,3)*.99)
         aplot.FaceVertexCData=data;
 end
 hold on;
 % create a quiver if this is a directional plot, fill-in if not
 if strcmp(Coloration,'Directional')
-        bplot=quiver3D(vertices(nonMW_R,1),vertices(nonMW_R,2),vertices(nonMW_R,3),ret(nonMW_R,1), ret(nonMW_R,2), ret(nonMW_R,3),[.7 .7 .7],scalingfactor)
+        bplot=quiver3D(Pr(g_noMW_combined_R,1),Pr(g_noMW_combined_R,2),Pr(g_noMW_combined_R,3),ret(g_noMW_combined_R,1), ret(g_noMW_combined_R,2), ret(g_noMW_combined_R,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -231,7 +262,7 @@ if strcmp(Coloration,'Directional')
         set(aplot, 'FaceColor', 'w');
         set(aplot, 'LineStyle', 'none');
 elseif strcmp(Coloration,'BOLD')
-        aplot = trisurf(faces, vertices(:,1), vertices(:,2), vertices(:,3))
+        aplot = trisurf(faces, vertices(:,1)*.99, vertices(:,2)*.99, vertices(:,3)*.99)
         aplot.FaceVertexCData=data;
 end
 hold on;
@@ -239,7 +270,7 @@ colormap(custommap);
 caxis([mincol; maxcol]);
 % removing upscaling vector field so vectors are locked to vertices
 if strcmp(Coloration,'Directional')
-        bplot=quiver3D(vertices(:,1),vertices(:,2),vertices(:,3),ret(:,1), ret(:,2), ret(:,3),[.7 .7 .7],scalingfactor)
+        bplot=quiver3D(Pr(:,1),Pr(:,2),Pr(:,3),ret(:,1), ret(:,2), ret(:,3),[0 0 0],scalingfactor)
 elseif strcmp(Coloration,'BOLD')
         bplot=quiver3D(0,0,0,0, 0, 0,0,scalingfactor)
 end
@@ -253,7 +284,7 @@ shading flat;
 
 
 % printout
-print(Fn,'-dpng','-r600')
+print(Fn,'-dpng','-r800')
 
 
 

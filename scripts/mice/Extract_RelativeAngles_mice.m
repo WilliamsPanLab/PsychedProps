@@ -7,7 +7,7 @@ addpath(genpath(ToolFolder));
 
 % Load in flatmouse opflow calc
 % note this is for LSD only! Adapt recording date for ketamine if needed
-childfp='/scratch/users/apines/p50_mice/proc/20200228/'
+childfp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/'
 datafp=[childfp subj '_vf_out_' num2str(sesh) '.mat']
 % adding in if it exists: ends all the way at the end of the script
 if exist(datafp)

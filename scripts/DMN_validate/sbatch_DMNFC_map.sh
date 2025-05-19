@@ -38,8 +38,6 @@ module load contribs poldrack anaconda/5.0.0-py36
 module load python/3.9
 # subject name is input argument
 subj=$1
-# sesh is input 2
-sesh=$2
 
 # downsample baseline for NMF
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma_fs5_concat.sh $subj
@@ -109,11 +107,7 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
 
 # DMN FC map
-matlab -nodisplay -r "Get_DMN_FC_human('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Get_DMN_FC_human('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Get_DMN_FC_human('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Get_DMN_FC_human('$subj','$sesh','wm')"
-matlab -nodisplay -r "Get_DMN_FC_human('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Get_DMN_FC_human('$subj')"
 
 # get frequency and duration of BUP and TD epsiodes
 #matlab -nodisplay -r "AngDist_to_FreqDur('$subj','$sesh','rs1')"

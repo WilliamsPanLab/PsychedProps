@@ -9,8 +9,9 @@ from skimage.measure import block_reduce as downscale_local_mean
 from scipy.ndimage import gaussian_filter
 
 #data_dir = '/scratch/users/apines/p50_mice/proc'
-data_dir = '/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/drugs/processed_data'
-subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_postDiaz.txt', delimiter=' ', names=['date', 'session'])
+#data_dir = '/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/drugs/processed_data'
+data_dir = '/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/'
+subjlist = pd.read_csv('/scratch/users/apines/p50_mice/demo/ipynb/sess_postDrug.txt', delimiter=' ', names=['date', 'session'])
 fname = 'masked_dff.h5'
 data_key = 'vid'
 
@@ -18,11 +19,11 @@ data_key = 'vid'
 downscale = 6
 ds_dims = (70, 67)
 
-# saveout - change FN to match post-bp gaus (IS)
+# saveout - change FN to match post-bp gaus
 output_suffix = '_Gro_Masked_Sml_BP_Smoothed_Sml'
 
 # load in hard-coded mask filepath from predrug session. One subject (mouse) because they all have the same mask at this point
-fn='/scratch/users/apines/p50_mice/proc/20200228/thy1gc6s_0p3mgkg_m2000_preLSD0p3mgkg_1/masked_dff_DS_BP_Smoothed.h5'
+fn='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/thy1gc6s_0p3mgkg_m2000_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml.h5'
 # Open the HDF5 file
 with h5py.File(fn, 'r') as f:
     # Read the dataset named '/mask'

@@ -55,11 +55,11 @@ sleep 20
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-#matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -68,11 +68,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 #############################
 #### module III: Calc. Magnitudes and Angles
@@ -91,11 +91,26 @@ matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','wm')"
 matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+
+# Streamlines L
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','wm')"
+
+# Streamlines R
+matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs1')"
+matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs2')"
+matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','emotion')"
+matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','gambling')"
+matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','wm')"
+
 
 #################
 echo "OpFl complete"

@@ -16,8 +16,8 @@ for subject in "${subjects[@]}"; do
   #          echo "File exists for $subject $session. Skipping inner loop."
   #      else
 		# Submit sbatch job
-   	    	sbatch sbatch_OpFl.sh $subject $session
-  #		sbatch sbatch_OpFl_partial.sh $subject
+   	    	#sbatch sbatch_OpFl.sh $subject $session
+  		sbatch sbatch_OpFl_partial.sh $subject $session
   #	fi
   	done
 done

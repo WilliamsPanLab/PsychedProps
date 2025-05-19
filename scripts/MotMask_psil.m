@@ -17,8 +17,8 @@ childfp=['/scratch/users/apines/data/psil/' subj '/' sesh];
 fpL=[childfp '/' subj '_' sesh '_L_' task '_TS_3k.mgh'];
 fpR=[childfp '/' subj '_' sesh '_R_' task '_TS_3k.mgh'];
 
-% setting continuous frame threshold to 6 TRs in a row for slower trs
-Threshold=6			
+% setting continuous frame threshold to 6 for slower TRs
+Threshold=6
 
 % if file exists, run it
 if isfile(fpL)
@@ -61,7 +61,7 @@ if isfile(fpL)
 	runInd=find(runInds==str2num(runNum));
 	% extract corresponding segment of tmask
 	tmask_run=Tmask(runInd);
-	% FD thresh of .3 for psilo data: slower TRs
+	% FD thresh of .3 for psilo data
 	TRwise_mask=FD>.3;
 	% building in sanity check. Motion removed frames + interrupted sequence removed frames + ending frames should = start frame #
 	motRemovFrames=sum(TRwise_mask)

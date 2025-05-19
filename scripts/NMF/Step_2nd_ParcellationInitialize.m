@@ -15,9 +15,11 @@ InitializationFolder = [ParcellationFolder '/fs5_Surf_Initialization'];
 mkdir(InitializationFolder);
 mkdir([InitializationFolder '/Input']);
 SubjectsQuantity = 100;
-RawDataFolder = '/scratch/users/apines/data/mdma/'
-LeftCell = g_ls([RawDataFolder '*/*/*_L_*TS_10k.mgh']);
-RightCell = g_ls([RawDataFolder '*/*/*_R_*TS_10k.mgh']);
+%SubjectsQuantity = 60;
+%RawDataFolder = '/scratch/users/apines/data/mdma/'
+RawDataFolder = '/scratch/groups/leanew1/xcpd_outP50_36p_bp/bv_rs'
+LeftCell = g_ls([RawDataFolder '/*_L_concat_TS_10k.mgh']);
+RightCell = g_ls([RawDataFolder '/*_R_concat_TS_10k.mgh']);
 prepDataFile = ['/oak/stanford/groups/leanew1/users/apines/data/SingleParcellation/CreatePrepData.mat'];
 
 SubjectsFolder = '/oak/stanford/groups/leanew1/users/apines/fs5surf/'
@@ -33,11 +35,12 @@ spaR = 1;
 vxI = 1;
 ard = 0;
 iterNum = 2000;
-tNum = 423; % number of time points
+%tNum = 423; % number of time points
+tNum=1700
 alpha = 1;
 beta = 10;
 resId = 'Initialization';
-K = 4; % numer of networks
+K = 20; % numer of networks
 
 % Repeat 50 times
 for i = 1:50
@@ -76,7 +79,7 @@ for i = 1:50
     command=['cat ' ScriptPath '>>' ScriptPathTemplate];
     system(command);
     system(['sbatch ' ScriptPathTemplate]);
-        pause(7)
+%        pause(7)
  end
 end
 

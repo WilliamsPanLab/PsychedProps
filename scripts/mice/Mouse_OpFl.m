@@ -19,7 +19,7 @@ params.opBeta = 0.1;
 params.useAmplitude = true;
 
 % AP load in data: pre LSD
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+basefp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/'
 % load in specified scan
 if run==1	
 	fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']
@@ -187,12 +187,12 @@ outputs.processTime = datetime - startTime;
 outfp=[basefp subj '_vf_out_' num2str(run) '.mat'];
 save(outfp,'outputs');
 % visualize
-useAmplitude= true;
-outFoldName=['/scratch/users/apines/mouseViz/' subj '_' num2str(run)];
-system(['mkdir ' outFoldName]);
-vidName=[outFoldName '/vecField_'];
-vidFps=15;
-resizeScale=1;
-vfScale=1;
-saveVelocityFieldVideo(wvcfs, vfs, vidName, vidFps, ...
-    Fs, resizeScale, vfScale, useAmplitude,'_Gen')
+%useAmplitude= true;
+%outFoldName=['/scratch/users/apines/mouseViz/' subj '_' num2str(run)];
+%system(['mkdir ' outFoldName]);
+%vidName=[outFoldName '/vecField_'];
+%vidFps=15;
+%resizeScale=1;
+%vfScale=1;
+%saveVelocityFieldVideo(wvcfs, vfs, vidName, vidFps, ...
+%    Fs, resizeScale, vfScale, useAmplitude,'_Gen')
