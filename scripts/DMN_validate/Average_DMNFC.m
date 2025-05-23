@@ -24,5 +24,5 @@ mean_data = sum_data / length(files);
 group_cifti = cifti;
 group_cifti.cdata = mean_data;
 
-outpath = fullfile(indir, 'GroupAvg_DMNFC_map.dscalar.nii');
+outpath = '~/GroupAvg_DMNFC_map.dscalar.nii';
 ciftisave(group_cifti, outpath);

@@ -1,5 +1,6 @@
 *scripts/OpFlStreamlines_Left_mcr/*
 slurm-*.out
+*.png
 *.swp
 *.swo
 *tream*
