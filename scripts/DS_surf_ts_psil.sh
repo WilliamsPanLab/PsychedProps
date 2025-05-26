@@ -8,7 +8,7 @@ export SUBJECTS_DIR=/share/software/user/open/freesurfer/6.0.0/subjects
 # set freesurfer license
 export FS_LICENSE=/oak/stanford/groups/leanew1/users/apines/license.txt
 # psil fp
-parentfp=/scratch/users/apines/PsiloData/${subj}/${subj}_${sesh}/func
+parentfp=/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/${subj}/${subj}_${sesh}/func
 childfp=/scratch/users/apines/data/psil/${subj}/${sesh}
 
 # make output dirs

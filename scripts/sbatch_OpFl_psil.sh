@@ -121,36 +121,5 @@ matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs4')"
 matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs5')"
 matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs6')"
 
-#############################
-#### module IV: Streamlines
-#############################
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-echo "Starting module IV: Streamline calculation"
-echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
-
-# opflow streamlines
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "OpFlStreamlines_Left_psil('$subj','$sesh','rs6')"
-
-# Streamlines R
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "OpFlStreamlines_Right_psil('$subj','$sesh','rs6')"
-
-# downsample streamlines
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "DS_streams_psil('$subj','$sesh','rs6')"
-
 #################
 echo "OpFl complete"

@@ -58,17 +58,59 @@ sesh=$2
 # smooth subject's fs4 nets
 #/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/Smooth_DownSampled_Nets.sh $subj
 
-# motion masking
-#matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+# downsample the data
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
+sleep 20
 
+# motion masking
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+
+############################
+#### module II: Optical Flow
+############################
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+echo "Starting module II: Optical Flow"
+echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
+# Calculate Optical Flow
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
+
+echo "Subcortical runs"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L('$subj','$sesh','wm')"
 
 #############################
 #### module III: Calc. Angles
 #############################
+
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
@@ -76,10 +118,10 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
 # extract relative angles
 #matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs1')"
@@ -120,39 +162,11 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
 
 # extract DMN win
-matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','wm')"
-
-# Streamlines L
-#matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','wm')"
-
-# Streamlines R
-#matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','wm')"
-
-# DS Streams
-#matlab -nodisplay -r "DS_streams('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "DS_streams('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "DS_streams('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "DS_streams('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "DS_streams('$subj','$sesh','wm')"
-
-# make 2d histograms of DMN angle/magnitudes
-#python3 Viz_AngMag.py $subj $sesh rs1
-#python3 Viz_AngMag.py $subj $sesh rs2
-#python3 Viz_AngMag.py $subj $sesh emotion
-#python3 Viz_AngMag.py $subj $sesh gambling
-#python3 Viz_AngMag.py $subj $sesh wm
+#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','wm')"
 
 #################
 echo "OpFl complete"

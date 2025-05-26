@@ -97,20 +97,5 @@ matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
-# Streamlines L
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','emotion')"
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','gambling')"
-matlab -nodisplay -r "OpFlStreamlines_Left('$subj','$sesh','wm')"
-
-# Streamlines R
-matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','emotion')"
-matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','gambling')"
-matlab -nodisplay -r "OpFlStreamlines_Right('$subj','$sesh','wm')"
-
-
 #################
 echo "OpFl complete"

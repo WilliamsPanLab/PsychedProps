@@ -49,22 +49,22 @@ subj=$1
 sesh=$2
 
 # mask resting-state out from aggregate cifti
-# matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
+matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
 
 # Downsample the data 
-# /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
+/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
 #sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 6+ continuous frames only
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs6')"
 
 ############################
 #### module II: Optical Flow
@@ -80,12 +80,33 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs5')"
 #matlab -nodisplay -r "OpFl_psil('$subj','$sesh','rs6')"
 
+echo "Subcortical runs"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R_psil('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R_psil('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_R_psil('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L_psil('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L_psil('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_caud_L_psil('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R_psil('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R_psil('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_R_psil('$subj','$sesh','wm')"
+
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L_psil('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L_psil('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "-r SubCort_OpFl_hippo_L_psil('$subj','$sesh','wm')"
+
 # RS filepaths
 childfp=/scratch/users/apines/data/mdma/${subj}/${sesh}
-
-# interpolate fs4 time series to faces and between-timepoints
-#matlab -nodisplay -r "InterpolateTS_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "InterpolateTS_psil('$subj','$sesh','rs2')"
 
 #############################
 #### module III: Calc. Angles
@@ -129,12 +150,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_RelativeAngles_verts_psil('$subj','$sesh','rs6')"
 
 # Extract DMN mag
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs6')"
 
 
 #################

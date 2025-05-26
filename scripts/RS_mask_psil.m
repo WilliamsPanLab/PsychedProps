@@ -4,11 +4,11 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % load in boolean scan boundaries tmask to glean RS
-Boundmaskfp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/run_boundaries_tmask.txt'];
+Boundmaskfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/run_boundaries_tmask.txt'];
 Boundmask=load(Boundmaskfp);
 
 % load in aggregate cifti 
-CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
+CiftiFp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
 Cifti_file=read_cifti(CiftiFp);
 
 % ensure length of boolean RS mask matches length of aggregate cifti
@@ -32,7 +32,7 @@ disp([num2str(length(LongScanInds)) ' rs scans found for ' subj ' session ' sesh
 % alter to run for each RS scan
 for run=1:length(LongScanInds)
 	% re-initialize cifti
-	CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
+	CiftiFp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rsfMRI_uout_bpss_sr_noGSR_sm4.dtseries.nii'];
 	Cifti_file=read_cifti(CiftiFp);
 	runInd=find(runInds==LongScanInds(run));
 	% ensure expected length
@@ -46,6 +46,6 @@ for run=1:length(LongScanInds)
 	% implant masked time series
 	Cifti_file.cdata=Cifti_rs;
 	Cifti_file.diminfo{2}.length=length(runInd);
-	CiftiFp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs' num2str(run) '.dtseries.nii']
+	CiftiFp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_rs' num2str(run) '.dtseries.nii']
 	write_cifti(Cifti_file,CiftiFp);
 end	
