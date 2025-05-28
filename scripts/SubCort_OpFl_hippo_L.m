@@ -34,6 +34,9 @@ end
 niftiout = [childfp '/' subj '_' sesh '_task_' task '_volumetric_subcort.nii.gz'];
 command = ['wb_command -cifti-separate ' fp ' COLUMN -volume-all ' niftiout];
 system(command)
+% to let system catch up
+pause(5);
+% read it back in
 data=niftiread(niftiout);
 % read in temporal mask
 subjDir=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -58,11 +61,11 @@ caud_L=find(atlasInds==16)-59412;
 % segment out hippocampus: numeric labels are 1 for right and 9 for left
 hippo_R=find(atlasInds==1)-59412;
 hippo_L=find(atlasInds==9)-59412;
-% pull actual coordinates
-caud_R_coords=subcortVoxels(caud_R,:);
-caud_L_coords=subcortVoxels(caud_L,:);
-hippo_R_coords=subcortVoxels(hippo_R,:);
-hippo_L_coords=subcortVoxels(hippo_L,:);
+% pull actual coordinates: zero-indexing correction with +1
+caud_R_coords=subcortVoxels(caud_R,:)+1;
+caud_L_coords=subcortVoxels(caud_L,:)+1;
+hippo_R_coords=subcortVoxels(hippo_R,:)+1;
+hippo_L_coords=subcortVoxels(hippo_L,:)+1;
 % extract boxes that these voxels live in (we're going to restrict box by 1 to live less on the edge)
 caud_R_min = min(caud_R_coords,[],1)+1;
 caud_R_max = max(caud_R_coords,[],1)-1;
@@ -120,6 +123,61 @@ subcortVol = data(hippo_L_min(1):hippo_L_max(1), ...
 %    close(f);
 %end
 
+% visualize boundin boxes
+% === Step 1: Reconstruct Tian subcortex atlas into 3D volume ===
+%atlas_brain = zeros(size(data,1), size(data,2), size(data,3));
+%atlas_vals = atlas.cdata(59413:end);  % Subcortical portion of cdata
+
+%for i = 1:size(subcortVoxels,1)
+%    x = subcortVoxels(i,1);
+%    y = subcortVoxels(i,2);
+%    z = subcortVoxels(i,3);
+%    if all([x y z] > 0) && x <= size(atlas_brain,1) && y <= size(atlas_brain,2) && z <= size(atlas_brain,3)
+%        atlas_brain(x, y, z) = atlas_vals(i);
+%    end
+%end
+% Use reconstructed atlas as base volume
+%overlayVol = atlas_brain;
+% === Step 2: Draw bounding boxes ===
+% Caudate left (label = 2000)
+%overlayVol(caud_L_min(1):caud_L_max(1), caud_L_min(2):caud_L_max(2), [caud_L_min(3), caud_L_max(3)]) = 2000;
+%overlayVol(caud_L_min(1):caud_L_max(1), [caud_L_min(2), caud_L_max(2)], caud_L_min(3):caud_L_max(3)) = 2000;
+%overlayVol([caud_L_min(1), caud_L_max(1)], caud_L_min(2):caud_L_max(2), caud_L_min(3):caud_L_max(3)) = 2000;
+% Caudate right (label = 3000)
+%overlayVol(caud_R_min(1):caud_R_max(1), caud_R_min(2):caud_R_max(2), [caud_R_min(3), caud_R_max(3)]) = 3000;
+%overlayVol(caud_R_min(1):caud_R_max(1), [caud_R_min(2), caud_R_max(2)], caud_R_min(3):caud_R_max(3)) = 3000;
+%overlayVol([caud_R_min(1), caud_R_max(1)], caud_R_min(2):caud_R_max(2), caud_R_min(3):caud_R_max(3)) = 3000;
+% Hippocampus left (label = 4000)
+%overlayVol(hippo_L_min(1):hippo_L_max(1), hippo_L_min(2):hippo_L_max(2), [hippo_L_min(3), hippo_L_max(3)]) = 4000;
+%overlayVol(hippo_L_min(1):hippo_L_max(1), [hippo_L_min(2), hippo_L_max(2)], hippo_L_min(3):hippo_L_max(3)) = 4000;
+%overlayVol([hippo_L_min(1), hippo_L_max(1)], hippo_L_min(2):hippo_L_max(2), hippo_L_min(3):hippo_L_max(3)) = 4000;
+% Hippocampus right (label = 5000)
+%overlayVol(hippo_R_min(1):hippo_R_max(1), hippo_R_min(2):hippo_R_max(2), [hippo_R_min(3), hippo_R_max(3)]) = 5000;
+%overlayVol(hippo_R_min(1):hippo_R_max(1), [hippo_R_min(2), hippo_R_max(2)], hippo_R_min(3):hippo_R_max(3)) = 5000;
+%overlayVol([hippo_R_min(1), hippo_R_max(1)], hippo_R_min(2):hippo_R_max(2), hippo_R_min(3):hippo_R_max(3)) = 5000;
+% === Step 3: Save overlay as NIfTI ===
+% Reference header from original BOLD file
+%info = niftiinfo(niftiout);
+% Convert volume to single-precision
+%overlayVol = single(overlayVol);
+% Adjust header for 3D NIfTI
+%info.ImageSize = size(overlayVol);
+%info.PixelDimensions = info.PixelDimensions(1:3);
+%info.Datatype = 'single';
+%info.Description = 'Tian subcortex atlas + bounding boxes';
+%info.Filename = strrep(niftiout, '.nii.gz', '_atlasBoundingBoxes.nii');
+% Clean raw header fields
+%if isfield(info.raw, 'xyzt_units')
+%    info.raw = rmfield(info.raw, 'xyzt_units');
+%end
+%if isfield(info.raw, 'dim')
+%    info.raw.dim = [3 size(overlayVol) 1 1 1];  % Must be length 8
+%end
+% Write output
+%niftiwrite(overlayVol, info.Filename, info, 'Compressed', true);
+
+
+
 % apply temporal mask to subcortVol
 tempMaskIncl=tempMask((tempMask(:,3)==1),:);
 % count number of good segments
@@ -162,8 +220,8 @@ for x = 1:nx
         % run optical flow
         [vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-        % populate it
-         vfs_x(x,:,:,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+         vfs_x(x,:,:,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 % for each y slice
 for y = 1:ny
@@ -175,8 +233,8 @@ for y = 1:ny
         % run optical flow
         [vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-        % populate it
-         vfs_y(:,y,:,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+         vfs_y(:,y,:,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 % for each z slice
 for z = 1:nz
@@ -188,8 +246,8 @@ for z = 1:nz
 	% run optical flow
 	[vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-   	% populate it
-	 vfs_z(:,:,z,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+         vfs_z(:,:,z,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 trpc=trpc+SegSpan;
 end

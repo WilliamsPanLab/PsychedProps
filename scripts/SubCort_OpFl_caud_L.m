@@ -34,6 +34,8 @@ end
 niftiout = [childfp '/' subj '_' sesh '_task_' task '_volumetric_subcort.nii.gz'];
 command = ['wb_command -cifti-separate ' fp ' COLUMN -volume-all ' niftiout];
 system(command)
+% to let system catch up
+pause(5);
 data=niftiread(niftiout);
 % read in temporal mask
 subjDir=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -58,11 +60,11 @@ caud_L=find(atlasInds==16)-59412;
 % segment out hippocampus: numeric labels are 1 for right and 9 for left
 hippo_R=find(atlasInds==1)-59412;
 hippo_L=find(atlasInds==9)-59412;
-% pull actual coordinates
-caud_R_coords=subcortVoxels(caud_R,:);
-caud_L_coords=subcortVoxels(caud_L,:);
-hippo_R_coords=subcortVoxels(hippo_R,:);
-hippo_L_coords=subcortVoxels(hippo_L,:);
+% pull actual coordinates: zero-indexing correction with +1
+caud_R_coords=subcortVoxels(caud_R,:)+1;
+caud_L_coords=subcortVoxels(caud_L,:)+1;
+hippo_R_coords=subcortVoxels(hippo_R,:)+1;
+hippo_L_coords=subcortVoxels(hippo_L,:)+1;
 % extract boxes that these voxels live in (we're going to restrict box by 1 to live less on the edge)
 caud_R_min = min(caud_R_coords,[],1)+1;
 caud_R_max = max(caud_R_coords,[],1)-1;
@@ -91,6 +93,15 @@ for t = 1:size(data,4)
     vol(~caud_L_mask) = 0;
     data(:,:,:,t) = vol;
 end
+
+% caud L min needs an additional 1-pixel shave-off: I will attempt to depict why visually.
+% Box outlining Left caudate min/max |--/----|
+%                                    | /     |
+%          caudale as "/"            |/------|
+%                                    /
+% in words, the -1 to boundaries we apply to minimize boundary effects on optical flow in the z direction reduces the real y-extent of caudate signal. This is because of the diagonal entry of the caudate into our bounding box.
+% so with conservative z-boundaries, the lowest-numbered y-plane is actually all 0
+caud_L_min(2)=caud_L_min(2)+1;
 
 % now zoom in on the bounding box
 subcortVol = data(caud_L_min(1):caud_L_max(1), ...
@@ -129,8 +140,6 @@ booleanInds=false(1,size(subcortVol,4));
 for i = 1:goodSegs
 	booleanInds(tempMaskIncl(i,1):tempMaskIncl(i,2)) = true;
 end
-% correspondence of original time series with soon-to-be-masked timeseries
-%%%originalToMasked = find(booleanInds);
 % mask the time series
 subcortVol=subcortVol(:,:,:,booleanInds);
 % run on each slice in Z

@@ -6,7 +6,7 @@ addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/'))
 % Rory Townsend, Aug 2018
 % rory.townsend@sydney.edu.au
 % set sampling frequency
-Fs=(1/.71);
+Fs=(1/1.761);
 params=struct;
 params.zscoreChannels=0;
 params.params.subtractBaseline=0;
@@ -34,6 +34,8 @@ end
 niftiout = [childfp '/' subj '_' sesh '_task_' task '_volumetric_subcort.nii.gz'];
 command = ['wb_command -cifti-separate ' fp ' COLUMN -volume-all ' niftiout];
 system(command)
+% to let system catch up
+pause(5);
 data=niftiread(niftiout);
 % read in temporal mask
 subjDir = ['/scratch/users/apines/data/psil/' subj '/' sesh];
@@ -58,11 +60,11 @@ caud_L=find(atlasInds==16)-59412;
 % segment out hippocampus: numeric labels are 1 for right and 9 for left
 hippo_R=find(atlasInds==1)-59412;
 hippo_L=find(atlasInds==9)-59412;
-% pull actual coordinates
-caud_R_coords=subcortVoxels(caud_R,:);
-caud_L_coords=subcortVoxels(caud_L,:);
-hippo_R_coords=subcortVoxels(hippo_R,:);
-hippo_L_coords=subcortVoxels(hippo_L,:);
+% pull actual coordinates: zero-indexing correction with +1
+caud_R_coords=subcortVoxels(caud_R,:)+1;
+caud_L_coords=subcortVoxels(caud_L,:)+1;
+hippo_R_coords=subcortVoxels(hippo_R,:)+1;
+hippo_L_coords=subcortVoxels(hippo_L,:)+1;
 % extract boxes that these voxels live in (we're going to restrict box by 1 to live less on the edge)
 caudBox_R_min = min(caud_R_coords,[],1)+1;
 caudBox_R_max = max(caud_R_coords,[],1)-1;
@@ -162,8 +164,8 @@ for x = 1:nx
         % run optical flow
         [vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-        % populate it
-         vfs_x(x,:,:,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+	vfs_x(x,:,:,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 % for each y slice
 for y = 1:ny
@@ -175,8 +177,8 @@ for y = 1:ny
         % run optical flow
         [vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-        % populate it
-         vfs_y(:,y,:,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+         vfs_y(:,y,:,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 % for each z slice
 for z = 1:nz
@@ -188,8 +190,8 @@ for z = 1:nz
 	% run optical flow
 	[vx, vy, csteps] = opticalFlow2(wvcfs2D, badChannels, ...
             params.opAlpha, params.opBeta, ~params.useAmplitude);
-   	% populate it
-	 vfs_z(:,:,z,:) = vx + 1i*vy;
+	% populate it: -2 to combine with -1 offset from above (inclusive indexing), -1 more because opflow is on tr pairs not trs
+         vfs_z(:,:,z,trpc:(trpc+SegSpan-2)) = vx + 1i*vy;
 end
 trpc=trpc+SegSpan;
 end
