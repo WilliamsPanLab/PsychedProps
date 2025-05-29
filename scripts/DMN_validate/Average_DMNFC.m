@@ -26,3 +26,8 @@ group_cifti.cdata = mean_data;
 
 outpath = '~/GroupAvg_DMNFC_map.dscalar.nii';
 ciftisave(group_cifti, outpath);
+
+niftiout='~/GroupAvg_DMNFC_map.nii.gz';
+% also save it as a nifti
+command = ['wb_command -cifti-separate ' outpath ' COLUMN -volume-all ' niftiout];
+system(command)

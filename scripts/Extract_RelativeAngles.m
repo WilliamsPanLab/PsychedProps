@@ -126,7 +126,7 @@ for F=g_noMW_combined_R
 		zComp_R=relVf_R(F,3);
 		% convert to spherical coord system
 		vs_R=cart2sphvec(double([xComp_R;yComp_R;zComp_R]),azd_R(F),eld_R(F));
-		% convert to spherical coordinates
+	% convert to spherical coordinates
        		%OpFlVec_R= [vs_R(1) vs_R(2)];
 		OpF_azes_R(F,fr)=vs_R(1);
 		OpF_els_R(F,fr)=vs_R(2);
