@@ -23,9 +23,9 @@ params.useAmplitude = true;
 childfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func' ];
 
 % load in data
-if task=='rs1'
+if string(task)=='rs1'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-elseif task=='rs2'
+elseif string(task)=='rs2'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
 else
 	fp=[childfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
@@ -165,7 +165,7 @@ SegSpan=tempMaskIncl(s,4);
 segTS=subcortVol(:,:,:,trpc:(trpc+SegSpan-1));
 % for each x slice
 for x = 1:nx
-        wvcfs = subcortVol(x,:,:,:);
+        wvcfs = segTS(x,:,:,:);
         badChannels = badChannels3D(x,:,:);
 	% squeeze so we are in dim 1 x dim 2 x time
         wvcfs2D = double(squeeze(wvcfs));
@@ -178,7 +178,7 @@ for x = 1:nx
 end
 % for each y slice
 for y = 1:ny
-        wvcfs = subcortVol(:,y,:,:);
+        wvcfs = segTS(:,y,:,:);
         badChannels = badChannels3D(:,y,:);
         % squeeze so we are in dim 1 x dim 2 x time
         wvcfs2D = double(squeeze(wvcfs));
@@ -191,7 +191,7 @@ for y = 1:ny
 end
 % for each z slice
 for z = 1:nz
-	wvcfs = subcortVol(:,:,z,:);
+	wvcfs = segTS(:,:,z,:);
         badChannels = badChannels3D(:,:,z);
 	% squeeze so we are in dim 1 x dim 2 x time
 	wvcfs2D = double(squeeze(wvcfs));

@@ -23,9 +23,9 @@ params.useAmplitude = true;
 childfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func' ];
 
 % load in data
-if task=='rs1'
+if string(task)=='rs1'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-elseif task=='rs2'
+elseif string(task)=='rs2'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
 else
 	fp=[childfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
@@ -97,7 +97,7 @@ end
 % caud L min needs an additional 1-pixel shave-off: I will attempt to depict why visually.
 % Box outlining Left caudate min/max |--/----|
 %                                    | /     |
-%          caudale as "/"            |/------|
+%          caudate as "/"            |/------|
 %                                    /
 % in words, the -1 to boundaries we apply to minimize boundary effects on optical flow in the z direction reduces the real y-extent of caudate signal. This is because of the diagonal entry of the caudate into our bounding box.
 % so with conservative z-boundaries, the lowest-numbered y-plane is actually all 0
@@ -165,7 +165,6 @@ SegSpan=tempMaskIncl(s,4);
 segTS=subcortVol(:,:,:,trpc:(trpc+SegSpan-1));
 % for each x slice
 for x = 1:nx
-	x
         wvcfs = segTS(x,:,:,:);
         badChannels = badChannels3D(x,:,:);
 	% squeeze so we are in dim 1 x dim 2 x time
@@ -179,7 +178,6 @@ for x = 1:nx
 end
 % for each y slice
 for y = 1:ny
-	y
         wvcfs = segTS(:,y,:,:);
         badChannels = badChannels3D(:,y,:);
         % squeeze so we are in dim 1 x dim 2 x time
@@ -193,7 +191,6 @@ for y = 1:ny
 end
 % for each z slice
 for z = 1:nz
-	z
 	wvcfs = segTS(:,:,z,:);
         badChannels = badChannels3D(:,:,z);
 	% squeeze so we are in dim 1 x dim 2 x time

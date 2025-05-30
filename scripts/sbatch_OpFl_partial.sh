@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=48:00:00
+#SBATCH --time=2:00:00
 #SBATCH -n 1
-#SBATCH --mem=13G
+#SBATCH --mem=20G
 #SBATCH -p leanew1,normal # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -63,11 +63,10 @@ sesh=$2
 sleep 20
 
 # motion masking
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -83,27 +82,23 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 echo "Subcortical runs"
-matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','emotion')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_R('$subj','$sesh','wm')"
 
-matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','emotion')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "SubCort_OpFl_caud_L('$subj','$sesh','wm')"
 
-matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','emotion')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_R('$subj','$sesh','wm')"
 
-matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','emotion')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "SubCort_OpFl_hippo_L('$subj','$sesh','wm')"
 
@@ -123,12 +118,26 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 #matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
 
-# extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','wm')"
-#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_RelativeAngles_verts('$subj','$sesh','emotion')"
+
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoL('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoL('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoL('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoL('$subj','$sesh','gambling')"
+
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoR('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoR('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoR('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_HippoR('$subj','$sesh','gambling')"
+
+matlab -nodisplay -r "Extract_RelativeAngles_CaudL('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudL('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudL('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudL('$subj','$sesh','gambling')"
+
+matlab -nodisplay -r "Extract_RelativeAngles_CaudR('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudR('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudR('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles_CaudR('$subj','$sesh','gambling')"
 
 # Extract DMN magnitudes
 #matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"
@@ -147,26 +156,12 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
-# extract entropy
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_NGSC('$subj','$sesh','wm')"
-
 # extract DMNSeg
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
-
-# extract DMN win
-#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_DMNWin('$subj','$sesh','wm')"
 
 #################
 echo "OpFl complete"

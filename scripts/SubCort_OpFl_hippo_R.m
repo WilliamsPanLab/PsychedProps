@@ -23,9 +23,9 @@ params.useAmplitude = true;
 childfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func' ];
 
 % load in data
-if task=='rs1'
+if string(task)=='rs1'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-elseif task=='rs2'
+elseif string(task)=='rs2'
 	fp=[childfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
 else
 	fp=[childfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
@@ -95,9 +95,9 @@ for t = 1:size(data,4)
 end
 
 % now zoom in on the bounding box
-subcortVol = data(hippo_R_min(1):hippo_L_max(1), ...
-                hippo_R_min(2):hippo_L_max(2), ...
-                hippo_R_min(3):hippo_L_max(3), :);
+subcortVol = data(hippo_R_min(1):hippo_R_max(1), ...
+                hippo_R_min(2):hippo_R_max(2), ...
+                hippo_R_min(3):hippo_R_max(3), :);
 
 % visualize some timepoints if of interest
 %timepoints = 72:82;

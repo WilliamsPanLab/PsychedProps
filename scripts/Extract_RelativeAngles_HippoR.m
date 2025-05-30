@@ -1,4 +1,4 @@
-function Extract_RelativeAngles_CaudL(subj, sesh, task)
+function Extract_RelativeAngles_HippoR(subj, sesh, task)
 % Measure % bottom-up optical flow direction relative to DMN gradient in 3D
 ToolFolder = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
@@ -7,7 +7,7 @@ addpath(genpath(ToolFolder));
 atlas_fp = '/oak/stanford/groups/leanew1/users/apines/maps/Tian_Subcortex_S1_3T_32k.dscalar.nii';
 dmn_fp   = '~/GroupAvg_DMNFC_map.nii.gz';
 childfp  = ['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
-flow_fp  = [childfp '/' subj '_CaudL_vf_out_' sesh '_' task '.mat'];
+flow_fp  = [childfp '/' subj '_HippoR_vf_out_' sesh '_' task '.mat'];
 
 % load it in
 atlas = read_cifti(atlas_fp);
@@ -19,29 +19,27 @@ subcortVoxels = [];
 for s = 3:length(atlas.diminfo{1}.models)
     subcortVoxels = [subcortVoxels; atlas.diminfo{1}.models{s}.voxlist];
 end
-caud_L = find(atlasInds == 16) - 59412;
-caud_L_coords = subcortVoxels(caud_L, :) + 1;
-% set caud L mask
-caud_L_mask = false(size(dmn,1), size(dmn,2), size(dmn,3));
-% now set voxels in caud L as true
-for i = 1:size(caud_L_coords,1)
-    x = caud_L_coords(i,1);
-    y = caud_L_coords(i,2);
-    z = caud_L_coords(i,3);
-    caud_L_mask(x, y, z) = true;
+hippo_R = find(atlasInds == 1) - 59412;
+hippo_R_coords = subcortVoxels(hippo_R, :) + 1;
+% set hippo R mask
+hippo_R_mask = false(size(dmn,1), size(dmn,2), size(dmn,3));
+% now set voxels in hippo R as true
+for i = 1:size(hippo_R_coords,1)
+    x = hippo_R_coords(i,1);
+    y = hippo_R_coords(i,2);
+    z = hippo_R_coords(i,3);
+    hippo_R_mask(x, y, z) = true;
 end
 % apply to dmn
-dmn(~caud_L_mask) = 0;
+dmn(~hippo_R_mask) = 0;
 % extract boxes that these voxels live in (we're going to restrict box by 1 to live less on the edge)
-% caud L
-caud_L_min = min(caud_L_coords,[],1)+1;
-caud_L_max = max(caud_L_coords,[],1)-1;
-% same adjustment for caudate as in optical flow script
-caud_L_min(2)=caud_L_min(2)+1;
+% hippo R
+hippo_R_min = min(hippo_R_coords,[],1)+1;
+hippo_R_max = max(hippo_R_coords,[],1)-1;
 % now zoom in on the bounding box
-dmn = dmn(caud_L_min(1):caud_L_max(1), ...
-                caud_L_min(2):caud_L_max(2), ...
-                caud_L_min(3):caud_L_max(3), :);
+dmn = dmn(hippo_R_min(1):hippo_R_max(1), ...
+                hippo_R_min(2):hippo_R_max(2), ...
+                hippo_R_min(3):hippo_R_max(3), :);
 
 % initialize counts for EZ tracking across x y and z planes
 BUP_count = 0;
@@ -230,6 +228,6 @@ end
 pct_bottom_up = BUP_count / total_count;
 T=table(pct_bottom_up,'RowNames',string('AngD_DMN'));
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh]
-writetable(T,[outFP '/' subj '_' sesh '_' task '_CaudL_Prop_Feats_gro.csv'],'WriteRowNames',true)
+writetable(T,[outFP '/' subj '_' sesh '_' task '_HippoR_Prop_Feats_gro.csv'],'WriteRowNames',true)
 end
 
