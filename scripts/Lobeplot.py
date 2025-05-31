@@ -166,7 +166,7 @@ fig, axes = plt.subplots(
     gridspec_kw={'height_ratios': height_ratios}
 )
 
-axes[0].plot(FD, color='red', linewidth=0.8)
+axes[0].plot(FD, color='red', linewidth=0.4)
 axes[0].axhline(0.2, color='black', linestyle='--', linewidth=0.5)
 axes[0].set_ylabel('FD')
 axes[0].set_xlim([0, len(FD)])
@@ -179,34 +179,31 @@ for i, (ax, lobe_ts) in enumerate(zip(axes[1:], lobe_data)):
 
 axes[-1].set_xlabel('Timepoints')
 plt.tight_layout()
+
+# add motion mask
+motion_mask_fp = f'/scratch/users/apines/data/mdma/{subj}/{sesh}/{subj}_{sesh}_task-rs1_AllSegments.txt'
+segments = np.genfromtxt(motion_mask_fp, delimiter=',', dtype=int)
+
+# Determine valid intervals (start, stop where column 2 == 1)
+valid_intervals = [(row[0]-1, row[1]-1) for row in segments if row[2] == 1]
+all_timepoints = np.arange(FD.shape[0])
+
+# Build a mask: 1 where valid, 0 where invalid
+valid_mask = np.zeros_like(FD, dtype=bool)
+for start, end in valid_intervals:
+    valid_mask[start:end+1] = True
+
+# Shade invalid areas across all plots
+for ax in axes:
+    # Get height of axis in data units (use max for imshow axes)
+    ybot, ytop = ax.get_ylim()
+    for t in range(len(valid_mask)):
+        if not valid_mask[t]:
+            ax.axvspan(t, t+1, color='gray', alpha=0.65, linewidth=0)
+
+# Optional: add text or highlight on FD axis
+axes[0].set_title('Temporal Mask of Representative Scan')
+
+# save it
 plt.savefig(pofp, dpi=500)
 plt.close()
-
-# whole brain
-#fig, (ax0, ax1, ax2) = plt.subplots(3, 1, figsize=(10, 7), sharex=True, 
-#                                    gridspec_kw={'height_ratios': [1, 4, 4]})
-# for colormap
-#all_data = np.concatenate([CL_sorted.flatten(), CR_sorted.flatten()])
-#vmin = np.percentile(all_data, 1)
-#vmax = np.percentile(all_data, 99)
-# FD
-#ax0.plot(FD, color='red', linewidth=0.8)
-#ax0.axhline(0.2, color='black', linestyle='--', linewidth=0.5)
-#ax0.set_ylabel('FD')
-#ax0.set_title(f'{subj}_{sesh} DMN-Sorted TS with FD')
-#ax0.set_xlim([0, len(FD)])
-#ax1.imshow(CL_sorted, cmap=custom_cmap, vmin=vmin, vmax=vmax,aspect='auto',
-#           extent=[0, CL_sorted.shape[1], 0, CL_sorted.shape[0]])
-#ax1.axhline(CL_sorted.shape[0] - cut_L, color='blue', linestyle='--', linewidth=1.2, label='DMN')
-#ax1.set_ylabel('Left hemisphere (vertices)')
-#ax1.legend(loc='upper right', fontsize=6)
-# right hemi
-#ax2.imshow(CR_sorted, cmap=custom_cmap, vmin=vmin, vmax=vmax,aspect='auto',
-#           extent=[0, CR_sorted.shape[1], 0, CR_sorted.shape[0]])
-#ax2.axhline(CR_sorted.shape[0] - cut_R, color='blue', linestyle='--', linewidth=1.2, label='DMN')
-#ax2.set_ylabel('Right hemisphere (vertices)')
-#ax2.set_xlabel('Timepoints')
-#ax2.legend(loc='upper right', fontsize=6)
-#plt.tight_layout()
-#plt.savefig(pofp, dpi=500)
-#plt.close()

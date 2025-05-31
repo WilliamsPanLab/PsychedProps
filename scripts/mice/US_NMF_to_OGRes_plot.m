@@ -3,11 +3,11 @@ networks = load('/oak/stanford/groups/leanew1/users/apines/p50_mice/Mouse_DMN_co
 Dnet = networks.components_matrix';
 Mask = networks.mask;
 
-% ✅re-boolean and transpose mask for consistency
+% re-boolean and transpose mask for consistency
 Mask = Mask == 1;
 Mask = Mask';
 
-% 🧪hreshold DMN mask (threshold > 0.6)
+% treshold DMN mask (threshold > 0.6)
 DMN_bool = Dnet > 0.6;
 DMN_bool(Mask == 0) = 0;
 DMN_bool = logical(DMN_bool);
@@ -23,8 +23,7 @@ Mask_upsampled = imresize(Mask, upsample_factor, 'nearest');  % Preserve binary 
 
 
 % set colormap
-
-% Custom colormap as specified
+% workbench as usual
 roybigbl_cm = inferno(16);
 roybigbl_cm(1,:) = [255, 255, 0];
 roybigbl_cm(2,:) = [255, 200, 0];
