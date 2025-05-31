@@ -62,7 +62,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	        outDF(s,1)=bvCL(1,2);
 		outDF(s,2)=bvCR(1,2);
 		outDF(s,3)=bvHL(1,2);
-		outDF(s,4)=bHR(1,2);
+		outDF(s,4)=bvHR(1,2);
 		% load in remaining frames
 	        childfp=['/scratch/users/apines/data/mdma/' subjList(s) '/' seshInfo{1} ];
                 bvCSIfp=[childfp '/' subjList(s) '_' seshInfo{1} '_task-' task '_ValidSegments_Trunc.txt'];

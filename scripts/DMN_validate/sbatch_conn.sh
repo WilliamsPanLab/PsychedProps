@@ -5,6 +5,6 @@ subjects=($(ls "$data_dir"/sub-CONN*_concatenated.dtseries.nii | sed -E 's|.*/(s
 # Loop through subjects
 for subject in "${subjects[@]}"; do
 	# Submit sbatch job
-       	sbatch sbatch_DMNFC_map.sh $subject
+       	sbatch sbatch_TFC_map.sh $subject
 	echo $subject
 done
