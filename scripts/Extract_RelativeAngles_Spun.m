@@ -1,4 +1,4 @@
-function Extract_RelativeAngles(subj,sesh,task)
+function Extract_RelativeAngles_Spun(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to Network.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -147,14 +147,19 @@ el_L=el_L(g_noMW_combined_L);
 az_R=az_R(g_noMW_combined_R);
 el_R=el_R(g_noMW_combined_R);
 
+% initialzie %BUP vec for across iterations
+SpunBUP=zeros(1,10000);
+
 % load in spun networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_fs4.mat']);
-%% k = 1 to select DMN.
-Dnet_LH=networks.nets.Lnets(:,1);
-Dnet_RH=networks.nets.Rnets(:,1);
 for k=1:10000
-	nets_LH=networks.nets.Lnets(:,k);
-	nets_RH=networks.nets.Rnets(:,k);
+	nets_LH=networks.bigrotl_3k(k,:);
+	nets_RH=networks.bigrotlr_3k(k,:);
+	% OMIT spun mw mask
+        nets_LH(nets_LH>1)=0;
+        nets_RH(nets_RH>1)=0;
+	Dnet_LH=nets_LH;
+	Dnet_RH=nets_RH;
 	% create face-wise network mask
 	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
 	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
@@ -169,9 +174,6 @@ for k=1:10000
 	MasterMask_R=DMN_bool_R;
 	MasterMask_L(fmwIndVec_l)=0;
 	MasterMask_R(fmwIndVec_r)=0;
-	% save out for de-masking later
-	writematrix(MasterMask_L,['~/MasterMask_L_' num2str(k) '.csv'])
-	writematrix(MasterMask_R,['~/MasterMask_R_' num2str(k) '.csv'])
 	% initialize matrix for each face over each of k=4 networks to saveout to scratch
 	faceMatrix=zeros((length(g_noMW_combined_L)+length(g_noMW_combined_R)),4);
         % network of interest
@@ -191,37 +193,23 @@ for k=1:10000
         emptyRight=find(~sumRight);
         InclLeft=find(sumLeft);
         InclRight=find(sumRight);
-        % note InclLeft and Right presume mw mask already applied!	
-	% save InclLeft and Right to a reference .mat
-	save(['/oak/stanford/groups/leanew1/users/apines/surf/medial_wall_nullGrad' num2str(k) '_vectors.mat'], 'InclLeft', 'InclRight');
-
-        % mask them out of medial wall mask (medial wall mask indicates what to include, emptyLeft indicates what to exclude. setdiff excludes what should be excluded (from eL) from what should be incl. (noMW)
-        %n_and_g_noMW_combined_L=setdiff(g_noMW_combined_L,emptyLeft);
-        %n_and_g_noMW_combined_R=setdiff(g_noMW_combined_R,emptyRight);
         % extract face-wise vector cartesian vector components
-
         nx_L=ng_L(InclLeft,1);
         ny_L=ng_L(InclLeft,2);
         nz_L=ng_L(InclLeft,3);
         nx_R=ng_R(InclRight,1);
         ny_R=ng_R(InclRight,2);
         nz_R=ng_R(InclRight,3);
-
-        % translate xyz spherical coordinates to az/el/r
-        %[az_L,el_L,r_L]=cart2sph(P_L(n_and_g_noMW_combined_L,1),P_L(n_and_g_noMW_combined_L,2),P_L(n_and_g_noMW_combined_L,3));
-        %[az_R,el_R,r_R]=cart2sph(P_R(n_and_g_noMW_combined_R,1),P_R(n_and_g_noMW_combined_R,2),P_R(n_and_g_noMW_combined_R,3));
         % get spherical coordinates (az/el/r, r equal in sphere) relevant to this network
         az_L_n=az_L(InclLeft);
         el_L_n=el_L(InclLeft);
         az_R_n=az_R(InclRight);
         el_R_n=el_R(InclRight);
-
         % now same mask for the opfl vectors
         OpF_azes_L_n=OpF_azes_L(InclLeft,:);
         OpF_els_L_n=OpF_els_L(InclLeft,:);
         OpF_azes_R_n=OpF_azes_R(InclRight,:);
         OpF_els_R_n=OpF_els_R(InclRight,:);
-
         % translate xyz vector components at coordinates to az/el/r
         nazes_L=zeros(length(az_L_n),1);
         nels_L=zeros(length(el_L_n),1);
@@ -238,7 +226,6 @@ for k=1:10000
             nazes_R(i)=nvs_R(1);
             nels_R(i)=nvs_R(2);
         end
-
         % initialize angular distance vector for each network (l and r) above
         NangDs_L=zeros(length(InclLeft),lenOpFl);
         NangDs_R=zeros(length(InclRight),lenOpFl);
@@ -283,34 +270,13 @@ for k=1:10000
         end
         % average for this network before proceeding to next network loop
         AllAngs=[NangDs_R(:)' NangDs_L(:)'];
-        % save out an AngDistMat for hierarchical distributions
-	AngDist=struct;
-	AngDist.Left=NangDs_L;
-	AngDist.Right=NangDs_R;
-	% calc outFP
-	outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
-	AngDistFP=[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_AngDistMat.mat'];
-	save(AngDistFP,'AngDist')
-	% average left-hemisphere values over time and plop into facematrix for this participant
-        faceMatrix(InclLeft,k)=mean(NangDs_L,2);
-        faceMatrix((InclRight+length(InclLeft)),k)=mean(NangDs_R,2);
-        % and time series population
-	OutTs_L=NangDs_L;
-	OutTs_R=NangDs_R;
-	% average angular distances across hemispheres
-        avgD=mean(AllAngs);
         % 6/8/24: replacing with percentage for attempt at clearer presentation of results
 	percBUP=length(AllAngs(AllAngs<90))/(length(AllAngs));
 	Propvec=[Propvec percBUP];
-        % add label
-        stringVec=[stringVec ['AngD' num2str(k)]];
-	% save out as csv
-	T=table(Propvec','RowNames',stringVec);
-	% write out
-	writetable(T,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
-	% save out faceMatrix with subject ID as csv to /scratch/users/apines/gp/PropFeatsTemp
-	writematrix(faceMatrix,['/scratch/users/apines/gp/PropFeats/' subj '_' sesh '_' task '_k' num2str(k) '_faceMatrix_gro.csv'])
-	% save out time series
-	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L.csv'])
-	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R.csv'])
+	SpunBUP(k)=Propvec
 end
+% save out as csv
+stringVec = compose("Spin%d", 1:10000);
+T=table(SpunBUP','RowNames',stringVec);
+% write out
+writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_Spun.csv'],'WriteRowNames',true)
