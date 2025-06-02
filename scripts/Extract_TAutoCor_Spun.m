@@ -1,4 +1,4 @@
-function Extract_TAutoCor(subj,sesh,task)
+function Extract_TAutoCor_Spun(subj,sesh,task)
 % set parent directory
 parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
 
@@ -46,6 +46,14 @@ numSegments=sum(CSI(:,3)==1);
 ValidSegs=CSI(CSI(:,3)==1,:);
 
 % need some extra cifti data to match indices from .mat
+% re-read Cifti in vanilla way
+if string(task)=="rs1"
+        C=read_cifti(fp);
+elseif string(task)=="rs2"
+        C=read_cifti(fp);
+else
+        C=read_cifti([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
+end
 models = C.diminfo{1}.models;
 % Get valid surface vertex indices used in CIFTI
 vl_L = models{1}.vertlist+1;        % 0-based indexing

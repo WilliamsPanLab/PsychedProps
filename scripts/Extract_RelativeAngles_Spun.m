@@ -151,7 +151,7 @@ el_R=el_R(g_noMW_combined_R);
 SpunBUP=zeros(1,10000);
 
 % load in spun networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_fs4.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_3k.mat']);
 for k=1:10000
 	nets_LH=networks.bigrotl_3k(k,:);
 	nets_RH=networks.bigrotlr_3k(k,:);

@@ -63,7 +63,7 @@ lengthOpFl=size(OpFl_L,2);
 % initialize magnitude vector across spins
 SpunMags=zeros(1,10000);
 % load in spun Networks
-networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_fs4.mat']);
+networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_3k.mat']);
 for k=1:10000
 % select this spin
 Dnet_LH=networks.nets.bigrotl_3k(k,:);
