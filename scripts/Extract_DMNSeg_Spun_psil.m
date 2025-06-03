@@ -1,43 +1,20 @@
-function Extract_DMNSeg_Spun(subj,sesh,task)
+function Extract_DMNSeg_Spun_psil(subj,sesh,task)
 % set parent directory
-parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
-
+parentfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_' task '.dtseries.nii'];
 % define some paths 
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
 
-% re-adjust for rsfmri naming conventions
-if string(task)=="rs1"
-	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-	C=ft_read_cifti_mod(fp);
-elseif string(task)=="rs2"
-	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-	C=ft_read_cifti_mod(fp);
-else
-% read in time series
-C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
-end
+% read in citi
+C=ft_read_cifti_mod(parentfp);
 
 % extract time series
 C_timeseries=C.data;
 
 % load in temporal mask
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+childfp=['/scratch/users/apines/data/psil/' subj '/' sesh];
 tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
 tmask=load(tmaskfp);
-% just get ts length from fmriprep outputs to be safe/consistent
-confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
-% adapt if it is resting state
-if string(task)=="rs1"
-	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_desc-confounds_timeseries.tsv'];
-elseif string(task)=="rs2"
-	confFilepath1=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/p50/bids/data/derivatives/fmriprep-20.2.3/fmriprep/' subj '/' sesh '/func/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_desc-confounds_timeseries.tsv'];
-else
-end
-conf1=readtable(confFilepath1,"FileType","text",'Delimiter', '\t');
-% extract FD columns
-FD=table2array(conf1(:,'framewise_displacement'));
-
 % make binary mask for continuous segments
 TRwise_mask_cont=zeros(1,length(FD));
 % Loop through each row in Absolut
@@ -55,15 +32,6 @@ end
 % get correlation matrix of full time series... just cortex
 C_timeseries=C_timeseries(1:59412,logical(TRwise_mask_cont));
 
-% need some extra cifti data to match indices from .mat
-% re-read Cifti in vanilla way
-if string(task)=="rs1"
-	C=read_cifti(fp);
-elseif string(task)=="rs2"
-	C=read_cifti(fp);
-else
-	C=read_cifti([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
-end
 models = C.diminfo{1}.models;
 % Get valid surface vertex indices used in CIFTI
 vl_L = models{1}.vertlist+1;        % 0-based indexing
@@ -103,7 +71,7 @@ end
 stringVec = compose("Spin%d", 1:2000);
 % save out
 T=table(SpunDMNs','RowNames',stringVec);
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNSeg_Spun.csv'],'WriteRowNames',true)
 
 

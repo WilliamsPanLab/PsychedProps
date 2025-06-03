@@ -48,18 +48,18 @@ subj=$1
 # sesh is input 2
 sesh=$2
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
-sleep 20
+#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_mdma.sh $1 $2
+#sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 8+ continuous frames only
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
-matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "MotMask('$subj','$sesh','wm')"
 
 ############################
 #### module II: Optical Flow
@@ -68,11 +68,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
-matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "OpFl_mdma('$subj','$sesh','wm')"
 
 #############################
 #### module III: Calc. DMN Metrics
@@ -81,35 +81,35 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # make output directory outside scratch
-mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
+#mkdir /oak/stanford/groups/leanew1/users/apines/OpFlAngDs/mdma/${subj} 
 
 # extract magnitudes
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # extract DMN FC
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','wm')"
 
 # extract AutoCor
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
 #############################
 #### module IV: Calc Spun Metrics

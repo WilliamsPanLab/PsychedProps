@@ -1,4 +1,4 @@
-function Extract_RelativeAngles_Spun(subj,sesh,task)
+function Extract_RelativeAngles_Spun_psil(subj,sesh,task)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Take optical flow results, get a bottom-up and top-down resultant vector in x,y coords for each face. Measured relative to Network.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -6,7 +6,7 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % Load in fsav4 opflow calc
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh ];
+childfp=['/scratch/users/apines/data/psil/' subj '/' sesh ];
 datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
 data=load(datafp)
 % Load in surface data
@@ -282,5 +282,5 @@ end
 stringVec = compose("Spin%d", 1:2000);
 T=table(SpunBUP','RowNames',stringVec);
 % write out
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_Prop_Feats_Spun.csv'],'WriteRowNames',true)

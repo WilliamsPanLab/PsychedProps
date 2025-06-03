@@ -1,6 +1,6 @@
-function Extract_TAutoCor_Spun(subj,sesh,task)
+function Extract_TAutoCor_Spun_psil(subj,sesh,task)
 % set parent directory
-parentfp=['/scratch/groups/leanew1/xcpd_outP50_36p_bp/xcp_d/' subj '/' sesh '/func'];
+parentfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' sesh '/func'];
 
 % define some paths 
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
@@ -22,7 +22,7 @@ end
 C_timeseries=C.data;
 
 % load in temporal mask
-childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+childfp=['/scratch/users/apines/data/psil/' subj '/' sesh];
 tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
 tmask=load(tmaskfp);
 % just get ts length from fmriprep outputs to be safe/consistent
@@ -122,7 +122,7 @@ end
 stringVec = compose("Spin%d", 1:2000);
 % saveout
 T=table(DMNSpunTAs','RowNames',stringVec);
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_TemporalAutoCor_Spun.csv'],'WriteRowNames',true)
 
 

@@ -16,9 +16,6 @@ subjects=("sub-MDMA001" "sub-MDMA002" "sub-MDMA003" "sub-MDMA005"
           "sub-MDMA016" "sub-MDMA017")
 sessions=("ses-00" "ses-01" "ses-02" "ses-03")
 
-# let high res spins finish
-sleep 20000
-
 # Loop through subjects
 for subject in "${subjects[@]}"; do
     # Loop through sessions

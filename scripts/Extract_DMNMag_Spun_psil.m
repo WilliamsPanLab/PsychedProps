@@ -1,10 +1,10 @@
-function Extract_DMNMag_Spun(subj,sesh,task)
+function Extract_DMNMag_Spun_psil(subj,sesh,task)
 % define some paths 
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
 
 % set common filepath
-commonFP=['/scratch/users/apines/data/mdma/'];
+commonFP=['/scratch/users/apines/data/psil/'];
 % load in optical flow data
 fp=[commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_OpFl.mat'];
 OpFl=load(fp);
@@ -161,5 +161,5 @@ end
 % save out
 stringVec = compose("Spin%d", 1:2000);
 T=table(SpunMags','RowNames',stringVec);
-outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
+outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNMag_Spun.csv'],'WriteRowNames',true)
