@@ -111,9 +111,9 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','gambling')"
 #matlab -nodisplay -r "Extract_TAutoCor('$subj','$sesh','wm')"
 
-#############################
-#### module IV: Calc Spun Metrics
-#############################
+echo #############################
+echo #### module IV: Calc Spun Metrics
+echo #############################
 
 # extract magnitudes
 matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','rs1')"

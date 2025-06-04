@@ -164,8 +164,8 @@ for k=1:2000
 	Dnet_LH(isnan(Dnet_LH))=0;
 	Dnet_RH(isnan(Dnet_RH))=0;
 	% create face-wise network mask
-	DMN_bool_L=sum(nets_LH(faces_l),2)./3;
-	DMN_bool_R=sum(nets_RH(faces_r),2)./3;
+	DMN_bool_L=sum(Dnet_LH(faces_l),2)./3;
+	DMN_bool_R=sum(Dnet_RH(faces_r),2)./3;
 	DMN_bool_L(DMN_bool_L>.3)=1;
 	DMN_bool_R(DMN_bool_R>.3)=1;
 	DMN_bool_L(DMN_bool_L<.3)=0;

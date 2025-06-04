@@ -49,18 +49,18 @@ subj=$1
 sesh=$2
 
 # mask resting-state out from aggregate cifti
-#matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
+##matlab -nodisplay -r "RS_mask_psil('$subj','$sesh')"
 
 # Downsample the data 
-#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
+##/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_psil.sh $1 $2
 #sleep 20
 
 # cd to workaround addpath in matlab shell call
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 6+ continuous frames only
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
+##matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs1')"
+##matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs2')"
 #matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs3')"
 #matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs4')"
 #matlab -nodisplay -r "MotMask_psil('$subj','$sesh','rs5')"
@@ -113,13 +113,56 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_DMNSeg_psil('$subj','$sesh','rs6')"
 #
 
-# dmn within network
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_DMNWin_psil('$subj','$sesh','rs6')"
+# autocor
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs5')"
+##matlab -nodisplay -r "Extract_TAutoCor_psil('$subj','$sesh','rs6')"
 
+#############################
+#### module IV: Calc Spun Metrics
+#############################
+
+# extract magnitudes
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs6')"
+
+echo spunMags done
+
+# extract relative angles
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs6')"
+
+echo spunAngles done
+
+# extract DMN FC
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs6')"
+
+echo spunFC done
+
+# extract AutoCor
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs6')"
+
+echo spunAutocor done
 #################
 echo "OpFl complete"

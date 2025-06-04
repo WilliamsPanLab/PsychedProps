@@ -5,18 +5,17 @@ parentfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
 
-% read in citi
-C=ft_read_cifti_mod(parentfp);
-
+% read in cifti
+C=read_cifti(parentfp);
 % extract time series
-C_timeseries=C.data;
+C_timeseries=C.cdata;
 
 % load in temporal mask
 childfp=['/scratch/users/apines/data/psil/' subj '/' sesh];
 tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
 tmask=load(tmaskfp);
 % make binary mask for continuous segments
-TRwise_mask_cont=zeros(1,length(FD));
+TRwise_mask_cont=zeros(1,size(C_timeseries,2));
 % Loop through each row in Absolut
 for row = 1:size(tmask, 1)
 	if tmask(row, 3) == 1
@@ -49,6 +48,9 @@ for k=1:2000
 	% omit spun mw
 	SpunDMN_L(SpunDMN_L>1)=0;
 	SpunDMN_R(SpunDMN_R>1)=0;
+	% omit nans
+        SpunDMN_L(isnan(SpunDMN_L))=0;
+        SpunDMN_R(isnan(SpunDMN_R))=0;
 	% match cifti indexing
 	SpunDMN_L=SpunDMN_L(vl_L);
 	SpunDMN_R=SpunDMN_R(vl_R);

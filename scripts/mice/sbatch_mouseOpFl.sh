@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=4:00:00
+#SBATCH --time=80:00:00
 #SBATCH -n 1
 #SBATCH --mem=30G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -24,20 +24,12 @@ subj=$1
 # also note that not all drugs have 6 acquisitions normatively (in addition to some limited within-drug-cohort variability in acquisitions)
 
 # run optical flow (LSD)
-#matlab -nodisplay -r "Mouse_OpFl('$subj',1)"
-#matlab -nodisplay -r "Mouse_OpFl('$subj',2)"
-#matlab -nodisplay -r "Mouse_OpFl('$subj',3)"
-#matlab -nodisplay -r "Mouse_OpFl('$subj',4)"
-#matlab -nodisplay -r "Mouse_OpFl('$subj',5)"
-#matlab -nodisplay -r "Mouse_OpFl('$subj',6)"
-
-# run streamlines
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',1)"
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',2)"
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',3)"
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',4)"
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',5)"
-#matlab -nodisplay -r "OpFl_Streamlines_mouse('$subj',6)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',1)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',2)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',3)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',4)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',5)"
+matlab -nodisplay -r "Mouse_OpFl('$subj',6)"
 
 # run OF for dex
 #matlab -nodisplay -r "Mouse_OpFl_Dex('$subj',1)"
@@ -56,30 +48,30 @@ subj=$1
 #matlab -nodisplay -r "Mouse_OpFl_Diaz('$subj',6)"
 
 # extract DMN magnitudes (LSD)
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',1)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',2)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',3)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',4)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',5)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
 
 # extract DMN agnles (LSD)
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
 
 # extract DMN segregation (LSD)
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',6)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',2)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',3)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',4)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',5)"
+matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',6)"
 
-# DMN within netwokr FC for that one reviewer
+# DMN within network FC for that one reviewer
 matlab -nodisplay -r "Extract_DMNWin_mice('$subj',1)"
 matlab -nodisplay -r "Extract_DMNWin_mice('$subj',2)"
 matlab -nodisplay -r "Extract_DMNWin_mice('$subj',3)"
@@ -96,12 +88,12 @@ matlab -nodisplay -r "Extract_DMNWin_mice('$subj',6)"
 #matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',6)"
 
 # DMN autocorrelation (LSD)
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',6)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',1)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',2)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',3)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',4)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',5)"
+matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',6)"
 
 # diaz mag
 #matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',1)"
@@ -110,3 +102,10 @@ matlab -nodisplay -r "Extract_DMNWin_mice('$subj',6)"
 #matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',4)"
 #matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',5)"
 #matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',6)"
+
+
+echo spun metrics
+matlab -nodisplay -r "Extract_DMNMag_mice_Spun('$subj',1)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Spun('$subj',1)"
+matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',1)"
+matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',1)"

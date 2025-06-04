@@ -9,17 +9,17 @@ addpath(genpath(Paths{1}))
 % re-adjust for rsfmri naming conventions
 if string(task)=="rs1"
 	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-	C=ft_read_cifti_mod(fp);
+	C=read_cifti(fp);
 elseif string(task)=="rs2"
 	fp=[parentfp '/' subj '_' sesh '_task-rs_acq-mb_dir-pe1_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii'];
-	C=ft_read_cifti_mod(fp);
+	C=read_cifti(fp);
 else
 % read in time series
-C=ft_read_cifti_mod([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
+C=read_cifti([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
 end
 
 % extract time series
-C_timeseries=C.data;
+C_timeseries=C.cdata;
 
 % load in temporal mask
 childfp=['/scratch/users/apines/data/mdma/' subj '/' sesh];
@@ -54,18 +54,8 @@ end
 
 % get correlation matrix of full time series... just cortex
 C_timeseries=C_timeseries(1:59412,logical(TRwise_mask_cont));
-
-% need some extra cifti data to match indices from .mat
-% re-read Cifti in vanilla way
-if string(task)=="rs1"
-	C=read_cifti(fp);
-elseif string(task)=="rs2"
-	C=read_cifti(fp);
-else
-	C=read_cifti([parentfp '/' subj '_' sesh '_task-' task '_acq-mb_dir-pe0_run-0_space-fsLR_den-91k_desc-denoisedSmoothed_bold.dtseries.nii']);
-end
-models = C.diminfo{1}.models;
 % Get valid surface vertex indices used in CIFTI
+models = C.diminfo{1}.models;
 vl_L = models{1}.vertlist+1;        % 0-based indexing
 vl_R = models{2}.vertlist+1;        % 0-based indexing
 start_R = models{2}.start;        % CIFTI index (starts at 29697)
@@ -81,6 +71,9 @@ for k=1:2000
 	% omit spun mw
 	SpunDMN_L(SpunDMN_L>1)=0;
 	SpunDMN_R(SpunDMN_R>1)=0;
+	% omit nans
+	SpunDMN_L(isnan(SpunDMN_L))=0;
+	SpunDMN_R(isnan(SpunDMN_R))=0;
 	% match cifti indexing
 	SpunDMN_L=SpunDMN_L(vl_L);
 	SpunDMN_R=SpunDMN_R(vl_R);

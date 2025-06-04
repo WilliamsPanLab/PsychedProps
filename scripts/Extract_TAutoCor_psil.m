@@ -1,6 +1,6 @@
 function Extract_TAutoCor_psil(subj,sesh,task)
 % set parent directory
-parentfp=['/scratch/users/apines/PsiloData/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_' task '.dtseries.nii'];
+parentfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_' task '.dtseries.nii'];
 % define some paths 
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
