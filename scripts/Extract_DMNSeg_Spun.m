@@ -90,12 +90,12 @@ for k=1:2000
 	% avoid making full correlation matrix due to memory demands
 	correlation_matrix = 1 - pdist2(DMN_mat, nonDMN_mat, 'correlation');  
 	BWFC=mean(mean(correlation_matrix,'omitnan'),'omitnan');
-	SpunsDMNs(k)=BWFC;
+	DMNSpunSegs(k)=BWFC;
 end
 % create rownames
 stringVec = compose("Spin%d", 1:2000);
 % save out
-T=table(SpunDMNs','RowNames',stringVec);
+T=table(DMNSpunSegs','RowNames',stringVec);
 outFP=['/scratch/users/apines/data/mdma/' subj '/' sesh];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNSeg_Spun.csv'],'WriteRowNames',true)
 

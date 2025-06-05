@@ -275,8 +275,7 @@ for k=1:2000
         AllAngs=[NangDs_R(:)' NangDs_L(:)'];
         % 6/8/24: replacing with percentage for attempt at clearer presentation of results
 	percBUP=length(AllAngs(AllAngs<90))/(length(AllAngs));
-	Propvec=[Propvec percBUP];
-	SpunBUP(k)=Propvec
+	SpunBUP(k)=percBUP;
 end
 % save out as csv
 stringVec = compose("Spin%d", 1:2000);

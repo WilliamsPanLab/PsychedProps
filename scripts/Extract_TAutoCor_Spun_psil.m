@@ -63,7 +63,7 @@ for k=1:2000
         combinedMask(29697:59412) = SpunDMN_R;
         DMNInds=find(combinedMask>.3);
 	% mask timeseries
-	C_timeseries=C_timeseries(DMNInds,:);
+	DMN_timeseries=C_timeseries(DMNInds,:);
 	% initialize an autocor array
 	ACarray=zeros(numSegments,length(DMNInds));
 	% loop over each segement
@@ -74,7 +74,7 @@ for k=1:2000
 		% loop over each vertex within DMN
 		for v=1:length(DMNInds);
 			% extract data
-			dataInSegAndVert=C_timeseries(v,segStart:segEnd);
+			dataInSegAndVert=DMN_timeseries(v,segStart:segEnd);
 			% OG time series (-1)
 			OGTS=dataInSegAndVert(1:end-1);
 			ShiftTS=dataInSegAndVert(2:end);

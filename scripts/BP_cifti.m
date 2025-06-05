@@ -4,26 +4,24 @@ ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/s
 addpath(genpath(ToolFolder));
 
 % Load CIFTI
-parentfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj '/' sesh '/']; 
-infile = [parentfp sesh '/' subj '_' sesh '_' task '.dtseries.nii'];
-outname = [[parentfp sesh '/' subj '_' sesh '_' task '_filt.dtseries.nii'];
+parentfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj ]; 
+infile = [parentfp '/' subj '_' sesh '_' task '.dtseries.nii'];
+outname = [parentfp '/' subj '_' sesh '_' task '_filt.dtseries.nii'];
 TR = 2;
 Fs = 1 / TR;
-N = 2;            % 2nd-order Butterworth
-
+N = 2;            % 2nd-order butterworth to match
 % filter range matched
 low_cutoff = 0.009;
 high_cutoff = 0.08;
-
 % load in
 ts = read_cifti(infile);
-data = ts.dtseries;
+data = ts.cdata;
 n_time = size(data, 2);
 
 % crete filter
 [b, a] = butter(N, [low_cutoff high_cutoff] / (Fs / 2), 'bandpass');
 
-% Filter first 5000 grayordinates
+% Filter grayordinates
 data_filt = data;   % copy to preserve structure
 for g = 1:size(data,1)
     signal = data(g, :);
@@ -35,8 +33,8 @@ for g = 1:size(data,1)
 end
 
 % Replace dtseries with filtered version
-ts.dtseries = data_filt;
+ts.cdata = data_filt;
 
 % Save to new CIFTI file
-write_cifti(outname, ts, 'parameter', 'dtseries');
+write_cifti(ts,outname);
 
