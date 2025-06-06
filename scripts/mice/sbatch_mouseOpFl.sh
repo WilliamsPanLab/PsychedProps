@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=80:00:00
+#SBATCH --time=90:00:00
 #SBATCH -n 1
 #SBATCH --mem=30G
 #SBATCH -p leanew1  # Queue names you can submit to

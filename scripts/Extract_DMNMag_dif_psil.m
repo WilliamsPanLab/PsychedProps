@@ -15,6 +15,8 @@ addpath(genpath(ToolFolder));
 subjPrefix=repmat('PS',11,1);
 subjSuffix=["02","03","16","18","19","21","24","93","96","98","99"];
 subjList=strcat(subjPrefix,subjSuffix')
+% original filepath (not scratch anymore)
+ogfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/'];
 % for collecting each task
 for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 	% character version of task because matlab is picky
@@ -65,7 +67,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                 		outDF(((s+(i*11))-11),17)=numTRsVS;
 				% load in FD
         			runNum=ctask(end)
-        			confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Baseline' num2str(i) '/func/Movement/bold' runNum '.fd'];
+        			confFilePath=[ogfp subjList(s) '/' subjList(s) '_Baseline' num2str(i) '/func/Movement/bold' runNum '.fd'];
 				conf1=load(strjoin(confFilePath,''));
         			% extract FD columns
         			FD=conf1(2:end);
@@ -91,7 +93,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                 		outDF(((s+(i*11))-11),18)=numTRsVS;
                                 % load in FD
                                 runNum=ctask(end);
-                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Between' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                confFilePath=[ogfp subjList(s) '/' subjList(s) '_Between' num2str(i) '/func/Movement/bold' runNum '.fd'];
                                 conf1=load(strjoin(confFilePath,''));
                                 % extract FD columns
                                 FD=conf1(2:end);
@@ -117,7 +119,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                 		outDF(((s+(i*11))-11),19)=numTRsVS;
                                 % load in FD
                                 runNum=ctask(end);
-                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_After' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                confFilePath=[ogfp subjList(s) '/' subjList(s) '_After' num2str(i) '/func/Movement/bold' runNum '.fd'];
                                 conf1=load(strjoin(confFilePath,''));
 				% extract FD columns
                                 FD=conf1(2:end);
@@ -143,7 +145,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
                 		outDF(((s+(i*11))-11),20)=numTRsVS;
                                 % load in FD
                                 runNum=ctask(end);
-                                confFilePath=['/scratch/users/apines/PsiloData/' subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold' runNum '.fd'];
+                                confFilePath=[ogfp subjList(s) '/' subjList(s) '_Drug' num2str(i) '/func/Movement/bold' runNum '.fd'];
                                 conf1=load(strjoin(confFilePath,''));
 				% extract FD columns
                                 FD=conf1(2:end);
