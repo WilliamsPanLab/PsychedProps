@@ -1,6 +1,6 @@
 function Extract_TAutoCor_mice(subj,run)
 % set parent directoryP load in data: pre LSD
-basefp='/scratch/users/apines/p50_mice/proc/20200228/'
+basefp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/'
 % load in specified scan
 if run==1
         fn = [basefp 'thy1gc6s_0p3mgkg_' subj '_preLSD0p3mgkg_1/masked_dff_Gro_Masked_Sml_BP_Smoothed_Sml.h5']

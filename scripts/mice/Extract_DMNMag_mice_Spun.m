@@ -4,7 +4,8 @@ function Extract_DMNMag_mice_Spun(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
-
+% set number of spins
+numSpins=2000;
 % Load in flatmouse opflow calc
 % note this is for LSD only! Adapt recording date for other drugs if needed
 childfp='/scratch/users/apines/p50_mice/proc/20200228/'

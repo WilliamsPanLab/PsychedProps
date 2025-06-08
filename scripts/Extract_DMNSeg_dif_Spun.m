@@ -22,14 +22,14 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	for s=[1 2 3 5 7 8 9 11 12 13 14 15 16 17]
 	        % get session info NOTE K4 HAS ALL 4 VALUES, K1 has INTENDED VALUE AS WELL
 	        seshInfo=subSeshDose{s,2:5};
-	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_Prop_Feats_Spun.csv'];
+	        bvFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_DMNSeg_Spun.csv'];
 	        bvFP=strjoin(bvFP,'');
 		% and grab reverse phase encoding direction nifti
-		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_Prop_Feats_Spun.csv'];
+		pFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_DMNSeg_Spun.csv'];
 	        pFP=strjoin(pFP,'');
-	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_Prop_Feats_Spun.csv'];
+	        m1FP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_DMNSeg_Spun.csv'];
 	        m1FP=strjoin(m1FP,'');
-	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_Prop_Feats_Spun.csv'];
+	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_DMNSeg_Spun.csv'];
 	        m2FP=strjoin(m2FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')
@@ -89,10 +89,16 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
                 m2CSIfp=[childfp '/' subjList(s) '_' seshInfo{4} '_task-' task '_ValidSegments_Trunc.txt'];
                 m2CSIfp=strjoin(m2CSIfp,'');
                 CSI = importdata(m2CSIfp);
-                numTRsVS=sum(CSI(:,2));
-                outDF(s,20)=numTRsVS;
+		% catch for s17 m2
+		if size(CSI,2)>1
+			numTRsVS=sum(CSI(:,2));
+                	outDF(s,20)=numTRsVS;
+		else
+			numTRsVS=0;
+
+		end
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_propsMerged_Spin_' num2str(n) '.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_DMNSegMerged_Spin_' num2str(n) '.csv'],''))
 end

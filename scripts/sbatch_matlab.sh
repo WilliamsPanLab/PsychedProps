@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=magAgg
-#SBATCH --time=3:00:00
+#SBATCH --time=9:00:00
 #SBATCH -n 1
 #SBATCH --mem=25G
 #SBATCH -p leanew1  # Queue names you can submit to
@@ -12,4 +12,4 @@
 subj=$1
 # will need matlab
 module load matlab
-matlab -nodisplay -r "Calc_AvgMagnitude_psil('$subj')"
+matlab -nodisplay -r "loop_Spuns_Extracts"
