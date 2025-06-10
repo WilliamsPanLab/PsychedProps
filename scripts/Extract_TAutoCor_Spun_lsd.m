@@ -1,6 +1,6 @@
-function Extract_TAutoCor_Spun_psil(subj,sesh,task)
+function Extract_TAutoCor_Spun_lsd(subj,sesh,task)
 % set parent directory
-parentfp=['/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin/' subj '/' subj '_' sesh '/func/' subj '_' sesh '_' task '.dtseries.nii'];
+parentfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj '/' subj '_' sesh '_' task '_filt.dtseries.nii'];
 
 % define some paths 
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
@@ -13,7 +13,7 @@ C=read_cifti(parentfp);
 C_timeseries=C.cdata;
 
 % load in temporal mask
-childfp=['/scratch/users/apines/data/psil/' subj '/' sesh];
+childfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj];
 tmaskfp=[childfp '/' subj '_' sesh '_task-' task '_AllSegments.txt'];
 tmask=load(tmaskfp);
 % read in good segments indicator
@@ -106,7 +106,7 @@ end
 stringVec = compose("Spin%d", 1:2000);
 % saveout
 T=table(DMNSpunTAs','RowNames',stringVec);
-outFP=['/scratch/users/apines/data/psil/' subj '/' sesh];
+outFP=['/scratch/users/apines/LSD_ICL/rest_proc/' subj];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_TemporalAutoCor_Spun.csv'],'WriteRowNames',true)
 
 

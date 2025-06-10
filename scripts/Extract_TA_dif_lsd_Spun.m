@@ -1,4 +1,5 @@
-% extract temporal autocorrelation from each session
+function Extract_TA_dif_lsd_Spun(n)
+% extract spun temporal autocorrelation from each session
 
 %%% resultant csv to look like this:
 % Subj | Condition | BUP | Task | Remaining Frames | FD 
@@ -27,10 +28,10 @@ for t =1:3
 		SubjNameCol((s+(t*20))-20,1)=cellstr(subjList(s));
 		SubjNameCol((s+(t*20))-20,2)=cellstr(num2str(t));
 	        % grab PCB
-		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_TemporalAutoCor.csv'];
+		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_TemporalAutoCor_Spun.csv'];
 	        bvFP=strjoin(bvFP,'');
 		% m1 = after
-		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_TemporalAutoCor.csv'];
+		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_TemporalAutoCor_Spun.csv'];
 	        m1FP=strjoin(m1FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')
@@ -38,7 +39,7 @@ for t =1:3
 			outDF(((s+(t*20))-20),1)={subjList(s)};
 			outDF(((s+(t*20))-20),2)={"PCB"};
 			% s+i*20-20 to insert into subj-sesh row 
-			outDF(((s+(t*20))-20),3)={bv(1,2)};
+			outDF(((s+(t*20))-20),3)={bv(n,2)};
 			% task
 			outDF(((s+(t*20))-20),4)={task};
 			% load in remaining frames
@@ -72,7 +73,7 @@ for t =1:3
 			outDF(((s+(t*20)+60)-20),1)={subjList(s)};
 			outDF(((s+(t*20)+60)-20),2)={"LSD"};
                         % s+i*20-20 to insert into subj-sesh row
-                        outDF(((s+(t*20)+60)-20),3)={m1(1,2)};
+                        outDF(((s+(t*20)+60)-20),3)={m1(n,2)};
                         % task
                         outDF(((s+(t*20)+60)-20),4)={task};
                         % load in remaining frames
@@ -108,6 +109,4 @@ for t =1:3
 	end
 end
 % save out matrix
-writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged.csv'])
-% and subject ID column
-writetable(table(SubjNameCol),['/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged_subjOrder.csv'])
+writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged_Spin_' num2str(n) '.csv'])

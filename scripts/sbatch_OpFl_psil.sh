@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=48:00:00 # need >1 (try 10-12 to be safe) if running opfl
+#SBATCH --time=8:00:00 # need >1 (try 10-12 to be safe) if running opfl
 #SBATCH -n 4 # try 4 if running opfl
-#SBATCH --mem=15G # up to 25 if running opfl
+#SBATCH --mem=16G # up to 25 if running opfl
 #SBATCH -p normal,leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -126,32 +126,32 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #############################
 
 # extract magnitudes
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_psil('$subj','$sesh','rs6')"
 
 echo spunMags done
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_psil('$subj','$sesh','rs6')"
 
 echo spunAngles done
 
 # extract DMN FC
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_psil('$subj','$sesh','rs6')"
 
 echo spunFC done
 

@@ -1,4 +1,5 @@
-% extract temporal autocorrelation from each session
+function Extract_DMNSeg_dif_lsd_Spun(n)
+% extract network props from each session
 
 %%% resultant csv to look like this:
 % Subj | Condition | BUP | Task | Remaining Frames | FD 
@@ -27,10 +28,10 @@ for t =1:3
 		SubjNameCol((s+(t*20))-20,1)=cellstr(subjList(s));
 		SubjNameCol((s+(t*20))-20,2)=cellstr(num2str(t));
 	        % grab PCB
-		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_TemporalAutoCor.csv'];
+		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_DMNSeg_Spun.csv'];
 	        bvFP=strjoin(bvFP,'');
 		% m1 = after
-		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_TemporalAutoCor.csv'];
+		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_DMNSeg_Spun.csv'];
 	        m1FP=strjoin(m1FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')
@@ -79,14 +80,9 @@ for t =1:3
                         m1CSIfp=[commonFP subjList(s) '/' subjList(s) '_LSD_task-' task '_ValidSegments_Trunc.txt'];
                         m1CSIfp=strjoin(m1CSIfp,'');
                         CSI = importdata(m1CSIfp);
-			% catch for the one subject with no surviving TRs
-			if size(CSI,2)<2
-				numTRsVS=0;
-			else
-				% get total numer of TRs
-                        	numTRsVS=sum(CSI(:,2));
-                        end
-			% place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
+                        % get total numer of TRs
+                        numTRsVS=sum(CSI(:,2));
+                        % place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
                         outDF(((s+(t*20)+60)-20),5)={numTRsVS};
                         % load in FD
                         confFilePath=['/scratch/users/apines/LSD_ICL/rest_proc/' subjList(s) '_LSD_bold_signal_properties.mat'];
@@ -108,6 +104,4 @@ for t =1:3
 	end
 end
 % save out matrix
-writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged.csv'])
-% and subject ID column
-writetable(table(SubjNameCol),['/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged_subjOrder.csv'])
+writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_DMNSegMerged_Spin_ ' num2str(n) '.csv'])

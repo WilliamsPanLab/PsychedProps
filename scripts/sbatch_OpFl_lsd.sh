@@ -50,15 +50,15 @@ sesh=$2
 
 
 # mask resting-state out from aggregate cifti
-matlab -nodisplay -r "RS_mask_lsd('$subj','$sesh')"
+#matlab -nodisplay -r "RS_mask_lsd('$subj','$sesh')"
 
 # BP data
-matlab -nodisplay -r "BP_cifti('$subj','$sesh','rs1')"
-matlab -nodisplay -r "BP_cifti('$subj','$sesh','rs2')"
-matlab -nodisplay -r "BP_cifti('$subj','$sesh','mus')"
+#matlab -nodisplay -r "BP_cifti('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "BP_cifti('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "BP_cifti('$subj','$sesh','mus')"
 
 # Downsample the data 
-/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_lsd.sh $1 $2
+#/oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts/DS_surf_ts_lsd.sh $1 $2
 
 #sleep 20
 
@@ -66,9 +66,9 @@ matlab -nodisplay -r "BP_cifti('$subj','$sesh','mus')"
 cd /oak/stanford/groups/leanew1/users/apines/scripts/OpFl_CDys/scripts
 
 # mask images: 6+ continuous frames only
-matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "MotMask_lsd('$subj','$sesh','mus')"
 
 ############################
 #### module II: Optical Flow
@@ -77,9 +77,9 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 echo "Starting module II: Optical Flow"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 # Calculate Optical Flow
-matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "OpFl_lsd('$subj','$sesh','mus')"
 
 
 #############################
@@ -90,55 +90,55 @@ echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','mus')"
 
 # and magnitudes
-matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','mus')"
 
 # DMN seg
-matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg_lsd('$subj','$sesh','mus')"
 #
 
 # autocor
-matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor_lsd('$subj','$sesh','mus')"
 
 #############################
 #### module IV: Calc Spun Metrics
 #############################
 
 # extract magnitudes
-#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','mus')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunMags done
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','mus')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunAngles done
 
 # extract DMN FC
-#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','mus')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunFC done
 
 # extract AutoCor
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','mus')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunAutocor done
 #################
