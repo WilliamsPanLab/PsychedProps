@@ -39,7 +39,7 @@ for t =1:3
 			outDF(((s+(t*20))-20),1)={subjList(s)};
 			outDF(((s+(t*20))-20),2)={"PCB"};
 			% s+i*20-20 to insert into subj-sesh row 
-			outDF(((s+(t*20))-20),3)={bv(1,2)};
+			outDF(((s+(t*20))-20),3)={bv(n,2)};
 			% task
 			outDF(((s+(t*20))-20),4)={task};
 			% load in remaining frames
@@ -73,7 +73,7 @@ for t =1:3
 			outDF(((s+(t*20)+60)-20),1)={subjList(s)};
 			outDF(((s+(t*20)+60)-20),2)={"LSD"};
                         % s+i*20-20 to insert into subj-sesh row
-                        outDF(((s+(t*20)+60)-20),3)={m1(1,2)};
+                        outDF(((s+(t*20)+60)-20),3)={m1(n,2)};
                         % task
                         outDF(((s+(t*20)+60)-20),4)={task};
                         % load in remaining frames

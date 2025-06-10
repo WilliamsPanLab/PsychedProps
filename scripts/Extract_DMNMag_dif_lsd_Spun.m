@@ -104,4 +104,4 @@ for t =1:3
 	end
 end
 % save out matrix
-writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_DMNMagMerged_' num2str(n) '.csv'])
+writetable(table(outDF),['/oak/stanford/groups/leanew1/users/apines/data/lsd_DMNMagMerged_Spin_' num2str(n) '.csv'])
