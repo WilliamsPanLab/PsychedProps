@@ -158,5 +158,5 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		end
 	end
 	% save out matrix
-	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_DMNMagMerged_Spin_' numstr(n) '.csv'],''))
+	writematrix(outDF,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_DMNMagMerged_Spin_' num2str(n) '.csv'],''))
 end

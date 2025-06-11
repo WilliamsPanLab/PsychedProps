@@ -3,11 +3,10 @@ function Extract_DMNMag_Spun_lsd(subj,sesh,task)
 Paths{1} = '/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(Paths{1}))
 
-% set common filepath
-childfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj ];
 % load in optical flow data
-fp=[commonFP '/' subj '/' sesh '/' subj '_' sesh '_' task '_OpFl.mat'];
-OpFl=load(fp);
+childfp=['/scratch/users/apines/LSD_ICL/rest_proc/' subj ];
+datafp=[childfp '/' subj '_' sesh '_' task '_OpFl.mat'];
+OpFl=load(datafp);
 OpFl_L=OpFl.us.vf_left;
 OpFl_R=OpFl.us.vf_right;
 

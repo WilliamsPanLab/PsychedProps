@@ -122,23 +122,23 @@ matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','mus')"
 echo spunMags done
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunAngles done
 
 # extract DMN FC
-matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunFC done
 
 # extract AutoCor
-matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunAutocor done
 #################

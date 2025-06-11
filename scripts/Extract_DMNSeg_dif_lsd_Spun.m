@@ -80,8 +80,13 @@ for t =1:3
                         m1CSIfp=[commonFP subjList(s) '/' subjList(s) '_LSD_task-' task '_ValidSegments_Trunc.txt'];
                         m1CSIfp=strjoin(m1CSIfp,'');
                         CSI = importdata(m1CSIfp);
-                        % get total numer of TRs
-                        numTRsVS=sum(CSI(:,2));
+                        % catch for the one subject with no surviving TRs
+                        if size(CSI,2)<2
+                                numTRsVS=0;
+                        else
+                                % get total numer of TRs
+                                numTRsVS=sum(CSI(:,2));
+                        end
                         % place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
                         outDF(((s+(t*20)+60)-20),5)={numTRsVS};
                         % load in FD

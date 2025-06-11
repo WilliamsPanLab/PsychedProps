@@ -9,7 +9,6 @@
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL
 # ------------------------------------------
-subj=$1
 # will need matlab
 module load matlab
-matlab -nodisplay -r "loop_Spuns_Extracts"
+matlab -nodisplay -r "loop_Spun_Extracts_psil"
