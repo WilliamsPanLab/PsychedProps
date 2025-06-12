@@ -140,7 +140,6 @@ OpF_els_R=OpF_els_R(g_noMW_combined_R,:);
 
 % add lukas lang functions
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/lukaslang-ofd-614a2ffc50d6'))
-
 % convert azs and els to only those within MW mask
 az_L=az_L(g_noMW_combined_L);
 el_L=el_L(g_noMW_combined_L);

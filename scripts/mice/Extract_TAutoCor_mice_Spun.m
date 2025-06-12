@@ -1,4 +1,4 @@
-function Extract_TAutoCor_mice(subj,run)
+function Extract_TAutoCor_mice_Spun(subj,run)
 % set parent directoryP load in data: pre LSD
 basefp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/'
 % load in specified scan
@@ -78,7 +78,10 @@ for s=1:numSpins
 	% transpose
 	Mask=Mask';
 	% Look in spun DMN
-	Mask=Mask(Dnet>.6);
+	for x=1:size(Mask,1)
+		DMNrow=Dnet(x,:);
+		Mask(x,DMNrow<.6)=0;
+	end
 	% initialize DMN time series
 	DMN_mat = zeros(sum(Mask(:)), lenOpFl);
 	% use for loop to straightforwardly extract time series in pixels of interest
@@ -86,12 +89,10 @@ for s=1:numSpins
 	    ts_slice = C_timeseries(:, :, t);
 	    DMN_mat(:, t) = ts_slice(Mask);
 	end
-
 	% initialize an autocor array
 	ACarray=zeros(1,sum(Mask(:)));
 	% number of pixels
 	NumPix=sum(Mask(:));
-
 	% loop over each pixel within DMN
 	for p = 1:NumPix;
 		% extract data
@@ -105,7 +106,6 @@ for s=1:numSpins
         	ACarray(p)=correlationOfInterest(1,2);
 	% end pixel loop
 	end
-
 	% get average
 	av_AutoCor=mean(ACarray);
 	SpunTAs(s)=av_AutoCor;

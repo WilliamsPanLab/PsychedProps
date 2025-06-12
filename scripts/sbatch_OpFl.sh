@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=48:00:00
+#SBATCH --time=6:00:00
 #SBATCH -n 4
 #SBATCH --mem=25G
 #SBATCH -p leanew1,normal,owners  # Queue names you can submit to
@@ -91,11 +91,11 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #matlab -nodisplay -r "Extract_DMNMag('$subj','$sesh','emotion')"
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
-#matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','emotion')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','gambling')"
+matlab -nodisplay -r "Extract_RelativeAngles('$subj','$sesh','wm')"
 
 # extract DMN FC
 #matlab -nodisplay -r "Extract_DMNSeg('$subj','$sesh','rs1')"
@@ -116,38 +116,38 @@ echo #### module IV: Calc Spun Metrics
 echo #############################
 
 # extract magnitudes
-matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','wm')"
-matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun('$subj','$sesh','emotion')"
 
 echo spunMags done
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun('$subj','$sesh','wm')"
 
 echo spunAngles done
 
 # extract DMN FC
-matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_DMNSeg_Spun('$subj','$sesh','wm')"
 
 echo spunFC done
 
 # extract AutoCor
-matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','emotion')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','gambling')"
-matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','wm')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','emotion')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','gambling')"
+#matlab -nodisplay -r "Extract_TAutoCor_Spun('$subj','$sesh','wm')"
 
 echo spunAutocor done
 

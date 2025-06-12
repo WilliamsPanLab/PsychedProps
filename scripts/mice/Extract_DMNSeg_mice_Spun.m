@@ -1,4 +1,4 @@
-function Extract_DMNSeg_mice(subj,run)
+function Extract_DMNSeg_mice_Spun(subj,run)
 % set parent directoryP load in data: pre LSD
 basefp='/oak/stanford/groups/leanew1/users/apines/p50_mice/proc2/proc/20200228/'
 % load in specified scan
@@ -80,18 +80,27 @@ for s=1:numSpins
         Mask_bool=Mask_bool';
         % Look in spun DMN
         DMN_Bool=Mask_bool(Dnet>.6);
-	% pull out non-DMN pixels
-	NotDnet_Bool=Mask;
+	% Look in spun DMN
+        for x=1:size(Mask_bool,1)
+                DMNrow=Dnet(x,:);
+                Mask_bool(x,DMNrow<.6)=0;
+        end
+	NotDnet_Bool=Mask';
 	% binarization required because of downsampling
 	NotDnet_Bool(NotDnet_Bool>.5)=1;
 	NotDnet_Bool(NotDnet_Bool<.5)=0;
 	NotDMN_Mask=logical(NotDnet_Bool);
+	% look outside of DMN
+        for x=1:size(NotDMN_Mask,1)
+                DMNrow=Dnet(x,:);
+                NotDMN_Mask(x,DMNrow>.6)=0;
+        end
         % initialize DMN time series
         DMN_mat = zeros(sum(Mask_bool(:)), lenOpFl);
         % use for loop to straightforwardly extract time series in pixels of interest
         for t = 1:lenOpFl
             ts_slice = C_timeseries(:, :, t);
-            DMN_mat(:, t) = ts_slice(Mask);
+            DMN_mat(:, t) = ts_slice(Mask_bool);
         end
         % initialize non DMN time series
 	nonDMN_mat = zeros(sum(NotDMN_Mask(:)), lenOpFl);

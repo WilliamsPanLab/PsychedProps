@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=24:00:00 # need >1 (try 10-12 to be safe) if running opfl
+#SBATCH --time=6:00:00 # need >1 (try 10-12 to be safe) if running opfl
 #SBATCH -n 4 # try 4 if running opfl
 #SBATCH --mem=16G # up to 25 if running opfl
 #SBATCH -p normal,leanew1,owners  # Queue names you can submit to
@@ -90,9 +90,9 @@ echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
-#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','mus')"
+matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_RelativeAngles_lsd('$subj','$sesh','mus')"
 
 # and magnitudes
 #matlab -nodisplay -r "Extract_DMNMag_lsd('$subj','$sesh','rs1')"
@@ -115,9 +115,9 @@ echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 #############################
 
 # extract magnitudes
-matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','mus')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_lsd('$subj','$sesh','mus')"
 
 echo spunMags done
 

@@ -140,6 +140,8 @@ OpF_els_R=OpF_els_R(g_noMW_combined_R,:);
 
 % add lukas lang functions
 addpath(genpath('/oak/stanford/groups/leanew1/users/apines/libs/lukaslang-ofd-614a2ffc50d6'))
+% and circ stats
+addpath('/oak/stanford/groups/leanew1/users/apines/scripts')
 
 % convert azs and els to only those within MW mask
 az_L=az_L(g_noMW_combined_L);
@@ -246,8 +248,10 @@ for k=1:4
         % initialize angular distance vector for each network (l and r) above
         NangDs_L=zeros(length(InclLeft),lenOpFl);
         NangDs_R=zeros(length(InclRight),lenOpFl);
-	Thetas_L=zeros(1,lenOpFl);
-	Thetas_R=zeros(1,lenOpFl);
+	Thetas_L=zeros(length(InclLeft),lenOpFl);
+        Thetas_R=zeros(length(InclRight),lenOpFl);
+        SDs_L=zeros(length(InclLeft),1);
+        SDs_R=zeros(length(InclRight),1);	
 	% get angular distance for each face for each timepoint
         for F=1:length(InclLeft);
                 % get vector for each face (network vector)
@@ -259,13 +263,15 @@ for k=1:4
                         % extract native vector for circ stats (sd)
 			OpFlVec_L= [OpFlVec(1) OpFlVec(2)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas_L(fr),Mags_L(fr)]=cart2pol(OpFlVec_L(1),OpFlVec_L(2));
+			[Thetas_L(F,fr),Mags_L(fr)]=cart2pol(OpFlVec_L(1),OpFlVec_L(2));
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         % populate vector
                         NangDs_L(F,fr)=a;
                 % end tp loop
                 end
+		% circ SD
+		SDs_L(F)=circ_std(Thetas_L(F,:)');
 	% end each face loop
         end
         for F=1:length(InclRight);
@@ -278,13 +284,14 @@ for k=1:4
                         % extract native vector for circ stats (sd)
                         OpFlVec_R= [OpFlVec(1) OpFlVec(2)];
                         % store in output vector (r is redundant across all vecs, only using az and el)
-                        [Thetas_R(fr),Mags_R(fr)]=cart2pol(OpFlVec_R(1),OpFlVec_R(2));
+                        [Thetas_R(F,fr),Mags_R(fr)]=cart2pol(OpFlVec_R(1),OpFlVec_R(2));
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
                         % populate vector
                         NangDs_R(F,fr)=a;
                 % end tp loop
                 end
+		SDs_R(F)=circ_std(Thetas_R(F,:)');
         % end each face loop
         end
         % average for this network before proceeding to next network loop
@@ -313,4 +320,18 @@ for k=1:4
 	% save out time series
 	writematrix(OutTs_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_L.csv'])
 	writematrix(OutTs_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Prop_TS_dmn_R.csv'])
+	% save out thetas and SD
+        stringVecAng_L=compose("Face%d", 1:size(Thetas_L,1));
+        stringVecAng_R=compose("Face%d", 1:size(Thetas_R,1));
+        % avg thetas per face
+        AvgThL=circ_mean(Thetas_L');
+        AvgThR=circ_mean(Thetas_R');
+        T_AngL=table(AvgThL','RowNames',stringVecAng_L);
+        T_AngR=table(AvgThR','RowNames',stringVecAng_R);
+        SD_L=table(SDs_L,'RowNames',stringVecAng_L);
+        SD_R=table(SDs_R,'RowNames',stringVecAng_R);
+        writetable(T_AngL,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Thetas_L.csv'],'WriteRowNames',true)
+        writetable(T_AngR,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_Thetas_R.csv'],'WriteRowNames',true)
+        writetable(SD_L,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_SDS_L.csv'],'WriteRowNames',true)
+        writetable(SD_R,[outFP '/' subj '_' sesh '_' task '_k' num2str(k) '_SDS_R.csv'],'WriteRowNames',true)
 end
