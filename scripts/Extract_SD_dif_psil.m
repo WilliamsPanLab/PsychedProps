@@ -37,11 +37,11 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 	SubjNameCol=cell(88,2);
 	% set common fp
 	commonFP=['/scratch/users/apines/data/psil/'];
-	% for each subj except 2
-	for s=[2 3 4 5 6 7 8 9 10 11];
-		disp(s)
-		% for up to 8 iterations
-		for i=1:8
+	% for up to 8 iterations
+	for i=1:8
+		disp(i)
+		% for each subj except PS02
+		for s=[2 3 4 5 6 7 8 9 10 11];
 			% populate subject name column
 			SubjNameCol((s+(i*11))-11,1)=cellstr(subjList(s));
 			SubjNameCol((s+(i*11))-11,2)=cellstr(num2str(i));
@@ -65,6 +65,7 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			m1RFP=[commonFP subjList(s) '/After' num2str(i) '/' subjList(s) '_After' num2str(i) '_' task '_k1_SDS_R.csv'];
 			m1RFP=strjoin(m1RFP,'');
 			m2RFP=[commonFP subjList(s) '/Drug' num2str(i) '/' subjList(s) '_Drug' num2str(i) '_' task '_k1_SDS_R.csv'];
+			m2RFP=strjoin(m2RFP,'');
 			% load in baseline csvs
 			if exist(bvFP,'file')
 				bv=readmatrix(bvFP);
@@ -172,19 +173,20 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 			else
                                 disp([m2FP ' not found'])
                         end
+		% end for this subj
 		end
-		% save out matrix
-		writematrix(thetas_L_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_L_bv.csv'],''))
-		writematrix(thetas_L_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_L_p.csv'],''))
-		writematrix(thetas_L_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_L_m1.csv'],''))
-		writematrix(thetas_L_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_L_m2.csv'],''))
-		writematrix(thetas_R_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_R_bv.csv'],''))
-		writematrix(thetas_R_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_R_p.csv'],''))
-		writematrix(thetas_R_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_R_m1.csv'],''))
-		writematrix(thetas_R_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' numstr(i) '_' task '_Psil_SDS_R_m2.csv'],''))
-		% and subject ID column
-		writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/sesh_' num2str(i) '_' task '_Psil_propsMerged_subjOrder.csv'],''))
-	% end i iterations
+	% end iterations i
 	end
+% save out matrix
+writematrix(thetas_L_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_L_bv.csv'],''))
+writematrix(thetas_L_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_L_p.csv'],''))
+writematrix(thetas_L_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_L_m1.csv'],''))
+writematrix(thetas_L_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_L_m2.csv'],''))
+writematrix(thetas_R_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_R_bv.csv'],''))
+writematrix(thetas_R_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_R_p.csv'],''))
+writematrix(thetas_R_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_R_m1.csv'],''))
+writematrix(thetas_R_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_SDS_R_m2.csv'],''))
+% and subject ID column
+writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged_subjOrder.csv'],''))
 % end for each task
 end

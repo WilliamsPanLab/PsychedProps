@@ -46,7 +46,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		pRFP=strjoin(pRFP,'');
 		m1RFP=[commonFP subjList(s) '/' seshInfo{3} '/' subjList(s) '_' seshInfo{3} '_' task '_k1_Thetas_R.csv'];
 		m1RFP=strjoin(m1RFP,'');
-		m2RFP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_k4_Thetas_R.csv'];
+		m2RFP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_k1_Thetas_R.csv'];
 		m2RFP=strjoin(m2RFP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')

@@ -13,6 +13,7 @@ subjList=strcat(subjPrefix,subjSuffix')
 tasks=["rs1" "rs2" "mus"];
 % for collecting each task
 for t =1:3
+	task=tasks(t)
 	% initialize a vector of 1116 faces + rem TRs + FD for both conditions
 	thetas_L_PCB=cell(20,1118);
 	thetas_L_LSD=cell(20,1118);
@@ -116,10 +117,10 @@ for t =1:3
 	thetas_L_LSD_T=cell2table(thetas_L_LSD);
 	thetas_R_PCB_T=cell2table(thetas_R_PCB);
 	thetas_R_LSD_T=cell2table(thetas_R_LSD);
-	writetable(thetas_L_PCB_T,['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_L.csv'])
-	writetable(thetas_L_LSD_T,['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_L.csv'])
-	writetable(thetas_R_PCB_T,['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_R.csv'])
-	writetable(thetas_R_LSD_T,['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_R.csv'])
+	writetable(thetas_L_PCB_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_L.csv'],''));
+	writetable(thetas_L_LSD_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_L.csv'],''));
+	writetable(thetas_R_PCB_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_R.csv'],''));
+	writetable(thetas_R_LSD_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_R.csv'],''));
 end
 % and subject ID column
 writetable(table(SubjNameCol),['/oak/stanford/groups/leanew1/users/apines/data/lsd_propsMerged_subjOrder.csv'])
