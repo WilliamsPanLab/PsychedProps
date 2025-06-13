@@ -1,0 +1,595 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-06-05"
+---
+
+```{r}
+# lsd stats
+LSD=read.csv('~/Downloads/lsd_propsMerged.csv')
+hist(LSD$outDF_6[LSD$outDF_2=='LSD'])
+hist(LSD$outDF_6[LSD$outDF_2=='PCB'])
+
+LSD=LSD[!is.na(LSD$outDF_3),]
+
+Thresh=200
+
+LSD=LSD[LSD$outDF_5>Thresh,]
+
+colnames(LSD)<-c('subj','sesh','PercBUP','task','RemainingTRs','meanFD')
+
+fit_lme <- lme(PercBUP ~ sesh + RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+
+
+# get head-motion regressed values for plotting
+model_to_reg <- lme(PercBUP ~  RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+LSD$Residuals<-resid(model_to_reg)+mean(LSD$PercBUP)
+
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(1)
+LSD$Drug=0
+LSD$Drug[LSD$sesh=='LSD']=1
+LSD$JitteredDrug <- as.numeric(LSD$Drug) + rnorm(nrow(LSD), mean = 0, sd = 0.1)
+
+# figure 2a: * 100 for percentage scaling
+ggplot(LSD, aes(x = JitteredDrug, y = Residuals*100)) +
+  geom_point(alpha = 0.8, size = 4) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
+  labs(title = "LSD vs. Placebo \n",
+       x = "",
+       y = "% Bottom-up") + 
+  scale_x_continuous(breaks = 0:1, labels = c('Placebo', 'LSD')) +
+  theme_minimal(base_size = 25)
+
+# save as prop df
+LSDProps=LSD
+```
+
+```{r}
+# same load in for mag
+LSD=read.csv('~/Downloads/lsd_DMNMagMerged.csv')
+hist(LSD$outDF_6[LSD$outDF_2=='LSD'])
+hist(LSD$outDF_6[LSD$outDF_2=='PCB'])
+
+# omit blank rows and high motion scans
+LSD=LSD[!is.na(LSD$outDF_3),]
+LSD=LSD[LSD$outDF_5>Thresh,]
+
+colnames(LSD)<-c('subj','sesh','Magnitude','task','RemainingTRs','meanFD')
+
+fit_lme <- lme(Magnitude ~ sesh + RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+
+
+# get head-motion regressed values for plotting
+model_to_reg <- lme(Magnitude ~  RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+LSD$Residuals<-resid(model_to_reg)+mean(LSD$Magnitude)
+
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(1)
+LSD$Drug=0
+LSD$Drug[LSD$sesh=='LSD']=1
+LSD$JitteredDrug <- as.numeric(LSD$Drug) + rnorm(nrow(LSD), mean = 0, sd = 0.1)
+
+# figure 2a: * 100 for percentage scaling
+ggplot(LSD, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
+  labs(title = "LSD vs. Placebo \n",
+       x = "",
+       y = "Magnitude") + 
+  scale_x_continuous(breaks = 0:1, labels = c('Placebo', 'LSD')) +
+  theme_minimal(base_size = 25)
+                     
+# save as mag df
+LSDMags=LSD
+
+```
+
+```{r}
+# same load in for seg
+LSD=read.csv('~/Downloads/lsd_DMNSegMerged.csv')
+hist(LSD$outDF_6[LSD$outDF_2=='LSD'])
+hist(LSD$outDF_6[LSD$outDF_2=='PCB'])
+
+# omit blank rows and high motion scans
+LSD=LSD[!is.na(LSD$outDF_3),]
+LSD=LSD[LSD$outDF_5>Thresh,]
+
+colnames(LSD)<-c('subj','sesh','DMNSeg','task','RemainingTRs','meanFD')
+
+fit_lme <- lme(DMNSeg ~ sesh + RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+
+
+# get head-motion regressed values for plotting
+model_to_reg <- lme(DMNSeg ~  RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+LSD$Residuals<-resid(model_to_reg)+mean(LSD$DMNSeg)
+
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(1)
+LSD$Drug=0
+LSD$Drug[LSD$sesh=='LSD']=1
+LSD$JitteredDrug <- as.numeric(LSD$Drug) + rnorm(nrow(LSD), mean = 0, sd = 0.1)
+
+# figure 2a: * 100 for percentage scaling
+ggplot(LSD, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
+  labs(title = "LSD vs. Placebo \n",
+       x = "",
+       y = "DMN Integration") + 
+  scale_x_continuous(breaks = 0:1, labels = c('Placebo', 'LSD')) +
+  theme_minimal(base_size = 25)
+                     
+# save as seg df
+LSDSegs=LSD
+```
+
+```{r}
+# same load in for TAutocor
+LSD=read.csv('~/Downloads/lsd_TAMerged.csv')
+hist(LSD$outDF_6[LSD$outDF_2=='LSD'])
+hist(LSD$outDF_6[LSD$outDF_2=='PCB'])
+
+# omit blank rows and high motion scans
+LSD=LSD[!is.na(LSD$outDF_3),]
+LSD=LSD[LSD$outDF_5>Thresh,]
+
+colnames(LSD)<-c('subj','sesh','DMNTA','task','RemainingTRs','meanFD')
+
+fit_lme <- lme(DMNTA ~ sesh + RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+
+
+# get head-motion regressed values for plotting
+model_to_reg <- lme(DMNTA ~  RemainingTRs + meanFD+task, random = ~ 1 | subj, data = LSD)
+LSD$Residuals<-resid(model_to_reg)+mean(LSD$DMNTA)
+
+# updated with manual Gaussian jitter
+# Add Gaussian jitter to x values (e.g., Drug factor levels)
+set.seed(1)
+LSD$Drug=0
+LSD$Drug[LSD$sesh=='LSD']=1
+LSD$JitteredDrug <- as.numeric(LSD$Drug) + rnorm(nrow(LSD), mean = 0, sd = 0.1)
+
+# figure 2a: * 100 for percentage scaling
+ggplot(LSD, aes(x = JitteredDrug, y = Residuals)) +
+  geom_point(alpha = 0.8, size = 4) +  # Points with Gaussian jitter
+  geom_boxplot(aes(group = Drug), alpha = 0.2, outlier.shape = NA, width = 0.25) +  # Boxplot
+  labs(title = "LSD vs. Placebo \n",
+       x = "",
+       y = "T. Autocor.") + 
+  scale_x_continuous(breaks = 0:1, labels = c('Placebo', 'LSD')) +
+  theme_minimal(base_size = 25)
+                     
+# save as seg df
+LSDTA=LSD
+```
+
+```{r}
+# merge em all together for corplot and AUC
+mergedLSD=merge(LSDProps,LSDMags,by=c('subj','sesh','task','RemainingTRs','meanFD','Drug'))
+mergedLSD=merge(mergedLSD,LSDSegs,by=c('subj','sesh','task','RemainingTRs','meanFD','Drug'))
+mergedLSD=merge(mergedLSD,LSDTA,by=c('subj','sesh','task','RemainingTRs','meanFD','Drug'))
+
+
+forcorplot=mergedLSD[,c(4,5,7,10,13,16)]
+colnames(forcorplot)=c('RemTRs','MeanFD','Bottom-Up%','DMNMag','DMNFC','AutoCor')
+
+library(corrplot)
+source("http://www.sthda.com/upload/rquery_cormat.r")
+
+corrmatrix=rquery.cormat(forcorplot,type="full")
+corrmatrix=as.matrix(corrmatrix$r)
+corrplot(corrmatrix,method='number')
+
+# spring graph
+library(igraph)
+# create igraph object
+g <- graph_from_adjacency_matrix(corrmatrix, mode = "undirected", weighted = TRUE, diag = FALSE)
+OGweight<-E(g)$weight
+# weight so weaker connections are longer
+E(g)$weight <- 1-abs(E(g)$weight)
+# and bolder
+edge_weights <- 1-abs(E(g)$weight)
+E(g)$width <- edge_weights * 5 
+
+# Use spring layout (Fruchterman-Reingold) with edge weights as inverse correlation
+layout <- layout_with_kk(g)
+
+# set node colors
+node_colors <- rep("gray", vcount(g))
+node_colors[1] <- "#EF9500"
+node_colors[3] <- "#EF9500" 
+node_colors[5:6] <- "#09416b"
+node_colors[2] <- "#c12139"
+node_colors[4] <- "#c12139"
+# assign to graph
+V(g)$color <- node_colors
+
+# Plot
+plot(g,
+     layout = layout,
+     edge.width = E(g)$width,
+     edge.color = ifelse(OGweight > 0, "red", "blue"),
+     vertex.size = 35,
+     vertex.label.color = "white",
+     main = "Measurement Correlations: LSD")
+
+```
+
+```{r}
+# great, now let's bootstrap them
+# Set the number of bootstrap samples
+num_bootstrap_samples <- 1000
+# initialize t vectors
+td_d<-rep(0,num_bootstrap_samples)
+td_fd<-rep(0,num_bootstrap_samples)
+ta_d<-rep(0,num_bootstrap_samples)
+ta_fd<-rep(0,num_bootstrap_samples)
+ds_d<-rep(0,num_bootstrap_samples)
+ds_fd<-rep(0,num_bootstrap_samples)
+dm_d<-rep(0,num_bootstrap_samples)
+dm_fd<-rep(0,num_bootstrap_samples)
+
+# bootstrap loops
+set.seed(1)
+for (i in 1:num_bootstrap_samples){
+  # resample data
+  data=mergedLSD[sample(nrow(mergedLSD), replace = TRUE), ]
+  # fit on all models
+  td_model <- lme(PercBUP ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = data)
+  ta_model <- lme(DMNTA ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = data)
+  ds_model <- lme(DMNSeg ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = data)
+  dm_model <- lme(Magnitude ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = data)
+  # get t-values
+  td_d[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "Drug", "t-value"]
+  td_fd[i]=summary(td_model)$tTable[rownames(summary(td_model)$tTable) == "meanFD", "t-value"]
+  ta_d[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "Drug", "t-value"]
+  ta_fd[i]=summary(ta_model)$tTable[rownames(summary(ta_model)$tTable) == "meanFD", "t-value"]
+  ds_d[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "Drug", "t-value"]
+  ds_fd[i]=summary(ds_model)$tTable[rownames(summary(ds_model)$tTable) == "meanFD", "t-value"]
+  dm_d[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "Drug", "t-value"]
+  dm_fd[i]=summary(dm_model)$tTable[rownames(summary(dm_model)$tTable) == "meanFD", "t-value"]
+}
+# convert to dataframes
+td_d=data.frame(td_d)
+ta_d=data.frame(ta_d)
+ds_d=data.frame(ds_d)
+dm_d=data.frame(dm_d)
+td_fd=data.frame(td_fd)
+ta_fd=data.frame(ta_fd)
+ds_fd=data.frame(ds_fd)
+dm_fd=data.frame(dm_fd)
+
+colnames(td_d)='tstat'
+colnames(ta_d)='tstat'
+colnames(ds_d)='tstat'
+colnames(dm_d)='tstat'
+colnames(td_fd)='tstat'
+colnames(ta_fd)='tstat'
+colnames(ds_fd)='tstat'
+colnames(dm_fd)='tstat'
+
+# set column names for merging
+td_d$Cov='Drug'
+ta_d$Cov='Drug'
+ds_d$Cov='Drug'
+dm_d$Cov='Drug'
+
+td_fd$Cov='FD'
+ta_fd$Cov='FD'
+ds_fd$Cov='FD'
+dm_fd$Cov='FD'
+
+td_d$Model='Bottom-up %'
+ta_d$Model='AutoCor'
+ds_d$Model='Integration'
+dm_d$Model='Magnitude'
+
+td_fd$Model='Bottom-up %'
+ta_fd$Model='AutoCor'
+ds_fd$Model='Integration'
+dm_fd$Model='Magnitude'
+
+bootstrap_results_FD=rbind(td_fd,ta_fd,ds_fd,dm_fd)
+bootstrap_results_Drug=rbind(td_d,ta_d,ds_d,dm_d)
+# Calculate the average t-value for each Model category
+average_t_values <- bootstrap_results_FD %>%
+  group_by(Model) %>%
+  summarize(avg_t_value = mean(abs(tstat), na.rm = TRUE))
+
+# Reorder the Model factor based on the average t-values
+bootstrap_results_FD$Model <- factor(bootstrap_results_FD$Model, 
+                                     levels = average_t_values$Model[order(average_t_values$avg_t_value)])
+
+
+# Calculate the average t-value for each Model category
+average_t_values <- bootstrap_results_Drug %>%
+  group_by(Model) %>%
+  summarize(avg_t_value = mean(abs(tstat), na.rm = TRUE))
+
+# Reorder the Model factor based on the average t-values
+bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
+                                     levels = average_t_values$Model[order(average_t_values$avg_t_value)])
+
+library(ggdist)
+# Generate the plot
+ggplot(bootstrap_results_FD, aes(x = Model, y = tstat, fill = Cov)) +
+    geom_boxplot(
+        width = 0.12,
+        # Removing outliers
+        outlier.color = NA,
+        fill='#EF9500'
+    ) +
+    stat_dots(
+        # Plotting on left side
+        side = "left",
+        # Adjusting position
+        justification = 1.1,
+        # Adjust grouping (binning) of observations
+        binwidth = 0.08
+    ) +
+    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for FD effect") +
+    theme_minimal(base_size = 18) +
+    geom_hline(yintercept = 0, linetype = "dashed")+
+    # just to prevent extra x-axis expansion
+    coord_cartesian(xlim = c(.8, length(unique(bootstrap_results_Drug$Model))))+
+    theme(legend.position = "none")
+
+
+
+# Calculate the average t-value for each Model category
+average_t_values <- bootstrap_results_Drug %>%
+  group_by(Model) %>%
+  summarize(avg_t_value = mean(tstat, na.rm = TRUE))
+
+# Reorder the Model factor based on the average t-values
+bootstrap_results_Drug$Model <- factor(bootstrap_results_Drug$Model, 
+                                     levels = c('Integration','AutoCor','Bottom-up %','Magnitude'))
+
+
+# add fill column
+bootstrap_results_Drug$Fill='DMN Correlatons'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Bottom-up %']='DMN Propagations'
+bootstrap_results_Drug$Fill[bootstrap_results_Drug$Model=='Magnitude']='DMN Propagations'
+
+
+# Generate the plot
+ggplot(bootstrap_results_Drug, aes(x = Model, y = tstat, fill = Fill)) +
+    geom_boxplot(
+        width = 0.12,
+        # Removing outliers
+        outlier.color = NA) +
+        scale_fill_manual(values=c("#c12139","#09416b"))+
+    stat_dots(
+        # Plotting on left side
+        side = "left",
+        # Adjusting position
+        justification = 1.1,
+        # Adjust grouping (binning) of observations
+        binwidth = 0.08,
+        overflow = "compress"
+    ) +
+    labs(x = "Model", y = "T-Values", title = "Bootstrap T-Values for LSD effect") +
+    theme_minimal(base_size = 18) +
+    geom_hline(yintercept = 0, linetype = "dashed")+
+    # just to prevent extra x-axis expansion
+    coord_cartesian(xlim = c(1, length(unique(bootstrap_results_Drug$Model))))+
+    theme(legend.position = "none")+ylim(c(-20,20))
+```
+
+```{r}
+# AUC comparisons
+# model
+td_model <- lme(PercBUP ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = mergedLSD)
+ta_model <- lme(DMNTA ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = mergedLSD)
+ds_model <- lme(DMNSeg ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = mergedLSD)
+dm_model <- lme(Magnitude ~ meanFD + Drug+RemainingTRs+task, random = ~ 1 | subj, data = mergedLSD)
+
+library(pROC)
+library(plotROC)
+mergedLSD_notask=mergedLSD[mergedLSD$task!='mus',]
+
+# Fit logistic regression models
+model1 <- glm(Drug ~ meanFD + RemainingTRs + DMNSeg+DMNTA, data = mergedLSD_notask, family = binomial)
+model2 <- glm(Drug ~ meanFD + RemainingTRs + DMNSeg + DMNTA+Magnitude+PercBUP, data = mergedLSD_notask, family = binomial)
+model3 <- glm(Drug ~ meanFD + RemainingTRs +Magnitude+PercBUP, data = mergedLSD_notask, family = binomial)
+
+# Predict probabilities
+prob1 <- predict(model1, type = "response")
+prob2 <- predict(model2, type = "response")
+prob3 <- predict(model3, type = "response")
+
+# Create a combined data frame for all models
+df <- data.frame(
+  labels = as.numeric(rep(mergedLSD_notask$Drug, 3)),
+  predictions = c(prob1, prob2,prob3),
+  model = factor(rep(c("DMN Correlations", "+DMN Propagations","DMN Propagations"), each = nrow(mergedLSD_notask)))
+)
+
+# Generate the ROC plot
+ggplot(df, aes(m = predictions, d = labels, color = model)) + 
+  geom_roc(n.cuts = 0, labels = FALSE) + 
+  ylim(0, 1) + ylab('True Positive Rate') +xlab('False Positive Rate')+
+  ggtitle("ROC Curves for Classifying LSD") + 
+  theme_minimal(base_size=18) + 
+  scale_color_manual(values = c("#EF9500","#c12139","#09416b"))+
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "gray")+
+  theme(legend.position = "none")
+
+
+# Calculate AUC for each model
+roc1 <- roc(mergedLSD_notask$Drug, prob1)
+roc2 <- roc(mergedLSD_notask$Drug, prob2)
+roc3 <- roc(mergedLSD_notask$Drug, prob3)
+
+# Print AUC values
+auc1 <- auc(roc1)
+auc2 <- auc(roc2)
+auc3 <- auc(roc3)
+
+print(paste("AUC for DMN Correlations:", auc1))
+print(paste("AUC for Full Model:", auc2))
+print(paste("AUC for Prop Model:", auc3))
+
+# Calculate AUC difference between full and reduced models
+auc_diff <- auc2 - auc1
+
+```
+
+```{r}
+# load in SR
+SR=read.csv('~/Desktop/SR_lsd.csv')
+# sep out ASC, VAS, intensity
+Int=SR[,c(1:4)]
+ASC=SR[,c(1,20:30)]
+VAS=SR[,c(1,5:19)]
+library(tidyr)
+library(dplyr)
+longVAS <- VAS %>%
+  pivot_longer(
+    cols = matches("^(Rest1|Rest2|Mus)_"),  # Match all prefixed columns
+    names_to = c("Task", "Measure"),
+    names_sep = "_",                        # Split at the underscore
+    values_to = "Value"
+  ) %>%
+  pivot_wider(
+    names_from = Measure,
+    values_from = Value
+  )
+
+# prep for merge with brain data
+longVAS$task=factor('rs1,',levels=c('rs1','rs2','mus'))
+longVAS$task[longVAS$Task=='Rest1']='rs1'
+longVAS$task[longVAS$Task=='Rest2']='rs2'
+longVAS$task[longVAS$Task=='Mus']='mus'
+longVAS$subj=longVAS$Subject
+# prep for merge with SR
+LSD_active=mergedLSD[mergedLSD$sesh=='LSD',]
+# merge with brain data (VAS)
+SR_brain=merge(longVAS,LSD_active,by=c('subj','task'))
+
+# correlations of VAS items with DMN metrics
+BU_corvec=NULL
+BU_pvec=NULL
+# initialize counter
+counter=1
+for (i in 5:9){
+  a=cor.test(SR_brain$PercBUP,SR_brain[,i])
+  BU_corvec[counter] <- a$estimate
+  BU_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+Mag_corvec=NULL
+Mag_pvec=NULL
+# initialize counter
+counter=1
+for (i in 5:9){
+  a=cor.test(SR_brain$Magnitude,SR_brain[,i])
+  Mag_corvec[counter] <- a$estimate
+  Mag_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+# seg
+Seg_corvec=NULL
+Seg_pvec=NULL
+counter=1
+for (i in 5:9){
+  a=cor.test(SR_brain$DMNSeg,SR_brain[,i])
+  Seg_corvec[counter] <- a$estimate
+  Seg_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+TA_corvec=NULL
+TA_pvec=NULL
+# initialize counter
+counter=1
+for (i in 5:9){
+  a=cor.test(SR_brain$DMNTA,SR_brain[,i])
+  TA_corvec[counter] <- a$estimate
+  TA_pvec[counter] <- a$p.value
+  counter=counter+1
+}
+
+# correct all for multiple comparisons
+allPs=c(Seg_pvec,TA_pvec,BU_pvec,Mag_pvec)
+allPs_MC=p.adjust(allPs,method='fdr')
+S_pvec_mc=allPs_MC[1:5]
+TA_pvec_mc=allPs_MC[6:10]
+BUP_pvec_mc=allPs_MC[11:15]
+M_pvec_mc=allPs_MC[16:20]
+
+# plot bup
+df <- data.frame(Values = BU_corvec, pvals=BU_pvec)
+
+# make a color vector by significance
+colorvec=rep('NS',5)
+colorvec[BU_pvec<.05]='Uncr'
+colorvec[BUP_pvec_mc<.05]='FDR'
+df$Sig <- factor(colorvec, levels = c('NS', 'Uncr', 'FDR'))
+# Specify color scale manually
+colors <- c('NS' = '#002642', 'Uncr' = '#EF9500', 'FDR' = '#840032')
+df$ColumnNamesAcr<-c('Complex Imagery','Simple Hallucinations','Emotional Arousal',' Positive Mood','Ego Dissolution')
+# linear version
+ggplot(df, aes(x = Values, y = df$ColumnNamesAcr,fill=Sig)) +
+  geom_bar(size=3,stat = "identity")+
+  scale_fill_manual(values = colors) +
+  labs(y = "", x = "Subscale Correlation",title="Change in Bottom-up")+theme_minimal(base_size=17)+xlim(c(-.5,.5))+
+  theme(legend.position='none')
+
+
+ggplot(SR_brain,aes(x=Ego.Dissolution,y=PercBUP,color=Drug))+geom_point(size=5)
+
+```
+
+```{r}
+# change metric to mirror other one
+# initialize vectors
+Change_Subject <- c('')
+DeltaPercBUP <- c(0)
+
+# separate drug sessions
+LSD_only <- LSDSegs[LSDSegs$sesh == 'LSD', ]
+PCB_only <- LSDSegs[LSDSegs$sesh == 'PCB', ]
+
+# best i can tell they did not use music sessions for this difference score
+LSD_only <- LSD_only[LSD_only$task != 'mus', ]
+PCB_only <- PCB_only[PCB_only$task != 'mus', ]
+
+# list unique subjects
+eachSubj <- unique(LSD$subj)
+
+# loop through subjects
+for (i in 1:length(eachSubj)) {
+  subj_i <- eachSubj[i]
+  # extract LSD and PCB sessions
+  subj_LSD <- LSD_only[LSD_only$subj == subj_i, ]
+  subj_PCB <- PCB_only[PCB_only$subj == subj_i, ]
+  if (nrow(subj_LSD) == 0 | nrow(subj_PCB) == 0) {
+    message(paste("Missing session for subject", subj_i))
+    message(paste0(nrow(subj_LSD)))
+    message(paste0(nrow(subj_PCB)))
+    next
+  }
+  # compute average PercBUP for each condition
+  mean_LSD <- mean(subj_LSD$DMNSeg, na.rm = TRUE)
+  mean_PCB <- mean(subj_PCB$DMNSeg, na.rm = TRUE)
+  # compute difference: note this is different than MDMA, but seems to match how they calculated SR scores
+  delta <- mean_LSD-mean_PCB
+  # store
+  Change_Subject <- c(Change_Subject, subj_i)
+  DeltaPercBUP <- c(DeltaPercBUP, delta)
+}
+
+# port into df
+Change_DF <- data.frame(
+  Subject = Change_Subject[-1],
+  DeltaPercBUP = DeltaPercBUP[-1]
+)
+
+# combine with ASC
+Change_DF_ASC=merge(Change_DF,ASC,by='Subject')
+Change_DF_Intensity=merge(Change_DF,Int,by='Subject')
+```

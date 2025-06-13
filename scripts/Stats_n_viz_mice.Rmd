@@ -113,8 +113,7 @@ DMNAngs_long$TP[DMNAngs_long$Timepoint>1]='LSD'
 DMNAngs_long$TP <- factor(DMNAngs_long$TP, levels = c('pre', 'LSD'))
 
 # save df for eventual merge
-DMN_Mags_long=DMNAngs_longOG
-
+DMN_Mags_long=DMNAngs_long
 ```
 
 ```{r}
@@ -280,6 +279,7 @@ print(paste("AUC for +DMN Propagations:", auc2))
 print(paste("AUC for DMN Propagations:", auc3))
 auc_diff=auc2-auc1
 ```
+
 
 ```{r}
 # make equivalent AUC calculations on permuted data
@@ -738,6 +738,54 @@ print(plot_diaz)
 fit_lme <- lme(Value ~ Drug, random = ~ 1 | V1, data = DMNAngs_long)
 summary(fit_lme)
 ```
+
+```{r}
+# correlation matrix for spring graph of how it all fits together
+forCormat=data.frame(mergedMice_LSD$BUP,mergedMice_LSD$TA,mergedMice_LSD$Seg,mergedMice_LSD$Mag)
+
+colnames(forCormat)=c('Bottom-Up%','AutoCor','DMNFC','DMNMag')
+
+library(corrplot)
+source("http://www.sthda.com/upload/rquery_cormat.r")
+
+corrmatrix=rquery.cormat(forCormat,type="full")
+corrmatrix=as.matrix(corrmatrix$r)
+corrplot(corrmatrix,method='number')
+
+# spring graph
+library(igraph)
+# create igraph object
+g <- graph_from_adjacency_matrix(corrmatrix, mode = "undirected", weighted = TRUE, diag = FALSE)
+OGweight<-E(g)$weight
+# weight so weaker connections are longer
+E(g)$weight <- 1-abs(E(g)$weight)
+# and bolder
+edge_weights <- 1-abs(E(g)$weight)
+E(g)$width <- edge_weights * 5 
+
+# Use spring layout (Fruchterman-Reingold) with edge weights as inverse correlation
+layout <- layout_with_kk(g)
+
+# set node colors
+node_colors <- rep("gray", vcount(g))
+node_colors[1] <- "#c12139"
+node_colors[length(node_colors)] <- "#c12139" 
+node_colors[2:3] <- "#09416b"
+node_colors[4:5] <- "#EF9500"
+# assign to graph
+V(g)$color <- node_colors
+
+# Plot
+plot(g,
+     layout = layout,
+     edge.width = E(g)$width,
+     edge.color = ifelse(OGweight > 0, "red", "blue"),
+     vertex.size = 35,
+     vertex.label.color = "white",
+     main = "Measurement Correlations")
+
+```
+
 
 
 

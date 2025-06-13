@@ -839,8 +839,9 @@ allScans$Subjects=as.factor(allScans$Subjects)
 ```
 
 ```{r}
-# model
-fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
+# model equiv to bup
+allScansNoMeth=allScans[allScans$Drug!='Methyl',]
+fit_lme <- lme(TDProp1 ~ Drug + RemTRs + FD, random = ~ 1 | Subjects, data = allScansNoMeth)
 summaryLME<-summary(fit_lme)
 # match to one-tailed
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=FALSE))

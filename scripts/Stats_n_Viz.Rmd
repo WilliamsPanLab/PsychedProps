@@ -1026,31 +1026,19 @@ mergedDfPropsComplAutoCdmnFCdmnMagbv <- within(mergedDfPropsComplAutoCdmnFCdmnMa
 ```{r}
 
 
-# model
+# model placebo control
 td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 ta_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
 
-# inclusive model
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMag)
-
-# inclusive model, no drug
-td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
-dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task+AutoCor+DMNFC, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
+# model drug nodrug
+td_model <- lme(TDProp1 ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
+ta_model <- lme(AutoCor ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
+dmnseg_model <- lme(DMNFC ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
+dmnmag_model <- lme(DMNMag ~ MeanFD + Drug+RemTRs+Task, random = ~ 1 | Subjects, data = mergedDfPropsComplAutoCdmnFCdmnMagbv)
 
 
-# for correlation matrix
-forCormat=data.frame(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1,mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor,mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC,mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD,mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs,mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag)
-
-colnames(forCormat)=c('TDProp1','AutoCor','DMNFC','MeanFD','RemTRs','DMNMag')
-
-library(corrplot)
-source("http://www.sthda.com/upload/rquery_cormat.r")
-
-corrmatrix=rquery.cormat(forCormat,type="full")
-corrplot(as.matrix(corrmatrix$r),method='number')
 
 # need to establish which DMN metrics are associated above and beyond drug effect
 # DMN FC
@@ -1322,6 +1310,54 @@ vas=read.csv('~/Downloads/MDMA_VAS_ASC_forAdam_03062023.csv')
 # correct subject naming
 vas$Subjects <- paste0("sub-MDMA", sprintf("%03d", vas$Subjects))
 VASmerge=merge(vas,mergedDfPropsComplAutoCdmnFCdmnMag,by=c("Subjects","Dosage"))
+```
+
+
+```{r}
+# correlation matrix for spring graph of how it all fits together
+forCormat=data.frame(mergedDfPropsComplAutoCdmnFCdmnMag$TDProp1,mergedDfPropsComplAutoCdmnFCdmnMag$AutoCor,mergedDfPropsComplAutoCdmnFCdmnMag$DMNFC,mergedDfPropsComplAutoCdmnFCdmnMag$MeanFD,mergedDfPropsComplAutoCdmnFCdmnMag$RemTRs,mergedDfPropsComplAutoCdmnFCdmnMag$DMNMag)
+
+colnames(forCormat)=c('Bottom-Up%','AutoCor','DMNFC','MeanFD','RemTRs','DMNMag')
+
+library(corrplot)
+source("http://www.sthda.com/upload/rquery_cormat.r")
+
+corrmatrix=rquery.cormat(forCormat,type="full")
+corrmatrix=as.matrix(corrmatrix$r)
+corrplot(corrmatrix,method='number')
+
+# spring graph
+library(igraph)
+# create igraph object
+g <- graph_from_adjacency_matrix(corrmatrix, mode = "undirected", weighted = TRUE, diag = FALSE)
+OGweight<-E(g)$weight
+# weight so weaker connections are longer
+E(g)$weight <- 1-abs(E(g)$weight)
+# and bolder
+edge_weights <- 1-abs(E(g)$weight)
+E(g)$width <- edge_weights * 5 
+
+# Use spring layout (Fruchterman-Reingold) with edge weights as inverse correlation
+layout <- layout_with_kk(g)
+
+# set node colors
+node_colors <- rep("gray", vcount(g))
+node_colors[1] <- "#EF9500"
+node_colors[length(node_colors)] <- "#EF9500" 
+node_colors[1:3] <- "#09416b"
+node_colors[4:5] <- "#c12139"
+# assign to graph
+V(g)$color <- node_colors
+
+# Plot
+plot(g,
+     layout = layout,
+     edge.width = E(g)$width,
+     edge.color = ifelse(OGweight > 0, "red", "blue"),
+     vertex.size = 35,
+     vertex.label.color = "white",
+     main = "Measurement Correlations: MDMA")
+
 ```
 
 ```{r}

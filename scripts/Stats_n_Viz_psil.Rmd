@@ -788,7 +788,7 @@ allScans$Session <- gsub("after", "After", allScans$Session)
 # remove data that needs to be removed (<250 TRs)
 allScans=allScans[allScans$RemTRs>250,]
 
-# note logic of "Session" numbering works between RDS's (TA, DMNMag, Seg, BUP), but not 100% corresponding to imaging filenames anymore due to temporal order logic (). Need to reconstruct so stuff like Baseline2 not existing for PS19 won't prevent merge
+# note logic of "Session" numbering works between RDS's (TA, DMNMag, Seg, BUP), but not 100% corresponding to imaging filenames anymore due to temporal order logic ().
 allScans$SessionPrefix <- sub("[0-9]+$", "", allScans$Session)
 # Create a new string by combining the prefix with the Task number
 allScans$SessionNumbered <- paste0(allScans$SessionPrefix, allScans$SessionOG)
@@ -1052,7 +1052,7 @@ paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[2,4],summaryLM
 # get residuals
 reducedModel=lme(TDProp1 ~RemTRs + FD, random = ~ 1 | Subjects, data = allScans)
 allScans$ResidualsReduced=resid(reducedModel)+mean(allScans$TDProp1)
-# plot one version without methyl conditions for main text
+# plot one version without methyl conditions for supp text
 allScansNoMeth=allScans[allScans$Condition2!='Methyl',]
 allScansNoMeth=allScansNoMeth[allScansNoMeth$Condition2!='immed_afterMethyl',]
 
@@ -1062,8 +1062,8 @@ ggplot(allScansNoMeth, aes(x = Condition2, y = ResidualsReduced*100)) +
   geom_boxplot(alpha = 0.2,outlier.shape = NA) +     # Boxplot
   labs(title = "Psilocybin: Lasting effects \n \n",
        x = "",
-       y = "% Bottom-up") + scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
-  theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
+       y = "% Bottom-up") #+ scale_x_discrete(labels=c('No Drug','Post-Psil','During Psil'))+
+  +theme_minimal(base_size=25)+scale_color_manual(values = generated_colors)
 
 # full model for stats
 fit_lme <- lme(TDProp1 ~ Condition2+RemTRs+FD, random = ~ 1 | Subjects, data = allScansNoMeth)
@@ -1072,6 +1072,42 @@ summaryLME<-summary(fit_lme)
 paste('one sided p (confirmatory of psil):', pt(summaryLME$tTable[3,4],summaryLME$tTable[3,3],lower=TRUE))
 paste('one sided p (confirmatory of post-psil):', pt(summaryLME$tTable[2,4],summaryLME$tTable[2,3],lower=TRUE))
 ```
+
+```{r}
+#### now load in info on days before/after scan for each subject
+
+# get all "dates" files
+date_files_dir <- "~/Downloads"
+date_files <- list.files(date_files_dir, pattern = "_dates.csv$", full.names = TRUE)
+# initialize df for data we want
+all_dates <- data.frame(Label = character(), Date = numeric(), stringsAsFactors = FALSE)
+# loop thru each file
+for (f in date_files) {
+  df<-read.csv(f)
+  # just info we want
+  df_subset <- df[, c("Label", "Date")]
+  # append
+  all_dates <- rbind(all_dates, df_subset)
+}
+# convert so we can look at post-psil timecourse
+all_dates=all_dates[all_dates$Date>-1,]
+# make a matching column
+allScans$LabelMatch <- paste0(allScans$LegacySubjs,'_', allScans$Session)
+# merge em
+allScans_withDates <- merge(allScans, all_dates, by.x = "LabelMatch", by.y = "Label", all.x = TRUE)
+
+# remove NAs
+allScans_withDatesClean=allScans_withDates[!is.na(allScans_withDates$Date),]
+allScans_withDatesClean$Date<-as.numeric(allScans_withDatesClean$Date)
+allScans_withDatesClean$LegacySubjs<-as.factor(allScans_withDatesClean$LegacySubjs)
+overTimeModel0=gam(TDProp1~RemTRs+FD+s(LegacySubjs,bs="re"), data = allScans_withDatesClean)
+overTimeModel1=gam(TDProp1~s(Date,k=4)+RemTRs+FD+s(LegacySubjs,bs="re"), data = allScans_withDatesClean)
+overTimeModel2=gam(TDProp1~RemTRs+FD+Psilo+s(LegacySubjs,bs="re"), data = allScans_withDatesClean)
+overTimeModel3=gam(TDProp1~s(Date,k=4)+RemTRs+FD+Psilo+s(LegacySubjs,bs="re"), data = allScans_withDatesClean)
+
+
+```
+
 
 ```{r}
 # figure 3: load in all DMN measures
@@ -1123,7 +1159,53 @@ prob1 <- predict(model1, type = "response")
 prob2 <- predict(model2, type = "response")
 prob3 <- predict(model3, type = "response")
 ```
+```{r}
+# correlation matrix for spring graph of how it all fits together
+forCormat=data.frame(PsilMerged$BUP,PsilMerged$TmpAutoCor,PsilMerged$DMNFC,PsilMerged$FD,PsilMerged$RemTRs,PsilMerged$Magnitudes)
 
+colnames(forCormat)=c('Bottom-Up%','AutoCor','DMNFC','MeanFD','RemTRs','DMNMag')
+
+library(corrplot)
+source("http://www.sthda.com/upload/rquery_cormat.r")
+
+corrmatrix=rquery.cormat(forCormat,type="full")
+corrmatrix=as.matrix(corrmatrix$r)
+corrplot(corrmatrix,method='number')
+
+# spring graph
+library(igraph)
+# create igraph object
+g <- graph_from_adjacency_matrix(corrmatrix, mode = "undirected", weighted = TRUE, diag = FALSE)
+OGweight<-E(g)$weight
+# weight so weaker connections are longer
+E(g)$weight <- 1-abs(E(g)$weight)
+# and bolder
+edge_weights <- 1-abs(E(g)$weight)
+E(g)$width <- edge_weights * 5 
+
+# Use spring layout (Fruchterman-Reingold) with edge weights as inverse correlation
+layout <- layout_with_kk(g)
+
+# set node colors
+node_colors <- rep("gray", vcount(g))
+node_colors[1] <- "#c12139"
+node_colors[3] <- "#c12139" 
+node_colors[5:6] <- "#09416b"
+node_colors[2] <- "#EF9500"
+node_colors[4] <- "#EF9500"
+# assign to graph
+V(g)$color <- node_colors
+
+# Plot
+plot(g,
+     layout = layout,
+     edge.width = E(g)$width,
+     edge.color = ifelse(OGweight > 0, "red", "blue"),
+     vertex.size = 35,
+     vertex.label.color = "white",
+     main = "Measurement Correlations: Psil")
+
+```
 
 ```{r}
 
