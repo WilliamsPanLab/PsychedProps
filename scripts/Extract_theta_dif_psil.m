@@ -177,15 +177,14 @@ for task=["rs1" "rs2" "rs3" "rs4" "rs5" "rs6"]
 		end
 	% end iterations i
 	end
-% save out matrix
-writematrix(thetas_L_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_bv.csv'],''))
-writematrix(thetas_L_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_p.csv'],''))
-writematrix(thetas_L_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_m1.csv'],''))
-writematrix(thetas_L_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_m2.csv'],''))
-writematrix(thetas_R_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_bv.csv'],''))
-writematrix(thetas_R_p,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_p.csv'],''))
-writematrix(thetas_R_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_m1.csv'],''))
-writematrix(thetas_R_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_m2.csv'],''))
+writematrix(round(thetas_L_bv,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_bv.csv'],''))
+writematrix(round(thetas_L_p,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_p.csv'],''))
+writematrix(round(thetas_L_m1,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_m1.csv'],''))
+writematrix(round(thetas_L_m2,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_L_m2.csv'],''))
+writematrix(round(thetas_R_bv,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_bv.csv'],''))
+writematrix(round(thetas_R_p,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_p.csv'],''))
+writematrix(round(thetas_R_m1,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_m1.csv'],''))
+writematrix(round(thetas_R_m2,5),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_thetas_R_m2.csv'],''))
 % and subject ID column
 writetable(table(SubjNameCol),strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_Psil_propsMerged_subjOrder.csv'],''))
 % end for each task

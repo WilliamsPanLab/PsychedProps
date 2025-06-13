@@ -8,11 +8,6 @@ rs2bv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_bv.c
 emobv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_bv.csv',header=F)
 gamblingbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_bv.csv',header=F)
 wmbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_bv.csv',header=F)
-rs1bv$Task='rs'
-rs2bv$Task='rs'
-emobv$Task='emotion'
-gamblingbv$Task='gambling'
-wmbv$Task='wm'
 # remove subject 4
 rs1bv=rs1bv[-c(4),]
 rs2bv=rs2bv[-c(4),]
@@ -25,6 +20,12 @@ colnames(rs2bv)[ncol(rs2bv)]='RemTRs'
 colnames(emobv)[ncol(emobv)]='RemTRs'
 colnames(gamblingbv)[ncol(gamblingbv)]='RemTRs'
 colnames(wmbv)[ncol(wmbv)]='RemTRs'
+# set task
+rs1bv$Task='rs'
+rs2bv$Task='rs'
+emobv$Task='emotion'
+gamblingbv$Task='gambling'
+wmbv$Task='wm'
 # get subject IDs and mot from this rds
 subjInfo=readRDS('~/OutPlacDrug_alff.rds');
 rs1bv$Subjects=subjInfo$SubjID
@@ -44,11 +45,6 @@ rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_pcb.
 emopl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_pcb.csv',header=F)
 gamblingpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_pcb.csv',header=F)
 wmpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_pcb.csv',header=F)
-rs1pl$Task='rs'
-rs2pl$Task='rs'
-emopl$Task='emotion'
-gamblingpl$Task='gambling'
-wmpl$Task='wm'
 # remove subject 4
 rs1pl=rs1pl[-c(4),]
 rs2pl=rs2pl[-c(4),]
@@ -61,6 +57,13 @@ colnames(rs2pl)[ncol(rs2pl)]='RemTRs'
 colnames(emopl)[ncol(emopl)]='RemTRs'
 colnames(gamblingpl)[ncol(gamblingpl)]='RemTRs'
 colnames(wmpl)[ncol(wmpl)]='RemTRs'
+# set task
+rs1pl$Task='rs'
+rs2pl$Task='rs'
+emopl$Task='emotion'
+gamblingpl$Task='gambling'
+wmpl$Task='wm'
+# set subj ID
 rs1pl$Subjects=subjInfo$SubjID
 rs2pl$Subjects=subjInfo$SubjID
 emopl$Subjects=subjInfo$SubjID
@@ -77,11 +80,6 @@ rs2m1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_m1.c
 emom1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_m1.csv',header=F)
 gamblingm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_m1.csv',header=F)
 wmm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_m1.csv',header=F)
-rs1m1$Task='rs'
-rs2m1$Task='rs'
-emom1$Task='emotion'
-gamblingm1$Task='gambling'
-wmm1$Task='wm'
 # remove subject 4
 rs1m1=rs1m1[-c(4),]
 rs2m1=rs2m1[-c(4),]
@@ -94,6 +92,13 @@ colnames(rs2m1)[ncol(rs2m1)]='RemTRs'
 colnames(emom1)[ncol(emom1)]='RemTRs'
 colnames(gamblingm1)[ncol(gamblingm1)]='RemTRs'
 colnames(wmm1)[ncol(wmm1)]='RemTRs'
+# set task
+rs1m1$Task='rs'
+rs2m1$Task='rs'
+emom1$Task='emotion'
+gamblingm1$Task='gambling'
+wmm1$Task='wm'
+# set subj id
 rs1m1$Subjects=subjInfo$SubjID
 rs2m1$Subjects=subjInfo$SubjID
 emom1$Subjects=subjInfo$SubjID
@@ -110,11 +115,6 @@ rs2m2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_m2.c
 emom2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_m2.csv',header=F)
 gamblingm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_m2.csv',header=F)
 wmm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_m2.csv',header=F)
-rs1m2$Task='rs'
-rs2m2$Task='rs'
-emom2$Task='emotion'
-gamblingm2$Task='gambling'
-wmm2$Task='wm'
 # remove subject 4
 rs1m2=rs1m2[-c(4),]
 rs2m2=rs2m2[-c(4),]
@@ -127,6 +127,13 @@ colnames(rs2m2)[ncol(rs2m2)]='RemTRs'
 colnames(emom2)[ncol(emom2)]='RemTRs'
 colnames(gamblingm2)[ncol(gamblingm2)]='RemTRs'
 colnames(wmm2)[ncol(wmm2)]='RemTRs'
+# set task
+rs1m2$Task='rs'
+rs2m2$Task='rs'
+emom2$Task='emotion'
+gamblingm2$Task='gambling'
+wmm2$Task='wm'
+# set subj id
 rs1m2$Subjects=subjInfo$SubjID
 rs2m2$Subjects=subjInfo$SubjID
 emom2$Subjects=subjInfo$SubjID
@@ -146,21 +153,21 @@ allScans_m=rbind(rs1bv, rs2bv, emobv, gamblingbv, wmbv,
 # merge in motion
 mot=read.csv('~/MDMA_spikes_summary.csv')
 mergedMDMA=merge(mot, allScans_m, by=c('Subjects', 'Task', 'Dosage'))
-mergedDfMDMA$Drug=0
-mergedDfMDMA$Drug[mergedDf$Dosage=="120mg"]=1
-mergedDfMDMA$Drug[mergedDf$Dosage=="80mg"]=1
-mergedDfMDMA$Drug=as.factor(mergedDf$Drug)
-mergedDfMDMA$Subjects=as.factor(mergedDf$Subjects)
+mergedMDMA$Drug=0
+mergedMDMA$Drug[mergedMDMA$Dosage=="120mg"]=1
+mergedMDMA$Drug[mergedMDMA$Dosage=="80mg"]=1
+mergedMDMA$Drug=as.factor(mergedMDMA$Drug)
+mergedMDMA$Subjects=as.factor(mergedMDMA$Subjects)
 
 #################### load in LSD
 # placebo
-rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_PCB_L.csv',header=F)
-rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_PCB_L.csv',header=F)
-muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_PCB_L.csv',header=F)
+rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_PCB_L.csv',header=T)
+rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_PCB_L.csv',header=T)
+muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_PCB_L.csv',header=T)
 # LSD
-rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_LSD_L.csv',header=F)
-rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_LSD_L.csv',header=F)
-muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_LSD_L.csv',header=F)
+rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_LSD_L.csv',header=T)
+rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_LSD_L.csv',header=T)
+muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_LSD_L.csv',header=T)
 
 #################### load in psil
 

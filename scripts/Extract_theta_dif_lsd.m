@@ -48,8 +48,8 @@ for t =1:3
 			bv=readmatrix(bvFP);
 			bvR=readmatrix(bvRFP);
 			% s+i*20-20 to insert into subj-sesh row 
-			thetas_L_PCB(s,1:1116)={bv(:,2)};
-			thetas_R_PCB(s,1:996)={bvR(:,2)};
+			thetas_L_PCB(s,1:1116)={round(bv(:,2),5)};
+			thetas_R_PCB(s,1:996)={round(bvR(:,2),5)};
 			% load in remaining frames
                 	bvCSIfp=[commonFP subjList(s) '/' subjList(s) '_PCB_task-' task '_ValidSegments_Trunc.txt'];
                 	bvCSIfp=strjoin(bvCSIfp,'');
@@ -82,8 +82,8 @@ for t =1:3
 			m1=readmatrix(m1FP);
 			m1R=readmatrix(m1RFP);
                         % s+i*20-20 to insert into subj-sesh row
-			thetas_L_LSD(s,1:1116)={m1(:,2)};
-			thetas_R_LSD(s,1:996)={m1R(:,2)};
+			thetas_L_LSD(s,1:1116)={round(m1(:,2),5)};
+			thetas_R_LSD(s,1:996)={round(m1R(:,2),5)};
                         % load in remaining frames
                         m1CSIfp=[commonFP subjList(s) '/' subjList(s) '_LSD_task-' task '_ValidSegments_Trunc.txt'];
                         m1CSIfp=strjoin(m1CSIfp,'');

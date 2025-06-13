@@ -13,7 +13,7 @@ subjList=strcat(subjPrefix,subjSuffix')
 for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	% initialize output table: difference by network, for 80 and 120, and in gro and indy atlases
 	outDF=zeros(17,20);
-	% initialize 1116 faces + rem TRs for left hemi. Calling them thetas for easy equivalence across scripts
+	% initialize 1116 faces + rem TRs for left hemi
 	thetas_L_bv=zeros(17,1117);
 	thetas_L_pcb=zeros(17,1117);
 	thetas_L_m1=zeros(17,1117);
@@ -40,7 +40,7 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 	        m2FP=[commonFP subjList(s) '/' seshInfo{4} '/' subjList(s) '_' seshInfo{4} '_' task '_k1_SDS_L.csv'];
 	        m2FP=strjoin(m2FP,'');
 		% and right hemisphere fps
-		bvRFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_k1_SDS_R.csv'];
+		bvRFP=[commonFP subjList(s) '/' seshInfo{1} '/' subjList(s) '_' seshInfo{1} '_' task '_k1_SDS.csv'];
 	        bvRFP=strjoin(bvRFP,'');
 		pRFP=[commonFP subjList(s) '/' seshInfo{2} '/' subjList(s) '_' seshInfo{2} '_' task '_k1_SDS_R.csv'];
 		pRFP=strjoin(pRFP,'');
@@ -113,13 +113,13 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		thetas_R_m2(s,997)=numTRsVS;
 		end
 	end
-	% save out matrix
-	writematrix(thetas_L_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_L_bv.csv'],''))
-	writematrix(thetas_L_pcb,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_L_pcb.csv'],''))
-	writematrix(thetas_L_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_L_m1.csv'],''))
-	writematrix(thetas_L_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_L_m2.csv'],''))
-	writematrix(thetas_R_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_R_bv.csv'],''))
-	writematrix(thetas_R_pcb,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_R_pcb.csv'],''))
-	writematrix(thetas_R_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_R_m1.csv'],''))
-	writematrix(thetas_R_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_sds_R_m2.csv'],''))
+	% round matrices for smaller files and save out
+	writematrix(round(thetas_L_bv, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_L_bv.csv'], ''))
+	writematrix(round(thetas_L_pcb, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_L_pcb.csv'], ''))
+	writematrix(round(thetas_L_m1, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_L_m1.csv'], ''))
+	writematrix(round(thetas_L_m2, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_L_m2.csv'], ''))
+	writematrix(round(thetas_R_bv, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_R_bv.csv'], ''))
+	writematrix(round(thetas_R_pcb, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_R_pcb.csv'], ''))
+	writematrix(round(thetas_R_m1, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_R_m1.csv'], ''))
+	writematrix(round(thetas_R_m2, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_SDS_R_m2.csv'], ''))
 end

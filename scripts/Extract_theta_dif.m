@@ -113,13 +113,13 @@ for task=["rs1" "rs2" "emotion" "gambling" "wm"]
 		thetas_R_m2(s,997)=numTRsVS;
 		end
 	end
-	% save out matrix
-	writematrix(thetas_L_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_bv.csv'],''))
-	writematrix(thetas_L_pcb,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_pcb.csv'],''))
-	writematrix(thetas_L_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_m1.csv'],''))
-	writematrix(thetas_L_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_m2.csv'],''))
-	writematrix(thetas_R_bv,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_bv.csv'],''))
-	writematrix(thetas_R_pcb,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_pcb.csv'],''))
-	writematrix(thetas_R_m1,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_m1.csv'],''))
-	writematrix(thetas_R_m2,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_m2.csv'],''))
+	% round matrices for smaller files and save out
+	writematrix(round(thetas_L_bv, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_bv.csv'], ''))
+	writematrix(round(thetas_L_pcb, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_pcb.csv'], ''))
+	writematrix(round(thetas_L_m1, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_m1.csv'], ''))
+	writematrix(round(thetas_L_m2, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_L_m2.csv'], ''))
+	writematrix(round(thetas_R_bv, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_bv.csv'], ''))
+	writematrix(round(thetas_R_pcb, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_pcb.csv'], ''))
+	writematrix(round(thetas_R_m1, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_m1.csv'], ''))
+	writematrix(round(thetas_R_m2, 5), strjoin(['/oak/stanford/groups/leanew1/users/apines/data/' task '_thetas_R_m2.csv'], ''))
 end
