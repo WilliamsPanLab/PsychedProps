@@ -212,6 +212,10 @@ allScans_l=rbind(rs1pl, rs2pl, muspl,
 # as.factor factors
 allScans_l$Subjects=as.factor(allScans_l$Subjects)
 allScans_l$Drug=as.factor(allScans_l$Drug)
+
+
+
+
 #################### load in psil
 rs1BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_bv.csv',header=F)
 rs2BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_bv.csv',header=F)
@@ -292,7 +296,104 @@ colnames(rs5D)[ncol(rs5D)-1]='RemTRs'
 colnames(rs6D)[ncol(rs6D)-1]='RemTRs'
 # add subject names
 subj_order=read.delim('~/rs_Psil_propsMerged_subjOrder_WithSesh.csv',blank.lines.skip = FALSE,sep=',')
+# inefficient subj/sesh assignment
+# baseline
+rs1BV$Subject <- subj_order$SubjNameCol_1
+rs1BV$Session <- subj_order$SubjNameCol_2
+rs2BV$Subject <- subj_order$SubjNameCol_1
+rs2BV$Session <- subj_order$SubjNameCol_2
+rs3BV$Subject <- subj_order$SubjNameCol_1
+rs3BV$Session <- subj_order$SubjNameCol_2
+rs4BV$Subject <- subj_order$SubjNameCol_1
+rs4BV$Session <- subj_order$SubjNameCol_2
+rs5BV$Subject <- subj_order$SubjNameCol_1
+rs5BV$Session <- subj_order$SubjNameCol_2
+rs6BV$Subject <- subj_order$SubjNameCol_1
+rs6BV$Session <- subj_order$SubjNameCol_2
+# between
+rs1BW$Subject <- subj_order$SubjNameCol_1
+rs1BW$Session <- subj_order$SubjNameCol_2
+rs2BW$Subject <- subj_order$SubjNameCol_1
+rs2BW$Session <- subj_order$SubjNameCol_2
+rs3BW$Subject <- subj_order$SubjNameCol_1
+rs3BW$Session <- subj_order$SubjNameCol_2
+rs4BW$Subject <- subj_order$SubjNameCol_1
+rs4BW$Session <- subj_order$SubjNameCol_2
+rs5BW$Subject <- subj_order$SubjNameCol_1
+rs5BW$Session <- subj_order$SubjNameCol_2
+rs6BW$Subject <- subj_order$SubjNameCol_1
+rs6BW$Session <- subj_order$SubjNameCol_2
+# after
+rs1AF$Subject <- subj_order$SubjNameCol_1
+rs1AF$Session <- subj_order$SubjNameCol_2
+rs2AF$Subject <- subj_order$SubjNameCol_1
+rs2AF$Session <- subj_order$SubjNameCol_2
+rs3AF$Subject <- subj_order$SubjNameCol_1
+rs3AF$Session <- subj_order$SubjNameCol_2
+rs4AF$Subject <- subj_order$SubjNameCol_1
+rs4AF$Session <- subj_order$SubjNameCol_2
+rs5AF$Subject <- subj_order$SubjNameCol_1
+rs5AF$Session <- subj_order$SubjNameCol_2
+rs6AF$Subject <- subj_order$SubjNameCol_1
+rs6AF$Session <- subj_order$SubjNameCol_2
+# drug
+rs1D$Subject <- subj_order$SubjNameCol_1
+rs1D$Session <- subj_order$SubjNameCol_2
+rs2D$Subject <- subj_order$SubjNameCol_1
+rs2D$Session <- subj_order$SubjNameCol_2
+rs3D$Subject <- subj_order$SubjNameCol_1
+rs3D$Session <- subj_order$SubjNameCol_2
+rs4D$Subject <- subj_order$SubjNameCol_1
+rs4D$Session <- subj_order$SubjNameCol_2
+rs5D$Subject <- subj_order$SubjNameCol_1
+rs5D$Session <- subj_order$SubjNameCol_2
+rs6D$Subject <- subj_order$SubjNameCol_1
+rs6D$Session <- subj_order$SubjNameCol_2
 # decode drug assignment based on subjSeshDoseCorresp_psilo
+dose_key <- read.csv('~/subjSeshDoseCorresp_psilo.csv', header = FALSE)
+dose_key <- setNames(data.frame(t(dose_key)), c("Subject", "DrugIsPsilo"))
+dose_key$DrugIsPsilo <- as.numeric(dose_key$DrugIsPsilo)
+# initialize drug values
+rs1D$Drug <- NA
+rs2D$Drug <- NA
+rs3D$Drug <- NA
+rs4D$Drug <- NA
+rs5D$Drug <- NA
+rs6D$Drug <- NA
+# List of drug dfs
+drug_frames <- list(rs1D = rs1D, rs2D = rs2D, rs3D = rs3D,
+                    rs4D = rs4D, rs5D = rs5D, rs6D = rs6D)
+# for each subject
+for (subj in unique(dose_key$Subject)) {
+  # get drug code
+  drug_code <- dose_key$DrugIsPsilo[dose_key$Subject == subj]
+  # for each df
+  for (df_name in names(drug_frames)) {
+    df <- drug_frames[[df_name]]
+    # isolate this subject's sessions
+    is_subj <- df$Subject == subj
+    subj_sessions <- df$Session[is_subj]
+    # populate with actual drug accordingly
+    if (drug_code == 1) {
+      df$Drug[is_subj & df$Session == 1] <- "Psilo"
+      df$Drug[is_subj & df$Session == 2] <- "Methyl"
+    } else if (drug_code == 2) {
+      df$Drug[is_subj & df$Session == 1] <- "Methyl"
+      df$Drug[is_subj & df$Session == 2] <- "Psilo"
+    }
+    # store back into the list, not into global env yet
+    drug_frames[[df_name]] <- df
+  }
+}
+
+# extract updated dfs from list back to global
+rs1D <- drug_frames$rs1D
+rs2D <- drug_frames$rs2D
+rs3D <- drug_frames$rs3D
+rs4D <- drug_frames$rs4D
+rs5D <- drug_frames$rs5D
+rs6D <- drug_frames$rs6D
+# drug 
 # add Task
 # code Drug
 # combine
