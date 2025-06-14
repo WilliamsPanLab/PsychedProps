@@ -161,14 +161,54 @@ mergedMDMA$Subjects=as.factor(mergedMDMA$Subjects)
 
 #################### load in LSD
 # placebo
-rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_PCB_L.csv',header=T)
-rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_PCB_L.csv',header=T)
-muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_PCB_L.csv',header=T)
+rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_PCB_L.csv',header=F)
+rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_PCB_L.csv',header=F)
+muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_PCB_L.csv',header=F)
 # LSD
-rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_LSD_L.csv',header=T)
-rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_LSD_L.csv',header=T)
-muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_LSD_L.csv',header=T)
-
+rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_LSD_L.csv',header=F)
+rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_LSD_L.csv',header=F)
+muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_LSD_L.csv',header=F)
+# set meanFD 
+colnames(rs1pl)[ncol(rs1pl)]='MeanFD'
+colnames(rs2pl)[ncol(rs2pl)]='MeanFD'
+colnames(muspl)[ncol(muspl)]='MeanFD'
+colnames(rs1lsd)[ncol(rs1lsd)]='MeanFD'
+colnames(rs2lsd)[ncol(rs2lsd)]='MeanFD'
+colnames(muslsd)[ncol(muslsd)]='MeanFD'
+# set remTRs
+colnames(rs1pl)[ncol(rs1pl)-1]='RemTRs'
+colnames(rs2pl)[ncol(rs2pl)-1]='RemTRs'
+colnames(muspl)[ncol(muspl)-1]='RemTRs'
+colnames(rs1lsd)[ncol(rs1lsd)-1]='RemTRs'
+colnames(rs2lsd)[ncol(rs2lsd)-1]='RemTRs'
+colnames(muslsd)[ncol(muslsd)-1]='RemTRs'
+# set tasks
+rs1pl$Task='rs'
+rs2pl$Task='rs'
+rs1lsd$Task='rs'
+rs2lsd$Task='rs'
+muspl$Task='mus'
+muslsd$Task='mus'
+# set Drug
+rs1pl$Drug=0
+rs2pl$Drug=0
+rs1lsd$Drug=1
+rs2lsd$Drug=1
+muspl$Drug=0
+muslsd$Drug=1
+# set subjects: nice and easy in this dataset
+rs1pl$Subjects=paste0('sub-LSD',seq(1:20))
+rs2pl$Subjects=paste0('sub-LSD',seq(1:20))
+muspl$Subjects=paste0('sub-LSD',seq(1:20))
+rs1lsd$Subjects=paste0('sub-LSD',seq(1:20))
+rs2lsd$Subjects=paste0('sub-LSD',seq(1:20))
+muslsd$Subjects=paste0('sub-LSD',seq(1:20))
+# merge them together
+allScans_l=rbind(rs1pl, rs2pl, muspl,
+                rs1lsd, rs2lsd, muslsd)
+# as.factor factors
+allScans_l$Subjects=as.factor(allScans_l$Subjects)
+allScans_l$Drug=as.factor(allScans_l$Drug)
 #################### load in psil
 
 #################### model each face

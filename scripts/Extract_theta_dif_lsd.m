@@ -15,11 +15,11 @@ tasks=["rs1" "rs2" "mus"];
 for t =1:3
 	task=tasks(t)
 	% initialize a vector of 1116 faces + rem TRs + FD for both conditions
-	thetas_L_PCB=cell(20,1118);
-	thetas_L_LSD=cell(20,1118);
+	thetas_L_PCB=zeros(20,1118);
+	thetas_L_LSD=zeros(20,1118);
 	% right is 996 + remTRs + FD
-	thetas_R_PCB=cell(20,998);
-	thetas_R_LSD=cell(20,998);
+	thetas_R_PCB=zeros(20,998);
+	thetas_R_LSD=zeros(20,998);
 	task=tasks(t);
 	% extra columns just for subj name and session
 	SubjNameCol=cell(120,2);
@@ -48,8 +48,8 @@ for t =1:3
 			bv=readmatrix(bvFP);
 			bvR=readmatrix(bvRFP);
 			% s+i*20-20 to insert into subj-sesh row 
-			thetas_L_PCB(s,1:1116)={round(bv(:,2),5)};
-			thetas_R_PCB(s,1:996)={round(bvR(:,2),5)};
+			thetas_L_PCB(s,1:1116)=round(bv(:,2),5);
+			thetas_R_PCB(s,1:996)=round(bvR(:,2),5);
 			% load in remaining frames
                 	bvCSIfp=[commonFP subjList(s) '/' subjList(s) '_PCB_task-' task '_ValidSegments_Trunc.txt'];
                 	bvCSIfp=strjoin(bvCSIfp,'');
@@ -57,8 +57,8 @@ for t =1:3
                 	% get total numer of TRs
 			numTRsVS=sum(CSI(:,2));
 			% place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
-			thetas_L_PCB(s,1117)={numTRsVS};
-			thetas_R_PCB(s,997)={numTRsVS};
+			thetas_L_PCB(s,1117)=numTRsVS;
+			thetas_R_PCB(s,997)=numTRsVS;
 			% load in FD
 			confFilePath=['/scratch/users/apines/LSD_ICL/rest_proc/' subjList(s) '_PCB_bold_signal_properties.mat'];
 			conf1=load(strjoin(confFilePath,''));
@@ -72,8 +72,8 @@ for t =1:3
         		% extract FD columns
 			FD=conf1.FD(scanInds);
 			% put mean FD in output
-			thetas_L_PCB(s,1118)={mean(FD)};
-			thetas_R_PCB(s,998)={mean(FD)};
+			thetas_L_PCB(s,1118)=mean(FD);
+			thetas_R_PCB(s,998)=mean(FD);
 		else
 			disp([bvFP ' not found'])
 		end
@@ -82,8 +82,8 @@ for t =1:3
 			m1=readmatrix(m1FP);
 			m1R=readmatrix(m1RFP);
                         % s+i*20-20 to insert into subj-sesh row
-			thetas_L_LSD(s,1:1116)={round(m1(:,2),5)};
-			thetas_R_LSD(s,1:996)={round(m1R(:,2),5)};
+			thetas_L_LSD(s,1:1116)=round(m1(:,2),5);
+			thetas_R_LSD(s,1:996)=round(m1R(:,2),5);
                         % load in remaining frames
                         m1CSIfp=[commonFP subjList(s) '/' subjList(s) '_LSD_task-' task '_ValidSegments_Trunc.txt'];
                         m1CSIfp=strjoin(m1CSIfp,'');
@@ -91,8 +91,8 @@ for t =1:3
                         % get total numer of TRs
                         numTRsVS=sum(CSI(:,2));
                         % place into out df structure (needs to be 11 *iteration rows down to keep subj-sesh correspondence)
-			thetas_L_LSD(s,1117)={numTRsVS};
-			thetas_R_LSD(s,997)={numTRsVS};
+			thetas_L_LSD(s,1117)=numTRsVS;
+			thetas_R_LSD(s,997)=numTRsVS;
                         % load in FD
                         confFilePath=['/scratch/users/apines/LSD_ICL/rest_proc/' subjList(s) '_LSD_bold_signal_properties.mat'];
                         conf1=load(strjoin(confFilePath,''));
@@ -106,21 +106,17 @@ for t =1:3
                         % extract FD columns
                         FD=conf1.FD(scanInds);
                         % put mean FD in output
-			thetas_L_LSD(s,1118)={mean(FD)};
-			thetas_R_LSD(s,998)={mean(FD)};
+			thetas_L_LSD(s,1118)=mean(FD);
+			thetas_R_LSD(s,998)=mean(FD);
 		else
                         disp([m1FP ' not found'])
 		end
 	end
 	% save out tables for this task
-	thetas_L_PCB_T=cell2table(thetas_L_PCB);
-	thetas_L_LSD_T=cell2table(thetas_L_LSD);
-	thetas_R_PCB_T=cell2table(thetas_R_PCB);
-	thetas_R_LSD_T=cell2table(thetas_R_LSD);
-	writetable(thetas_L_PCB_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_L.csv'],''));
-	writetable(thetas_L_LSD_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_L.csv'],''));
-	writetable(thetas_R_PCB_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_R.csv'],''));
-	writetable(thetas_R_LSD_T,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_R.csv'],''));
+	writematrix(thetas_L_PCB,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_L.csv'],''));
+	writematrix(thetas_L_LSD,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_L.csv'],''));
+	writematrix(thetas_R_PCB,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_PCB_R.csv'],''));
+	writematrix(thetas_R_LSD,strjoin(['/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_' task '_LSD_R.csv'],''));
 end
 % and subject ID column
 writetable(table(SubjNameCol),['/oak/stanford/groups/leanew1/users/apines/data/lsd_propsMerged_subjOrder.csv'])
