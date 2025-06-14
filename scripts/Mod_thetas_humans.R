@@ -393,11 +393,19 @@ rs3D <- drug_frames$rs3D
 rs4D <- drug_frames$rs4D
 rs5D <- drug_frames$rs5D
 rs6D <- drug_frames$rs6D
-# drug 
+# merge them together
+allScans_p=rbind(rs1BV, rs2BV, rs3BV, rs4BV, rs5BV, rs6BV,
+		rs1BW, rs2BW, rs3BW, rs4BW, rs5BW, rs6BW,
+		rs1AF, rs2AF, rs3AF, rs4AF, rs5AF, rs6AF,
+		rs1D, rs2D, rs3D, rs4D, rs5D, rs6D)
+# cleaning for merging
+allScans_p=allScans_p[allScans_p$Drug!='Methyl',]
 # add Task
+allScans_p$Task='rs'
 # code Drug
-# combine
+allScans_p$Drug=as.factor(allScans_p$Drug)
 # subjects as factor
+allScans_p$Subjects=as.factor(allScans_p$Subject)
 # Drug as factor
 # QC threshold
 
