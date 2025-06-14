@@ -158,6 +158,7 @@ mergedMDMA$Drug[mergedMDMA$Dosage=="120mg"]=1
 mergedMDMA$Drug[mergedMDMA$Dosage=="80mg"]=1
 mergedMDMA$Drug=as.factor(mergedMDMA$Drug)
 mergedMDMA$Subjects=as.factor(mergedMDMA$Subjects)
+# QC threshold
 
 #################### load in LSD
 # placebo
@@ -206,11 +207,101 @@ muslsd$Subjects=paste0('sub-LSD',seq(1:20))
 # merge them together
 allScans_l=rbind(rs1pl, rs2pl, muspl,
                 rs1lsd, rs2lsd, muslsd)
+# QC threshold
+
 # as.factor factors
 allScans_l$Subjects=as.factor(allScans_l$Subjects)
 allScans_l$Drug=as.factor(allScans_l$Drug)
 #################### load in psil
+rs1BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_bv.csv',header=F)
+rs2BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_bv.csv',header=F)
+rs3BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_bv.csv',header=F)
+rs4BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_bv.csv',header=F)
+rs5BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_bv.csv',header=F)
+rs6BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_bv.csv',header=F)
+# between drugs
+rs1BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_p.csv',header=F)
+rs2BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_p.csv',header=F)
+rs3BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_p.csv',header=F)
+rs4BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_p.csv',header=F)
+rs5BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_p.csv',header=F)
+rs6BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_p.csv',header=F)
+# after drug
+rs1AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_m1.csv',header=F)
+rs2AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_m1.csv',header=F)
+rs3AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_m1.csv',header=F)
+rs4AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_m1.csv',header=F)
+rs5AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_m1.csv',header=F)
+rs6AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_m1.csv',header=F)
+# during drug
+rs1D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_m2.csv',header=F)
+rs2D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_m2.csv',header=F)
+rs3D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_m2.csv',header=F)
+rs4D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_m2.csv',header=F)
+rs5D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_m2.csv',header=F)
+rs6D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_m2.csv',header=F)
+# set last column of each to meanFD
+colnames(rs1BV)[ncol(rs1BV)]='MeanFD'
+colnames(rs2BV)[ncol(rs2BV)]='MeanFD'
+colnames(rs3BV)[ncol(rs3BV)]='MeanFD'
+colnames(rs4BV)[ncol(rs4BV)]='MeanFD'
+colnames(rs5BV)[ncol(rs5BV)]='MeanFD'
+colnames(rs6BV)[ncol(rs6BV)]='MeanFD'
+colnames(rs1BW)[ncol(rs1BW)]='MeanFD'
+colnames(rs2BW)[ncol(rs2BW)]='MeanFD'
+colnames(rs3BW)[ncol(rs3BW)]='MeanFD'
+colnames(rs4BW)[ncol(rs4BW)]='MeanFD'
+colnames(rs5BW)[ncol(rs5BW)]='MeanFD'
+colnames(rs6BW)[ncol(rs6BW)]='MeanFD'
+colnames(rs1AF)[ncol(rs1AF)]='MeanFD'
+colnames(rs2AF)[ncol(rs2AF)]='MeanFD'
+colnames(rs3AF)[ncol(rs3AF)]='MeanFD'
+colnames(rs4AF)[ncol(rs4AF)]='MeanFD'
+colnames(rs5AF)[ncol(rs5AF)]='MeanFD'
+colnames(rs6AF)[ncol(rs6AF)]='MeanFD'
+colnames(rs1D)[ncol(rs1D)]='MeanFD'
+colnames(rs2D)[ncol(rs2D)]='MeanFD'
+colnames(rs3D)[ncol(rs3D)]='MeanFD'
+colnames(rs4D)[ncol(rs4D)]='MeanFD'
+colnames(rs5D)[ncol(rs5D)]='MeanFD'
+colnames(rs6D)[ncol(rs6D)]='MeanFD'
+# second to last column is RemTRs
+colnames(rs1BV)[ncol(rs1BV)-1]='RemTRs'
+colnames(rs2BV)[ncol(rs2BV)-1]='RemTRs'
+colnames(rs3BV)[ncol(rs3BV)-1]='RemTRs'
+colnames(rs4BV)[ncol(rs4BV)-1]='RemTRs'
+colnames(rs5BV)[ncol(rs5BV)-1]='RemTRs'
+colnames(rs6BV)[ncol(rs6BV)-1]='RemTRs'
+colnames(rs1BW)[ncol(rs1BW)-1]='RemTRs'
+colnames(rs2BW)[ncol(rs2BW)-1]='RemTRs'
+colnames(rs3BW)[ncol(rs3BW)-1]='RemTRs'
+colnames(rs4BW)[ncol(rs4BW)-1]='RemTRs'
+colnames(rs5BW)[ncol(rs5BW)-1]='RemTRs'
+colnames(rs6BW)[ncol(rs6BW)-1]='RemTRs'
+colnames(rs1AF)[ncol(rs1AF)-1]='RemTRs'
+colnames(rs2AF)[ncol(rs2AF)-1]='RemTRs'
+colnames(rs3AF)[ncol(rs3AF)-1]='RemTRs'
+colnames(rs4AF)[ncol(rs4AF)-1]='RemTRs'
+colnames(rs5AF)[ncol(rs5AF)-1]='RemTRs'
+colnames(rs6AF)[ncol(rs6AF)-1]='RemTRs'
+colnames(rs1D)[ncol(rs1D)-1]='RemTRs'
+colnames(rs2D)[ncol(rs2D)-1]='RemTRs'
+colnames(rs3D)[ncol(rs3D)-1]='RemTRs'
+colnames(rs4D)[ncol(rs4D)-1]='RemTRs'
+colnames(rs5D)[ncol(rs5D)-1]='RemTRs'
+colnames(rs6D)[ncol(rs6D)-1]='RemTRs'
+# add subject names
+subj_order=read.delim('~/rs_Psil_propsMerged_subjOrder_WithSesh.csv',blank.lines.skip = FALSE,sep=',')
+# decode drug assignment based on subjSeshDoseCorresp_psilo
+# add Task
+# code Drug
+# combine
+# subjects as factor
+# Drug as factor
+# QC threshold
+
+# Combine all datasets
 
 #################### model each face
-
+for (f in 1:length(
 #################### save out stats
