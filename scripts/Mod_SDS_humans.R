@@ -1,11 +1,13 @@
-library(circular)
+################ libraries
+library(nlme)
+library(bpngreg)
 ################ load in MDMA
 # baseline
-rs1bv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_thetas_L_bv.csv',header=F)
-rs2bv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_bv.csv',header=F)
-emobv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_bv.csv',header=F)
-gamblingbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_bv.csv',header=F)
-wmbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_bv.csv',header=F)
+rs1bv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_SDS_L_bv.csv',header=F)
+rs2bv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_SDS_L_bv.csv',header=F)
+emobv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_SDS_L_bv.csv',header=F)
+gamblingbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_SDS_L_bv.csv',header=F)
+wmbv=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_SDS_L_bv.csv',header=F)
 # remove subject 4
 rs1bv=rs1bv[-c(4),]
 rs2bv=rs2bv[-c(4),]
@@ -38,11 +40,11 @@ emobv$Dosage='baseline'
 gamblingbv$Dosage='baseline'
 wmbv$Dosage='baseline'
 # placebo
-rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_thetas_L_pcb.csv',header=F)
-rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_pcb.csv',header=F)
-emopl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_pcb.csv',header=F)
-gamblingpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_pcb.csv',header=F)
-wmpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_pcb.csv',header=F)
+rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_SDS_L_pcb.csv',header=F)
+rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_SDS_L_pcb.csv',header=F)
+emopl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_SDS_L_pcb.csv',header=F)
+gamblingpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_SDS_L_pcb.csv',header=F)
+wmpl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_SDS_L_pcb.csv',header=F)
 # remove subject 4
 rs1pl=rs1pl[-c(4),]
 rs2pl=rs2pl[-c(4),]
@@ -73,11 +75,11 @@ emopl$Dosage='Placebo'
 gamblingpl$Dosage='Placebo'
 wmpl$Dosage='Placebo'
 # M1
-rs1m1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_thetas_L_m1.csv',header=F)
-rs2m1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_m1.csv',header=F)
-emom1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_m1.csv',header=F)
-gamblingm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_m1.csv',header=F)
-wmm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_m1.csv',header=F)
+rs1m1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_SDS_L_m1.csv',header=F)
+rs2m1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_SDS_L_m1.csv',header=F)
+emom1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_SDS_L_m1.csv',header=F)
+gamblingm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_SDS_L_m1.csv',header=F)
+wmm1=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_SDS_L_m1.csv',header=F)
 # remove subject 4
 rs1m1=rs1m1[-c(4),]
 rs2m1=rs2m1[-c(4),]
@@ -108,11 +110,11 @@ emom1$Dosage='80mg'
 gamblingm1$Dosage='80mg'
 wmm1$Dosage='80mg'
 # M2
-rs1m2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_thetas_L_m2.csv',header=F)
-rs2m2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_thetas_L_m2.csv',header=F)
-emom2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_thetas_L_m2.csv',header=F)
-gamblingm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_thetas_L_m2.csv',header=F)
-wmm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_thetas_L_m2.csv',header=F)
+rs1m2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_SDS_L_m2.csv',header=F)
+rs2m2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_SDS_L_m2.csv',header=F)
+emom2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/emotion_SDS_L_m2.csv',header=F)
+gamblingm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/gambling_SDS_L_m2.csv',header=F)
+wmm2=read.csv('/oak/stanford/groups/leanew1/users/apines/data/wm_SDS_L_m2.csv',header=F)
 # remove subject 4
 rs1m2=rs1m2[-c(4),]
 rs2m2=rs2m2[-c(4),]
@@ -162,13 +164,13 @@ allScans_m=mergedMDMA[mergedMDMA$RemTRs>250,]
 
 #################### load in LSD
 # placebo
-rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_PCB_L.csv',header=F)
-rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_PCB_L.csv',header=F)
-muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_PCB_L.csv',header=F)
+rs1pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_rs1_PCB_L.csv',header=F)
+rs2pl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_rs2_PCB_L.csv',header=F)
+muspl=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_mus_PCB_L.csv',header=F)
 # LSD
-rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs1_LSD_L.csv',header=F)
-rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_rs2_LSD_L.csv',header=F)
-muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_thetas_mus_LSD_L.csv',header=F)
+rs1lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_rs1_LSD_L.csv',header=F)
+rs2lsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_rs2_LSD_L.csv',header=F)
+muslsd=read.csv('/oak/stanford/groups/leanew1/users/apines/data/lsd_SDS_mus_LSD_L.csv',header=F)
 # set meanFD 
 colnames(rs1pl)[ncol(rs1pl)]='MeanFD'
 colnames(rs2pl)[ncol(rs2pl)]='MeanFD'
@@ -217,33 +219,33 @@ allScans_l$Drug=as.factor(allScans_l$Drug)
 
 
 #################### load in psil
-rs1BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_bv.csv',header=F)
-rs2BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_bv.csv',header=F)
-rs3BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_bv.csv',header=F)
-rs4BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_bv.csv',header=F)
-rs5BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_bv.csv',header=F)
-rs6BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_bv.csv',header=F)
+rs1BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_SDS_L_bv.csv',header=F)
+rs2BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_SDS_L_bv.csv',header=F)
+rs3BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_SDS_L_bv.csv',header=F)
+rs4BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_SDS_L_bv.csv',header=F)
+rs5BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_SDS_L_bv.csv',header=F)
+rs6BV=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_SDS_L_bv.csv',header=F)
 # between drugs
-rs1BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_p.csv',header=F)
-rs2BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_p.csv',header=F)
-rs3BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_p.csv',header=F)
-rs4BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_p.csv',header=F)
-rs5BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_p.csv',header=F)
-rs6BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_p.csv',header=F)
+rs1BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_SDS_L_p.csv',header=F)
+rs2BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_SDS_L_p.csv',header=F)
+rs3BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_SDS_L_p.csv',header=F)
+rs4BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_SDS_L_p.csv',header=F)
+rs5BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_SDS_L_p.csv',header=F)
+rs6BW=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_SDS_L_p.csv',header=F)
 # after drug
-rs1AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_m1.csv',header=F)
-rs2AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_m1.csv',header=F)
-rs3AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_m1.csv',header=F)
-rs4AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_m1.csv',header=F)
-rs5AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_m1.csv',header=F)
-rs6AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_m1.csv',header=F)
+rs1AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_SDS_L_m1.csv',header=F)
+rs2AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_SDS_L_m1.csv',header=F)
+rs3AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_SDS_L_m1.csv',header=F)
+rs4AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_SDS_L_m1.csv',header=F)
+rs5AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_SDS_L_m1.csv',header=F)
+rs6AF=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_SDS_L_m1.csv',header=F)
 # during drug
-rs1D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_thetas_L_m2.csv',header=F)
-rs2D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_thetas_L_m2.csv',header=F)
-rs3D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_thetas_L_m2.csv',header=F)
-rs4D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_thetas_L_m2.csv',header=F)
-rs5D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_thetas_L_m2.csv',header=F)
-rs6D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_thetas_L_m2.csv',header=F)
+rs1D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_SDS_L_m2.csv',header=F)
+rs2D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_SDS_L_m2.csv',header=F)
+rs3D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_SDS_L_m2.csv',header=F)
+rs4D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_SDS_L_m2.csv',header=F)
+rs5D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_SDS_L_m2.csv',header=F)
+rs6D=read.csv('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_SDS_L_m2.csv',header=F)
 # set last column of each to meanFD
 colnames(rs1BV)[ncol(rs1BV)]='MeanFD'
 colnames(rs2BV)[ncol(rs2BV)]='MeanFD'
@@ -473,33 +475,22 @@ allScans_p <- allScans_p[, !names(allScans_p) %in% "Session"]
 allScans_l <- allScans_l[, colnames(allScans_m)]
 allScans_p <- allScans_p[, colnames(allScans_m)]
 allScans_humans=rbind(allScans_m,allScans_l,allScans_p)
-# confirmed other values match locally in Rstudio
-# calculate mean theta for each face in drug and no drug
-# save out vector of mean thetas for drug and no drug (left)
-
-# initialize output df
-mean_thetas <- data.frame(
-  Face = character(),
-  Mean_Theta_Drug = numeric(),
-  Mean_Theta_NoDrug = numeric(),
-  stringsAsFactors = FALSE
-)
-
-# Loop over columns 4:1119 (assumed circular in radians)
+# technically needs numeric input for bpnme
+allScans_humans$Task=as.factor(allScans_humans$Task)
+allScans_humans$Subjects=as.factor(allScans_humans$Subjects)
+# scale mean FD and RemTRs for easier interp.
+allScans_humans$RemTRs_z <- scale(allScans_humans$RemTRs)
+allScans_humans$MeanFD_z <- scale(allScans_humans$MeanFD)
+# initialize results list
+results_list <- list()
+# change this for right hemisphere: slightly fewer faces
 for (col in 4:1119) {
-  face_name <- names(allScans_humans)[col]
-  
-  theta_drug <- circular(allScans_humans[[col]][allScans_humans$Drug == 1], units = "radians")
-  theta_nodrug <- circular(allScans_humans[[col]][allScans_humans$Drug == 0], units = "radians")
-  
-  mean_drug <- mean.circular(theta_drug, na.rm = TRUE)
-  mean_nodrug <- mean.circular(theta_nodrug, na.rm = TRUE)
-  
-  mean_thetas[nrow(mean_thetas) + 1, ] <- list(
-    Face = face_name,
-    Mean_Theta_Drug = as.numeric(mean_drug),
-    Mean_Theta_NoDrug = as.numeric(mean_nodrug)
-  )
+	outcome <- names(allScans_humans)[col]
+	formula <- as.formula(paste0(outcome, " ~ Drug + RemTRs + MeanFD + Task"))
+	# circular mixed effect model... big ups to package authors
+	fit <- lme(formula, random = ~1 | Subjects, data=allScans_humans)
+	results_list[[outcome]] <- fit
 }
-
-write.csv(mean_thetas, "~/mean_theta_by_drug_LH.csv", row.names = FALSE)
+#################### model each face
+for (f in 1:dim(
+#################### save out stats
