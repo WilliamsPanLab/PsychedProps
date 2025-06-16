@@ -21,7 +21,6 @@ for (n in 1:numSpins){
 print('done with BUP')
 for (n in 1:numSpins){
         LSD=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/lsd_DMNMagMerged_Spin_',n,'.csv'))
-        Thresh=200
         LSD=LSD[LSD$outDF_5>Thresh,]
         LSD=LSD[!is.na(LSD$outDF_3),]
         colnames(LSD)<-c('subj','sesh','PercBUP','task','RemainingTRs','meanFD')
@@ -33,7 +32,6 @@ for (n in 1:numSpins){
 print('done with mag')
 for (n in 1:numSpins){
         LSD=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/lsd_DMNSegMerged_Spin_',n,'.csv'))
-        Thresh=200
         LSD=LSD[LSD$outDF_5>Thresh,]
         LSD=LSD[!is.na(LSD$outDF_3),]
         colnames(LSD)<-c('subj','sesh','PercBUP','task','RemainingTRs','meanFD')
@@ -45,7 +43,6 @@ for (n in 1:numSpins){
 print('done with seg')
 for (n in 1:numSpins){
         LSD=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/lsd_TAMerged_Spin_',n,'.csv'))
-        Thresh=200
         LSD=LSD[LSD$outDF_5>Thresh,]
         LSD=LSD[!is.na(LSD$outDF_3),]
         colnames(LSD)<-c('subj','sesh','PercBUP','task','RemainingTRs','meanFD')

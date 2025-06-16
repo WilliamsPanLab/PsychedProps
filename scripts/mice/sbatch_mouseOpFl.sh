@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=90:00:00
+#SBATCH --time=20:00:00
 #SBATCH -n 1
-#SBATCH --mem=30G
+#SBATCH --mem=27G
 #SBATCH -p leanew1  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -56,12 +56,12 @@ subj=$1
 #matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
 
 # extract DMN agnles (LSD)
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
 
 # extract DMN segregation (LSD)
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
@@ -97,27 +97,27 @@ subj=$1
 
 
 echo spun metrics
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',1)"
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',2)"
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',3)"
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',4)"
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',5)"
-matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',6)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',1)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',2)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',3)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',4)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',5)"
-matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',6)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',1)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',2)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',3)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',4)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',5)"
-matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',6)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',1)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',2)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',3)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',4)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',5)"
-matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',6)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',1)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',2)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',3)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',4)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',5)"
+#matlab -nodisplay -r "Extract_DMNMag_Spun_mice('$subj',6)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',1)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',2)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',3)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',4)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',5)"
+#matlab -nodisplay -r "Extract_RelativeAngles_Spun_mice('$subj',6)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',1)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',2)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',3)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',4)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',5)"
+#matlab -nodisplay -r "Extract_DMNSeg_mice_Spun('$subj',6)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',1)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',2)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',3)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',4)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',5)"
+#matlab -nodisplay -r "Extract_TAutoCor_mice_Spun('$subj',6)"

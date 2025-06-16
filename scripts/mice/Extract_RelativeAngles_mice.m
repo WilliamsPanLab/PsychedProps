@@ -4,6 +4,7 @@ function Extract_RelativeAngles_mice(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
+addpath('/oak/stanford/groups/leanew1/users/apines/scripts')
 
 % Load in flatmouse opflow calc
 % note this is for LSD only! Adapt recording date for ketamine if needed
@@ -210,14 +211,14 @@ for k=1
 
         % initialize angular distance vector for each network (l and r) above
         NangDs=zeros(sum(sum(DMN_bool)),lenOpFl);
-	% initialize circ SD vectors
-	SDs=zeros(1,sum(sum(DMN_bool)));
-	Thetas=zeros(1,lenOpFl);
-	Mags=zeros(1,lenOpFl);
+	% initialize circ vectors
+	Thetas_all=zeros(1,length(nGx));
 	% get angular distance for each face for each timepoint
         for F=1:length(nGx);
                 % get vector for each face (network vector)
                 nVec=[nGx(F) nGy(F)];
+		% initialize thetas for this pixel
+		Thetas=zeros(1,lenOpFl);
                 % loop over each tp
                 for fr=1:lenOpFl
 		%for fr=20:50	
@@ -229,27 +230,9 @@ for k=1
                         % get optical flow vector
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
-			
+			[Thetas(fr),~]=cart2pol(OpFlVec(1),OpFlVec(2));	
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
-                        
-			% Calculate angles from the origin to each vector using atan2
-        		%theta_nVec = atan2(nVec(2), nVec(1));
-        		%theta_OpFlVec = atan2(OpFlVec(2), OpFlVec(1));
-			% angular distance in radians
-			%angular_distance_rad = abs(theta_OpFlVec - theta_nVec);
-			% convert the angular distance from radians to degrees and normalize to [0, 180]
-        		%a = rad2deg(angular_distance_rad);
-        		%a = min(a, 360 - a);
-		
-			%https://www.mathworks.com/matlabcentral/answers/101590-how-can-i-determine-the-angle-between-two-vectors-in-matlab	
-			%a=atan2(norm(cross(OpFlVec,nVec)),dot(OpFlVec,nVec));
-			
-			% These two lines are working!
-			%CosTheta = max(min(dot(OpFlVec,nVec)/(norm(OpFlVec)*norm(nVec)),1),-1);
-			%a = real(acosd(CosTheta));
-	
 			% populate vector
                         NangDs(F,fr)=a;
 			%%%% quadruple-check figure: plot one DMN grad angle, one opfl angle, set title to a (angular distance)
@@ -270,8 +253,8 @@ for k=1
 
                 % end tp loop
                 end
-		% get circ SD
-		%CSD=circ_std(Thetas');
+		% average thetas for this face
+		Thetas_all(F)=circ_mean(Thetas');
         	% plop into outut vector for left hemi
 		%SD(F)=CSD;
 	% end each face loop
@@ -298,6 +281,10 @@ for k=1
 	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out time series
 	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
+	% and thetas
+	stringVecAng=compose("Pixel%d", 1:size(Thetas_all,2))
+	T_Ang=table(Thetas_all','RowNames',stringVecAng);
+	writetable(T_Ang,[outFP subj '_' num2str(sesh) '_Thetas.csv'],'WriteRowNames',true)
 end
 else
 	disp('file not found')
