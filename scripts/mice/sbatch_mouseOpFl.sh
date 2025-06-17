@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=20:00:00
+#SBATCH --time=1:00:00
 #SBATCH -n 1
-#SBATCH --mem=27G
-#SBATCH -p leanew1  # Queue names you can submit to
+#SBATCH --mem=16G
+#SBATCH -p leanew1,normal,owners  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
 #SBATCH --mail-type=ALL

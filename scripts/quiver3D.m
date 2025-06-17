@@ -91,12 +91,12 @@ else
 end
 
 [xat,yat,zat,faces0,vertices0]=gen_template_arrow(X,Y,Z,N);
-
-D=0.5*mean((U.^2+V.^2+W.^2).^0.5);   % Calculate an arrow body diameter base on the mean vector magnitude
+% AP changed to 1.4 instead of .5
+D=1.4*mean((U.^2+V.^2+W.^2).^0.5);   % Calculate an arrow body diameter base on the mean vector magnitude
 
 % AP Addition: constant D
 
-D=.12;
+%D=.12;
 
 vertices=[]; faces=[]; fc=[];
 
@@ -158,7 +158,7 @@ S=1/10;          % Arrow slope
 
 % AP EDIT
 %L=2/4;             % Arrow length...
-L=2/7;
+L=1/2;
 %R=5/40;            % Arrow radius...
 %R=24/40;
 %S=1/3;             % Arrow slope...

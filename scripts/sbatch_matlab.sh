@@ -11,4 +11,4 @@
 # ------------------------------------------
 # will need matlab
 module load matlab
-matlab -nodisplay -r "loop_Spun_Extracts_psil"
+matlab -nodisplay -r "loop_Spun_Extracts_lsd"

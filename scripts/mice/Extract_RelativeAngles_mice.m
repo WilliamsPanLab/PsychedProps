@@ -213,12 +213,14 @@ for k=1
         NangDs=zeros(sum(sum(DMN_bool)),lenOpFl);
 	% initialize circ vectors
 	Thetas_all=zeros(1,length(nGx));
+	Rhos_all=zeros(1,length(nGx));
 	% get angular distance for each face for each timepoint
         for F=1:length(nGx);
                 % get vector for each face (network vector)
                 nVec=[nGx(F) nGy(F)];
 		% initialize thetas for this pixel
 		Thetas=zeros(1,lenOpFl);
+		Rhos=zeros(1,lenOpFl);
                 % loop over each tp
                 for fr=1:lenOpFl
 		%for fr=20:50	
@@ -230,7 +232,7 @@ for k=1
                         % get optical flow vector
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			[Thetas(fr),~]=cart2pol(OpFlVec(1),OpFlVec(2));	
+			[Thetas(fr),Rhos(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));	
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
 			% populate vector
@@ -255,6 +257,7 @@ for k=1
                 end
 		% average thetas for this face
 		Thetas_all(F)=circ_mean(Thetas');
+		Rhos_all(F)=circ_r(Thetas',Rhos');
         	% plop into outut vector for left hemi
 		%SD(F)=CSD;
 	% end each face loop
@@ -282,9 +285,12 @@ for k=1
 	% save out time series
 	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
 	% and thetas
-	stringVecAng=compose("Pixel%d", 1:size(Thetas_all,2))
+	stringVecAng=compose("Pixel%d", 1:size(Thetas_all,2));
 	T_Ang=table(Thetas_all','RowNames',stringVecAng);
 	writetable(T_Ang,[outFP subj '_' num2str(sesh) '_Thetas.csv'],'WriteRowNames',true)
+	stringVecAng=compose("Pixel%d", 1:size(Rhos_all,2));
+        T_Rho=table(Rhos_all','RowNames',stringVecAng);
+        writetable(T_Rho,[outFP subj '_' num2str(sesh) '_Rhos.csv'],'WriteRowNames',true)
 end
 else
 	disp('file not found')

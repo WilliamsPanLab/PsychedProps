@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=6:00:00
+#SBATCH --time=1:00:00
 #SBATCH -n 4
-#SBATCH --mem=25G
+#SBATCH --mem=16G
 #SBATCH -p leanew1,normal,owners  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
