@@ -4,6 +4,7 @@ function Extract_RelativeAngles_mice_Diaz(subj,sesh)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
+addpath('/oak/stanford/groups/leanew1/users/apines/scripts')
 
 % Load in flatmouse opflow calc
 % note this is for LSD only! Adapt recording date for other drugs if needed
@@ -201,13 +202,14 @@ for k=1
         % initialize angular distance vector for each network (l and r) above
         NangDs=zeros(sum(sum(DMN_bool)),lenOpFl);
 	% initialize circ SD vectors
-	SDs=zeros(1,sum(sum(DMN_bool)));
-	Thetas=zeros(1,lenOpFl);
-	Mags=zeros(1,lenOpFl);
+	Thetas_all=zeros(1,length(nGx));
+	Rhos_all=zeros(1,length(nGx));
 	% get angular distance for each face for each timepoint
         for F=1:length(nGx);
                 % get vector for each face (network vector)
                 nVec=[nGx(F) nGy(F)];
+		Thetas=zeros(1,lenOpFl);
+		Rhos=zeros(1,lenOpFl);
                 % loop over each tp
                 for fr=1:lenOpFl
 		%for fr=20:50	
@@ -219,7 +221,7 @@ for k=1
                         % get optical flow vector
                         OpFlVec=[curOpF_x_DMN(F) curOpF_y_DMN(F)];
 			% store in output vector (r is redundant across all vecs, only using az and el)
-			%[Thetas(fr),Mags(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
+			[Thetas(fr),Rhos(fr)]=cart2pol(OpFlVec(1),OpFlVec(2));
 			
 			% get angular distance at that timepoint (degrees)
                         a = acosd(min(1,max(-1, nVec(:).' *OpFlVec(:) / norm(nVec) / norm(OpFlVec) )));
@@ -260,10 +262,8 @@ for k=1
 
                 % end tp loop
                 end
-		% get circ SD
-		%CSD=circ_std(Thetas');
-        	% plop into outut vector for left hemi
-		%SD(F)=CSD;
+		Thetas_all(F)=circ_mean(Thetas');
+		Rhos_all(F)=circ_r(Thetas',Rhos');
 	% end each face loop
         end
         % average values over time and plop into facematrix for this participant
@@ -288,6 +288,13 @@ for k=1
 	writetable(T,[outFP subj '_' num2str(sesh) '_Prop_Feats_gro.csv'],'WriteRowNames',true)
 	% save out time series
 	writematrix(OutTs,[outFP subj '_' num2str(sesh) '_Prop_TS_dmn.csv'])
+	% and thetas
+        stringVecAng=compose("Pixel%d", 1:size(Thetas_all,2));
+        T_Ang=table(Thetas_all','RowNames',stringVecAng);
+        writetable(T_Ang,[outFP subj '_' num2str(sesh) '_Thetas.csv'],'WriteRowNames',true)
+        stringVecAng=compose("Pixel%d", 1:size(Rhos_all,2));
+        T_Rho=table(Rhos_all','RowNames',stringVecAng);
+        writetable(T_Rho,[outFP subj '_' num2str(sesh) '_Rhos.csv'],'WriteRowNames',true)
 end
 else
 	disp('file not found')

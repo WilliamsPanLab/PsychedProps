@@ -52,3 +52,5 @@ for (n in 1:numSpins){
         tdistr_TA[n]=summaryLME$tTable['seshLSD','t-value']
 }
 print('done with TA')
+outspins=data.frame(tdistr_BUP,tdistr_Mag,tdistr_Seg,tdistr_TA)
+saveRDS(outspins,'~/SpunTDistributions_LSD.rds')

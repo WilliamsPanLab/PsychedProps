@@ -265,7 +265,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs1m2$Subjects))){
 		  # this subject
 		  subj=unique(rs1m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs1m2[rs1m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -299,7 +298,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs2m2$Subjects))){
 		  # this subject
 		  subj=unique(rs2m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs2m2[rs2m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -334,7 +332,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs3m2$Subjects))){
 		  # this subject
 		  subj=unique(rs3m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs3m2[rs3m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -371,7 +368,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs4m2$Subjects))){
 		  # this subject
 		  subj=unique(rs4m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs4m2[rs4m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -408,7 +404,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs5m2$Subjects))){
 		  # this subject
 		  subj=unique(rs5m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs5m2[rs5m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -444,7 +439,6 @@ for (n in 1:numSpins){
 	for (s in 1:length(unique(rs6m2$Subjects))){
 		  # this subject
 		  subj=unique(rs6m2$Subjects)[s]
-	  print(subj)
 	    # Subset rows for the current subject
 	    subjRows <- rs6m2[rs6m2$Subjects == subj, ]
 	    # Subset rows for the 'Drug' dosage
@@ -762,7 +756,6 @@ for (n in 1:numSpins){
 	        for (s in 1:length(unique(rs1m2$Subjects))){
                   # this subject
                   subj=unique(rs1m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs1m2[rs1m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -796,7 +789,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs2m2$Subjects))){
                   # this subject
                   subj=unique(rs2m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs2m2[rs2m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -831,7 +823,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs3m2$Subjects))){
                   # this subject
                   subj=unique(rs3m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs3m2[rs3m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -868,7 +859,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs4m2$Subjects))){
                   # this subject
                   subj=unique(rs4m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs4m2[rs4m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -905,7 +895,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs5m2$Subjects))){
                   # this subject
                   subj=unique(rs5m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs5m2[rs5m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -941,7 +930,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs6m2$Subjects))){
                   # this subject
                   subj=unique(rs6m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs6m2[rs6m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1001,12 +989,12 @@ for (n in 1:numSpins){
 print('done with mags')
 
 for (n in 1:numSpins){
-        rs1=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
-        rs2=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
-        rs3=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
-        rs4=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
-        rs5=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
-        rs6=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_DMNTemporalAutoCor_Spin_',n,'.csv'),header=F)
+        rs1=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
+        rs2=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs2_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
+        rs3=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs3_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
+        rs4=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs4_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
+        rs5=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs5_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
+        rs6=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs6_Psil_DMNTemporalAutoCor_Merged_Spin_',n,'.csv'),header=F)
         # mimic main analysis code
         rs1$Task='rs'
         rs2$Task='rs2'
@@ -1257,7 +1245,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs1m2$Subjects))){
                   # this subject
                   subj=unique(rs1m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs1m2[rs1m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1291,7 +1278,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs2m2$Subjects))){
                   # this subject
                   subj=unique(rs2m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs2m2[rs2m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1326,7 +1312,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs3m2$Subjects))){
                   # this subject
                   subj=unique(rs3m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs3m2[rs3m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1363,7 +1348,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs4m2$Subjects))){
                   # this subject
                   subj=unique(rs4m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs4m2[rs4m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1400,7 +1384,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs5m2$Subjects))){
                   # this subject
                   subj=unique(rs5m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs5m2[rs5m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1436,7 +1419,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs6m2$Subjects))){
                   # this subject
                   subj=unique(rs6m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs6m2[rs6m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1495,7 +1477,7 @@ for (n in 1:numSpins){
 }
 print('done with DMN T autocor')
 ######################
-# t autocor
+# dmn fc
 ################
 for (n in 1:numSpins){
         rs1=read.csv(paste0('/oak/stanford/groups/leanew1/users/apines/data/rs1_Psil_DMNSegMerged_Spin_',n,'.csv'),header=F)
@@ -1754,7 +1736,6 @@ for (n in 1:numSpins){
                 for (s in 1:length(unique(rs1m2$Subjects))){
                   # this subject
                   subj=unique(rs1m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs1m2[rs1m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1788,7 +1769,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs2m2$Subjects))){
                   # this subject
                   subj=unique(rs2m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs2m2[rs2m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1823,7 +1803,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs3m2$Subjects))){
                   # this subject
                   subj=unique(rs3m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs3m2[rs3m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1897,7 +1876,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs5m2$Subjects))){
                   # this subject
                   subj=unique(rs5m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs5m2[rs5m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage
@@ -1933,7 +1911,6 @@ for (n in 1:numSpins){
         for (s in 1:length(unique(rs6m2$Subjects))){
                   # this subject
                   subj=unique(rs6m2$Subjects)[s]
-          print(subj)
             # Subset rows for the current subject
             subjRows <- rs6m2[rs6m2$Subjects == subj, ]
             # Subset rows for the 'Drug' dosage

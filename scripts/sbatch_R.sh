@@ -11,4 +11,4 @@
 # ------------------------------------------
 # will need R
 module load R/4.1
-Rscript GenTDistr_Spins_Psil.R 
+Rscript GenTDistr_Spins_Psil.R

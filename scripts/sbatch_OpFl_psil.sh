@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 #SBATCH --job-name=OpFl
-#SBATCH --time=8:00:00 # need >1 (try 10-12 to be safe) if running opfl
+#SBATCH --time=20:00:00 # need >1 (try 10-12 to be safe) if running opfl
 #SBATCH -n 4 # try 4 if running opfl
 #SBATCH --mem=16G # up to 25 if running opfl
 #SBATCH -p normal,leanew1  # Queue names you can submit to
@@ -89,12 +89,12 @@ echo "Starting module III: Angular distance calculation"
 echo "ΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔΔ"
 
 # extract relative angles
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
-matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs1')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs2')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs3')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs4')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs5')"
+#matlab -nodisplay -r "Extract_RelativeAngles_psil('$subj','$sesh','rs6')"
 
 # and magnitudes
 #matlab -nodisplay -r "Extract_DMNMag_psil('$subj','$sesh','rs1')"
@@ -156,12 +156,12 @@ echo spunAngles done
 echo spunFC done
 
 # extract AutoCor
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs1')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs2')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs3')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs4')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs5')"
-#matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs6')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs1')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs2')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs3')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs4')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs5')"
+matlab -nodisplay -r "Extract_TAutoCor_Spun_psil('$subj','$sesh','rs6')"
 
 echo spunAutocor done
 #################

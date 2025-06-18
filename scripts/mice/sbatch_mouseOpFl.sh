@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MouseOF
-#SBATCH --time=1:00:00
+#SBATCH --time=2:00:00
 #SBATCH -n 1
-#SBATCH --mem=16G
+#SBATCH --mem=18G
 #SBATCH -p leanew1,normal,owners  # Queue names you can submit to
 # Outputs ----------------------------------
 #SBATCH --mail-user=apines@stanford.edu
@@ -56,12 +56,20 @@ subj=$1
 #matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
 
 # extract DMN agnles (LSD)
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',2)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',3)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',4)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',5)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
+
+# Dex
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',1)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',2)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',3)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',4)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',5)"
+matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',6)"
 
 # extract DMN segregation (LSD)
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
