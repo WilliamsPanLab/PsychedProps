@@ -147,8 +147,14 @@ rightAvgMag=mean(mags_R,2);
 Mags=[leftAvgMag; rightAvgMag];
 % get average across all DMN vertices
 avgMag=mean(Mags);
-
+stringVecAng_L=compose("Face%d", 1:size(leftAvgMag,1));
+stringVecAng_R=compose("Face%d", 1:size(rightAvgMag,1));
+leftAvgMag=table(leftAvgMag,'RowNames',stringVecAng_L);
+rightAvgMag=table(rightAvgMag,'RowNames',stringVecAng_R);
 % save out
 T=table(avgMag,'RowNames',"Row1");
 outFP=['/scratch/users/apines/LSD_ICL/rest_proc/' subj];
 writetable(T,[outFP '/' subj '_' sesh '_' task '_DMNMag.csv'],'WriteRowNames',true)
+% save out facewise
+writetable(leftAvgMag,[outFP '/' subj '_' sesh '_' task '_DMNMags_L.csv'],'WriteRowNames',true)
+writetable(rightAvgMag,[outFP '/' subj '_' sesh '_' task '_DMNMags_R.csv'],'WriteRowNames',true)
