@@ -30,11 +30,12 @@ DMN_coords = [rows, cols];
 vecMap_delta = zeros(size(DMN_bool,1), size(DMN_bool,2), 2);
 
 % Populate difference map at DMN locations
+% flipped for "reduced in drug" 7/26/25
 for i = 1:length(DMN_inds)
     r = rows(i); c = cols(i);
 
-    dx = resultant.Delta_X(i);  % Cartesian x-component
-    dy = resultant.Delta_Y(i);  % Cartesian y-component
+    dx = -resultant.Delta_X(i);  % Cartesian x-component
+    dy = -resultant.Delta_Y(i);  % Cartesian y-component
 
     vecMap_delta(r, c, :) = [dx, dy];
 end
@@ -68,7 +69,7 @@ contour(Mask, [0.5 0.5], 'k', 'LineWidth', 1.5);
 
 quiver(xx(Mask), yy(Mask), ...
        U_delta(Mask), V_delta(Mask), ...
-       0.75, 'Color', [0.7569, 0.1294, 0.2235], 'LineWidth', 1.5);
+       0.75, 'Color', [0.29, 0.35, 0.66], 'LineWidth', 1.5);
 
 % Save
 print(fig, '/scratch/users/apines/mouse_resultant_vector_difference.png', '-dpng', '-r400');

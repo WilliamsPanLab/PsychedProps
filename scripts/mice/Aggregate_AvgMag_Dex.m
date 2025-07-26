@@ -92,8 +92,8 @@ end
 % average for each mouse
 postDexgrid=postDexgrid./(length(mList));
 
-% get subtraction of pre - post 
-preMinPostDex=preDexgrid-postDexgrid;
+% get subtraction of post - pre
+postMinPreDex=postDexgrid-preDexgrid;
 
 % add in colormap info
 % blue-orange color scheme
@@ -117,7 +117,7 @@ custommap=BO_cm;
 
 % plot pre - post
 figure
-imagesc(preMinPostDex);
+imagesc(postMinPreDex);
 colormap(custommap);
 maxcol=1.3;
 mincol=-1.3;

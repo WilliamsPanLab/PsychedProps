@@ -11,8 +11,8 @@ mag_drug_L = mag_L(:,2);
 mag_nodrug_L = mag_L(:,3);
 mag_drug_R = mag_R(:,2);
 mag_nodrug_R = mag_R(:,3);
-difL=mag_nodrug_L-mag_drug_L;
-difR=mag_nodrug_R-mag_drug_R;
+difL=mag_drug_L-mag_nodrug_L;
+difR=mag_drug_R-mag_nodrug_R;
 % get spherical coordinates of orignal surface
 ToolFolder='/oak/stanford/groups/leanew1/users/apines/scripts/PersonalCircuits/scripts/code_nmf_cifti/tool_folder';
 addpath(genpath(ToolFolder));
@@ -104,7 +104,7 @@ caxis([mincol; maxcol]);
 view([-90 0]);  % Lateral LH
 axis equal off tight;
 lighting none; camlight headlight; material dull;
-print('/scratch/users/apines/DrugGrtr_L_mag.png','-dpng','-r400');
+print('/scratch/users/apines/LessDrug_L_mag.png','-dpng','-r400');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % now do right hemisphere
 % make figure
@@ -129,6 +129,6 @@ hold on;
 view([-90 0]);  % Lateral LH
 axis equal off tight;
 lighting none; camlight headlight; material dull;
-print('/scratch/users/apines/DrugGrtr_R_mag.png','-dpng','-r400');
+print('/scratch/users/apines/LessDrug_R_mag.png','-dpng','-r400');
 
 

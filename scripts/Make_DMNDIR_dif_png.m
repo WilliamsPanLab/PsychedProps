@@ -78,14 +78,14 @@ for i = 1:length(incl_L)
     f = incl_L(i);
     vDrug = sph2cartvec([azel_Drug_L(i,:) 0]', rad2deg(az_L(f)), rad2deg(el_L(f)));
     vNoDrug = sph2cartvec([azel_NoDrug_L(i,:) 0]', rad2deg(az_L(f)), rad2deg(el_L(f)));
-    vDelta_L(i,:) = vDrug - vNoDrug;
+    vDelta_L(i,:) = vNoDrug - vDrug;
 end
 
 for i = 1:length(incl_R)
     f = incl_R(i);
     vDrug = sph2cartvec([azel_Drug_R(i,:) 0]', rad2deg(az_R(f)), rad2deg(el_R(f)));
     vNoDrug = sph2cartvec([azel_NoDrug_R(i,:) 0]', rad2deg(az_R(f)), rad2deg(el_R(f)));
-    vDelta_R(i,:) = vDrug - vNoDrug;
+    vDelta_R(i,:) = vNoDrug - vDrug;
 end
 
 
@@ -276,7 +276,7 @@ hold on;
 % Overlay NoDrug vector field
 quiver3D(V_L_inflated(:,1), V_L_inflated(:,2), V_L_inflated(:,3), ...
          ret_inflated_L(:,1), ret_inflated_L(:,2), ret_inflated_L(:,3), ...
-         repmat([0.7569, 0.1294, 0.2235], size(V_L_inflated,1), 1), 2);
+         repmat([0.29, 0.35, 0.66], size(V_L_inflated,1), 1), 2);
 hold on;
 view([90 0]);  % Medial LH
 axis equal off tight;
@@ -292,12 +292,12 @@ hold on;
 % Overlay NoDrug vector field again
 quiver3D(V_L_inflated(:,1), V_L_inflated(:,2), V_L_inflated(:,3), ...
          ret_inflated_L(:,1), ret_inflated_L(:,2), ret_inflated_L(:,3), ...
-         repmat([0.7569, 0.1294, 0.2235], size(V_L_inflated,1), 1), 2);
+         repmat([0.29, 0.35, 0.66], size(V_L_inflated,1), 1), 2);
 hold on;
 view([-90 0]);  % Lateral LH
 axis equal off tight;
 lighting none; camlight headlight; material dull;
-print('/scratch/users/apines/DrugGrtr_L.png','-dpng','-r400');
+print('/scratch/users/apines/LessDrug_L.png','-dpng','-r400');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % now do right hemisphere
@@ -312,7 +312,7 @@ hold on;
 % Overlay NoDrug vector field
 quiver3D(V_R_inflated(:,1), V_R_inflated(:,2), V_R_inflated(:,3), ...
          ret_inflated_R(:,1), ret_inflated_R(:,2), ret_inflated_R(:,3), ...
-         repmat([0.7569, 0.1294, 0.2235], size(V_R_inflated,1), 1), 2);
+         repmat([0.29, 0.35, 0.66], size(V_R_inflated,1), 1), 2);
 hold on;
 view([90 0]);  % Medial LH
 axis equal off tight;
@@ -328,12 +328,12 @@ hold on;
 % Overlay NoDrug vector field again
 quiver3D(V_R_inflated(:,1), V_R_inflated(:,2), V_R_inflated(:,3), ...
          ret_inflated_R(:,1), ret_inflated_R(:,2), ret_inflated_R(:,3), ...
-         repmat([0.7569, 0.1294, 0.2235], size(V_R_inflated,1), 1), 2);
+         repmat([0.29, 0.35, 0.66], size(V_R_inflated,1), 1), 2);
 hold on;
 view([-90 0]);  % Lateral LH
 axis equal off tight;
 lighting none; camlight headlight; material dull;
-print('/scratch/users/apines/DrugGrtr_R.png','-dpng','-r400');
+print('/scratch/users/apines/LessDrug_R.png','-dpng','-r400');
 
 
 %%%%%%%%%%%%%%%%%%%% print out medial wall

@@ -48,12 +48,12 @@ subj=$1
 #matlab -nodisplay -r "Mouse_OpFl_Diaz('$subj',6)"
 
 # extract DMN magnitudes (LSD)
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',1)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',2)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',3)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',4)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',5)"
+matlab -nodisplay -r "Extract_DMNMag_mice('$subj',6)"
 
 # extract DMN agnles (LSD)
 #matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',1)"
@@ -64,15 +64,15 @@ subj=$1
 #matlab -nodisplay -r "Extract_RelativeAngles_mice('$subj',6)"
 
 # Dex
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',1)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',2)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',3)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',4)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',5)"
-matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',6)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',1)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',2)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',3)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',4)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',5)"
+#matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',6)"
 
 # extract DMN segregation (LSD)
-#matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
+##matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',1)"
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',2)"
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',3)"
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',4)"
@@ -80,12 +80,12 @@ matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',6)"
 #matlab -nodisplay -r "Extract_DMNSeg_mice('$subj',6)"
 
 #dex mag
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',6)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',1)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',2)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',3)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',4)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',5)"
+matlab -nodisplay -r "Extract_DMNMag_Dex_mice('$subj',6)"
 
 # DMN autocorrelation (LSD)
 #matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',1)"
@@ -96,12 +96,12 @@ matlab -nodisplay -r "Extract_RelativeAngles_mice_Diaz('$subj',6)"
 #matlab -nodisplay -r "Extract_TAutoCor_mice('$subj',6)"
 
 # diaz mag
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',1)"
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',2)"
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',3)"
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',4)"
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',5)"
-#matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',6)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',1)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',2)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',3)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',4)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',5)"
+matlab -nodisplay -r "Extract_DMNMag_Diaz_mice('$subj',6)"
 
 
 echo spun metrics

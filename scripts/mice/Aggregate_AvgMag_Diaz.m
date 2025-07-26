@@ -91,8 +91,8 @@ end
 % average for each mouse
 postDiazgrid=postDiazgrid./(length(mList));
 
-% get subtraction of pre - post 
-preMinPostDiaz=preDiazgrid-postDiazgrid;
+% get subtraction of post - pre 
+postMinPreDiaz=postDiazgrid-preDiazgrid;
 
 % add in colormap info
 % blue-orange color scheme
@@ -116,7 +116,7 @@ custommap=BO_cm;
 
 % plot pre - post
 figure
-imagesc(preMinPostDiaz);
+imagesc(postMinPreDiaz);
 colormap(custommap);
 maxcol=1.3;
 mincol=-1.3;

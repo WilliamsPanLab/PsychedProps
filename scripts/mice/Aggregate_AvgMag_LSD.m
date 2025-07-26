@@ -102,7 +102,8 @@ end
 postLSDgrid=postLSDgrid./(length(mList));
 
 % get subtraction of pre - post 
-preMinPostLSD=preLSDgrid-postLSDgrid;
+% swapping for ease of interp., variable name unchanged so unmatched
+preMinPostLSD=postLSDgrid-preLSDgrid;
 
 % new mouselist: Dex Pre
 mDexList={'m1','m824','m961','m962','m964'};
@@ -163,7 +164,7 @@ preMaster=preLSDgrid+preDexgrid+preDiazgrid;
 preMaster=preMaster./3;
 
 % get substraction of nodrug - LSD
-NoDrugMinPostLSD=preMaster-postLSDgrid;
+NoDrugMinPostLSD=postLSDgrid-preMaster;
 
 % add in colormap info
 % blue-orange color scheme
@@ -198,7 +199,7 @@ caxis([mincol maxcol]);
 colorbar
 hold on;
 contour(Mask, [0.5 0.5], 'k', 'LineWidth', 1.5); % Add a black contour line
-print('~/LSD_preMinPost_Mag.png','-dpng')
+print('~/LSD_postMinPre_Mag.png','-dpng')
 
 % plot nodrug - LSD
 figure
@@ -209,4 +210,4 @@ caxis([mincol maxcol]);
 colorbar
 hold on;
 contour(Mask, [0.5 0.5], 'k', 'LineWidth', 1.5); % Add a black contour line
-print('~/LSD_NoDrugMinPost_Mag.png','-dpng')
+print('~/LSD_PostMinNoDrug_Mag.png','-dpng')
