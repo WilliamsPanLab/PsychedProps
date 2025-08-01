@@ -2,11 +2,11 @@
 
 This document outlines the steps and methods used in the project. Below is a structured guide for image processing, derivations, and analyses. All image processing was run in a Linux environment using a SLURM cluster for high-compute jobs. In this context, sbatch refers to submitting a job to the SLURM job scheduler. Note that fmriprep and xcpd calls utilize their singularity images, which need to be installed locally. In addition to fmriprep and xcpd, a TON of this code leverages tools built by other people. A summary table of prerequisite code/dependencies are available at the end of this markdown, as is a short description of our [Demo script](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/Demo.m).
 
-I'll occasionaly refer to study 1, study 2, and study 3. Study 1 is our MDMA sample, 2 is psilocybin, and 3 is LSD/mice.
+I'll occasionaly refer to study 1, study 2, study 3, and study 4. Study 1 is our MDMA sample, 2 is psilocybin, 3 is LSD (humans), and 4 is LSD in mice.
 
 If you want to find the code behind specific figures, I would use cntrl-f (apple-f for some of us) for "2A", "3C", etc. within this README.md. It should point you to the script that actually generates the figure from the processed data.
 
-This is non-comprehensive, but you might find [sbatch_OpFl.sh](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) (a parent script that sequentially launches individual processing scripts on scan sessions) useful for further orienting yourself to order-of-operations. If you are interested in cortical propagations broadly, you might also find [the replication guide](https://github.com/PennLINC/DevProps) from our previous [paper](https://www.sciencedirect.com/science/article/pii/S0896627323000387?via%3Dihub) useful. 
+You might find [sbatch_OpFl.sh](https://github.com/WilliamsPanLab/PsychedProps/blob/master/scripts/sbatch_OpFl.sh) (a parent script that sequentially launches individual processing scripts on scan sessions) useful for further orienting yourself to order-of-operations. If you are interested in cortical propagations broadly, you might also find [the replication guide](https://github.com/PennLINC/DevProps) from our previous [paper](https://www.sciencedirect.com/science/article/pii/S0896627323000387?via%3Dihub) useful. 
 
 ## 1. Preprocessing
 
