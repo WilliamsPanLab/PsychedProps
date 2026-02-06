@@ -33,7 +33,7 @@ for k=1:13
 	% make outgrid to saveout with imwrite
 	outgrid=zeros(200,208);
 	outgrid(mask)=Consensus.initV(:,k);
-	outgrid(outgrid<.2)=0;
+	outgrid(outgrid<.3)=0;
 	outputfilename=['~/Component_' num2str(k) '.png'];
 	imagesc(outgrid);
 	colormap(custommap);

@@ -22,10 +22,6 @@ CSI = importdata(CSIfp);
 numSegments=sum(CSI(:,3)==1);
 ValidSegs=CSI(CSI(:,3)==1,:);
 
-% load in DMN
-DMN=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/maps/Network1_fslr.dscalar.nii');
-DMNInds=find(DMN.data>.3);
-
 % mask timeseries
 C_timeseries=C_timeseries(DMNInds,:);
 
@@ -52,6 +48,10 @@ for n=1:numSegments
 	end	
 	% end segment loop
 end
+% omit nans induced from very slight extra medial wall exclusion
+cols_with_nan = any(isnan(ACarray),1);
+col_indices_with_nan = find(cols_with_nan);
+ACarray=ACarray(:,~cols_with_nan);
 % get mean autocor per segment
 MAC_PS=mean(ACarray,2);
 

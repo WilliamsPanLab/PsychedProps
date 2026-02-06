@@ -11,8 +11,8 @@ subjPrefix=repmat('S',20,1);
 subjSuffix=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20"];
 subjList=strcat(subjPrefix,subjSuffix')
 tasks=["rs1" "rs2" "mus"];
-% initialize outdf
-outDF=cell(120,6);
+% initialize outdf: adding 3 columns for rev. request of alternative network analysis
+outDF=cell(120,9);
 % for collecting each task
 for t =1:3
 	task=tasks(t);
@@ -27,10 +27,10 @@ for t =1:3
 		SubjNameCol((s+(t*20))-20,1)=cellstr(subjList(s));
 		SubjNameCol((s+(t*20))-20,2)=cellstr(num2str(t));
 	        % grab PCB
-		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_k1_Prop_Feats_gro.csv'];
+		bvFP=[commonFP subjList(s) '/' subjList(s) '_PCB_' task '_k4_Prop_Feats_gro.csv'];
 	        bvFP=strjoin(bvFP,'');
 		% m1 = after
-		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_k1_Prop_Feats_gro.csv'];
+		m1FP=[commonFP subjList(s) '/' subjList(s) '_LSD_' task '_k4_Prop_Feats_gro.csv'];
 	        m1FP=strjoin(m1FP,'');
 		% load in baseline csvs
 		if exist(bvFP,'file')
@@ -39,6 +39,10 @@ for t =1:3
 			outDF(((s+(t*20))-20),2)={"PCB"};
 			% s+i*20-20 to insert into subj-sesh row 
 			outDF(((s+(t*20))-20),3)={bv(1,2)};
+			% alt networks
+			outDF(((s+(t*20))-20),7)={bv(2,2)};
+			outDF(((s+(t*20))-20),8)={bv(3,2)};
+			outDF(((s+(t*20))-20),9)={bv(4,2)};
 			% task
 			outDF(((s+(t*20))-20),4)={task};
 			% load in remaining frames
@@ -73,6 +77,10 @@ for t =1:3
 			outDF(((s+(t*20)+60)-20),2)={"LSD"};
                         % s+i*20-20 to insert into subj-sesh row
                         outDF(((s+(t*20)+60)-20),3)={m1(1,2)};
+			% alt networks
+                        outDF(((s+(t*20)+60)-20),7)={m1(2,2)};
+                        outDF(((s+(t*20)+60)-20),8)={m1(3,2)};
+                        outDF(((s+(t*20)+60)-20),9)={m1(4,2)};
                         % task
                         outDF(((s+(t*20)+60)-20),4)={task};
                         % load in remaining frames

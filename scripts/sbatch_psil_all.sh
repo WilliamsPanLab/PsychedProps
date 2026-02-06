@@ -1,6 +1,5 @@
 #!/bin/bash
-base_dir="/scratch/users/apines/PsiloData"
-
+base_dir="/oak/stanford/groups/leanew1/SHARED_DATASETS/private/WashU_psilocybin"
 # Loop through subject directories
 for subject_dir in "$base_dir"/*/; do
     # Extract subject name from the directory path

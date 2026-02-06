@@ -204,6 +204,22 @@ for ax in axes:
 # Optional: add text or highlight on FD axis
 axes[0].set_title('Temporal Mask of Representative Scan')
 
+norm = matplotlib.colors.Normalize(vmin=vmin, vmax=vmax)
+sm = matplotlib.cm.ScalarMappable(norm=norm, cmap=custom_cmap)
+sm.set_array([])
+
+# add horizontal colorbar at bottom of figure
+cbar = fig.colorbar(
+    sm,
+    ax=axes,
+    orientation="horizontal",
+    fraction=0.05,   # thickness
+    pad=0.08,        # spacing from plots
+    aspect=40        # length relative to thickness
+)
+
+cbar.set_label("BOLD Signal")
+
 # save it
 plt.savefig(pofp, dpi=500)
 plt.close()

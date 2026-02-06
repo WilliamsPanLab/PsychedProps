@@ -23,10 +23,6 @@ CSI = importdata(CSIfp);
 numSegments=sum(CSI(:,3)==1);
 ValidSegs=CSI(CSI(:,3)==1,:);
 
-% load in DMN
-DMN=ft_read_cifti_mod('/oak/stanford/groups/leanew1/users/apines/maps/Network1_fslr.dscalar.nii');
-DMNInds=find(DMN.data>.3);
-
 % mask timeseries
 C_timeseries=C_timeseries(DMNInds,:);
 

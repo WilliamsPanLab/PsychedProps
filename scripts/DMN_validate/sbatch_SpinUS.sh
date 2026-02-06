@@ -10,4 +10,9 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 
-./US_DMNSpins.sh
+./US_FPNSpins.sh
+echo done with FPN
+./US_VISSpins.sh
+echo done with VIS
+./US_MOTSpins.sh
+echo done with MOT

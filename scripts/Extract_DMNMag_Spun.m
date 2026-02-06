@@ -64,7 +64,13 @@ lengthOpFl=size(OpFl_L,2);
 SpunMags=zeros(1,2000);
 % load in spun Networks
 networks=load(['/oak/stanford/groups/leanew1/users/apines/DMNspins_3k.mat']);
-% 10k takes >12 hours for each individual scan within each subject within each session within each study, not feasible
+
+%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% 10k takes >12 hours for each individual scan within each subject within each session within each study, not feasible
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%
+
 for k=1:2000
 % select this spin
 Dnet_LH=networks.bigrotl_3k(k,:);

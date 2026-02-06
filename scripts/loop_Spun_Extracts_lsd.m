@@ -6,5 +6,6 @@ for n=1:2000
 	Extract_DMNMag_dif_lsd_Spun(n);
 	Extract_DMNSeg_dif_lsd_Spun(n);
 	Extract_TA_dif_lsd_Spun(n);
+
 	n
 end
